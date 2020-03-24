@@ -14,5 +14,4 @@ data class Vendor(
     var products: Array<String> = arrayOf(),
     var country: String = "",
     var language: String = ""
-    ) {
-}
+)

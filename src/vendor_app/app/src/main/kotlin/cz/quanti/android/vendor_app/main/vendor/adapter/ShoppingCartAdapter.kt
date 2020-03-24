@@ -9,7 +9,7 @@ import cz.quanti.android.vendor_app.repository.entity.SelectedProduct
 import java.text.DecimalFormat
 import kotlin.math.roundToInt
 
-class ShoppingCartAdapter: RecyclerView.Adapter<ShoppingCartViewHolder>() {
+class ShoppingCartAdapter : RecyclerView.Adapter<ShoppingCartViewHolder>() {
 
     private val cart: MutableList<SelectedProduct> = mutableListOf()
 
@@ -25,22 +25,22 @@ class ShoppingCartAdapter: RecyclerView.Adapter<ShoppingCartViewHolder>() {
     override fun onBindViewHolder(holder: ShoppingCartViewHolder, position: Int) {
         val item = cart[position]
 
-        //TODO handle images
+        // TODO handle images
         holder.productDetail.text = item.product.name + " " + getStringFromDouble(item.quantity) + " " + item.product.unit
         holder.price.text = getStringFromDouble(item.subTotal)
     }
 
     fun add(product: SelectedProduct) {
         var alreadyInCart = false
-        for(item in cart) {
-            if(item == product) {
+        for (item in cart) {
+            if (item == product) {
                 item.add(product)
                 alreadyInCart = true
                 break
             }
         }
 
-        if(!alreadyInCart) {
+        if (!alreadyInCart) {
             cart.add(product)
         }
         notifyDataSetChanged()

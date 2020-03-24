@@ -5,24 +5,19 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.LiveData
 import androidx.recyclerview.widget.LinearLayoutManager
 import cz.quanti.android.vendor_app.MainActivity
 import cz.quanti.android.vendor_app.R
 import cz.quanti.android.vendor_app.main.vendor.adapter.ShopAdapter
 import cz.quanti.android.vendor_app.main.vendor.viewmodel.VendorViewModel
-import cz.quanti.android.vendor_app.repository.entity.Product
-import io.reactivex.Scheduler
-import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.fragment_vendor.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import quanti.com.kotlinlog.Log
 
-class VendorFragment: Fragment() {
+class VendorFragment : Fragment() {
     private val vm: VendorViewModel by viewModel()
     private var disposables = CompositeDisposable()
     val adapter = ShopAdapter()
@@ -37,7 +32,7 @@ class VendorFragment: Fragment() {
 
         val shoppingCartFragment = ShoppingCartFragment()
         val transaction = activity?.supportFragmentManager?.beginTransaction()?.apply {
-            replace(R.id.fragmentContainer,shoppingCartFragment)
+            replace(R.id.fragmentContainer, shoppingCartFragment)
         }
         transaction?.commit()
     }
@@ -57,7 +52,7 @@ class VendorFragment: Fragment() {
         super.onStart()
         setAdapter()
 
-        disposables.add( vm.getProducts().subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe (
+        disposables.add(vm.getProducts().subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(
                 { products ->
                     adapter.setData(products)
                 },

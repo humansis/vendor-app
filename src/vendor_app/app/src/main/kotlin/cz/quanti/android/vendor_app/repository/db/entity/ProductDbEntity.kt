@@ -3,7 +3,6 @@ package cz.quanti.android.vendor_app.repository.db.entity
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import cz.quanti.android.vendor_app.repository.db.schema.VendorDb
-import cz.quanti.android.vendor_app.repository.entity.Product
 
 @Entity(tableName = VendorDb.TABLE_PRODUCT)
 data class ProductDbEntity(
@@ -12,5 +11,4 @@ data class ProductDbEntity(
     var name: String = "",
     var image: String = "",
     var unit: String = ""
-) {
-}
+)

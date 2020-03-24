@@ -15,16 +15,16 @@ import cz.quanti.android.vendor_app.MainActivity
 import cz.quanti.android.vendor_app.R
 import cz.quanti.android.vendor_app.main.scanner.viewmodel.ScannerViewModel
 import cz.quanti.android.vendor_app.utils.Constants
+import java.util.Timer
+import kotlin.concurrent.timerTask
 import kotlinx.android.synthetic.main.fragment_scanner.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import quanti.com.kotlinlog.Log
-import java.util.*
-import kotlin.concurrent.timerTask
 
-class ScannerFragment: Fragment() {
+class ScannerFragment : Fragment() {
 
         private val vm: ScannerViewModel by viewModel()
-        private  var codeScanner: CodeScanner? = null
+        private var codeScanner: CodeScanner? = null
         private var lastScanned: String = ""
         private var clearCachedTimer: Timer = Timer()
 
@@ -36,15 +36,13 @@ class ScannerFragment: Fragment() {
         override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
             super.onViewCreated(view, savedInstanceState)
 
-            if (!cameraPermissionGranted())
-            {
+            if (!cameraPermissionGranted()) {
                 requestPermissions(arrayOf(Manifest.permission.CAMERA),
                     Constants.CAMERA_PERMISSION_REQUEST_CODE
                 )
             } else {
                 runScanner()
             }
-
         }
 
         override fun onRequestPermissionsResult(
@@ -53,13 +51,10 @@ class ScannerFragment: Fragment() {
             grantResults: IntArray
         ) {
 
-            if(requestCode == Constants.CAMERA_PERMISSION_REQUEST_CODE)
-            {
+            if (requestCode == Constants.CAMERA_PERMISSION_REQUEST_CODE) {
                 for (i in permissions.indices) {
-                    if(permissions[i].equals(Manifest.permission.CAMERA))
-                    {
-                        if(grantResults[i] == PackageManager.PERMISSION_GRANTED)
-                        {
+                    if (permissions[i].equals(Manifest.permission.CAMERA)) {
+                        if (grantResults[i] == PackageManager.PERMISSION_GRANTED) {
                             runScanner()
                         } else {
                             Log.d("Permission not granted")
@@ -67,7 +62,6 @@ class ScannerFragment: Fragment() {
                         break
                     }
                 }
-
             }
             super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         }
@@ -88,19 +82,17 @@ class ScannerFragment: Fragment() {
             codeScanner?.scanMode = ScanMode.CONTINUOUS
             codeScanner?.decodeCallback = DecodeCallback {
                 activity.runOnUiThread {
-                    if(lastScanned != it.text)
-                    {
+                    if (lastScanned != it.text) {
                         try {
                             clearCachedTimer.cancel()
-                        } catch(e: Exception) {
+                        } catch (e: Exception) {
                             Log.d(e)
                         }
                         clearCachedTimer = Timer()
 
-
                         lastScanned = it.text
 
-                        //TODO process code here
+                        // TODO process code here
 
                         clearCachedTimer.schedule(timerTask {
                             lastScanned = ""
@@ -110,7 +102,6 @@ class ScannerFragment: Fragment() {
             }
             codeScanner?.startPreview()
         }
-
 
         override fun onResume() {
             super.onResume()

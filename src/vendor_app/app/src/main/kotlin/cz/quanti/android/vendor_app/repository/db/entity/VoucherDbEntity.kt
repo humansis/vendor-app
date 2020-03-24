@@ -4,7 +4,7 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import cz.quanti.android.vendor_app.repository.db.entity.wrapper.ProductIdListWrapper
 import cz.quanti.android.vendor_app.repository.db.schema.VendorDb
-import java.util.*
+import java.util.Date
 
 @Entity(tableName = VendorDb.TABLE_VOUCHER)
 data class VoucherDbEntity(
@@ -18,5 +18,4 @@ data class VoucherDbEntity(
     var value: Long = 0,
     var booklet: String = "",
     var usedAt: Date = Date()
-) {
-}
+)

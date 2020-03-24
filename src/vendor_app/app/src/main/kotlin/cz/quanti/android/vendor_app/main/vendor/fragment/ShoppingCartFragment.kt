@@ -8,14 +8,13 @@ import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
-import cz.quanti.android.vendor_app.MainActivity
 import cz.quanti.android.vendor_app.R
 import cz.quanti.android.vendor_app.main.vendor.misc.CommonVariables
 import cz.quanti.android.vendor_app.main.vendor.viewmodel.VendorViewModel
 import kotlinx.android.synthetic.main.fragment_shopping_cart.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
-class ShoppingCartFragment(): Fragment() {
+class ShoppingCartFragment() : Fragment() {
     private val vm: VendorViewModel by viewModel()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {

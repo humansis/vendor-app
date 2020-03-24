@@ -10,7 +10,7 @@ import cz.quanti.android.vendor_app.R
 import cz.quanti.android.vendor_app.main.checkout.viewmodel.CheckoutViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
-class CheckoutFragment: Fragment() {
+class CheckoutFragment : Fragment() {
 
     private val vm: CheckoutViewModel by viewModel()
 

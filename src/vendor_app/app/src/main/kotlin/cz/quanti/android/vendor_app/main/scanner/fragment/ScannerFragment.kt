@@ -14,6 +14,7 @@ import com.budiyev.android.codescanner.ScanMode
 import cz.quanti.android.vendor_app.MainActivity
 import cz.quanti.android.vendor_app.R
 import cz.quanti.android.vendor_app.main.scanner.viewmodel.ScannerViewModel
+import cz.quanti.android.vendor_app.utils.Constants
 import kotlinx.android.synthetic.main.fragment_scanner.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import quanti.com.kotlinlog.Log
@@ -26,7 +27,6 @@ class ScannerFragment: Fragment() {
         private  var codeScanner: CodeScanner? = null
         private var lastScanned: String = ""
         private var clearCachedTimer: Timer = Timer()
-        val CAMERA_PERMISSION_REQUEST_CODE = 1230
 
         override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
             (activity as MainActivity).supportActionBar?.show()
@@ -39,7 +39,7 @@ class ScannerFragment: Fragment() {
             if (!cameraPermissionGranted())
             {
                 requestPermissions(arrayOf(Manifest.permission.CAMERA),
-                    CAMERA_PERMISSION_REQUEST_CODE
+                    Constants.CAMERA_PERMISSION_REQUEST_CODE
                 )
             } else {
                 runScanner()
@@ -53,7 +53,7 @@ class ScannerFragment: Fragment() {
             grantResults: IntArray
         ) {
 
-            if(requestCode == CAMERA_PERMISSION_REQUEST_CODE)
+            if(requestCode == Constants.CAMERA_PERMISSION_REQUEST_CODE)
             {
                 for (i in permissions.indices) {
                     if(permissions[i].equals(Manifest.permission.CAMERA))

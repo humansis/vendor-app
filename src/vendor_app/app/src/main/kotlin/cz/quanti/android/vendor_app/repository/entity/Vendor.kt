@@ -1,10 +1,13 @@
 package cz.quanti.android.vendor_app.repository.entity
 
+import com.google.gson.annotations.SerializedName
+
 data class Vendor(
     var id: String = "",
     var username: String = "",
     var password: String = "",
-    var saltedParrword: String = "",
+    @SerializedName("salted_password")
+    var saltedPassword: String = "",
     var shop: String = "",
     var adress: String = "",
     var loggedIn: Boolean = false,

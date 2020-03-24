@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import cz.quanti.android.vendor_app.MainActivity
@@ -16,7 +15,7 @@ import kotlinx.android.synthetic.main.fragment_login.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import quanti.com.kotlinlog.Log
 
-class LoginFragment: Fragment() {
+class LoginFragment : Fragment() {
 
     private val vm: LoginViewModel by viewModel()
 
@@ -28,7 +27,7 @@ class LoginFragment: Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 
         logoImageView.clipToOutline = true
-        loginButton.setOnClickListener{
+        loginButton.setOnClickListener {
 
             vm.login(usernameEditText.text.toString(), passwordEditText.text.toString()).subscribeOn(
                 Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(
@@ -36,7 +35,7 @@ class LoginFragment: Fragment() {
                         findNavController().navigate(LoginFragmentDirections.actionLoginFragmentToVendorFragment())
                 },
                 {
-                    Log.e(it) //TODO the error might be caused by internet connection or other causes
+                    Log.e(it) // TODO the error might be caused by internet connection or other causes
                     usernameEditText.error = getString(R.string.wrong_password)
                     passwordEditText.error = getString(R.string.wrong_password)
                 }

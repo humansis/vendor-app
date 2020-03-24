@@ -1,7 +1,7 @@
 package cz.quanti.android.vendor_app.repository.db.entity.typeconverter
 
 import androidx.room.TypeConverter
-import java.util.*
+import java.util.Date
 
 class DateTypeConverter {
 

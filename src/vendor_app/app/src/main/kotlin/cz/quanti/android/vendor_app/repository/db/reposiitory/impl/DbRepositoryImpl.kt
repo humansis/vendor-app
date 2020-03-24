@@ -7,23 +7,22 @@ import cz.quanti.android.vendor_app.repository.entity.Product
 import io.reactivex.Completable
 import io.reactivex.Single
 
-class DbRepositoryImpl(private val productDao: ProductDao): DbRepository {
+class DbRepositoryImpl(private val productDao: ProductDao) : DbRepository {
     override fun getProducts(): Single<List<Product>> {
-        return productDao.getAll().map{ products ->
-            products.map{
+        return productDao.getAll().map { products ->
+            products.map {
                 convert(it)
             }
         }
     }
 
     override fun deleteProducts(): Completable {
-        return Completable.fromCallable{productDao.deleteAll()}
+        return Completable.fromCallable { productDao.deleteAll() }
     }
 
     override fun saveProduct(product: Product): Completable {
-        return Completable.fromCallable{ productDao.insert(convert(product)) }
+        return Completable.fromCallable { productDao.insert(convert(product)) }
     }
-
 
     private fun convert(dbEntity: ProductDbEntity): Product {
         return Product().apply {

@@ -2,13 +2,13 @@ package cz.quanti.android.vendor_app
 
 import androidx.appcompat.app.AppCompatDelegate
 import cz.quanti.android.vendor_app.di.KoinInitializer
+import cz.quanti.android.vendor_app.repository.AppPreferences
 import org.koin.android.ext.android.inject
 import quanti.com.kotlinlog.Log
 import quanti.com.kotlinlog.android.AndroidLogger
 import quanti.com.kotlinlog.base.LogLevel
 import quanti.com.kotlinlog.base.LoggerBundle
 import wtf.qase.appskeleton.core.BaseApp
-import cz.quanti.android.vendor_app.repository.AppPreferences
 
 class App : BaseApp() {
 

@@ -9,5 +9,4 @@ data class BookletDbEntity(
     @PrimaryKey(autoGenerate = false)
     var id: Long = 0,
     var code: String = ""
-) {
-}
+)

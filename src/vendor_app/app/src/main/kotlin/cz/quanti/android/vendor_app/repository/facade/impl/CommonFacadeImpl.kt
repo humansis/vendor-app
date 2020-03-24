@@ -12,16 +12,14 @@ import cz.quanti.android.vendor_app.utils.misc.hashAndSaltPassword
 import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.Single
-import org.koin.core.KoinComponent
-import org.koin.core.inject
 import retrofit2.Response
 
-class CommonFacadeImpl(private val apiRepo: ApiRepository, private val dbRepo: DbRepository, private val picasso: Picasso): CommonFacade {
+class CommonFacadeImpl(private val apiRepo: ApiRepository, private val dbRepo: DbRepository, private val picasso: Picasso) : CommonFacade {
 
     override fun login(username: String, password: String): Single<Response<Vendor>> {
         return apiRepo.getSalt(username).flatMap { saltResponse ->
-            Single.fromCallable{
-                if(saltResponse.code() != 200) {
+            Single.fromCallable {
+                if (saltResponse.code() != 200) {
                     throw VendorAppException("Could not obtain salt for the user.").apply {
                         apiError = true
                         apiResponseCode = saltResponse.code()
@@ -69,6 +67,4 @@ class CommonFacadeImpl(private val apiRepo: ApiRepository, private val dbRepo: D
                 })
         }
     }
-
-
 }

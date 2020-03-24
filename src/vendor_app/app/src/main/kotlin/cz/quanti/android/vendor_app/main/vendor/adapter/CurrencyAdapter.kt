@@ -10,12 +10,12 @@ import android.widget.TextView
 import cz.quanti.android.vendor_app.R
 import cz.quanti.android.vendor_app.utils.Constants
 
-class CurrencyAdapter(context: Context): SpinnerAdapter, ArrayAdapter<String>(context, R.layout.item_currency) {
+class CurrencyAdapter(context: Context) : SpinnerAdapter, ArrayAdapter<String>(context, R.layout.item_currency) {
 
     fun init(firstCurrencies: List<String>) {
-        val currencies: MutableList<String> = Constants.SUPPORTED_CURRENCIES.filter{
+        val currencies: MutableList<String> = Constants.SUPPORTED_CURRENCIES.filter {
             it.currencyCode != null
-        }.map{
+        }.map {
             it.currencyCode
         }.toMutableList()
 
@@ -26,7 +26,6 @@ class CurrencyAdapter(context: Context): SpinnerAdapter, ArrayAdapter<String>(co
         addAll(currencies)
         notifyDataSetChanged()
     }
-
 
     override fun getDropDownView(position: Int, convertView: View?, parent: ViewGroup): View {
         var view = super.getDropDownView(position, convertView, parent)

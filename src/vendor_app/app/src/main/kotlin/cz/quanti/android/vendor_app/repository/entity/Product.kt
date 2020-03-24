@@ -1,9 +1,5 @@
 package cz.quanti.android.vendor_app.repository.entity
 
-import androidx.room.Entity
-import androidx.room.PrimaryKey
-import cz.quanti.android.vendor_app.repository.db.schema.VendorDb
-
 data class Product(
     var id: Long = 0,
     var name: String = "",

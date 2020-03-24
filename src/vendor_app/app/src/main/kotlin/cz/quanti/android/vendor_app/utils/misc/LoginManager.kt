@@ -9,6 +9,5 @@ object LoginManager {
         if (user == null) return null
 
         return generateXWSSEHeader(user?.username ?: "", user?.saltedPassword ?: "", true)
-
     }
 }

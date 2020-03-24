@@ -13,9 +13,6 @@ import cz.quanti.android.vendor_app.repository.db.entity.SelectedProductDbEntity
 import cz.quanti.android.vendor_app.repository.db.entity.VoucherDbEntity
 import cz.quanti.android.vendor_app.repository.db.entity.typeconverter.DateTypeConverter
 import cz.quanti.android.vendor_app.repository.db.entity.typeconverter.ProductIdListTypeConverter
-import cz.quanti.android.vendor_app.repository.entity.Booklet
-import cz.quanti.android.vendor_app.repository.entity.Product
-import cz.quanti.android.vendor_app.repository.entity.Voucher
 
 @Database(
     entities = [

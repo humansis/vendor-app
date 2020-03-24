@@ -13,7 +13,7 @@ class ProductIdListTypeConverter {
 
     @TypeConverter
     fun toProductIdList(productIdList: String): ProductIdListWrapper {
-        var list = productIdList.split(DELIMITER).map{
+        var list = productIdList.split(DELIMITER).map {
             it.toLong()
         }
 

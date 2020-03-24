@@ -17,6 +17,6 @@ data class SelectedProduct(
 
     fun add(more: SelectedProduct) {
         quantity += more.quantity
-        subTotal = quantity*price
+        subTotal = quantity * price
     }
 }

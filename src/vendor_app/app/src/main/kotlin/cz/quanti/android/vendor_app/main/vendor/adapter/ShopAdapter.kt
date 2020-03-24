@@ -3,13 +3,10 @@ package cz.quanti.android.vendor_app.main.vendor.adapter
 import android.graphics.Bitmap
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
-import android.text.Layout
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
-import android.widget.RelativeLayout
-import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.RecyclerView
 import com.squareup.picasso.NetworkPolicy
 import com.squareup.picasso.Picasso
@@ -18,13 +15,13 @@ import cz.quanti.android.vendor_app.R
 import cz.quanti.android.vendor_app.main.vendor.fragment.ProductDetailFragment
 import cz.quanti.android.vendor_app.main.vendor.viewholder.ShopViewHolder
 import cz.quanti.android.vendor_app.repository.entity.Product
+import java.lang.Exception
+import kotlin.math.ceil
 import kotlinx.android.synthetic.main.fragment_product_detail.*
 import org.koin.core.KoinComponent
 import org.koin.core.inject
-import java.lang.Exception
-import kotlin.math.ceil
 
-class ShopAdapter: RecyclerView.Adapter<ShopViewHolder>(), KoinComponent {
+class ShopAdapter : RecyclerView.Adapter<ShopViewHolder>(), KoinComponent {
 
     private val products: MutableList<Product> = mutableListOf()
     private val itemsInRow = 3
@@ -52,11 +49,11 @@ class ShopAdapter: RecyclerView.Adapter<ShopViewHolder>(), KoinComponent {
         val actualPosition = position * 3
         val productsRow = getProductsRow(holder, actualPosition)
 
-        if(productsRow[0] != null) {
+        if (productsRow[0] != null) {
             holder.firstProductName?.text = productsRow[0]!!.name
             holder.firstProductImage?.isClickable = true
             picasso.load(productsRow[0]!!.image).networkPolicy(NetworkPolicy.OFFLINE).into(getTargetToLoadImgeIntoLayoutBackground(holder.firstProductImage))
-            holder.firstProductImage?.setOnClickListener{
+            holder.firstProductImage?.setOnClickListener {
                 selectItem(holder.itemView, productsRow[0]!!)
             }
         } else {
@@ -65,11 +62,11 @@ class ShopAdapter: RecyclerView.Adapter<ShopViewHolder>(), KoinComponent {
             holder.firstProductLayout?.visibility = View.INVISIBLE
     }
 
-        if(productsRow[1] != null) {
+        if (productsRow[1] != null) {
             holder.secondProductName?.text = productsRow[1]!!.name
             holder.secondProductImage?.isClickable = true
             picasso.load(productsRow[1]!!.image).networkPolicy(NetworkPolicy.OFFLINE).into(getTargetToLoadImgeIntoLayoutBackground(holder.secondProductImage))
-            holder.secondProductImage?.setOnClickListener{
+            holder.secondProductImage?.setOnClickListener {
                 selectItem(holder.itemView, productsRow[1]!!)
             }
         } else {
@@ -78,11 +75,11 @@ class ShopAdapter: RecyclerView.Adapter<ShopViewHolder>(), KoinComponent {
             holder.secondProductLayout?.visibility = View.INVISIBLE
         }
 
-        if(productsRow[2] != null) {
+        if (productsRow[2] != null) {
             holder.thirdProductName?.text = productsRow[2]!!.name
             holder.thirdProductImage?.isClickable = true
             picasso.load(productsRow[2]!!.image).networkPolicy(NetworkPolicy.OFFLINE).into(getTargetToLoadImgeIntoLayoutBackground(holder.thirdProductImage))
-            holder.thirdProductImage?.setOnClickListener{
+            holder.thirdProductImage?.setOnClickListener {
                 selectItem(holder.itemView, productsRow[2]!!)
             }
         } else {
@@ -95,9 +92,8 @@ class ShopAdapter: RecyclerView.Adapter<ShopViewHolder>(), KoinComponent {
     private fun getProductsRow(holder: ShopViewHolder, position: Int): Array<Product?> {
         val productsRow = Array<Product?>(3) { null }
 
-        for(i in 0..2) {
-            if(products.size > position + i)
-            {
+        for (i in 0..2) {
+            if (products.size > position + i) {
                 productsRow[i] = products[position + i]
             }
         }

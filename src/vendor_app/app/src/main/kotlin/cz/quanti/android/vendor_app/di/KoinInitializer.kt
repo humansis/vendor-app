@@ -1,6 +1,5 @@
 package cz.quanti.android.vendor_app.di
 
-
 import android.content.Context
 import androidx.room.Room
 import com.google.gson.GsonBuilder
@@ -19,8 +18,8 @@ import cz.quanti.android.vendor_app.repository.api.repository.impl.ApiRepository
 import cz.quanti.android.vendor_app.repository.db.reposiitory.impl.DbRepositoryImpl
 import cz.quanti.android.vendor_app.repository.db.schema.VendorDb
 import cz.quanti.android.vendor_app.repository.facade.impl.CommonFacadeImpl
-import cz.quanti.android.vendor_app.utils.Constants
 import cz.quanti.android.vendor_app.utils.misc.LoginManager
+import java.util.concurrent.TimeUnit
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import org.koin.android.ext.koin.androidContext
@@ -31,8 +30,6 @@ import org.koin.core.module.Module
 import org.koin.dsl.module
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import java.util.concurrent.TimeUnit
-
 
 object KoinInitializer {
 
@@ -68,15 +65,13 @@ object KoinInitializer {
 
         val facade = CommonFacadeImpl(apiRepository, dbRepository, picasso)
 
-
-
         return module {
             single { AppPreferences(androidContext()) }
             single { api }
             single { db }
-            single{ picasso }
+            single { picasso }
 
-            //View model
+            // View model
             viewModel { LoginViewModel(facade) }
             viewModel { VendorViewModel(facade) }
             viewModel { ScannerViewModel() }
@@ -97,8 +92,8 @@ object KoinInitializer {
             .addInterceptor { chain ->
                 val oldRequest = chain.request()
                 val headersBuilder = oldRequest.headers().newBuilder()
-                //TODO
-                LoginManager.getAuthHeader()?.let{
+                // TODO
+                LoginManager.getAuthHeader()?.let {
                     headersBuilder.add("x-wsse", it)
                 }
                 headersBuilder.add("country", "KHM")

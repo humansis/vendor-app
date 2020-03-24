@@ -1,11 +1,17 @@
 package cz.quanti.android.vendor_app.repository.api
 
 import cz.quanti.android.vendor_app.repository.api.response.BookletsResponse
-import cz.quanti.android.vendor_app.repository.api.response.ProductsResponse
-import cz.quanti.android.vendor_app.repository.entity.*
+import cz.quanti.android.vendor_app.repository.entity.Booklet
+import cz.quanti.android.vendor_app.repository.entity.Product
+import cz.quanti.android.vendor_app.repository.entity.Salt
+import cz.quanti.android.vendor_app.repository.entity.Vendor
+import cz.quanti.android.vendor_app.repository.entity.Voucher
 import io.reactivex.Single
 import retrofit2.Response
-import retrofit2.http.*
+import retrofit2.http.Body
+import retrofit2.http.GET
+import retrofit2.http.POST
+import retrofit2.http.Path
 
 interface VendorAPI {
 

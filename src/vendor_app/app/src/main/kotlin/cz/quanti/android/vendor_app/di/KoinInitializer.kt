@@ -49,7 +49,7 @@ object KoinInitializer {
     private fun createAppModule(app: App): Module {
 
         val api = Retrofit.Builder()
-            .baseUrl(Constants.APIARY_URL)
+            .baseUrl(BuildConfig.API_URL)
             .addConverterFactory(GsonConverterFactory.create(GsonBuilder().serializeNulls().create()))
             .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
             .client(createClient(app))

@@ -3,3 +3,5 @@ android.useAndroidX=true
 android.enableJetifier=true
 kotlin.code.style=official
 android.enableUnitTestBinaryResources=true
+
+API_URL=${API_URL}

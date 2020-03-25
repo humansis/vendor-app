@@ -1,8 +1,8 @@
 package cz.quanti.android.vendor_app.utils.misc
 
-import cz.quanti.android.vendor_app.repository.entity.Vendor
+import cz.quanti.android.vendor_app.repository.login.dto.Vendor
 
-object LoginManager {
+class LoginManager {
     var user: Vendor? = null
 
     fun getAuthHeader(): String? {

@@ -14,12 +14,10 @@ import cz.quanti.android.vendor_app.MainActivity
 import cz.quanti.android.vendor_app.R
 import cz.quanti.android.vendor_app.main.vendor.fragment.ProductDetailFragment
 import cz.quanti.android.vendor_app.main.vendor.viewholder.ShopViewHolder
-import cz.quanti.android.vendor_app.repository.entity.Product
-import java.lang.Exception
-import kotlin.math.ceil
-import kotlinx.android.synthetic.main.fragment_product_detail.*
+import cz.quanti.android.vendor_app.repository.product.dto.Product
 import org.koin.core.KoinComponent
 import org.koin.core.inject
+import kotlin.math.ceil
 
 class ShopAdapter : RecyclerView.Adapter<ShopViewHolder>(), KoinComponent {
 

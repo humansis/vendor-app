@@ -6,7 +6,7 @@ import androidx.recyclerview.widget.RecyclerView
 import cz.quanti.android.vendor_app.R
 import cz.quanti.android.vendor_app.main.checkout.viewholder.SelectedProductsViewHolder
 import cz.quanti.android.vendor_app.main.vendor.misc.CommonVariables
-import cz.quanti.android.vendor_app.repository.entity.SelectedProduct
+import cz.quanti.android.vendor_app.repository.product.dto.SelectedProduct
 import cz.quanti.android.vendor_app.utils.misc.getStringFromDouble
 
 class SelectedProductsAdapter : RecyclerView.Adapter<SelectedProductsViewHolder>() {

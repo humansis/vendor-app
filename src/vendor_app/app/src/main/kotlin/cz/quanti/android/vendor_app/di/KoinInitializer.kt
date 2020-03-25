@@ -13,11 +13,11 @@ import cz.quanti.android.vendor_app.main.checkout.viewmodel.CheckoutViewModel
 import cz.quanti.android.vendor_app.main.scanner.viewmodel.ScannerViewModel
 import cz.quanti.android.vendor_app.main.vendor.viewmodel.VendorViewModel
 import cz.quanti.android.vendor_app.repository.AppPreferences
-import cz.quanti.android.vendor_app.repository.api.VendorAPI
-import cz.quanti.android.vendor_app.repository.api.repository.impl.ApiRepositoryImpl
-import cz.quanti.android.vendor_app.repository.db.reposiitory.impl.DbRepositoryImpl
-import cz.quanti.android.vendor_app.repository.db.schema.VendorDb
-import cz.quanti.android.vendor_app.repository.facade.impl.CommonFacadeImpl
+import cz.quanti.android.vendor_app.repository.VendorAPI
+import cz.quanti.android.vendor_app.repository.VendorDb
+import cz.quanti.android.vendor_app.repository.common.impl.DbRepositoryImpl
+import cz.quanti.android.vendor_app.repository.common.impl.VendorServerApiRepositoryImpl
+import cz.quanti.android.vendor_app.repository.impl.CommonFacadeImpl
 import cz.quanti.android.vendor_app.utils.misc.LoginManager
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -45,11 +45,13 @@ object KoinInitializer {
 
     private fun createAppModule(app: App): Module {
 
+        val loginManager = LoginManager()
+
         val api = Retrofit.Builder()
             .baseUrl(BuildConfig.API_URL)
             .addConverterFactory(GsonConverterFactory.create(GsonBuilder().serializeNulls().create()))
             .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-            .client(createClient(app))
+            .client(createClient(app, loginManager))
             .build().create(VendorAPI::class.java)
 
         val picasso = Picasso.Builder(app)
@@ -60,16 +62,30 @@ object KoinInitializer {
 
         val db = Room.databaseBuilder(app, VendorDb::class.java, VendorDb.DB_NAME).build()
 
-        val apiRepository = ApiRepositoryImpl(api)
-        val dbRepository = DbRepositoryImpl(db.productDao(), db.voucherDao())
+        val apiRepository =
+            VendorServerApiRepositoryImpl(
+                api
+            )
+        val dbRepository =
+            DbRepositoryImpl(
+                db.productDao(),
+                db.voucherDao()
+            )
 
-        val facade = CommonFacadeImpl(apiRepository, dbRepository, picasso)
+        val facade =
+            CommonFacadeImpl(
+                apiRepository,
+                dbRepository,
+                picasso,
+                loginManager
+            )
 
         return module {
             single { AppPreferences(androidContext()) }
             single { api }
             single { db }
             single { picasso }
+            single { loginManager }
 
             // View model
             viewModel { LoginViewModel(facade) }
@@ -79,7 +95,7 @@ object KoinInitializer {
         }
     }
 
-    private fun createClient(context: Context): OkHttpClient {
+    private fun createClient(context: Context, loginManager: LoginManager): OkHttpClient {
 
         val logging = HttpLoggingInterceptor().apply {
                 HttpLoggingInterceptor.Level.BODY
@@ -93,7 +109,7 @@ object KoinInitializer {
                 val oldRequest = chain.request()
                 val headersBuilder = oldRequest.headers().newBuilder()
                 // TODO
-                LoginManager.getAuthHeader()?.let {
+                loginManager.getAuthHeader()?.let {
                     headersBuilder.add("x-wsse", it)
                 }
                 headersBuilder.add("country", "KHM")

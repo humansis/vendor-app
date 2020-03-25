@@ -1,7 +1,7 @@
 package cz.quanti.android.vendor_app.main.vendor.misc
 
-import cz.quanti.android.vendor_app.repository.entity.SelectedProduct
-import cz.quanti.android.vendor_app.repository.entity.Voucher
+import cz.quanti.android.vendor_app.repository.product.dto.SelectedProduct
+import cz.quanti.android.vendor_app.repository.voucher.dto.Voucher
 
 object CommonVariables {
     var choosenCurrency: String = ""

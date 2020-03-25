@@ -9,10 +9,10 @@
         android:visible="true"
         app:showAsAction="ifRoom" />
     <item
-        android:id="@+id/logoffButton"
+        android:id="@+id/logoutButton"
         android:enabled="true"
         android:icon="@drawable/exit_to_app"
-        android:title="@string/logoff"
+        android:title="@string/logout"
         android:visible="true"
         app:showAsAction="ifRoom" />
 </menu>

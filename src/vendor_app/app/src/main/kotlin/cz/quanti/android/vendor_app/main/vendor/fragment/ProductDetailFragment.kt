@@ -9,8 +9,8 @@ import cz.quanti.android.vendor_app.R
 import cz.quanti.android.vendor_app.main.vendor.adapter.CurrencyAdapter
 import cz.quanti.android.vendor_app.main.vendor.misc.CommonVariables
 import cz.quanti.android.vendor_app.main.vendor.viewmodel.VendorViewModel
-import cz.quanti.android.vendor_app.repository.entity.Product
-import cz.quanti.android.vendor_app.repository.entity.SelectedProduct
+import cz.quanti.android.vendor_app.repository.product.dto.Product
+import cz.quanti.android.vendor_app.repository.product.dto.SelectedProduct
 import kotlinx.android.synthetic.main.fragment_product_detail.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -67,7 +67,8 @@ class ProductDetailFragment(private val product: Product) : Fragment() {
     }
 
     private fun addProductToCart(product: Product, quantity: Double, unitPrice: Double) {
-        val selected = SelectedProduct().apply {
+        val selected = SelectedProduct()
+            .apply {
             this.product = product
             this.quantity = quantity
             this.price = unitPrice

@@ -25,8 +25,8 @@ class MainActivity : AppCompatActivity() {
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.action_bar_actions, menu)
 
-        menu?.findItem(R.id.logoffButton)?.setOnMenuItemClickListener {
-            loginViewModel.logoff()
+        menu?.findItem(R.id.logoutButton)?.setOnMenuItemClickListener {
+            loginViewModel.logout()
             findNavController(R.id.main_nav_host).popBackStack(R.id.loginFragment, false)
             true
         }

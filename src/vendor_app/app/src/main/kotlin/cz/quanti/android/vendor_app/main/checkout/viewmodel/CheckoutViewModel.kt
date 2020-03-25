@@ -2,13 +2,14 @@ package cz.quanti.android.vendor_app.main.checkout.viewmodel
 
 import androidx.lifecycle.ViewModel
 import cz.quanti.android.vendor_app.main.vendor.misc.CommonVariables
-import cz.quanti.android.vendor_app.repository.facade.CommonFacade
+import cz.quanti.android.vendor_app.repository.CommonFacade
 import java.util.*
 
 class CheckoutViewModel(private val facade: CommonFacade) : ViewModel() {
     // TODO handle differences in currency
 
     fun proceed(): Boolean {
+
         return if (getTotal() <= 0) {
             useVouchers()
             facade.saveVouchers(CommonVariables.vouchers)

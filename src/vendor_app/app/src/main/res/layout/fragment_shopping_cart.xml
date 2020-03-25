@@ -1,27 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-        android:id="@+id/shoppingCartFragment"
-        android:layout_height="match_parent"
-        android:layout_width="match_parent"
-        android:background="@color/lightGrey"
-        android:orientation="vertical">
+    android:id="@+id/shoppingCartFragment"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/lightGrey"
+    android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/textView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/selectedItems"
-            android:textSize="20sp"
-            android:textColor="@color/black"
-            android:layout_gravity="center"
-            android:layout_marginTop="3dp"/>
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="3dp"
+        android:text="@string/selectedItems"
+        android:textColor="@color/black"
+        android:textSize="20sp" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
 
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="0dp"
+            app:layout_constraintBottom_toTopOf="@+id/shoppingCartFooter"
+            app:layout_constraintTop_toTopOf="parent">
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/shoppingCartRecyclerView"
@@ -35,34 +41,42 @@
                 android:id="@+id/noItemsSelectedView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:cardCornerRadius="5dp"
+                android:layout_centerHorizontal="true"
                 android:layout_gravity="center"
-                app:cardElevation="0dp"
                 android:layout_marginTop="10dp"
-                android:layout_centerHorizontal="true">
+                app:cardCornerRadius="5dp"
+                app:cardElevation="0dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:orientation="horizontal"
-                    android:background="@color/yellow">
+                    android:background="@color/yellow"
+                    android:orientation="horizontal">
 
                     <androidx.appcompat.widget.AppCompatImageView
                         android:layout_width="24dp"
                         android:layout_height="24dp"
-                        app:srcCompat="@drawable/remove_shopping_cart"/>
+                        app:srcCompat="@drawable/remove_shopping_cart" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textColor="@color/black"
-                        android:text="@string/noItemsSelected"/>
+                        android:text="@string/noItemsSelected"
+                        android:textColor="@color/black" />
 
                     <LinearLayout
                         android:layout_width="3dp"
-                        android:layout_height="match_parent"/>
+                        android:layout_height="match_parent" />
 
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
         </RelativeLayout>
-    </LinearLayout>
+
+        <include
+            layout="@layout/item_shopping_cart_footer"
+            android:id="@+id/shoppingCartFooter"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toBottomOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</LinearLayout>

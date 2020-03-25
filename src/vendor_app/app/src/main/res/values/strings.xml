@@ -24,4 +24,8 @@
     <string name="clickHereToScan">Click here to scan</string>
     <string name="pleaseScanVoucher">Please scan a voucher</string>
     <string name="wrong_password">Wrong username or password</string>
+    <string name="cannotProceedWithPurchaseDialogTitle">Failed</string>
+    <string name="cannotProceedWithPurchaseDialogMessage">Cannot proceed with the purchase until it is paid. Please scan more vouchers.</string>
+    <string name="areYouSureDialogTitle">Are you sure?</string>
+    <string name="clearCartDialogMessage">Are you sure you want to remove all items from the cart?</string>
 </resources>

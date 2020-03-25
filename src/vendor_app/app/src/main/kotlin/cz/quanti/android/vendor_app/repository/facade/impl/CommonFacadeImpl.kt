@@ -5,6 +5,7 @@ import cz.quanti.android.vendor_app.repository.api.repository.ApiRepository
 import cz.quanti.android.vendor_app.repository.db.reposiitory.DbRepository
 import cz.quanti.android.vendor_app.repository.entity.Product
 import cz.quanti.android.vendor_app.repository.entity.Vendor
+import cz.quanti.android.vendor_app.repository.entity.Voucher
 import cz.quanti.android.vendor_app.repository.facade.CommonFacade
 import cz.quanti.android.vendor_app.utils.misc.LoginManager
 import cz.quanti.android.vendor_app.utils.misc.VendorAppException
@@ -55,6 +56,12 @@ class CommonFacadeImpl(private val apiRepo: ApiRepository, private val dbRepo: D
 
     override fun getProducts(): Single<List<Product>> {
         return dbRepo.getProducts()
+    }
+
+    override fun saveVouchers(vouchers: List<Voucher>): Completable {
+        return Observable.fromIterable(vouchers).flatMapCompletable { voucher ->
+            Completable.fromCallable { dbRepo.saveVoucher(voucher) }
+        }
     }
 
     private fun actualizeDatabase(products: List<Product>?): Completable {

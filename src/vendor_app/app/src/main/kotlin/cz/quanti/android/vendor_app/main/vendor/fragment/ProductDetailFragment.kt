@@ -12,7 +12,6 @@ import cz.quanti.android.vendor_app.main.vendor.viewmodel.VendorViewModel
 import cz.quanti.android.vendor_app.repository.entity.Product
 import cz.quanti.android.vendor_app.repository.entity.SelectedProduct
 import kotlinx.android.synthetic.main.fragment_product_detail.*
-import kotlinx.android.synthetic.main.fragment_shopping_cart.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class ProductDetailFragment(private val product: Product) : Fragment() {
@@ -20,7 +19,11 @@ class ProductDetailFragment(private val product: Product) : Fragment() {
     private val vm: VendorViewModel by viewModel()
     private var currencyAdapter: CurrencyAdapter? = null
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
         return inflater.inflate(R.layout.fragment_product_detail, container, false)
     }
 
@@ -29,17 +32,29 @@ class ProductDetailFragment(private val product: Product) : Fragment() {
         initPriceUnitSpinner()
         initOnClickListeners()
         initProductRelatedInfo()
+
+        if (CommonVariables.cart.isEmpty()) {
+            priceUnitSpinner.visibility = View.VISIBLE
+            priceUnitTextView.visibility = View.INVISIBLE
+        } else {
+            priceUnitSpinner.visibility = View.INVISIBLE
+            priceUnitTextView.visibility = View.VISIBLE
+            priceUnitTextView.text = CommonVariables.choosenCurrency
+        }
     }
 
     private fun initOnClickListeners() {
         cartButtonImageView.setOnClickListener {
 
             if (quantityEditText.text.toString() != "" && unitPriceEditText.text.toString() != "") {
-                if (CommonVariables.choosenCurrency == "") {
+                if (CommonVariables.cart.isEmpty()) {
                     CommonVariables.choosenCurrency = priceUnitSpinner.selectedItem as String
-                    // TODO disable spinner
                 }
-                addProductToCart(product, quantityEditText.text.toString().toDouble(), unitPriceEditText.text.toString().toDouble())
+                addProductToCart(
+                    product,
+                    quantityEditText.text.toString().toDouble(),
+                    unitPriceEditText.text.toString().toDouble()
+                )
             }
 
             // TODO ask if want to leave
@@ -59,7 +74,7 @@ class ProductDetailFragment(private val product: Product) : Fragment() {
             this.subTotal = unitPrice * quantity
             this.currency = CommonVariables.choosenCurrency
         }
-        CommonVariables.shoppingCartAdapter.add(selected)
+        CommonVariables.cart.add(selected)
     }
 
     private fun initPriceUnitSpinner() {

@@ -19,7 +19,6 @@ import cz.quanti.android.vendor_app.repository.db.reposiitory.impl.DbRepositoryI
 import cz.quanti.android.vendor_app.repository.db.schema.VendorDb
 import cz.quanti.android.vendor_app.repository.facade.impl.CommonFacadeImpl
 import cz.quanti.android.vendor_app.utils.misc.LoginManager
-import java.util.concurrent.TimeUnit
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import org.koin.android.ext.koin.androidContext
@@ -30,6 +29,7 @@ import org.koin.core.module.Module
 import org.koin.dsl.module
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.util.concurrent.TimeUnit
 
 object KoinInitializer {
 
@@ -61,7 +61,7 @@ object KoinInitializer {
         val db = Room.databaseBuilder(app, VendorDb::class.java, VendorDb.DB_NAME).build()
 
         val apiRepository = ApiRepositoryImpl(api)
-        val dbRepository = DbRepositoryImpl(db.productDao())
+        val dbRepository = DbRepositoryImpl(db.productDao(), db.voucherDao())
 
         val facade = CommonFacadeImpl(apiRepository, dbRepository, picasso)
 
@@ -75,7 +75,7 @@ object KoinInitializer {
             viewModel { LoginViewModel(facade) }
             viewModel { VendorViewModel(facade) }
             viewModel { ScannerViewModel() }
-            viewModel { CheckoutViewModel() }
+            viewModel { CheckoutViewModel(facade) }
         }
     }
 

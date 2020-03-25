@@ -4,10 +4,10 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import cz.quanti.android.vendor_app.R
+import cz.quanti.android.vendor_app.main.vendor.misc.CommonVariables
 import cz.quanti.android.vendor_app.main.vendor.viewholder.ShoppingCartViewHolder
 import cz.quanti.android.vendor_app.repository.entity.SelectedProduct
-import java.text.DecimalFormat
-import kotlin.math.roundToInt
+import cz.quanti.android.vendor_app.utils.misc.getStringFromDouble
 
 class ShoppingCartAdapter : RecyclerView.Adapter<ShoppingCartViewHolder>() {
 
@@ -27,10 +27,24 @@ class ShoppingCartAdapter : RecyclerView.Adapter<ShoppingCartViewHolder>() {
 
         // TODO handle images
         holder.productDetail.text = item.product.name + " " + getStringFromDouble(item.quantity) + " " + item.product.unit
-        holder.price.text = getStringFromDouble(item.subTotal)
+        holder.price.text =
+            getStringFromDouble(item.subTotal) + " " + CommonVariables.choosenCurrency
     }
 
-    fun add(product: SelectedProduct) {
+    fun clearAll() {
+        cart.clear()
+        notifyDataSetChanged()
+    }
+
+    fun setData(data: List<SelectedProduct>) {
+        cart.clear()
+        for (item in data) {
+            add(item)
+        }
+        notifyDataSetChanged()
+    }
+
+    private fun add(product: SelectedProduct) {
         var alreadyInCart = false
         for (item in cart) {
             if (item == product) {
@@ -42,21 +56,6 @@ class ShoppingCartAdapter : RecyclerView.Adapter<ShoppingCartViewHolder>() {
 
         if (!alreadyInCart) {
             cart.add(product)
-        }
-        notifyDataSetChanged()
-    }
-
-    private fun getStringFromDouble(double: Double): String {
-        return when {
-            double % 1.0 < 0.001 -> {
-                double.roundToInt().toString()
-            }
-            (double * 10) % 1.0 < 0.01 -> {
-                DecimalFormat("#.#").format(double)
-            }
-            else -> {
-                DecimalFormat("#.##").format(double)
-            }
         }
     }
 }

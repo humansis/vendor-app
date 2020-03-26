@@ -10,7 +10,7 @@
     <string name="selectedItems">Selected Items</string>
     <string name="noItemsSelected">No items selected</string>
     <string name="synchronize">Synchronize</string>
-    <string name="logoff">Log off</string>
+    <string name="logout">Logout</string>
     <string name="quantity">Quantity</string>
     <string name="quantityUnit">Kg</string>
     <string name="unitPrice">Unit Price</string>

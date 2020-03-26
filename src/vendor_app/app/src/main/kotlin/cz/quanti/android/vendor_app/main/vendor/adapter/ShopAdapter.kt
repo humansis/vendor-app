@@ -10,18 +10,17 @@ import android.widget.LinearLayout
 import androidx.recyclerview.widget.RecyclerView
 import com.squareup.picasso.NetworkPolicy
 import com.squareup.picasso.Picasso
-import cz.quanti.android.vendor_app.MainActivity
 import cz.quanti.android.vendor_app.R
 import cz.quanti.android.vendor_app.main.vendor.fragment.ProductDetailFragment
+import cz.quanti.android.vendor_app.main.vendor.fragment.VendorFragment
 import cz.quanti.android.vendor_app.main.vendor.viewholder.ShopViewHolder
-import cz.quanti.android.vendor_app.repository.entity.Product
-import java.lang.Exception
-import kotlin.math.ceil
-import kotlinx.android.synthetic.main.fragment_product_detail.*
+import cz.quanti.android.vendor_app.repository.product.dto.Product
 import org.koin.core.KoinComponent
 import org.koin.core.inject
+import kotlin.math.ceil
 
-class ShopAdapter : RecyclerView.Adapter<ShopViewHolder>(), KoinComponent {
+class ShopAdapter(private val vendorFragment: VendorFragment) :
+    RecyclerView.Adapter<ShopViewHolder>(), KoinComponent {
 
     private val products: MutableList<Product> = mutableListOf()
     private val itemsInRow = 3
@@ -50,11 +49,12 @@ class ShopAdapter : RecyclerView.Adapter<ShopViewHolder>(), KoinComponent {
         val productsRow = getProductsRow(holder, actualPosition)
 
         if (productsRow[0] != null) {
-            holder.firstProductName?.text = productsRow[0]!!.name
+            holder.firstProductName?.text = productsRow[0]?.name
             holder.firstProductImage?.isClickable = true
-            picasso.load(productsRow[0]!!.image).networkPolicy(NetworkPolicy.OFFLINE).into(getTargetToLoadImgeIntoLayoutBackground(holder.firstProductImage))
+            picasso.load(productsRow[0]?.image).networkPolicy(NetworkPolicy.OFFLINE)
+                .into(getTargetToLoadImgeIntoLayoutBackground(holder.firstProductImage))
             holder.firstProductImage?.setOnClickListener {
-                selectItem(holder.itemView, productsRow[0]!!)
+                productsRow[0]?.let { product -> selectItem(holder.itemView, product) }
             }
         } else {
             holder.firstProductImage?.visibility = View.INVISIBLE
@@ -63,11 +63,12 @@ class ShopAdapter : RecyclerView.Adapter<ShopViewHolder>(), KoinComponent {
     }
 
         if (productsRow[1] != null) {
-            holder.secondProductName?.text = productsRow[1]!!.name
+            holder.secondProductName?.text = productsRow[1]?.name
             holder.secondProductImage?.isClickable = true
-            picasso.load(productsRow[1]!!.image).networkPolicy(NetworkPolicy.OFFLINE).into(getTargetToLoadImgeIntoLayoutBackground(holder.secondProductImage))
+            picasso.load(productsRow[1]?.image).networkPolicy(NetworkPolicy.OFFLINE)
+                .into(getTargetToLoadImgeIntoLayoutBackground(holder.secondProductImage))
             holder.secondProductImage?.setOnClickListener {
-                selectItem(holder.itemView, productsRow[1]!!)
+                productsRow[1]?.let { product -> selectItem(holder.itemView, product) }
             }
         } else {
             holder.secondProductImage?.visibility = View.INVISIBLE
@@ -76,11 +77,12 @@ class ShopAdapter : RecyclerView.Adapter<ShopViewHolder>(), KoinComponent {
         }
 
         if (productsRow[2] != null) {
-            holder.thirdProductName?.text = productsRow[2]!!.name
+            holder.thirdProductName?.text = productsRow[2]?.name
             holder.thirdProductImage?.isClickable = true
-            picasso.load(productsRow[2]!!.image).networkPolicy(NetworkPolicy.OFFLINE).into(getTargetToLoadImgeIntoLayoutBackground(holder.thirdProductImage))
+            picasso.load(productsRow[2]?.image).networkPolicy(NetworkPolicy.OFFLINE)
+                .into(getTargetToLoadImgeIntoLayoutBackground(holder.thirdProductImage))
             holder.thirdProductImage?.setOnClickListener {
-                selectItem(holder.itemView, productsRow[2]!!)
+                productsRow[2]?.let { product -> selectItem(holder.itemView, product) }
             }
         } else {
             holder.thirdProductImage?.visibility = View.INVISIBLE
@@ -103,7 +105,7 @@ class ShopAdapter : RecyclerView.Adapter<ShopViewHolder>(), KoinComponent {
 
     private fun selectItem(itemView: View, product: Product) {
         val productDetailFragment = ProductDetailFragment(product)
-        val transaction = (itemView.context as MainActivity).supportFragmentManager.beginTransaction().apply {
+        val transaction = vendorFragment.childFragmentManager.beginTransaction().apply {
             replace(R.id.fragmentContainer, productDetailFragment)
         }
         transaction.commit()

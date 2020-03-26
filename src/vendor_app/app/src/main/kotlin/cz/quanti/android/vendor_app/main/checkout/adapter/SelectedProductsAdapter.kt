@@ -4,12 +4,13 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import cz.quanti.android.vendor_app.R
+import cz.quanti.android.vendor_app.main.checkout.fragment.CheckoutFragment
 import cz.quanti.android.vendor_app.main.checkout.viewholder.SelectedProductsViewHolder
-import cz.quanti.android.vendor_app.main.vendor.misc.CommonVariables
-import cz.quanti.android.vendor_app.repository.entity.SelectedProduct
+import cz.quanti.android.vendor_app.repository.product.dto.SelectedProduct
 import cz.quanti.android.vendor_app.utils.misc.getStringFromDouble
 
-class SelectedProductsAdapter : RecyclerView.Adapter<SelectedProductsViewHolder>() {
+class SelectedProductsAdapter(private val checkoutFragment: CheckoutFragment) :
+    RecyclerView.Adapter<SelectedProductsViewHolder>() {
 
     private val products: MutableList<SelectedProduct> = mutableListOf()
 
@@ -30,7 +31,7 @@ class SelectedProductsAdapter : RecyclerView.Adapter<SelectedProductsViewHolder>
         holder.productDetail.text = item.product.name
         holder.amount.text = getStringFromDouble(item.quantity) + " " + item.product.unit
         holder.price.text =
-            getStringFromDouble(item.subTotal) + " " + CommonVariables.choosenCurrency
+            getStringFromDouble(item.subTotal) + " " + checkoutFragment.chosenCurrency
     }
 
     fun setData(data: List<SelectedProduct>) {

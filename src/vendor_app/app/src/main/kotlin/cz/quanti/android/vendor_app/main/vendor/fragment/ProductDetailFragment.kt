@@ -7,7 +7,6 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import cz.quanti.android.vendor_app.R
 import cz.quanti.android.vendor_app.main.vendor.adapter.CurrencyAdapter
-import cz.quanti.android.vendor_app.main.vendor.misc.CommonVariables
 import cz.quanti.android.vendor_app.main.vendor.viewmodel.VendorViewModel
 import cz.quanti.android.vendor_app.repository.product.dto.Product
 import cz.quanti.android.vendor_app.repository.product.dto.SelectedProduct
@@ -33,13 +32,13 @@ class ProductDetailFragment(private val product: Product) : Fragment() {
         initOnClickListeners()
         initProductRelatedInfo()
 
-        if (CommonVariables.cart.isEmpty()) {
+        if ((parentFragment as VendorFragment).cart.isEmpty()) {
             priceUnitSpinner.visibility = View.VISIBLE
             priceUnitTextView.visibility = View.INVISIBLE
         } else {
             priceUnitSpinner.visibility = View.INVISIBLE
             priceUnitTextView.visibility = View.VISIBLE
-            priceUnitTextView.text = CommonVariables.choosenCurrency
+            priceUnitTextView.text = (parentFragment as VendorFragment).chosenCurrency
         }
     }
 
@@ -47,8 +46,9 @@ class ProductDetailFragment(private val product: Product) : Fragment() {
         cartButtonImageView.setOnClickListener {
 
             if (quantityEditText.text.toString() != "" && unitPriceEditText.text.toString() != "") {
-                if (CommonVariables.cart.isEmpty()) {
-                    CommonVariables.choosenCurrency = priceUnitSpinner.selectedItem as String
+                if ((parentFragment as VendorFragment).cart.isEmpty()) {
+                    (parentFragment as VendorFragment).chosenCurrency =
+                        priceUnitSpinner.selectedItem as String
                 }
                 addProductToCart(
                     product,
@@ -59,7 +59,7 @@ class ProductDetailFragment(private val product: Product) : Fragment() {
 
             // TODO ask if want to leave
             val shoppingCartFragment = ShoppingCartFragment()
-            val transaction = activity?.supportFragmentManager?.beginTransaction()?.apply {
+            val transaction = parentFragment?.childFragmentManager?.beginTransaction()?.apply {
                 replace(R.id.fragmentContainer, shoppingCartFragment)
             }
             transaction?.commit()
@@ -73,13 +73,13 @@ class ProductDetailFragment(private val product: Product) : Fragment() {
             this.quantity = quantity
             this.price = unitPrice
             this.subTotal = unitPrice * quantity
-            this.currency = CommonVariables.choosenCurrency
+                this.currency = (parentFragment as VendorFragment).chosenCurrency
         }
-        CommonVariables.cart.add(selected)
+        (parentFragment as VendorFragment).cart.add(selected)
     }
 
     private fun initPriceUnitSpinner() {
-        currencyAdapter = context?.let { CurrencyAdapter(it) }
+        currencyAdapter = CurrencyAdapter(requireContext())
         currencyAdapter?.init(vm.getFirstCurrencies())
         currencyAdapter?.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         priceUnitSpinner.adapter = currencyAdapter

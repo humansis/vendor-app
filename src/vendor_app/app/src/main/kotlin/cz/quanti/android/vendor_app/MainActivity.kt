@@ -6,6 +6,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.findNavController
 import cz.quanti.android.vendor_app.main.authorization.viewmodel.LoginViewModel
 import cz.quanti.android.vendor_app.main.vendor.viewmodel.VendorViewModel
+import cz.quanti.android.vendor_app.repository.product.dto.SelectedProduct
+import cz.quanti.android.vendor_app.repository.voucher.dto.Voucher
 import io.reactivex.schedulers.Schedulers
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import quanti.com.kotlinlog.Log
@@ -14,6 +16,10 @@ class MainActivity : AppCompatActivity() {
 
     private val loginViewModel: LoginViewModel by viewModel()
     private val vendorViewModel: VendorViewModel by viewModel()
+
+    var chosenCurrency: String = ""
+    val cart: MutableList<SelectedProduct> = mutableListOf()
+    val vouchers: MutableList<Voucher> = mutableListOf()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

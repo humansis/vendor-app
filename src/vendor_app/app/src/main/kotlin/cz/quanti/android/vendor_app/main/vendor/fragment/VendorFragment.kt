@@ -5,11 +5,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import cz.quanti.android.vendor_app.MainActivity
 import cz.quanti.android.vendor_app.R
 import cz.quanti.android.vendor_app.main.vendor.adapter.ShopAdapter
 import cz.quanti.android.vendor_app.main.vendor.viewmodel.VendorViewModel
+import cz.quanti.android.vendor_app.repository.product.dto.SelectedProduct
+import cz.quanti.android.vendor_app.repository.voucher.dto.Voucher
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
@@ -17,10 +20,16 @@ import kotlinx.android.synthetic.main.fragment_vendor.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import quanti.com.kotlinlog.Log
 
-class VendorFragment : Fragment() {
+class VendorFragment() : Fragment() {
     private val vm: VendorViewModel by viewModel()
     private var disposables = CompositeDisposable()
-    val adapter = ShopAdapter()
+    private val adapter = ShopAdapter(this)
+
+    lateinit var chosenCurrency: String
+    lateinit var cart: MutableList<SelectedProduct>
+    lateinit var vouchers: MutableList<Voucher>
+
+    val args: VendorFragmentArgs by navArgs()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         (activity as MainActivity).supportActionBar?.show()
@@ -30,8 +39,13 @@ class VendorFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        chosenCurrency = args.currency
+        cart = (activity as MainActivity).cart
+        vouchers = (activity as MainActivity).vouchers
+
         val shoppingCartFragment = ShoppingCartFragment()
-        val transaction = activity?.supportFragmentManager?.beginTransaction()?.apply {
+
+        val transaction = childFragmentManager.beginTransaction()?.apply {
             replace(R.id.fragmentContainer, shoppingCartFragment)
         }
         transaction?.commit()

@@ -19,7 +19,11 @@ class LoginFragment : Fragment() {
 
     private val vm: LoginViewModel by viewModel()
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
         (activity as MainActivity).supportActionBar?.hide()
         return inflater.inflate(R.layout.fragment_login, container, false)
     }
@@ -29,10 +33,14 @@ class LoginFragment : Fragment() {
         logoImageView.clipToOutline = true
         loginButton.setOnClickListener {
 
-            vm.login(usernameEditText.text.toString(), passwordEditText.text.toString()).subscribeOn(
-                Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(
+            vm.login(usernameEditText.text.toString(), passwordEditText.text.toString())
+                .subscribeOn(
+                    Schedulers.io()
+                ).observeOn(AndroidSchedulers.mainThread()).subscribe(
                 {
-                        findNavController().navigate(LoginFragmentDirections.actionLoginFragmentToVendorFragment())
+                    findNavController().navigate(
+                        LoginFragmentDirections.actionLoginFragmentToVendorFragment("")
+                    )
                 },
                 {
                     Log.e(it) // TODO the error might be caused by internet connection or other causes

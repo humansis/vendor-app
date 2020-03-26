@@ -12,7 +12,6 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import cz.quanti.android.vendor_app.R
 import cz.quanti.android.vendor_app.main.vendor.adapter.ShoppingCartAdapter
-import cz.quanti.android.vendor_app.main.vendor.misc.CommonVariables
 import cz.quanti.android.vendor_app.main.vendor.viewmodel.VendorViewModel
 import cz.quanti.android.vendor_app.utils.misc.getStringFromDouble
 import kotlinx.android.synthetic.main.fragment_shopping_cart.*
@@ -20,15 +19,16 @@ import kotlinx.android.synthetic.main.fragment_shopping_cart.shoppingCartFooter
 import kotlinx.android.synthetic.main.item_shopping_cart_footer.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
-class ShoppingCartFragment() : Fragment() {
+class ShoppingCartFragment : Fragment() {
     private val vm: VendorViewModel by viewModel()
-    private val shoppingCartAdapter = ShoppingCartAdapter()
+    private lateinit var shoppingCartAdapter: ShoppingCartAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        shoppingCartAdapter = ShoppingCartAdapter(parentFragment as VendorFragment)
         return inflater.inflate(R.layout.fragment_shopping_cart, container, false)
     }
 
@@ -48,17 +48,18 @@ class ShoppingCartFragment() : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        (context?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager).hideSoftInputFromWindow(
+
+        (requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager).hideSoftInputFromWindow(
             view?.windowToken,
             0
         )
 
         totalPriceTextView.text =
-            getStringFromDouble(getTotalPrice()) + " " + CommonVariables.choosenCurrency
+            getStringFromDouble(getTotalPrice()) + " " + (parentFragment as VendorFragment).chosenCurrency
     }
 
     private fun getTotalPrice(): Double {
-        return CommonVariables.cart.map { it.subTotal }.sum()
+        return (parentFragment as VendorFragment).cart.map { it.subTotal }.sum()
     }
 
     private fun initShoppingCartAdapter() {
@@ -68,17 +69,18 @@ class ShoppingCartFragment() : Fragment() {
         shoppingCartRecyclerView.layoutManager = viewManager
         shoppingCartRecyclerView.adapter = shoppingCartAdapter
 
-        shoppingCartAdapter.setData(CommonVariables.cart)
+        shoppingCartAdapter.setData((parentFragment as VendorFragment).cart)
     }
 
     private fun initOnClickListeners() {
         checkoutButton.setOnClickListener {
-            findNavController().navigate(VendorFragmentDirections.actionVendorFragmentToCheckoutFragment())
+            findNavController().navigate(
+                VendorFragmentDirections.actionVendorFragmentToCheckoutFragment((parentFragment as VendorFragment).chosenCurrency)
+            )
         }
 
         clearAllButton.setOnClickListener {
-            context?.let { context ->
-                AlertDialog.Builder(context, R.style.DialogTheme)
+            AlertDialog.Builder(requireContext(), R.style.DialogTheme)
                     .setTitle(getString(R.string.areYouSureDialogTitle))
                     .setMessage(getString(R.string.clearCartDialogMessage))
                     .setPositiveButton(
@@ -88,12 +90,11 @@ class ShoppingCartFragment() : Fragment() {
                     }
                     .setNegativeButton(android.R.string.no, null)
                     .show()
-            }
         }
     }
 
     private fun clearCart() {
-        CommonVariables.cart.clear()
+        (parentFragment as VendorFragment).cart.clear()
         shoppingCartAdapter.clearAll()
         noItemsSelectedView.visibility = View.VISIBLE
         shoppingCartFooter.visibility = View.INVISIBLE

@@ -9,20 +9,27 @@ import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat.getColor
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import cz.quanti.android.vendor_app.MainActivity
 import cz.quanti.android.vendor_app.R
 import cz.quanti.android.vendor_app.main.checkout.adapter.SelectedProductsAdapter
 import cz.quanti.android.vendor_app.main.checkout.viewmodel.CheckoutViewModel
-import cz.quanti.android.vendor_app.main.vendor.misc.CommonVariables
+import cz.quanti.android.vendor_app.repository.product.dto.SelectedProduct
+import cz.quanti.android.vendor_app.repository.voucher.dto.Voucher
 import cz.quanti.android.vendor_app.utils.misc.getStringFromDouble
 import kotlinx.android.synthetic.main.fragment_checkout.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
-class CheckoutFragment : Fragment() {
-
+class CheckoutFragment() : Fragment() {
     private val vm: CheckoutViewModel by viewModel()
-    private val selectedProductsAdapter = SelectedProductsAdapter()
+    private val selectedProductsAdapter = SelectedProductsAdapter(this)
+
+    private val args: CheckoutFragmentArgs by navArgs()
+
+    lateinit var chosenCurrency: String
+    lateinit var cart: MutableList<SelectedProduct>
+    lateinit var vouchers: MutableList<Voucher>
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -35,6 +42,12 @@ class CheckoutFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        chosenCurrency = args.currency
+        cart = (activity as MainActivity).cart
+        vouchers = (activity as MainActivity).vouchers
+
+        vm.init(chosenCurrency, cart, vouchers)
         initOnClickListeners()
         initSelectedProductsAdapter()
 
@@ -44,25 +57,37 @@ class CheckoutFragment : Fragment() {
     private fun initOnClickListeners() {
 
         cancelButton.setOnClickListener {
-            findNavController().navigate(CheckoutFragmentDirections.actionCheckoutFragmentToVendorFragment())
+            findNavController().navigate(
+                CheckoutFragmentDirections.actionCheckoutFragmentToVendorFragment(
+                    chosenCurrency
+                )
+            )
         }
 
         proceedButton.setOnClickListener {
-            if (vm.proceed()) {
-                findNavController().navigate(CheckoutFragmentDirections.actionCheckoutFragmentToVendorFragment())
+            if (vm.proceed(vouchers)) {
+                cart.clear()
+                vouchers.clear()
+                findNavController().navigate(
+                    CheckoutFragmentDirections.actionCheckoutFragmentToVendorFragment(
+                        ""
+                    )
+                )
             } else {
-                context?.let { context ->
-                    AlertDialog.Builder(context, R.style.DialogTheme)
-                        .setTitle(getString(R.string.cannotProceedWithPurchaseDialogTitle))
-                        .setMessage(getString(R.string.cannotProceedWithPurchaseDialogMessage))
-                        .setPositiveButton(android.R.string.yes, null)
-                        .show()
-                }
+                AlertDialog.Builder(requireContext(), R.style.DialogTheme)
+                    .setTitle(getString(R.string.cannotProceedWithPurchaseDialogTitle))
+                    .setMessage(getString(R.string.cannotProceedWithPurchaseDialogMessage))
+                    .setPositiveButton(android.R.string.yes, null)
+                    .show()
             }
         }
 
         scanButton.setOnClickListener {
-            findNavController().navigate(CheckoutFragmentDirections.actionCheckoutFragmentToScannerFragment())
+            findNavController().navigate(
+                CheckoutFragmentDirections.actionCheckoutFragmentToScannerFragment(
+                    chosenCurrency
+                )
+            )
         }
     }
 
@@ -73,27 +98,23 @@ class CheckoutFragment : Fragment() {
         checkoutSelectedProductsRecyclerView.layoutManager = viewManager
         checkoutSelectedProductsRecyclerView.adapter = selectedProductsAdapter
 
-        selectedProductsAdapter.setData(CommonVariables.cart)
+        selectedProductsAdapter.setData(cart)
     }
 
     private fun actualizeTotal() {
         val total = vm.getTotal()
-        totalTextView.text = getStringFromDouble(total) + " " + CommonVariables.choosenCurrency
+        totalTextView.text = getStringFromDouble(total) + " " + chosenCurrency
 
         if (total <= 0) {
-            context?.let {
-                val green = getColor(it, R.color.green)
-                moneyIconImageView.imageTintList = ColorStateList.valueOf(green)
-                totalTitleTextView.setTextColor(green)
-                totalTextView.setTextColor(green)
-            }
+            val green = getColor(requireContext(), R.color.green)
+            moneyIconImageView.imageTintList = ColorStateList.valueOf(green)
+            totalTitleTextView.setTextColor(green)
+            totalTextView.setTextColor(green)
         } else {
-            context?.let {
-                val red = getColor(it, R.color.red)
-                moneyIconImageView.imageTintList = ColorStateList.valueOf(red)
-                totalTitleTextView.setTextColor(red)
-                totalTextView.setTextColor(red)
-            }
+            val red = getColor(requireContext(), R.color.red)
+            moneyIconImageView.imageTintList = ColorStateList.valueOf(red)
+            totalTitleTextView.setTextColor(red)
+            totalTextView.setTextColor(red)
         }
     }
 }

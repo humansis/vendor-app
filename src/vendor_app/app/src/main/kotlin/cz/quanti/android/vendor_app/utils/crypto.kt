@@ -1,4 +1,4 @@
-package cz.quanti.android.vendor_app.utils.misc
+package cz.quanti.android.vendor_app.utils
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -10,16 +10,9 @@ import android.security.keystore.KeyProperties
 import android.util.Base64
 import androidx.annotation.RequiresApi
 import java.math.BigInteger
-import java.security.KeyPairGenerator
-import java.security.KeyStore
-import java.security.MessageDigest
-import java.security.PrivateKey
-import java.security.PublicKey
+import java.security.*
 import java.text.SimpleDateFormat
-import java.util.Calendar
-import java.util.Date
-import java.util.Locale
-import java.util.TimeZone
+import java.util.*
 import javax.crypto.Cipher
 import javax.crypto.KeyGenerator
 import javax.crypto.SecretKey
@@ -35,7 +28,8 @@ fun hashAndSaltPassword(salt: String, password: String): String {
     var digest = hashSHA512(salted)
 
     for (i in 1..4999) {
-        digest = hashSHA512(digest.plus(salted))
+        digest =
+            hashSHA512(digest.plus(salted))
     }
 
     return Base64.encodeToString(digest, Base64.NO_WRAP)
@@ -49,7 +43,11 @@ fun generateXWSSEHeader(username: String, saltedPassword: String, test: Boolean)
     sdf.timeZone = TimeZone.getTimeZone("UTC")
     val createdAt = sdf.format(Date())
 
-    val digest = generateDigest(saltedPassword, nonce, createdAt)
+    val digest = generateDigest(
+        saltedPassword,
+        nonce,
+        createdAt
+    )
     val nonce64 = Base64.encodeToString(nonce.toByteArray(), Base64.NO_WRAP)
 
 //    if (test) {
@@ -85,9 +83,19 @@ fun encryptUsingKeyStoreKey(
     keyStore.load(null)
 
     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-        doEncryptionUsingAES(secret, keyAlias, keyStore, sp)
+        doEncryptionUsingAES(
+            secret,
+            keyAlias,
+            keyStore,
+            sp
+        )
     } else {
-        doEncryptionUsingRSA(secret, keyAlias, keyStore, context)
+        doEncryptionUsingRSA(
+            secret,
+            keyAlias,
+            keyStore,
+            context
+        )
     }
 }
 
@@ -104,9 +112,18 @@ fun decryptUsingKeyStoreKey(
     }
 
     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-        doDecryptionUsingAES(secret, keyAlias, keyStore, sp)
+        doDecryptionUsingAES(
+            secret,
+            keyAlias,
+            keyStore,
+            sp
+        )
     } else {
-        doDecryptionUsingRSA(secret, keyAlias, keyStore)
+        doDecryptionUsingRSA(
+            secret,
+            keyAlias,
+            keyStore
+        )
     }
 }
 
@@ -134,11 +151,17 @@ private fun doEncryptionUsingRSA(
     context: Context
 ): ByteArray {
     if (!keyStore.containsAlias(keyAlias)) {
-        generateKeyStoreRSAKey(keyAlias, context)
+        generateKeyStoreRSAKey(
+            keyAlias,
+            context
+        )
     }
 
     val keyEntry = keyStore.getEntry(keyAlias, null) as KeyStore.PrivateKeyEntry
-    return encryptRSA(secret, keyEntry.certificate.publicKey)
+    return encryptRSA(
+        secret,
+        keyEntry.certificate.publicKey
+    )
 }
 
 private fun doDecryptionUsingRSA(
@@ -162,7 +185,11 @@ private fun doEncryptionUsingAES(
     }
 
     val keyEntry = keyStore.getEntry(keyAlias, null) as KeyStore.SecretKeyEntry
-    return encryptAES(secret, keyEntry.secretKey, sp)
+    return encryptAES(
+        secret,
+        keyEntry.secretKey,
+        sp
+    )
 }
 
 private fun doDecryptionUsingAES(
@@ -172,7 +199,11 @@ private fun doDecryptionUsingAES(
     sp: SharedPreferences
 ): ByteArray {
     val key = keyStore.getEntry(keyAlias, null) as KeyStore.SecretKeyEntry
-    return decryptAES(secret, key.secretKey, sp)
+    return decryptAES(
+        secret,
+        key.secretKey,
+        sp
+    )
 }
 
 private fun hashSHA1(s: String): String {
@@ -231,7 +262,8 @@ private fun encryptAES(secret: ByteArray, key: SecretKey, sp: SharedPreferences)
 
 private fun decryptAES(secret: ByteArray, key: SecretKey, sp: SharedPreferences): ByteArray {
     val iv = base64decode(
-        sp.getString(SP_AES_IV_KEY, null) ?: throw IllegalStateException("AES IV missing")
+        sp.getString(SP_AES_IV_KEY, null)
+            ?: throw IllegalStateException("AES IV missing")
     )
 
     val cipher = Cipher.getInstance("AES/GCM/NoPadding")
@@ -242,7 +274,8 @@ private fun decryptAES(secret: ByteArray, key: SecretKey, sp: SharedPreferences)
 @RequiresApi(Build.VERSION_CODES.M)
 private fun generateAESKey(keyAlias: String) {
     val keyGenerator = KeyGenerator.getInstance(
-        KeyProperties.KEY_ALGORITHM_AES, KEY_PROVIDER
+        KeyProperties.KEY_ALGORITHM_AES,
+        KEY_PROVIDER
     )
 
     keyGenerator.init(

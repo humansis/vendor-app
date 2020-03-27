@@ -1,4 +1,4 @@
-package cz.quanti.android.vendor_app.utils.misc
+package cz.quanti.android.vendor_app.utils
 
 import java.text.DecimalFormat
 import kotlin.math.roundToInt

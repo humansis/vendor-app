@@ -10,4 +10,5 @@ class ShoppingCartViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
     var image: ImageView = itemView.productImageView
     var productDetail: TextView = itemView.productInfoTextView
     var price: TextView = itemView.priceTextView
+    var remove: ImageView = itemView.removeProductImageView
 }

@@ -52,7 +52,7 @@ class ShopAdapter(private val vendorFragment: VendorFragment) :
             holder.firstProductName?.text = productsRow[0]?.name
             holder.firstProductImage?.isClickable = true
             picasso.load(productsRow[0]?.image).networkPolicy(NetworkPolicy.OFFLINE)
-                .into(getTargetToLoadImgeIntoLayoutBackground(holder.firstProductImage))
+                .into(getTargetToLoadImageIntoLayoutBackground(holder.firstProductImage))
             holder.firstProductImage?.setOnClickListener {
                 productsRow[0]?.let { product -> selectItem(holder.itemView, product) }
             }
@@ -66,7 +66,7 @@ class ShopAdapter(private val vendorFragment: VendorFragment) :
             holder.secondProductName?.text = productsRow[1]?.name
             holder.secondProductImage?.isClickable = true
             picasso.load(productsRow[1]?.image).networkPolicy(NetworkPolicy.OFFLINE)
-                .into(getTargetToLoadImgeIntoLayoutBackground(holder.secondProductImage))
+                .into(getTargetToLoadImageIntoLayoutBackground(holder.secondProductImage))
             holder.secondProductImage?.setOnClickListener {
                 productsRow[1]?.let { product -> selectItem(holder.itemView, product) }
             }
@@ -80,7 +80,7 @@ class ShopAdapter(private val vendorFragment: VendorFragment) :
             holder.thirdProductName?.text = productsRow[2]?.name
             holder.thirdProductImage?.isClickable = true
             picasso.load(productsRow[2]?.image).networkPolicy(NetworkPolicy.OFFLINE)
-                .into(getTargetToLoadImgeIntoLayoutBackground(holder.thirdProductImage))
+                .into(getTargetToLoadImageIntoLayoutBackground(holder.thirdProductImage))
             holder.thirdProductImage?.setOnClickListener {
                 productsRow[2]?.let { product -> selectItem(holder.itemView, product) }
             }
@@ -111,7 +111,7 @@ class ShopAdapter(private val vendorFragment: VendorFragment) :
         transaction.commit()
     }
 
-    private fun getTargetToLoadImgeIntoLayoutBackground(layout: LinearLayout?): com.squareup.picasso.Target {
+    private fun getTargetToLoadImageIntoLayoutBackground(layout: LinearLayout?): com.squareup.picasso.Target {
         return object : com.squareup.picasso.Target {
             override fun onPrepareLoad(placeHolderDrawable: Drawable?) {
                 layout?.background = placeHolderDrawable

@@ -52,13 +52,13 @@
         android:text="100 SYP"
         android:textColor="@color/black"
         android:textSize="18sp"
-        app:layout_constraintEnd_toStartOf="@id/deleteImageView"
+        app:layout_constraintEnd_toStartOf="@id/removeProductImageView"
         app:layout_constraintTop_toTopOf="@id/productInfoTextView"
         app:layout_constraintBottom_toBottomOf="@id/productInfoTextView"
         android:layout_marginStart="10dp" />
 
     <androidx.appcompat.widget.AppCompatImageView
-        android:id="@+id/deleteImageView"
+        android:id="@+id/removeProductImageView"
         android:layout_width="0dp"
         android:layout_height="0dp"
         app:layout_constraintWidth_max="24dp"

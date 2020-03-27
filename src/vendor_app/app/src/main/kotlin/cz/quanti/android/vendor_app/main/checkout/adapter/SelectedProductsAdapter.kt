@@ -7,7 +7,7 @@ import cz.quanti.android.vendor_app.R
 import cz.quanti.android.vendor_app.main.checkout.fragment.CheckoutFragment
 import cz.quanti.android.vendor_app.main.checkout.viewholder.SelectedProductsViewHolder
 import cz.quanti.android.vendor_app.repository.product.dto.SelectedProduct
-import cz.quanti.android.vendor_app.utils.misc.getStringFromDouble
+import cz.quanti.android.vendor_app.utils.getStringFromDouble
 
 class SelectedProductsAdapter(private val checkoutFragment: CheckoutFragment) :
     RecyclerView.Adapter<SelectedProductsViewHolder>() {
@@ -29,7 +29,9 @@ class SelectedProductsAdapter(private val checkoutFragment: CheckoutFragment) :
 
         // TODO handle images
         holder.productDetail.text = item.product.name
-        holder.amount.text = getStringFromDouble(item.quantity) + " " + item.product.unit
+        holder.amount.text = getStringFromDouble(
+            item.quantity
+        ) + " " + item.product.unit
         holder.price.text =
             getStringFromDouble(item.subTotal) + " " + checkoutFragment.chosenCurrency
     }

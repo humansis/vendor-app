@@ -18,7 +18,7 @@ import cz.quanti.android.vendor_app.repository.VendorDb
 import cz.quanti.android.vendor_app.repository.common.impl.DbRepositoryImpl
 import cz.quanti.android.vendor_app.repository.common.impl.VendorServerApiRepositoryImpl
 import cz.quanti.android.vendor_app.repository.impl.CommonFacadeImpl
-import cz.quanti.android.vendor_app.utils.misc.LoginManager
+import cz.quanti.android.vendor_app.utils.LoginManager
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import org.koin.android.ext.koin.androidContext

@@ -13,7 +13,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import cz.quanti.android.vendor_app.R
 import cz.quanti.android.vendor_app.main.vendor.adapter.ShoppingCartAdapter
 import cz.quanti.android.vendor_app.main.vendor.viewmodel.VendorViewModel
-import cz.quanti.android.vendor_app.utils.misc.getStringFromDouble
+import cz.quanti.android.vendor_app.utils.getStringFromDouble
 import kotlinx.android.synthetic.main.fragment_shopping_cart.*
 import kotlinx.android.synthetic.main.fragment_shopping_cart.shoppingCartFooter
 import kotlinx.android.synthetic.main.item_shopping_cart_footer.*
@@ -22,13 +22,17 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 class ShoppingCartFragment : Fragment() {
     private val vm: VendorViewModel by viewModel()
     private lateinit var shoppingCartAdapter: ShoppingCartAdapter
+    private lateinit var vendorFragment: VendorFragment
+    lateinit var chosenCurrency: String
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        shoppingCartAdapter = ShoppingCartAdapter(parentFragment as VendorFragment)
+        vendorFragment = parentFragment as VendorFragment
+        chosenCurrency = vendorFragment.chosenCurrency
+        shoppingCartAdapter = ShoppingCartAdapter(this)
         return inflater.inflate(R.layout.fragment_shopping_cart, container, false)
     }
 
@@ -54,8 +58,12 @@ class ShoppingCartFragment : Fragment() {
             0
         )
 
-        totalPriceTextView.text =
-            getStringFromDouble(getTotalPrice()) + " " + (parentFragment as VendorFragment).chosenCurrency
+        val totalText = "${getStringFromDouble(getTotalPrice())} ${vendorFragment.chosenCurrency}"
+        totalPriceTextView.text = totalText
+    }
+
+    fun removeItemFromCart(position: Int) {
+        vendorFragment.cart.removeAt(position)
     }
 
     private fun getTotalPrice(): Double {
@@ -69,13 +77,13 @@ class ShoppingCartFragment : Fragment() {
         shoppingCartRecyclerView.layoutManager = viewManager
         shoppingCartRecyclerView.adapter = shoppingCartAdapter
 
-        shoppingCartAdapter.setData((parentFragment as VendorFragment).cart)
+        shoppingCartAdapter.setData(vendorFragment.cart)
     }
 
     private fun initOnClickListeners() {
         checkoutButton.setOnClickListener {
             findNavController().navigate(
-                VendorFragmentDirections.actionVendorFragmentToCheckoutFragment((parentFragment as VendorFragment).chosenCurrency)
+                VendorFragmentDirections.actionVendorFragmentToCheckoutFragment(vendorFragment.chosenCurrency)
             )
         }
 
@@ -94,7 +102,7 @@ class ShoppingCartFragment : Fragment() {
     }
 
     private fun clearCart() {
-        (parentFragment as VendorFragment).cart.clear()
+        vendorFragment.cart.clear()
         shoppingCartAdapter.clearAll()
         noItemsSelectedView.visibility = View.VISIBLE
         shoppingCartFooter.visibility = View.INVISIBLE

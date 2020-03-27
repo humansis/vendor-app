@@ -25,7 +25,7 @@ class CheckoutViewModel(private val facade: CommonFacade) : ViewModel() {
 
     fun proceed(vouchers: List<Voucher>): Boolean {
 
-        return if (getTotal() > 0) {
+        return if (getTotal() <= 0) {
             useVouchers()
             facade.saveVouchers(vouchers)
             true

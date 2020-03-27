@@ -1,4 +1,4 @@
-package cz.quanti.android.vendor_app.utils.misc
+package cz.quanti.android.vendor_app.utils
 
 import cz.quanti.android.vendor_app.repository.login.dto.Vendor
 
@@ -8,6 +8,8 @@ class LoginManager {
     fun getAuthHeader(): String? {
         if (user == null) return null
 
-        return generateXWSSEHeader(user?.username ?: "", user?.saltedPassword ?: "", true)
+        return generateXWSSEHeader(
+            user?.username ?: "", user?.saltedPassword ?: "", true
+        )
     }
 }

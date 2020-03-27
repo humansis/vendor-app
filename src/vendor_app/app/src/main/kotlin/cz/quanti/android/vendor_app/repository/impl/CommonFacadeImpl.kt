@@ -7,9 +7,9 @@ import cz.quanti.android.vendor_app.repository.common.VendorServerApiRepository
 import cz.quanti.android.vendor_app.repository.login.dto.Vendor
 import cz.quanti.android.vendor_app.repository.product.dto.Product
 import cz.quanti.android.vendor_app.repository.voucher.dto.Voucher
-import cz.quanti.android.vendor_app.utils.misc.LoginManager
-import cz.quanti.android.vendor_app.utils.misc.VendorAppException
-import cz.quanti.android.vendor_app.utils.misc.hashAndSaltPassword
+import cz.quanti.android.vendor_app.utils.LoginManager
+import cz.quanti.android.vendor_app.utils.VendorAppException
+import cz.quanti.android.vendor_app.utils.hashAndSaltPassword
 import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.Single
@@ -26,13 +26,18 @@ class CommonFacadeImpl(
         return apiRepo.getSalt(username).flatMapCompletable { saltResponse ->
             if (saltResponse.code() != 200) {
                 Completable.error(
-                    VendorAppException("Could not obtain salt for the user.").apply {
+                    VendorAppException("Could not obtain salt for the user.")
+                        .apply {
                         apiError = true
                         apiResponseCode = saltResponse.code()
                     })
             } else {
                 saltResponse.body()?.salt?.let {
-                    var saltedPassword = hashAndSaltPassword(it, password)
+                    var saltedPassword =
+                        hashAndSaltPassword(
+                            it,
+                            password
+                        )
                     val vendor = Vendor()
                         .apply {
                             this.saltedPassword = saltedPassword
@@ -52,7 +57,10 @@ class CommonFacadeImpl(
             if (response.code() == 200) {
                 actualizeDatabase(response.body())
             } else {
-                Completable.error(VendorAppException("Could not get products from server.").apply {
+                Completable.error(
+                    VendorAppException(
+                        "Could not get products from server."
+                    ).apply {
                     apiError = true
                     apiResponseCode = response.code()
                 })

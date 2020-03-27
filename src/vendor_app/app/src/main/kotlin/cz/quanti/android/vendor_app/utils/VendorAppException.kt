@@ -1,6 +1,4 @@
-package cz.quanti.android.vendor_app.utils.misc
-
-import java.lang.Exception
+package cz.quanti.android.vendor_app.utils
 
 class VendorAppException(message: String) : Exception(message) {
     var apiError: Boolean = false

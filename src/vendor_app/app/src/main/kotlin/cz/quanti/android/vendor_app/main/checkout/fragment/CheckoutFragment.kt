@@ -17,7 +17,7 @@ import cz.quanti.android.vendor_app.main.checkout.adapter.SelectedProductsAdapte
 import cz.quanti.android.vendor_app.main.checkout.viewmodel.CheckoutViewModel
 import cz.quanti.android.vendor_app.repository.product.dto.SelectedProduct
 import cz.quanti.android.vendor_app.repository.voucher.dto.Voucher
-import cz.quanti.android.vendor_app.utils.misc.getStringFromDouble
+import cz.quanti.android.vendor_app.utils.getStringFromDouble
 import kotlinx.android.synthetic.main.fragment_checkout.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -103,7 +103,9 @@ class CheckoutFragment() : Fragment() {
 
     private fun actualizeTotal() {
         val total = vm.getTotal()
-        totalTextView.text = getStringFromDouble(total) + " " + chosenCurrency
+        totalTextView.text = getStringFromDouble(
+            total
+        ) + " " + chosenCurrency
 
         if (total <= 0) {
             val green = getColor(requireContext(), R.color.green)

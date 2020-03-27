@@ -36,9 +36,12 @@ class ShoppingCartAdapter(private val shoppingCartFragment: ShoppingCartFragment
         holder.price.text = priceText
         holder.remove.setOnClickListener {
             shoppingCartFragment.removeItemFromCart(position)
-            cart.removeAt(position)
-            notifyDataSetChanged()
         }
+    }
+
+    fun removeAt(position: Int) {
+        cart.removeAt(position)
+        notifyDataSetChanged()
     }
 
     fun clearAll() {

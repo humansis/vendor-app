@@ -18,8 +18,11 @@ import cz.quanti.android.vendor_app.main.checkout.viewmodel.CheckoutViewModel
 import cz.quanti.android.vendor_app.repository.product.dto.SelectedProduct
 import cz.quanti.android.vendor_app.repository.voucher.dto.Voucher
 import cz.quanti.android.vendor_app.utils.getStringFromDouble
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.fragment_checkout.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
+import quanti.com.kotlinlog.Log
 
 class CheckoutFragment() : Fragment() {
     private val vm: CheckoutViewModel by viewModel()
@@ -65,13 +68,20 @@ class CheckoutFragment() : Fragment() {
         }
 
         proceedButton.setOnClickListener {
-            if (vm.proceed(vouchers)) {
-                cart.clear()
-                vouchers.clear()
-                findNavController().navigate(
-                    CheckoutFragmentDirections.actionCheckoutFragmentToVendorFragment(
-                        ""
-                    )
+            if (vm.getTotal() <= 0) {
+                vm.proceed(vouchers).subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread()).subscribe(
+                        {
+                            cart.clear()
+                            vouchers.clear()
+                            findNavController().navigate(
+                                CheckoutFragmentDirections.actionCheckoutFragmentToVendorFragment("")
+                            )
+                        },
+                        {
+                            // TODO dialog
+                            Log.e(it)
+                        }
                 )
             } else {
                 AlertDialog.Builder(requireContext(), R.style.DialogTheme)
@@ -103,9 +113,8 @@ class CheckoutFragment() : Fragment() {
 
     private fun actualizeTotal() {
         val total = vm.getTotal()
-        totalTextView.text = getStringFromDouble(
-            total
-        ) + " " + chosenCurrency
+        val totalText = "${getStringFromDouble(total)} $chosenCurrency"
+        totalTextView.text = totalText
 
         if (total <= 0) {
             val green = getColor(requireContext(), R.color.green)

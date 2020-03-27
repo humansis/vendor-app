@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import cz.quanti.android.vendor_app.R
 import cz.quanti.android.vendor_app.main.vendor.adapter.CurrencyAdapter
@@ -55,15 +56,28 @@ class ProductDetailFragment(private val product: Product) : Fragment() {
                     quantityEditText.text.toString().toDouble(),
                     unitPriceEditText.text.toString().toDouble()
                 )
+                goToCart()
+            } else {
+                AlertDialog.Builder(requireContext(), R.style.DialogTheme)
+                    .setTitle(getString(R.string.areYouSureDialogTitle))
+                    .setMessage(getString(R.string.leaveProductDetailDialogMessage))
+                    .setPositiveButton(
+                        android.R.string.yes
+                    ) { _, _ ->
+                        goToCart()
+                    }
+                    .setNegativeButton(android.R.string.no, null)
+                    .show()
             }
-
-            // TODO ask if want to leave
-            val shoppingCartFragment = ShoppingCartFragment()
-            val transaction = parentFragment?.childFragmentManager?.beginTransaction()?.apply {
-                replace(R.id.fragmentContainer, shoppingCartFragment)
-            }
-            transaction?.commit()
         }
+    }
+
+    private fun goToCart() {
+        val shoppingCartFragment = ShoppingCartFragment()
+        val transaction = parentFragment?.childFragmentManager?.beginTransaction()?.apply {
+            replace(R.id.fragmentContainer, shoppingCartFragment)
+        }
+        transaction?.commit()
     }
 
     private fun addProductToCart(product: Product, quantity: Double, unitPrice: Double) {

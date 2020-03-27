@@ -63,7 +63,17 @@ class ShoppingCartFragment : Fragment() {
     }
 
     fun removeItemFromCart(position: Int) {
-        vendorFragment.cart.removeAt(position)
+        AlertDialog.Builder(requireContext(), R.style.DialogTheme)
+            .setTitle(getString(R.string.areYouSureDialogTitle))
+            .setMessage(getString(R.string.removeProductFromCartDialogMessage))
+            .setPositiveButton(
+                android.R.string.yes
+            ) { _, _ ->
+                vendorFragment.cart.removeAt(position)
+                shoppingCartAdapter.removeAt(position)
+            }
+            .setNegativeButton(android.R.string.no, null)
+            .show()
     }
 
     private fun getTotalPrice(): Double {

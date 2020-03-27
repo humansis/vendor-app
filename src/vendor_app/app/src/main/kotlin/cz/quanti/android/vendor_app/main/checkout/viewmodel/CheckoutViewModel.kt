@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import cz.quanti.android.vendor_app.repository.CommonFacade
 import cz.quanti.android.vendor_app.repository.product.dto.SelectedProduct
 import cz.quanti.android.vendor_app.repository.voucher.dto.Voucher
+import io.reactivex.Completable
 import java.util.*
 
 class CheckoutViewModel(private val facade: CommonFacade) : ViewModel() {
@@ -23,15 +24,8 @@ class CheckoutViewModel(private val facade: CommonFacade) : ViewModel() {
         this.vouchers = vouchers
     }
 
-    fun proceed(vouchers: List<Voucher>): Boolean {
-
-        return if (getTotal() <= 0) {
-            useVouchers()
-            facade.saveVouchers(vouchers)
-            true
-        } else {
-            false
-        }
+    fun proceed(vouchers: List<Voucher>): Completable {
+        return facade.saveVouchers(vouchers)
     }
 
     fun getTotal(): Double {

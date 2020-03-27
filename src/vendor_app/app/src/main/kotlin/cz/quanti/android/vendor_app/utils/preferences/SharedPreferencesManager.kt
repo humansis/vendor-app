@@ -8,7 +8,7 @@ import org.koin.core.inject
 
 object SharedPreferencesManager : ISharedPreferencesManager, KoinComponent {
 
-    private const val PREF_NAME = "eaaci_attendace_logger_preferences"
+    private const val PREF_NAME = "vendor_app_preferences"
     private val context: Context by inject()
     private var sharedPreferences = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)!!
 

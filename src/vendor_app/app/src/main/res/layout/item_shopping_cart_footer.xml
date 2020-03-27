@@ -4,7 +4,8 @@
     android:orientation="horizontal"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/lightGrey">
+    android:background="@color/lightGrey"
+    android:id="@+id/shoppingCartFooter">
 
     <LinearLayout
         android:id="@+id/delimiterLayout"
@@ -29,12 +30,12 @@
         android:layout_gravity="center"
         android:id="@+id/cartIconImageView"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@id/totalTextView"
-        app:layout_constraintBottom_toBottomOf="@id/totalTextView"
+        app:layout_constraintTop_toTopOf="@id/totalTitleTextView"
+        app:layout_constraintBottom_toBottomOf="@id/totalTitleTextView"
         android:layout_marginStart="10dp" />
 
     <TextView
-        android:id="@+id/totalTextView"
+        android:id="@+id/totalTitleTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/total"
@@ -56,8 +57,8 @@
         android:textColor="@color/black"
         android:textSize="18sp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@id/totalTextView"
-        app:layout_constraintBottom_toBottomOf="@id/totalTextView"
+        app:layout_constraintTop_toTopOf="@id/totalTitleTextView"
+        app:layout_constraintBottom_toBottomOf="@id/totalTitleTextView"
         android:layout_marginStart="10dp" />
 
 

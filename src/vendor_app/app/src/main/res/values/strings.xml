@@ -10,7 +10,7 @@
     <string name="selectedItems">Selected Items</string>
     <string name="noItemsSelected">No items selected</string>
     <string name="synchronize">Synchronize</string>
-    <string name="logoff">Log off</string>
+    <string name="logout">Logout</string>
     <string name="quantity">Quantity</string>
     <string name="quantityUnit">Kg</string>
     <string name="unitPrice">Unit Price</string>
@@ -24,4 +24,10 @@
     <string name="clickHereToScan">Click here to scan</string>
     <string name="pleaseScanVoucher">Please scan a voucher</string>
     <string name="wrong_password">Wrong username or password</string>
+    <string name="cannotProceedWithPurchaseDialogTitle">Failed</string>
+    <string name="cannotProceedWithPurchaseDialogMessage">Cannot proceed with the purchase until it is paid. Please scan more vouchers.</string>
+    <string name="areYouSureDialogTitle">Are you sure?</string>
+    <string name="clearCartDialogMessage">Are you sure you want to remove all items from the cart?</string>
+    <string name="leaveProductDetailDialogMessage">The price or amount is not set. The product will not be added to the cart. Do you want to leave this page?</string>
+    <string name="removeProductFromCartDialogMessage">Are you sure you want to remove this product from your cart?</string>
 </resources>

@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.navArgs
@@ -101,11 +102,8 @@ class ScannerFragment() : Fragment() {
                         Log.d(e)
                     }
                     clearCachedTimer = Timer()
-
                     lastScanned = it.text
-
-                    // TODO process code here
-
+                    processScannedCode(it.text)
                     clearCachedTimer.schedule(timerTask {
                         lastScanned = ""
                     }, 5000)
@@ -133,5 +131,32 @@ class ScannerFragment() : Fragment() {
     override fun onDestroy() {
         codeScanner?.releaseResources()
         super.onDestroy()
+    }
+
+    private fun processScannedCode(scannedCode: String) {
+        val code = scannedCode.replace(" ", "+")
+        if (alreadyScanned(code)) {
+            AlertDialog.Builder(requireContext(), R.style.DialogTheme)
+                .setTitle(getString(R.string.alreadyScannedDialogTitle))
+                .setMessage(getString(R.string.alreadyScannedDialogMessage))
+                .setPositiveButton(android.R.string.ok, null)
+                .show()
+        } else {
+            val voucher = vm.ifHasNoPasswordGetInfo(scannedCode)
+            if (voucher != null) {
+                (activity as MainActivity).vouchers.add(voucher)
+            } else {
+                // TODO wrong code
+            }
+        }
+    }
+
+    private fun alreadyScanned(code: String): Boolean {
+        for (voucher in (activity as MainActivity).vouchers) {
+            if (voucher.qrCode == code) {
+                return true
+            }
+        }
+        return false
     }
 }

@@ -8,7 +8,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import androidx.recyclerview.widget.RecyclerView
-import com.squareup.picasso.NetworkPolicy
 import com.squareup.picasso.Picasso
 import cz.quanti.android.vendor_app.R
 import cz.quanti.android.vendor_app.main.vendor.fragment.ProductDetailFragment
@@ -33,9 +32,7 @@ class ShopAdapter(private val vendorFragment: VendorFragment) :
 
     fun setData(data: List<Product>) {
         products.clear()
-        for (i in 1..10) { // TODO delete, this is here just to mock larger data
-            products.addAll(data)
-        }
+        products.addAll(data)
         notifyDataSetChanged()
     }
 
@@ -51,7 +48,7 @@ class ShopAdapter(private val vendorFragment: VendorFragment) :
         if (productsRow[0] != null) {
             holder.firstProductName?.text = productsRow[0]?.name
             holder.firstProductImage?.isClickable = true
-            picasso.load(productsRow[0]?.image).networkPolicy(NetworkPolicy.OFFLINE)
+            picasso.load(productsRow[0]?.image)
                 .into(getTargetToLoadImageIntoLayoutBackground(holder.firstProductImage))
             holder.firstProductImage?.setOnClickListener {
                 productsRow[0]?.let { product -> selectItem(holder.itemView, product) }
@@ -65,7 +62,7 @@ class ShopAdapter(private val vendorFragment: VendorFragment) :
         if (productsRow[1] != null) {
             holder.secondProductName?.text = productsRow[1]?.name
             holder.secondProductImage?.isClickable = true
-            picasso.load(productsRow[1]?.image).networkPolicy(NetworkPolicy.OFFLINE)
+            picasso.load(productsRow[1]?.image)
                 .into(getTargetToLoadImageIntoLayoutBackground(holder.secondProductImage))
             holder.secondProductImage?.setOnClickListener {
                 productsRow[1]?.let { product -> selectItem(holder.itemView, product) }
@@ -79,7 +76,7 @@ class ShopAdapter(private val vendorFragment: VendorFragment) :
         if (productsRow[2] != null) {
             holder.thirdProductName?.text = productsRow[2]?.name
             holder.thirdProductImage?.isClickable = true
-            picasso.load(productsRow[2]?.image).networkPolicy(NetworkPolicy.OFFLINE)
+            picasso.load(productsRow[2]?.image)
                 .into(getTargetToLoadImageIntoLayoutBackground(holder.thirdProductImage))
             holder.thirdProductImage?.setOnClickListener {
                 productsRow[2]?.let { product -> selectItem(holder.itemView, product) }

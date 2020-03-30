@@ -6,6 +6,7 @@ import cz.quanti.android.vendor_app.repository.login.LoginRepository
 import cz.quanti.android.vendor_app.repository.login.dto.Vendor
 import cz.quanti.android.vendor_app.repository.product.ProductRepository
 import cz.quanti.android.vendor_app.repository.product.dto.Product
+import cz.quanti.android.vendor_app.utils.CurrentVendor
 import cz.quanti.android.vendor_app.utils.LoginManager
 import cz.quanti.android.vendor_app.utils.VendorAppException
 import cz.quanti.android.vendor_app.utils.hashAndSaltPassword
@@ -40,7 +41,22 @@ class LoginFacadeImpl(
                         this.password = saltedPassword
                     }
                 loginManager.login(username, saltedPassword)
-                loginRepo.login(vendor).flatMapCompletable { reloadProductFromServer() }
+                loginRepo.login(vendor).flatMapCompletable { response ->
+                    val responseCode = response.first
+                    val loggedVendor = response.second
+                    if (responseCode == 200) {
+                        loggedVendor.loggedIn = true
+                        loggedVendor.username = vendor.username
+                        loggedVendor.saltedPassword = vendor.saltedPassword
+                        CurrentVendor.vendor = loggedVendor
+                        reloadProductFromServer()
+                    } else {
+                        Completable.error(VendorAppException("Cannot login").apply {
+                            this.apiError = true
+                            this.apiResponseCode = responseCode
+                        })
+                    }
+                }
             }
         }
     }

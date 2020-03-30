@@ -15,6 +15,7 @@ import cz.quanti.android.vendor_app.main.vendor.viewmodel.VendorViewModel
 import cz.quanti.android.vendor_app.repository.product.dto.Product
 import cz.quanti.android.vendor_app.repository.product.dto.SelectedProduct
 import cz.quanti.android.vendor_app.repository.voucher.dto.Voucher
+import cz.quanti.android.vendor_app.utils.CurrentVendor
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
@@ -41,6 +42,7 @@ class VendorFragment() : Fragment(), VendorFragmentCallback {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        CurrentVendor
         chosenCurrency = args.currency
         cart = (activity as MainActivity).cart
         vouchers = (activity as MainActivity).vouchers

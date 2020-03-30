@@ -6,7 +6,7 @@ data class Vendor(
     var password: String = "",
     var saltedPassword: String = "",
     var shop: String = "",
-    var adress: String = "",
+    var address: String = "",
     var loggedIn: Boolean = false,
     var products: Array<String> = arrayOf(),
     var country: String = "",

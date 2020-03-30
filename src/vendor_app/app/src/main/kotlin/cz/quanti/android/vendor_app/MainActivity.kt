@@ -2,6 +2,7 @@ package cz.quanti.android.vendor_app
 
 import android.os.Bundle
 import android.view.Menu
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.findNavController
 import cz.quanti.android.vendor_app.main.authorization.viewmodel.LoginViewModel
@@ -32,8 +33,18 @@ class MainActivity : AppCompatActivity() {
         menuInflater.inflate(R.menu.action_bar_actions, menu)
 
         menu?.findItem(R.id.logoutButton)?.setOnMenuItemClickListener {
-            loginViewModel.logout()
-            findNavController(R.id.main_nav_host).popBackStack(R.id.loginFragment, false)
+            AlertDialog.Builder(this, R.style.DialogTheme)
+                .setTitle(getString(R.string.areYouSureDialogTitle))
+                .setMessage(getString(R.string.logoutDialogMessage))
+                .setPositiveButton(
+                    android.R.string.yes
+                ) { _, _ ->
+                    loginViewModel.logout()
+                    findNavController(R.id.main_nav_host).popBackStack(R.id.loginFragment, false)
+                }
+                .setNegativeButton(android.R.string.no, null)
+                .show()
+
             true
         }
 

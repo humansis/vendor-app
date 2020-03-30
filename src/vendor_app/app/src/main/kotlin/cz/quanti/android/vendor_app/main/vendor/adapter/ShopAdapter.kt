@@ -10,15 +10,14 @@ import android.widget.LinearLayout
 import androidx.recyclerview.widget.RecyclerView
 import com.squareup.picasso.Picasso
 import cz.quanti.android.vendor_app.R
-import cz.quanti.android.vendor_app.main.vendor.fragment.ProductDetailFragment
-import cz.quanti.android.vendor_app.main.vendor.fragment.VendorFragment
+import cz.quanti.android.vendor_app.main.vendor.callback.VendorFragmentCallback
 import cz.quanti.android.vendor_app.main.vendor.viewholder.ShopViewHolder
 import cz.quanti.android.vendor_app.repository.product.dto.Product
 import org.koin.core.KoinComponent
 import org.koin.core.inject
 import kotlin.math.ceil
 
-class ShopAdapter(private val vendorFragment: VendorFragment) :
+class ShopAdapter(private val vendorFragmentCallback: VendorFragmentCallback) :
     RecyclerView.Adapter<ShopViewHolder>(), KoinComponent {
 
     private val products: MutableList<Product> = mutableListOf()
@@ -57,7 +56,7 @@ class ShopAdapter(private val vendorFragment: VendorFragment) :
             holder.firstProductImage?.visibility = View.INVISIBLE
             holder.firstProductName?.visibility = View.INVISIBLE
             holder.firstProductLayout?.visibility = View.INVISIBLE
-    }
+        }
 
         if (productsRow[1] != null) {
             holder.secondProductName?.text = productsRow[1]?.name
@@ -101,11 +100,7 @@ class ShopAdapter(private val vendorFragment: VendorFragment) :
     }
 
     private fun selectItem(itemView: View, product: Product) {
-        val productDetailFragment = ProductDetailFragment(product)
-        val transaction = vendorFragment.childFragmentManager.beginTransaction().apply {
-            replace(R.id.fragmentContainer, productDetailFragment)
-        }
-        transaction.commit()
+        vendorFragmentCallback.chooseProduct(product)
     }
 
     private fun getTargetToLoadImageIntoLayoutBackground(layout: LinearLayout?): com.squareup.picasso.Target {

@@ -4,12 +4,12 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import cz.quanti.android.vendor_app.R
-import cz.quanti.android.vendor_app.main.vendor.fragment.ShoppingCartFragment
+import cz.quanti.android.vendor_app.main.vendor.callback.ShoppingCartFragmentCallback
 import cz.quanti.android.vendor_app.main.vendor.viewholder.ShoppingCartViewHolder
 import cz.quanti.android.vendor_app.repository.product.dto.SelectedProduct
 import cz.quanti.android.vendor_app.utils.getStringFromDouble
 
-class ShoppingCartAdapter(private val shoppingCartFragment: ShoppingCartFragment) :
+class ShoppingCartAdapter(private val shoppingCartFragmentCallback: ShoppingCartFragmentCallback) :
     RecyclerView.Adapter<ShoppingCartViewHolder>() {
 
     private val cart: MutableList<SelectedProduct> = mutableListOf()
@@ -31,11 +31,11 @@ class ShoppingCartAdapter(private val shoppingCartFragment: ShoppingCartFragment
         val productDetailText =
             "${item.product.name} ${getStringFromDouble(item.quantity)} ${item.product.unit}"
         val priceText =
-            "${getStringFromDouble(item.subTotal)} ${shoppingCartFragment.chosenCurrency}"
+            "${getStringFromDouble(item.subTotal)} ${shoppingCartFragmentCallback.getCurrency()}"
         holder.productDetail.text = productDetailText
         holder.price.text = priceText
         holder.remove.setOnClickListener {
-            shoppingCartFragment.removeItemFromCart(position)
+            shoppingCartFragmentCallback.removeItemFromCart(position)
         }
     }
 

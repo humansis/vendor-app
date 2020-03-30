@@ -1,10 +1,9 @@
 package cz.quanti.android.vendor_app.repository.voucher.dao
 
-import androidx.room.Dao
-import androidx.room.Delete
-import androidx.room.Insert
-import androidx.room.OnConflictStrategy
+import androidx.room.*
+import cz.quanti.android.vendor_app.repository.VendorDb
 import cz.quanti.android.vendor_app.repository.voucher.dto.db.VoucherDbEntity
+import io.reactivex.Single
 
 @Dao
 interface VoucherDao {
@@ -14,4 +13,7 @@ interface VoucherDao {
 
     @Delete
     fun delete(voucher: VoucherDbEntity)
+
+    @Query("SELECT * FROM " + VendorDb.TABLE_VOUCHER)
+    fun getAll(): Single<List<VoucherDbEntity>>
 }

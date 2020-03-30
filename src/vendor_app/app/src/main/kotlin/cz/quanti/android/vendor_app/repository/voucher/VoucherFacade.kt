@@ -8,5 +8,5 @@ import io.reactivex.Single
 interface VoucherFacade {
     fun saveVouchers(vouchers: List<Voucher>): Completable
 
-    fun getDeactivatedBooklets(): Single<List<Booklet>>
+    fun getAllDeactivatedBooklets(): Single<List<Booklet>>
 }

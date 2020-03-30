@@ -9,7 +9,7 @@ import io.reactivex.Single
 class ScannerViewModel(private val voucherFacade: VoucherFacade) : ViewModel() {
 
     fun getDeactivatedBooklets(): Single<List<Booklet>> {
-        return voucherFacade.getDeactivatedBooklets()
+        return voucherFacade.getAllDeactivatedBooklets()
     }
 
     fun getVoucherFromScannedCode(

@@ -16,7 +16,7 @@ class VoucherFacadeImpl(private val voucherRepo: VoucherRepository) : VoucherFac
         }
     }
 
-    override fun getDeactivatedBooklets(): Single<List<Booklet>> {
-        return voucherRepo.getDeactivatedBooklets()
+    override fun getAllDeactivatedBooklets(): Single<List<Booklet>> {
+        return voucherRepo.getAllDeactivatedBooklets()
     }
 }

@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import cz.quanti.android.vendor_app.App
@@ -11,6 +12,7 @@ import cz.quanti.android.vendor_app.MainActivity
 import cz.quanti.android.vendor_app.R
 import cz.quanti.android.vendor_app.main.authorization.viewmodel.LoginViewModel
 import cz.quanti.android.vendor_app.utils.CurrentVendor
+import cz.quanti.android.vendor_app.utils.VendorAppException
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.fragment_login.*
@@ -60,6 +62,12 @@ class LoginFragment : Fragment() {
                             usernameEditText.error = getString(R.string.wrong_password)
                             passwordEditText.error = getString(R.string.wrong_password)
                             loginButton.isEnabled = true
+                            //TODO just for debugging purposes
+                            Toast.makeText(
+                                context,
+                                it.message + " " + (it as VendorAppException).apiResponseCode,
+                                Toast.LENGTH_LONG
+                            ).show()
                         }
                     )
             }

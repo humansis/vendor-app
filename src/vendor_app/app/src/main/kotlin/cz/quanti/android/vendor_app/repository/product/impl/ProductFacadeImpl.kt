@@ -5,6 +5,7 @@ import cz.quanti.android.vendor_app.repository.product.ProductFacade
 import cz.quanti.android.vendor_app.repository.product.ProductRepository
 import cz.quanti.android.vendor_app.repository.product.dto.Product
 import cz.quanti.android.vendor_app.utils.VendorAppException
+import cz.quanti.android.vendor_app.utils.isPositiveResponseHttpCode
 import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.Single
@@ -18,7 +19,7 @@ class ProductFacadeImpl(
         return productRepo.getProductsFromServer().flatMapCompletable { response ->
             val responseCode = response.first
             val products = response.second
-            if (responseCode == 200) {
+            if (isPositiveResponseHttpCode(responseCode)) {
                 actualizeDatabase(products)
             } else {
                 Completable.error(

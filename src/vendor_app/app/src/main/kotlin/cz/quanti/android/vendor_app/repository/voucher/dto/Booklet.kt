@@ -10,5 +10,6 @@ data class Booklet(
         const val STATE_NORMAL = 0
         const val STATE_PROTECTED = 1
         const val STATE_DEACTIVATED = 2
+        const val STATE_NEWLY_DEACTIVATED = 3
     }
 }

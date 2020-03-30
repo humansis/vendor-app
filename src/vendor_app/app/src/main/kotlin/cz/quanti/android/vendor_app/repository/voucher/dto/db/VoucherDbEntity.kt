@@ -13,7 +13,7 @@ data class VoucherDbEntity(
     var qrCode: String = "",
     var vendorId: String = "",
     var productIds: ProductIdListWrapper = ProductIdListWrapper(),
-    var price: Long = 0,
+    var price: Double = 0.0,
     var currency: String = "",
     var value: Long = 0,
     var booklet: String = "",

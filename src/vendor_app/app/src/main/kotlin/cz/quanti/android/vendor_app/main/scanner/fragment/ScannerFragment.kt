@@ -17,7 +17,11 @@ import com.budiyev.android.codescanner.ScanMode
 import cz.quanti.android.vendor_app.MainActivity
 import cz.quanti.android.vendor_app.R
 import cz.quanti.android.vendor_app.main.scanner.viewmodel.ScannerViewModel
+import cz.quanti.android.vendor_app.repository.voucher.dto.Booklet
 import cz.quanti.android.vendor_app.utils.Constants
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.Disposable
+import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.fragment_scanner.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import quanti.com.kotlinlog.Log
@@ -31,6 +35,8 @@ class ScannerFragment() : Fragment() {
     private var lastScanned: String = ""
     private var clearCachedTimer: Timer = Timer()
     private lateinit var chosenCurrency: String
+    private lateinit var deactivated: List<Booklet>
+    private var disposable: Disposable? = null
 
     val args: ScannerFragmentArgs by navArgs()
 
@@ -47,15 +53,23 @@ class ScannerFragment() : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         chosenCurrency = args.currency
-
-        if (!cameraPermissionGranted()) {
-            requestPermissions(
-                arrayOf(Manifest.permission.CAMERA),
-                Constants.CAMERA_PERMISSION_REQUEST_CODE
-            )
-        } else {
-            runScanner()
-        }
+        disposable = vm.getDeactivatedBooklets().subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread()).subscribe(
+            {
+                deactivated = it
+                if (!cameraPermissionGranted()) {
+                    requestPermissions(
+                        arrayOf(Manifest.permission.CAMERA),
+                        Constants.CAMERA_PERMISSION_REQUEST_CODE
+                    )
+                } else {
+                    runScanner()
+                }
+            },
+            {
+                Log.e(it)
+            }
+        )
     }
 
     override fun onRequestPermissionsResult(
@@ -134,6 +148,8 @@ class ScannerFragment() : Fragment() {
 
     override fun onDestroy() {
         codeScanner?.releaseResources()
+        disposable?.dispose()
+        disposable = null
         super.onDestroy()
     }
 
@@ -146,7 +162,12 @@ class ScannerFragment() : Fragment() {
                 .setPositiveButton(android.R.string.ok, null)
                 .show()
         } else {
-            val result = vm.getVoucherFromScannedCode(scannedCode)
+            var booklet = ""
+            if ((activity as MainActivity).vouchers.size > 0) {
+                booklet = (activity as MainActivity).vouchers[0].booklet
+            }
+            val result =
+                vm.getVoucherFromScannedCode(scannedCode, chosenCurrency, booklet, deactivated)
             val voucher = result.first
             val resultCode = result.second
             if (voucher != null &&

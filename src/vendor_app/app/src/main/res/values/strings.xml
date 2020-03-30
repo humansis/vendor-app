@@ -36,4 +36,5 @@
     <string name="wrongCodeTitle">Error</string>
     <string name="wrongCodeDialogMessage">Your code isn\'t the right format, are you sure it is a BMS Voucher?</string>
     <string name="logoutDialogMessage">Are you sure you want to log out?</string>
+    <string name="errorWhileProceeding">Something went wrong during proceeding with the purchase. Do you have enough space on your device?</string>
 </resources>

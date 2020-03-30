@@ -68,7 +68,7 @@ object KoinInitializer {
         // Repository
         val loginRepo = LoginRepositoryImpl(api)
         val productRepo = ProductRepositoryImpl(db.productDao(), api)
-        val voucherRepo = VoucherRepositoryImpl(db.voucherDao())
+        val voucherRepo = VoucherRepositoryImpl(db.voucherDao(), db.bookletDao())
 
         // Facade
         val loginFacade = LoginFacadeImpl(loginRepo, productRepo, picasso, loginManager)
@@ -85,7 +85,7 @@ object KoinInitializer {
             // View model
             viewModel { LoginViewModel(loginFacade) }
             viewModel { VendorViewModel(productFacade) }
-            viewModel { ScannerViewModel() }
+            viewModel { ScannerViewModel(voucherFacade) }
             viewModel { CheckoutViewModel(voucherFacade) }
         }
     }

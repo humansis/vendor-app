@@ -18,7 +18,6 @@ class MainActivity : AppCompatActivity() {
     private val loginViewModel: LoginViewModel by viewModel()
     private val vendorViewModel: VendorViewModel by viewModel()
 
-    var chosenCurrency: String = ""
     val cart: MutableList<SelectedProduct> = mutableListOf()
     val vouchers: MutableList<Voucher> = mutableListOf()
 

@@ -1,11 +1,23 @@
 package cz.quanti.android.vendor_app.main.scanner.viewmodel
 
 import androidx.lifecycle.ViewModel
+import cz.quanti.android.vendor_app.repository.voucher.VoucherFacade
+import cz.quanti.android.vendor_app.repository.voucher.dto.Booklet
 import cz.quanti.android.vendor_app.repository.voucher.dto.Voucher
+import io.reactivex.Single
 
-class ScannerViewModel : ViewModel() {
+class ScannerViewModel(private val voucherFacade: VoucherFacade) : ViewModel() {
 
-    fun getVoucherFromScannedCode(scannedCode: String): Pair<Voucher?, Int> {
+    fun getDeactivatedBooklets(): Single<List<Booklet>> {
+        return voucherFacade.getDeactivatedBooklets()
+    }
+
+    fun getVoucherFromScannedCode(
+        scannedCode: String,
+        chosenCurrency: String,
+        booklet: String,
+        deactivated: List<Booklet>
+    ): Pair<Voucher?, Int> {
         val passwords = mutableListOf<String>()
         var bookletCode = ""
         var currency = ""
@@ -54,18 +66,45 @@ class ScannerViewModel : ViewModel() {
             this.booklet = bookletCode
             this.currency = currency
             this.value = value
-            // TODO set vendor id, product ids, price and date (the checkout part will take care of that?)
         }
 
-        return Pair(voucher, check(voucher, returnCode))
+        return Pair(voucher, check(voucher, returnCode, chosenCurrency, booklet, deactivated))
     }
 
-    private fun check(voucher: Voucher, returnCode: Int): Int {
-        var newReturnCode = returnCode
-        // TODO check if not deactivated
-        // TODO check if from same booklet
-        // TODO check if of same currency
-        return newReturnCode
+    private fun check(
+        voucher: Voucher,
+        returnCode: Int,
+        validCurrency: String,
+        booklet: String,
+        deactivated: List<Booklet>
+    ): Int {
+
+        if (checkIfDeactivated(voucher, deactivated)) {
+            return DEACTIVATED
+        }
+        if (checkIfInvalidBooklet(voucher, booklet)) {
+            return WRONG_BOOKLET
+        }
+        if (checkIfDifferentCurrency(voucher, validCurrency)) {
+            return WRONG_CURRENCY
+        }
+        return returnCode
+    }
+
+    private fun checkIfDeactivated(voucher: Voucher, deactivated: List<Booklet>): Boolean {
+        return deactivated.map { booklet -> booklet.code }.contains(voucher.booklet)
+    }
+
+    private fun checkIfInvalidBooklet(voucher: Voucher, booklet: String): Boolean {
+        return if (booklet == "") {
+            false
+        } else {
+            voucher.booklet != booklet
+        }
+    }
+
+    private fun checkIfDifferentCurrency(voucher: Voucher, validCurrency: String): Boolean {
+        return voucher.currency != validCurrency
     }
 
     companion object {
@@ -73,5 +112,8 @@ class ScannerViewModel : ViewModel() {
         const val VOUCHER_WITHOUT_PASSWORD = 2
         const val BOOKLET = 3
         const val WRONG_FORMAT = 4
+        const val DEACTIVATED = 5
+        const val WRONG_BOOKLET = 6
+        const val WRONG_CURRENCY = 7
     }
 }

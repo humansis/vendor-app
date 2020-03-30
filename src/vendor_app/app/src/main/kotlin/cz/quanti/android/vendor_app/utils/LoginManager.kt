@@ -1,15 +1,20 @@
 package cz.quanti.android.vendor_app.utils
 
-import cz.quanti.android.vendor_app.repository.login.dto.Vendor
-
 class LoginManager {
-    var user: Vendor? = null
+    private var user: Pair<String, String>? = null
+
+    fun login(username: String, saltedPassword: String) {
+        user = Pair(username, saltedPassword)
+    }
 
     fun getAuthHeader(): String? {
-        if (user == null) return null
-
-        return generateXWSSEHeader(
-            user?.username ?: "", user?.saltedPassword ?: "", true
-        )
+        user?.let { user ->
+            val username = user.first
+            val saltedPassword = user.second
+            return generateXWSSEHeader(
+                username, saltedPassword, true
+            )
+        }
+        return null
     }
 }

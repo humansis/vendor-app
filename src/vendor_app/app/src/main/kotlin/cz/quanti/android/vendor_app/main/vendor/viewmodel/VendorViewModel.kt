@@ -1,15 +1,15 @@
 package cz.quanti.android.vendor_app.main.vendor.viewmodel
 
 import androidx.lifecycle.ViewModel
-import cz.quanti.android.vendor_app.repository.CommonFacade
+import cz.quanti.android.vendor_app.repository.product.ProductFacade
 import cz.quanti.android.vendor_app.repository.product.dto.Product
 import io.reactivex.Completable
 import io.reactivex.Single
 
-class VendorViewModel(private val facade: CommonFacade) : ViewModel() {
+class VendorViewModel(private val productFacade: ProductFacade) : ViewModel() {
 
     fun getProducts(): Single<List<Product>> {
-        return facade.getProducts()
+        return productFacade.getProducts()
     }
 
     fun synchronizeWithServer(): Completable {
@@ -21,6 +21,6 @@ class VendorViewModel(private val facade: CommonFacade) : ViewModel() {
     }
 
     private fun actualizeProducts(): Completable {
-        return facade.reloadProductFromServer()
+        return productFacade.reloadProductFromServer()
     }
 }

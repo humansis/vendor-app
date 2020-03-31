@@ -60,15 +60,14 @@ class LoginFacadeImpl(
         }
     }
 
-    fun syncWithServer(): Completable {
+    override fun syncWithServer(): Completable {
         return sendDataToServer()
             .andThen(getDataFromServer())
     }
 
     private fun sendDataToServer(): Completable {
         return sendVouchers()
-        //.andThen(sendDeactivatedBooklets())
-        // TODO it return error code 400 from server
+            .andThen(sendDeactivatedBooklets())
     }
 
     private fun getDataFromServer(): Completable {

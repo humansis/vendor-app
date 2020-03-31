@@ -8,6 +8,7 @@ import cz.quanti.android.vendor_app.repository.voucher.dao.VoucherDao
 import cz.quanti.android.vendor_app.repository.voucher.dto.Booklet
 import cz.quanti.android.vendor_app.repository.voucher.dto.Voucher
 import cz.quanti.android.vendor_app.repository.voucher.dto.api.BookletApiEntity
+import cz.quanti.android.vendor_app.repository.voucher.dto.api.BookletCodesBody
 import cz.quanti.android.vendor_app.repository.voucher.dto.api.VoucherApiEntity
 import cz.quanti.android.vendor_app.repository.voucher.dto.db.BookletDbEntity
 import cz.quanti.android.vendor_app.repository.voucher.dto.db.VoucherDbEntity
@@ -41,6 +42,12 @@ class VoucherRepositoryImpl(
         return bookletDao.getNewlyDeactivated().map { list ->
             list.map { convert(it) }
         }
+    }
+
+    private fun getBooklets(): List<Booklet> {
+        return listOf(Booklet().apply {
+            this.code = "123"
+        })
     }
 
     override fun saveBooklet(booklet: Booklet): Completable {
@@ -94,7 +101,7 @@ class VoucherRepositoryImpl(
     }
 
     override fun sendDeactivatedBookletsToServer(booklets: List<Booklet>): Single<Int> {
-        return api.postBooklets(booklets.map { it.code }).map { response ->
+        return api.postBooklets(BookletCodesBody(booklets.map { it.code })).map { response ->
             response.code()
         }
     }

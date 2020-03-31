@@ -44,12 +44,6 @@ class VoucherRepositoryImpl(
         }
     }
 
-    private fun getBooklets(): List<Booklet> {
-        return listOf(Booklet().apply {
-            this.code = "123"
-        })
-    }
-
     override fun saveBooklet(booklet: Booklet): Completable {
         return Completable.fromCallable { bookletDao.insert(convert(booklet)) }
     }

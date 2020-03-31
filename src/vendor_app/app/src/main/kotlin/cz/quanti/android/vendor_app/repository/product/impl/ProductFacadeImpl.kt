@@ -11,8 +11,7 @@ import io.reactivex.Observable
 import io.reactivex.Single
 
 class ProductFacadeImpl(
-    private val productRepo: ProductRepository,
-    private val picasso: Picasso
+    private val productRepo: ProductRepository
 ) : ProductFacade {
 
     override fun reloadProductFromServer(): Completable {
@@ -44,7 +43,7 @@ class ProductFacadeImpl(
             productRepo.deleteProducts().andThen(
                 Observable.fromIterable(products).flatMapCompletable { product ->
                     productRepo.saveProduct(product)
-                        .andThen(Completable.fromCallable { picasso.load(product.image) })
+                        .andThen(Completable.fromCallable { Picasso.get().load(product.image) })
                 })
         }
     }

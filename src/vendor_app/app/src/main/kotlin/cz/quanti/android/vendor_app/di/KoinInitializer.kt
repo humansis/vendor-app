@@ -4,8 +4,6 @@ import android.content.Context
 import androidx.room.Room
 import com.google.gson.GsonBuilder
 import com.jakewharton.retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
-import com.squareup.picasso.OkHttp3Downloader
-import com.squareup.picasso.Picasso
 import cz.quanti.android.vendor_app.App
 import cz.quanti.android.vendor_app.BuildConfig
 import cz.quanti.android.vendor_app.main.authorization.viewmodel.LoginViewModel
@@ -57,12 +55,6 @@ object KoinInitializer {
             .client(createClient(app, loginManager))
             .build().create(VendorAPI::class.java)
 
-        val picasso = Picasso.Builder(app)
-            .loggingEnabled(BuildConfig.DEBUG)
-            .indicatorsEnabled(BuildConfig.DEBUG)
-            .downloader(OkHttp3Downloader(app))
-            .build()
-
         val db = Room.databaseBuilder(app, VendorDb::class.java, VendorDb.DB_NAME).build()
 
         // Repository
@@ -72,15 +64,14 @@ object KoinInitializer {
 
         // Facade
         val loginFacade =
-            LoginFacadeImpl(loginRepo, productRepo, voucherRepo, picasso, loginManager)
-        val productFacade = ProductFacadeImpl(productRepo, picasso)
+            LoginFacadeImpl(loginRepo, productRepo, voucherRepo, loginManager)
+        val productFacade = ProductFacadeImpl(productRepo)
         val voucherFacade = VoucherFacadeImpl(voucherRepo)
 
         return module {
             single { AppPreferences(androidContext()) }
             single { api }
             single { db }
-            single { picasso }
             single { loginManager }
 
             // View model

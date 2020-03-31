@@ -1,12 +1,10 @@
 package cz.quanti.android.vendor_app.main.vendor.adapter
 
-import android.graphics.Bitmap
-import android.graphics.drawable.BitmapDrawable
-import android.graphics.drawable.Drawable
+import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.LinearLayout
+import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
 import com.squareup.picasso.Picasso
 import cz.quanti.android.vendor_app.R
@@ -14,15 +12,18 @@ import cz.quanti.android.vendor_app.main.vendor.callback.VendorFragmentCallback
 import cz.quanti.android.vendor_app.main.vendor.viewholder.ShopViewHolder
 import cz.quanti.android.vendor_app.repository.product.dto.Product
 import org.koin.core.KoinComponent
-import org.koin.core.inject
+import quanti.com.kotlinlog.Log
 import kotlin.math.ceil
 
-class ShopAdapter(private val vendorFragmentCallback: VendorFragmentCallback) :
+class ShopAdapter(
+    private val vendorFragmentCallback: VendorFragmentCallback,
+    private val context: Context
+) :
     RecyclerView.Adapter<ShopViewHolder>(), KoinComponent {
 
     private val products: MutableList<Product> = mutableListOf()
     private val itemsInRow = 3
-    private val picasso: Picasso by inject()
+    private val picasso = Picasso.get()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ShopViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.item_shop, parent, false)
@@ -47,8 +48,18 @@ class ShopAdapter(private val vendorFragmentCallback: VendorFragmentCallback) :
         if (productsRow[0] != null) {
             holder.firstProductName?.text = productsRow[0]?.name
             holder.firstProductImage?.isClickable = true
+            picasso.isLoggingEnabled = true
+            var img = ImageView(context)
             picasso.load(productsRow[0]?.image)
-                .into(getTargetToLoadImageIntoLayoutBackground(holder.firstProductImage))
+                .into(img, object : com.squareup.picasso.Callback {
+                    override fun onSuccess() {
+                        holder.firstProductImage?.background = img.drawable
+                    }
+
+                    override fun onError(e: java.lang.Exception?) {
+                        Log.e(e?.message ?: "")
+                    }
+                })
             holder.firstProductImage?.setOnClickListener {
                 productsRow[0]?.let { product -> selectItem(holder.itemView, product) }
             }
@@ -61,8 +72,17 @@ class ShopAdapter(private val vendorFragmentCallback: VendorFragmentCallback) :
         if (productsRow[1] != null) {
             holder.secondProductName?.text = productsRow[1]?.name
             holder.secondProductImage?.isClickable = true
+            var img = ImageView(context)
             picasso.load(productsRow[1]?.image)
-                .into(getTargetToLoadImageIntoLayoutBackground(holder.secondProductImage))
+                .into(img, object : com.squareup.picasso.Callback {
+                    override fun onSuccess() {
+                        holder.secondProductImage?.background = img.drawable
+                    }
+
+                    override fun onError(e: java.lang.Exception?) {
+                        Log.e(e?.message ?: "")
+                    }
+                })
             holder.secondProductImage?.setOnClickListener {
                 productsRow[1]?.let { product -> selectItem(holder.itemView, product) }
             }
@@ -75,8 +95,17 @@ class ShopAdapter(private val vendorFragmentCallback: VendorFragmentCallback) :
         if (productsRow[2] != null) {
             holder.thirdProductName?.text = productsRow[2]?.name
             holder.thirdProductImage?.isClickable = true
+            var img = ImageView(context)
             picasso.load(productsRow[2]?.image)
-                .into(getTargetToLoadImageIntoLayoutBackground(holder.thirdProductImage))
+                .into(img, object : com.squareup.picasso.Callback {
+                    override fun onSuccess() {
+                        holder.thirdProductImage?.background = img.drawable
+                    }
+
+                    override fun onError(e: java.lang.Exception?) {
+                        Log.e(e?.message ?: "")
+                    }
+                })
             holder.thirdProductImage?.setOnClickListener {
                 productsRow[2]?.let { product -> selectItem(holder.itemView, product) }
             }
@@ -101,21 +130,5 @@ class ShopAdapter(private val vendorFragmentCallback: VendorFragmentCallback) :
 
     private fun selectItem(itemView: View, product: Product) {
         vendorFragmentCallback.chooseProduct(product)
-    }
-
-    private fun getTargetToLoadImageIntoLayoutBackground(layout: LinearLayout?): com.squareup.picasso.Target {
-        return object : com.squareup.picasso.Target {
-            override fun onPrepareLoad(placeHolderDrawable: Drawable?) {
-                layout?.background = placeHolderDrawable
-            }
-
-            override fun onBitmapFailed(e: Exception?, errorDrawable: Drawable?) {
-                layout?.background = errorDrawable
-            }
-
-            override fun onBitmapLoaded(bitmap: Bitmap, from: Picasso.LoadedFrom) {
-                layout?.background = BitmapDrawable(layout?.context?.resources, bitmap)
-            }
-        }
     }
 }

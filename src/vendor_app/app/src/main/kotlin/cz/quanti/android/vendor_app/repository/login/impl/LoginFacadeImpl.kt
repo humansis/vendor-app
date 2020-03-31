@@ -15,7 +15,6 @@ class LoginFacadeImpl(
     private val loginRepo: LoginRepository,
     private val productRepo: ProductRepository,
     private val voucherRepo: VoucherRepository,
-    private val picasso: Picasso,
     private val loginManager: LoginManager
 ) : LoginFacade {
 
@@ -133,7 +132,7 @@ class LoginFacadeImpl(
             productRepo.deleteProducts().andThen(
                 Observable.fromIterable(products).flatMapCompletable { product ->
                     productRepo.saveProduct(product)
-                        .andThen(Completable.fromCallable { picasso.load(product.image) })
+                        .andThen(Completable.fromCallable { Picasso.get().load(product.image) })
                 })
         }
     }

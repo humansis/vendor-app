@@ -15,7 +15,6 @@ import cz.quanti.android.vendor_app.main.vendor.viewmodel.VendorViewModel
 import cz.quanti.android.vendor_app.repository.product.dto.Product
 import cz.quanti.android.vendor_app.repository.product.dto.SelectedProduct
 import cz.quanti.android.vendor_app.repository.voucher.dto.Voucher
-import cz.quanti.android.vendor_app.utils.CurrentVendor
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
@@ -26,7 +25,7 @@ import quanti.com.kotlinlog.Log
 class VendorFragment() : Fragment(), VendorFragmentCallback {
     private val vm: VendorViewModel by viewModel()
     private var disposables = CompositeDisposable()
-    private val adapter = ShopAdapter(this)
+    private lateinit var adapter: ShopAdapter
 
     lateinit var chosenCurrency: String
     lateinit var cart: MutableList<SelectedProduct>
@@ -42,7 +41,7 @@ class VendorFragment() : Fragment(), VendorFragmentCallback {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        CurrentVendor
+        adapter = ShopAdapter(this, requireContext())
         chosenCurrency = args.currency
         cart = (activity as MainActivity).cart
         vouchers = (activity as MainActivity).vouchers

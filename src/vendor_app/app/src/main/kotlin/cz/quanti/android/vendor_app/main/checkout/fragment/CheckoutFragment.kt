@@ -14,6 +14,7 @@ import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import cz.quanti.android.vendor_app.MainActivity
 import cz.quanti.android.vendor_app.R
+import cz.quanti.android.vendor_app.main.checkout.adapter.ScannedVoucherAdapter
 import cz.quanti.android.vendor_app.main.checkout.adapter.SelectedProductsAdapter
 import cz.quanti.android.vendor_app.main.checkout.viewmodel.CheckoutViewModel
 import cz.quanti.android.vendor_app.repository.product.dto.SelectedProduct
@@ -27,7 +28,8 @@ import quanti.com.kotlinlog.Log
 
 class CheckoutFragment() : Fragment() {
     private val vm: CheckoutViewModel by viewModel()
-    private val selectedProductsAdapter = SelectedProductsAdapter(this)
+    private val selectedProductsAdapter = SelectedProductsAdapter()
+    private val scannedVoucherAdapter = ScannedVoucherAdapter()
 
     private val args: CheckoutFragmentArgs by navArgs()
 
@@ -54,6 +56,7 @@ class CheckoutFragment() : Fragment() {
         vm.init(chosenCurrency, cart, vouchers)
         initOnClickListeners()
         initSelectedProductsAdapter()
+        initScannedVouchersAdapter()
 
         actualizeTotal()
     }
@@ -87,7 +90,7 @@ class CheckoutFragment() : Fragment() {
                             ).show()
                             Log.e(it)
                         }
-                )
+                    )
             } else {
                 AlertDialog.Builder(requireContext(), R.style.DialogTheme)
                     .setTitle(getString(R.string.cannotProceedWithPurchaseDialogTitle))
@@ -112,8 +115,26 @@ class CheckoutFragment() : Fragment() {
         checkoutSelectedProductsRecyclerView.setHasFixedSize(true)
         checkoutSelectedProductsRecyclerView.layoutManager = viewManager
         checkoutSelectedProductsRecyclerView.adapter = selectedProductsAdapter
+        selectedProductsAdapter.chosenCurrency = chosenCurrency
 
         selectedProductsAdapter.setData(cart)
+    }
+
+    private fun initScannedVouchersAdapter() {
+        val viewManager = LinearLayoutManager(activity)
+
+        scannedVouchersRecyclerView.setHasFixedSize(true)
+        scannedVouchersRecyclerView.layoutManager = viewManager
+        scannedVouchersRecyclerView.adapter = scannedVoucherAdapter
+
+        scannedVoucherAdapter.setData(vouchers)
+        if (vouchers.isEmpty()) {
+            scannedVouchersRecyclerView.visibility = View.INVISIBLE
+            pleaseScanVoucherTextView.visibility = View.VISIBLE
+        } else {
+            scannedVouchersRecyclerView.visibility = View.VISIBLE
+            pleaseScanVoucherTextView.visibility = View.INVISIBLE
+        }
     }
 
     private fun actualizeTotal() {

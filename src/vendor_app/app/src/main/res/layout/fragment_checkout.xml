@@ -14,36 +14,31 @@
         app:layout_constraintHeight_percent="0.8"
         app:layout_constraintTop_toTopOf="parent">
 
-        <ScrollView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:fillViewport="true">
-
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
 
-                <TextView
-                    android:id="@+id/productsTitleTextView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="20dp"
-                    android:text="@string/products"
-                    android:textColor="@color/black"
-                    android:textSize="20sp"
-                    android:textStyle="bold"
-                    app:layout_constraintEnd_toStartOf="@id/delimiterLayout"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
 
-                <LinearLayout
+                <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="0dp"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
                     android:layout_marginTop="20dp"
                     android:orientation="vertical"
                     app:layout_constraintEnd_toStartOf="@id/delimiterLayout"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/productsTitleTextView">
+                    app:layout_constraintStart_toStartOf="parent">
+
+                    <TextView
+                        android:id="@+id/productsTitleTextView"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="5dp"
+                        android:text="@string/products"
+                        android:textColor="@color/black"
+                        android:textSize="20sp"
+                        android:textStyle="bold"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
 
                     <androidx.recyclerview.widget.RecyclerView
                         android:id="@+id/checkoutSelectedProductsRecyclerView"
@@ -51,9 +46,11 @@
                         android:layout_height="wrap_content"
                         android:overScrollMode="never"
                         android:scrollbars="none"
-                        android:transcriptMode="alwaysScroll" />
+                        android:transcriptMode="alwaysScroll"
+                        android:layout_marginTop="5dp"
+                        app:layout_constraintTop_toBottomOf="@+id/productsTitleTextView" />
 
-                </LinearLayout>
+                </androidx.constraintlayout.widget.ConstraintLayout>
 
                 <!--delimiter-->
                 <LinearLayout
@@ -65,19 +62,6 @@
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent" />
 
-                <TextView
-                    android:id="@+id/vouchersTitleTextView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="20dp"
-                    android:text="@string/vouchers"
-                    android:textColor="@color/black"
-                    android:textSize="20sp"
-                    android:textStyle="bold"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toEndOf="@id/delimiterLayout"
-                    app:layout_constraintTop_toTopOf="parent" />
-
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
@@ -85,17 +69,20 @@
                     android:layout_marginBottom="20dp"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toEndOf="@id/delimiterLayout"
-                    app:layout_constraintTop_toBottomOf="@id/vouchersTitleTextView">
+                    app:layout_constraintTop_toTopOf="parent">
 
-                    <LinearLayout
-                        android:id="@+id/scanLayout"
+                    <TextView
+                        android:id="@+id/vouchersTitleTextView"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:paddingBottom="80dp"
-                        app:layout_constraintBottom_toBottomOf="parent"
+                        android:layout_marginTop="5dp"
+                        android:text="@string/vouchers"
+                        android:textColor="@color/black"
+                        android:textSize="20sp"
+                        android:textStyle="bold"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent">
+                        app:layout_constraintTop_toTopOf="parent" />
 
                         <com.google.android.material.button.MaterialButton
                             android:id="@+id/scanButton"
@@ -109,19 +96,56 @@
                             app:icon="@drawable/photo_camera"
                             app:iconTint="@color/colorPrimaryDark"
                             app:strokeColor="@color/colorPrimaryDark"
-                            app:strokeWidth="1dp" />
+                            app:strokeWidth="1dp"
+                            app:layout_constraintTop_toBottomOf="@+id/vouchersTitleTextView"
+                            app:layout_constraintBottom_toTopOf="@id/totalPriceFooter"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintEnd_toStartOf="@id/center" />
+
+                    <LinearLayout
+                        android:id="@+id/center"
+                        android:layout_width="1dp"
+                        android:layout_height="1dp"
+                        android:orientation="vertical"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
 
                         <TextView
+                            android:id="@+id/pleaseScanVoucherTextView"
                             android:layout_width="130dp"
                             android:layout_height="wrap_content"
-                            android:layout_marginStart="10dp"
+
                             android:text="@string/pleaseScanVoucher"
                             android:textAlignment="center"
                             android:textColor="@color/black"
-                            android:textSize="18sp" />
-                    </LinearLayout>
+                            android:textSize="18sp"
+                            app:layout_constraintTop_toBottomOf="@+id/vouchersTitleTextView"
+                            app:layout_constraintBottom_toTopOf="@id/totalPriceFooter"
+                            app:layout_constraintStart_toEndOf="@+id/center"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            android:layout_marginEnd="5dp"
+                            android:layout_marginStart="5dp" />
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/scannedVouchersRecyclerView"
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:overScrollMode="never"
+                        android:scrollbars="none"
+                        android:transcriptMode="alwaysScroll"
+                        app:layout_constraintTop_toBottomOf="@+id/vouchersTitleTextView"
+                        app:layout_constraintBottom_toTopOf="@id/totalPriceFooter"
+                        app:layout_constraintStart_toEndOf="@+id/center"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_goneMarginStart="5dp"
+                        android:layout_marginEnd="5dp"
+                        android:layout_marginTop="5dp"
+                        android:layout_marginBottom="5dp" />
 
                     <androidx.constraintlayout.widget.ConstraintLayout
+                        android:id="@+id/totalPriceFooter"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         app:layout_constraintBottom_toBottomOf="parent">
@@ -169,23 +193,26 @@
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
             </androidx.constraintlayout.widget.ConstraintLayout>
-        </ScrollView>
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <RelativeLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/checkoutScreenButtonsLayout"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/checkoutScreenLayout">
+        app:layout_constraintTop_toBottomOf="@id/checkoutScreenLayout"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginEnd="20dp">
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/cancelButton"
             android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_marginRight="10dp"
-            android:layout_toLeftOf="@id/proceedButton"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="10dp"
+            app:layout_constraintEnd_toStartOf="@id/proceedButton"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintTop_toBottomOf="parent"
             android:backgroundTint="@color/red"
             android:text="@string/cancel"
             android:textColor="@color/white" />
@@ -193,14 +220,15 @@
         <com.google.android.material.button.MaterialButton
             android:id="@+id/proceedButton"
             android:layout_width="wrap_content"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintTop_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
             android:layout_alignParentEnd="true"
             android:layout_marginEnd="20dp"
             android:backgroundTint="@color/green"
             android:text="@string/proceed"
             android:textColor="@color/white" />
-
-
-    </RelativeLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

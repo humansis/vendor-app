@@ -85,7 +85,7 @@ class CheckoutFragment() : Fragment() {
                         {
                             Toast.makeText(
                                 context,
-                                getString(R.string.errorWhileProceeding),
+                                getString(R.string.error_while_proceeding),
                                 Toast.LENGTH_SHORT
                             ).show()
                             Log.e(it)
@@ -93,8 +93,8 @@ class CheckoutFragment() : Fragment() {
                     )
             } else {
                 AlertDialog.Builder(requireContext(), R.style.DialogTheme)
-                    .setTitle(getString(R.string.cannotProceedWithPurchaseDialogTitle))
-                    .setMessage(getString(R.string.cannotProceedWithPurchaseDialogMessage))
+                    .setTitle(getString(R.string.cannot_proceed_with_purchase_dialog_title))
+                    .setMessage(getString(R.string.cannot_proceed_with_purchase_dialog_message))
                     .setPositiveButton(android.R.string.yes, null)
                     .show()
             }

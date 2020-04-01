@@ -116,7 +116,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="10dp"
                 android:layout_marginBottom="5dp"
-                android:text="@string/quantityUnit"
+                android:text="@string/quantity_unit"
                 android:textColor="@color/black"
                 android:textSize="20sp"
                 app:layout_constraintBottom_toBottomOf="@id/quantityTextInputLayout"
@@ -157,7 +157,7 @@
                     android:id="@+id/unitPriceEditText"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="@string/unitPrice"
+                    android:hint="@string/unit_price"
                     android:imeOptions="flagNoExtractUi"
                     android:inputType="numberDecimal"
                     android:singleLine="true" />

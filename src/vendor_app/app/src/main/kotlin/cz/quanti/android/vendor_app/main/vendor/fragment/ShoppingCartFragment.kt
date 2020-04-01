@@ -66,8 +66,8 @@ class ShoppingCartFragment : Fragment(), ShoppingCartFragmentCallback {
 
     override fun removeItemFromCart(position: Int) {
         AlertDialog.Builder(requireContext(), R.style.DialogTheme)
-            .setTitle(getString(R.string.areYouSureDialogTitle))
-            .setMessage(getString(R.string.removeProductFromCartDialogMessage))
+            .setTitle(getString(R.string.are_you_sure_dialog_title))
+            .setMessage(getString(R.string.remove_product_from_cart_dialog_message))
             .setPositiveButton(
                 android.R.string.yes
             ) { _, _ ->
@@ -105,8 +105,8 @@ class ShoppingCartFragment : Fragment(), ShoppingCartFragmentCallback {
 
         clearAllButton.setOnClickListener {
             AlertDialog.Builder(requireContext(), R.style.DialogTheme)
-                    .setTitle(getString(R.string.areYouSureDialogTitle))
-                    .setMessage(getString(R.string.clearCartDialogMessage))
+                .setTitle(getString(R.string.are_you_sure_dialog_title))
+                .setMessage(getString(R.string.clear_cart_dialog_message))
                     .setPositiveButton(
                         android.R.string.yes
                     ) { _, _ ->

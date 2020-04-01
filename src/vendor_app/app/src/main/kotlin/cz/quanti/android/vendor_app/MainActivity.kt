@@ -33,8 +33,8 @@ class MainActivity : AppCompatActivity() {
 
         menu?.findItem(R.id.logoutButton)?.setOnMenuItemClickListener {
             AlertDialog.Builder(this, R.style.DialogTheme)
-                .setTitle(getString(R.string.areYouSureDialogTitle))
-                .setMessage(getString(R.string.logoutDialogMessage))
+                .setTitle(getString(R.string.are_you_sure_dialog_title))
+                .setMessage(getString(R.string.logout_dialog_message))
                 .setPositiveButton(
                     android.R.string.yes
                 ) { _, _ ->

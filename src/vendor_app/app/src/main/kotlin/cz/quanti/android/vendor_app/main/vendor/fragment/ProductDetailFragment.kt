@@ -62,8 +62,8 @@ class ProductDetailFragment(private val product: Product) : Fragment() {
                 goToCart()
             } else {
                 AlertDialog.Builder(requireContext(), R.style.DialogTheme)
-                    .setTitle(getString(R.string.areYouSureDialogTitle))
-                    .setMessage(getString(R.string.leaveProductDetailDialogMessage))
+                    .setTitle(getString(R.string.are_you_sure_dialog_title))
+                    .setMessage(getString(R.string.leave_product_detail_dialog_message))
                     .setPositiveButton(
                         android.R.string.yes
                     ) { _, _ ->

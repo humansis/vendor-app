@@ -69,7 +69,7 @@
         android:layout_marginTop="20dp"
         android:backgroundTint="@color/red"
         android:elevation="3dp"
-        android:text="@string/clearAll"
+        android:text="@string/clear_all"
         android:textColor="@color/white"
         android:textSize="8sp"
         app:icon="@drawable/clear"

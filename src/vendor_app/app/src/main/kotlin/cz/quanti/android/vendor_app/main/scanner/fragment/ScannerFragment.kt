@@ -157,8 +157,8 @@ class ScannerFragment() : Fragment() {
         val code = scannedCode.replace(" ", "+")
         if (alreadyScanned(code)) {
             AlertDialog.Builder(requireContext(), R.style.DialogTheme)
-                .setTitle(getString(R.string.alreadyScannedDialogTitle))
-                .setMessage(getString(R.string.alreadyScannedDialogMessage))
+                .setTitle(getString(R.string.already_scanned_dialog_title))
+                .setMessage(getString(R.string.already_scanned_dialog_message))
                 .setPositiveButton(android.R.string.ok, null)
                 .show()
         } else {
@@ -190,15 +190,15 @@ class ScannerFragment() : Fragment() {
     }
 
     private fun getDialogMessageForResultCode(code: Int): Pair<String, String> {
-        var title = getString(R.string.wrongCodeTitle)
+        var title = getString(R.string.wrong_code_title)
         var message = ""
 
         when (code) {
             ScannerViewModel.BOOKLET -> {
-                message = getString(R.string.cannotScanBookletDialogMessage)
+                message = getString(R.string.cannot_scan_booklet_dialog_message)
             }
             ScannerViewModel.WRONG_FORMAT -> {
-                message = getString(R.string.wrongCodeDialogMessage)
+                message = getString(R.string.wrong_code_dialog_message)
             }
         }
         return Pair(title, message)

@@ -30,4 +30,9 @@
     <string name="clearCartDialogMessage">Are you sure you want to remove all items from the cart?</string>
     <string name="leaveProductDetailDialogMessage">The price or amount is not set. The product will not be added to the cart. Do you want to leave this page?</string>
     <string name="removeProductFromCartDialogMessage">Are you sure you want to remove this product from your cart?</string>
+    <string name="alreadyScannedDialogTitle">Voucher Already Used</string>
+    <string name="alreadyScannedDialogMessage">You already used this voucher</string>
+    <string name="cannotScanBookletDialogMessage">You cannot scan a booklet code, you have to scan the vouchers individually.</string>
+    <string name="wrongCodeTitle">Error</string>
+    <string name="wrongCodeDialogMessage">Your code isn\'t the right format, are you sure it is a BMS Voucher?</string>
 </resources>

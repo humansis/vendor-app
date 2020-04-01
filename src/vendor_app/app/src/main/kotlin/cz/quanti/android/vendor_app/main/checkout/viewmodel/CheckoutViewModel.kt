@@ -25,6 +25,7 @@ class CheckoutViewModel(private val facade: CommonFacade) : ViewModel() {
     }
 
     fun proceed(vouchers: List<Voucher>): Completable {
+        useVouchers()
         return facade.saveVouchers(vouchers)
     }
 

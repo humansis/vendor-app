@@ -6,8 +6,10 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.budiyev.android.codescanner.CodeScanner
 import com.budiyev.android.codescanner.DecodeCallback
@@ -28,6 +30,7 @@ class ScannerFragment() : Fragment() {
     private var codeScanner: CodeScanner? = null
     private var lastScanned: String = ""
     private var clearCachedTimer: Timer = Timer()
+    private lateinit var chosenCurrency: String
 
     val args: ScannerFragmentArgs by navArgs()
 
@@ -42,6 +45,8 @@ class ScannerFragment() : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        chosenCurrency = args.currency
 
         if (!cameraPermissionGranted()) {
             requestPermissions(
@@ -101,11 +106,8 @@ class ScannerFragment() : Fragment() {
                         Log.d(e)
                     }
                     clearCachedTimer = Timer()
-
                     lastScanned = it.text
-
-                    // TODO process code here
-
+                    processScannedCode(it.text)
                     clearCachedTimer.schedule(timerTask {
                         lastScanned = ""
                     }, 5000)
@@ -133,5 +135,60 @@ class ScannerFragment() : Fragment() {
     override fun onDestroy() {
         codeScanner?.releaseResources()
         super.onDestroy()
+    }
+
+    private fun processScannedCode(scannedCode: String) {
+        val code = scannedCode.replace(" ", "+")
+        if (alreadyScanned(code)) {
+            AlertDialog.Builder(requireContext(), R.style.DialogTheme)
+                .setTitle(getString(R.string.alreadyScannedDialogTitle))
+                .setMessage(getString(R.string.alreadyScannedDialogMessage))
+                .setPositiveButton(android.R.string.ok, null)
+                .show()
+        } else {
+            val result = vm.getVoucherFromScannedCode(scannedCode)
+            val voucher = result.first
+            val resultCode = result.second
+            if (voucher != null &&
+                (resultCode == ScannerViewModel.VOUCHER_WITH_PASSWORD ||
+                    resultCode == ScannerViewModel.VOUCHER_WITHOUT_PASSWORD)
+            ) {
+                (activity as MainActivity).vouchers.add(voucher)
+                findNavController().navigate(
+                    ScannerFragmentDirections.actionScannerFragmentToCheckoutFragment(chosenCurrency)
+                )
+            } else {
+                val message = getDialogMessageForResultCode(resultCode)
+                AlertDialog.Builder(requireContext(), R.style.DialogTheme)
+                    .setTitle(message.first)
+                    .setMessage(message.second)
+                    .setPositiveButton(android.R.string.ok, null)
+                    .show()
+            }
+        }
+    }
+
+    private fun getDialogMessageForResultCode(code: Int): Pair<String, String> {
+        var title = getString(R.string.wrongCodeTitle)
+        var message = ""
+
+        when (code) {
+            ScannerViewModel.BOOKLET -> {
+                message = getString(R.string.cannotScanBookletDialogMessage)
+            }
+            ScannerViewModel.WRONG_FORMAT -> {
+                message = getString(R.string.wrongCodeDialogMessage)
+            }
+        }
+        return Pair(title, message)
+    }
+
+    private fun alreadyScanned(code: String): Boolean {
+        for (voucher in (activity as MainActivity).vouchers) {
+            if (voucher.qrCode == code) {
+                return true
+            }
+        }
+        return false
     }
 }

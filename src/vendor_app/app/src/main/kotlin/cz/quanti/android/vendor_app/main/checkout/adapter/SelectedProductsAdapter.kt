@@ -3,6 +3,7 @@ package cz.quanti.android.vendor_app.main.checkout.adapter
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.squareup.picasso.Picasso
 import cz.quanti.android.vendor_app.R
 import cz.quanti.android.vendor_app.main.checkout.viewholder.SelectedProductsViewHolder
 import cz.quanti.android.vendor_app.repository.product.dto.SelectedProduct
@@ -27,7 +28,9 @@ class SelectedProductsAdapter() :
     override fun onBindViewHolder(holder: SelectedProductsViewHolder, position: Int) {
         val item = products[position]
 
-        // TODO handle images
+        Picasso.get().load(item.product.image)
+            .into(holder.image)
+
         holder.productDetail.text = item.product.name
         holder.amount.text = getStringFromDouble(
             item.quantity

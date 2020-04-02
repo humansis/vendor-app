@@ -71,7 +71,7 @@ class ShoppingCartFragment : Fragment(), ShoppingCartFragmentCallback {
             .setPositiveButton(
                 android.R.string.yes
             ) { _, _ ->
-                vendorFragmentCallback.removeFromCart(position)
+                vm.removeFromCart(position)
                 shoppingCartAdapter.removeAt(position)
             }
             .setNegativeButton(android.R.string.no, null)
@@ -83,7 +83,7 @@ class ShoppingCartFragment : Fragment(), ShoppingCartFragmentCallback {
     }
 
     private fun getTotalPrice(): Double {
-        return vendorFragmentCallback.getShoppingCart().map { it.subTotal }.sum()
+        return vm.getShoppingCart().map { it.subTotal }.sum()
     }
 
     private fun initShoppingCartAdapter() {
@@ -93,7 +93,7 @@ class ShoppingCartFragment : Fragment(), ShoppingCartFragmentCallback {
         shoppingCartRecyclerView.layoutManager = viewManager
         shoppingCartRecyclerView.adapter = shoppingCartAdapter
 
-        shoppingCartAdapter.setData(vendorFragmentCallback.getShoppingCart())
+        shoppingCartAdapter.setData(vm.getShoppingCart())
     }
 
     private fun initOnClickListeners() {
@@ -118,7 +118,7 @@ class ShoppingCartFragment : Fragment(), ShoppingCartFragmentCallback {
     }
 
     private fun clearCart() {
-        vendorFragmentCallback.clearCart()
+        vm.clearCart()
         shoppingCartAdapter.clearAll()
         noItemsSelectedView.visibility = View.VISIBLE
         shoppingCartFooter.visibility = View.INVISIBLE

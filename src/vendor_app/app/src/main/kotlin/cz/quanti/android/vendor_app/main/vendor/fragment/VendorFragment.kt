@@ -13,8 +13,6 @@ import cz.quanti.android.vendor_app.main.vendor.adapter.ShopAdapter
 import cz.quanti.android.vendor_app.main.vendor.callback.VendorFragmentCallback
 import cz.quanti.android.vendor_app.main.vendor.viewmodel.VendorViewModel
 import cz.quanti.android.vendor_app.repository.product.dto.Product
-import cz.quanti.android.vendor_app.repository.product.dto.SelectedProduct
-import cz.quanti.android.vendor_app.repository.voucher.dto.Voucher
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
@@ -28,8 +26,6 @@ class VendorFragment() : Fragment(), VendorFragmentCallback {
     private lateinit var adapter: ShopAdapter
 
     lateinit var chosenCurrency: String
-    lateinit var cart: MutableList<SelectedProduct>
-    lateinit var vouchers: MutableList<Voucher>
 
     val args: VendorFragmentArgs by navArgs()
 
@@ -43,8 +39,6 @@ class VendorFragment() : Fragment(), VendorFragmentCallback {
 
         adapter = ShopAdapter(this, requireContext())
         chosenCurrency = args.currency
-        cart = (activity as MainActivity).cart
-        vouchers = (activity as MainActivity).vouchers
 
         val shoppingCartFragment = ShoppingCartFragment()
 
@@ -92,24 +86,8 @@ class VendorFragment() : Fragment(), VendorFragmentCallback {
         return chosenCurrency
     }
 
-    override fun removeFromCart(position: Int) {
-        cart.removeAt(position)
-    }
-
-    override fun getShoppingCart(): MutableList<SelectedProduct> {
-        return cart
-    }
-
-    override fun clearCart() {
-        cart.clear()
-    }
-
     override fun setCurrency(currency: String) {
         chosenCurrency = currency
-    }
-
-    override fun addToShoppingCart(product: SelectedProduct) {
-        cart.add(product)
     }
 
     private fun setAdapter() {

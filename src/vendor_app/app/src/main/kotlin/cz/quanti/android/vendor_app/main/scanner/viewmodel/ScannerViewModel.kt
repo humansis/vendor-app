@@ -4,18 +4,22 @@ import androidx.lifecycle.ViewModel
 import cz.quanti.android.vendor_app.repository.voucher.VoucherFacade
 import cz.quanti.android.vendor_app.repository.voucher.dto.Booklet
 import cz.quanti.android.vendor_app.repository.voucher.dto.Voucher
+import cz.quanti.android.vendor_app.utils.ShoppingHolder
 import io.reactivex.Single
 
-class ScannerViewModel(private val voucherFacade: VoucherFacade) : ViewModel() {
+class ScannerViewModel(
+    private val shoppingHolder: ShoppingHolder,
+    private val voucherFacade: VoucherFacade
+) : ViewModel() {
 
     fun getDeactivatedBooklets(): Single<List<Booklet>> {
         return voucherFacade.getAllDeactivatedBooklets()
     }
 
+
     fun getVoucherFromScannedCode(
         scannedCode: String,
         chosenCurrency: String,
-        booklet: String,
         deactivated: List<Booklet>
     ): Pair<Voucher?, Int> {
         val passwords = mutableListOf<String>()
@@ -24,6 +28,7 @@ class ScannerViewModel(private val voucherFacade: VoucherFacade) : ViewModel() {
         var id: Long = 0
         var value: Long = 0
         var returnCode: Int
+        val booklet = getBooklet()
 
         var regex = Regex(
             "^([A-Z$€£]+)(\\d+)\\*([\\d]+-[\\d]+-[\\d]+)-([\\d]+)-([\\dA-Z=+-/]+)$",
@@ -71,6 +76,19 @@ class ScannerViewModel(private val voucherFacade: VoucherFacade) : ViewModel() {
         return Pair(voucher, check(voucher, returnCode, chosenCurrency, booklet, deactivated))
     }
 
+    fun addVoucher(voucher: Voucher) {
+        shoppingHolder.vouchers.add(voucher)
+    }
+
+    fun wasAlreadyScanned(code: String): Boolean {
+        for (voucher in shoppingHolder.vouchers) {
+            if (voucher.qrCode == code) {
+                return true
+            }
+        }
+        return false
+    }
+
     private fun check(
         voucher: Voucher,
         returnCode: Int,
@@ -89,6 +107,14 @@ class ScannerViewModel(private val voucherFacade: VoucherFacade) : ViewModel() {
             return WRONG_CURRENCY
         }
         return returnCode
+    }
+
+    private fun getBooklet(): String {
+        return if (shoppingHolder.vouchers.size > 0) {
+            shoppingHolder.vouchers[0].booklet
+        } else {
+            ""
+        }
     }
 
     private fun checkIfDeactivated(voucher: Voucher, deactivated: List<Booklet>): Boolean {

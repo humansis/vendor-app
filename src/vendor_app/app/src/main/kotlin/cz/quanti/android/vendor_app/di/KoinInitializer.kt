@@ -20,6 +20,7 @@ import cz.quanti.android.vendor_app.repository.product.impl.ProductRepositoryImp
 import cz.quanti.android.vendor_app.repository.voucher.impl.VoucherFacadeImpl
 import cz.quanti.android.vendor_app.repository.voucher.impl.VoucherRepositoryImpl
 import cz.quanti.android.vendor_app.utils.LoginManager
+import cz.quanti.android.vendor_app.utils.ShoppingHolder
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import org.koin.android.ext.koin.androidContext
@@ -47,6 +48,7 @@ object KoinInitializer {
     private fun createAppModule(app: App): Module {
 
         val loginManager = LoginManager()
+        val shoppingHolder = ShoppingHolder()
 
         val api = Retrofit.Builder()
             .baseUrl(BuildConfig.API_URL)
@@ -73,12 +75,13 @@ object KoinInitializer {
             single { api }
             single { db }
             single { loginManager }
+            single { shoppingHolder }
 
             // View model
             viewModel { LoginViewModel(loginFacade) }
-            viewModel { VendorViewModel(productFacade) }
-            viewModel { ScannerViewModel(voucherFacade) }
-            viewModel { CheckoutViewModel(voucherFacade) }
+            viewModel { VendorViewModel(shoppingHolder, productFacade) }
+            viewModel { ScannerViewModel(shoppingHolder, voucherFacade) }
+            viewModel { CheckoutViewModel(shoppingHolder, voucherFacade) }
         }
     }
 

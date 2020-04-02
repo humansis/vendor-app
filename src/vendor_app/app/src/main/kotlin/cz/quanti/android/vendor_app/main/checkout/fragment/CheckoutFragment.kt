@@ -17,8 +17,6 @@ import cz.quanti.android.vendor_app.R
 import cz.quanti.android.vendor_app.main.checkout.adapter.ScannedVoucherAdapter
 import cz.quanti.android.vendor_app.main.checkout.adapter.SelectedProductsAdapter
 import cz.quanti.android.vendor_app.main.checkout.viewmodel.CheckoutViewModel
-import cz.quanti.android.vendor_app.repository.product.dto.SelectedProduct
-import cz.quanti.android.vendor_app.repository.voucher.dto.Voucher
 import cz.quanti.android.vendor_app.utils.getStringFromDouble
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
@@ -34,8 +32,6 @@ class CheckoutFragment() : Fragment() {
     private val args: CheckoutFragmentArgs by navArgs()
 
     lateinit var chosenCurrency: String
-    lateinit var cart: MutableList<SelectedProduct>
-    lateinit var vouchers: MutableList<Voucher>
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -50,10 +46,8 @@ class CheckoutFragment() : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         chosenCurrency = args.currency
-        cart = (activity as MainActivity).cart
-        vouchers = (activity as MainActivity).vouchers
 
-        vm.init(chosenCurrency, cart, vouchers)
+        vm.init(chosenCurrency)
         initOnClickListeners()
         initSelectedProductsAdapter()
         initScannedVouchersAdapter()
@@ -73,11 +67,11 @@ class CheckoutFragment() : Fragment() {
 
         proceedButton.setOnClickListener {
             if (vm.getTotal() <= 0) {
-                vm.proceed(vouchers).subscribeOn(Schedulers.io())
+                vm.proceed().subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread()).subscribe(
                         {
-                            cart.clear()
-                            vouchers.clear()
+                            vm.clearShoppingCart()
+                            vm.clearVouchers()
                             findNavController().navigate(
                                 CheckoutFragmentDirections.actionCheckoutFragmentToVendorFragment("")
                             )
@@ -117,7 +111,7 @@ class CheckoutFragment() : Fragment() {
         checkoutSelectedProductsRecyclerView.adapter = selectedProductsAdapter
         selectedProductsAdapter.chosenCurrency = chosenCurrency
 
-        selectedProductsAdapter.setData(cart)
+        selectedProductsAdapter.setData(vm.getShoppingCart())
     }
 
     private fun initScannedVouchersAdapter() {
@@ -127,8 +121,8 @@ class CheckoutFragment() : Fragment() {
         scannedVouchersRecyclerView.layoutManager = viewManager
         scannedVouchersRecyclerView.adapter = scannedVoucherAdapter
 
-        scannedVoucherAdapter.setData(vouchers)
-        if (vouchers.isEmpty()) {
+        scannedVoucherAdapter.setData(vm.getVouchers())
+        if (vm.getVouchers().isEmpty()) {
             scannedVouchersRecyclerView.visibility = View.INVISIBLE
             pleaseScanVoucherTextView.visibility = View.VISIBLE
         } else {

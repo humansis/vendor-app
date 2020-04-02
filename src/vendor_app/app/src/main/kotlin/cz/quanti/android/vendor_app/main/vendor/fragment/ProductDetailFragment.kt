@@ -37,7 +37,7 @@ class ProductDetailFragment(private val product: Product) : Fragment() {
 
         vendorFragmentCallback = parentFragment as VendorFragmentCallback
 
-        if (vendorFragmentCallback.getShoppingCart().isEmpty()) {
+        if (vm.getShoppingCart().isEmpty()) {
             priceUnitSpinner.visibility = View.VISIBLE
             priceUnitTextView.visibility = View.INVISIBLE
         } else {
@@ -51,7 +51,7 @@ class ProductDetailFragment(private val product: Product) : Fragment() {
         cartButtonImageView.setOnClickListener {
 
             if (quantityEditText.text.toString() != "" && unitPriceEditText.text.toString() != "") {
-                if (vendorFragmentCallback.getShoppingCart().isEmpty()) {
+                if (vm.getShoppingCart().isEmpty()) {
                     vendorFragmentCallback.setCurrency(priceUnitSpinner.selectedItem as String)
                 }
                 addProductToCart(
@@ -92,7 +92,7 @@ class ProductDetailFragment(private val product: Product) : Fragment() {
             this.subTotal = unitPrice * quantity
                 this.currency = vendorFragmentCallback.getCurrency()
         }
-        vendorFragmentCallback.addToShoppingCart(selected)
+        vm.addToShoppingCart(selected)
     }
 
     private fun initPriceUnitSpinner() {

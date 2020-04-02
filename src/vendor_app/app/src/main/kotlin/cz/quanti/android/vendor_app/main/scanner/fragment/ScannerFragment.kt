@@ -155,26 +155,22 @@ class ScannerFragment() : Fragment() {
 
     private fun processScannedCode(scannedCode: String) {
         val code = scannedCode.replace(" ", "+")
-        if (alreadyScanned(code)) {
+        if (vm.wasAlreadyScanned(code)) {
             AlertDialog.Builder(requireContext(), R.style.DialogTheme)
                 .setTitle(getString(R.string.already_scanned_dialog_title))
                 .setMessage(getString(R.string.already_scanned_dialog_message))
                 .setPositiveButton(android.R.string.ok, null)
                 .show()
         } else {
-            var booklet = ""
-            if ((activity as MainActivity).vouchers.size > 0) {
-                booklet = (activity as MainActivity).vouchers[0].booklet
-            }
             val result =
-                vm.getVoucherFromScannedCode(scannedCode, chosenCurrency, booklet, deactivated)
+                vm.getVoucherFromScannedCode(scannedCode, chosenCurrency, deactivated)
             val voucher = result.first
             val resultCode = result.second
             if (voucher != null &&
                 (resultCode == ScannerViewModel.VOUCHER_WITH_PASSWORD ||
                     resultCode == ScannerViewModel.VOUCHER_WITHOUT_PASSWORD)
             ) {
-                (activity as MainActivity).vouchers.add(voucher)
+                vm.addVoucher(voucher)
                 findNavController().navigate(
                     ScannerFragmentDirections.actionScannerFragmentToCheckoutFragment(chosenCurrency)
                 )
@@ -202,14 +198,5 @@ class ScannerFragment() : Fragment() {
             }
         }
         return Pair(title, message)
-    }
-
-    private fun alreadyScanned(code: String): Boolean {
-        for (voucher in (activity as MainActivity).vouchers) {
-            if (voucher.qrCode == code) {
-                return true
-            }
-        }
-        return false
     }
 }

@@ -5,25 +5,27 @@ import cz.quanti.android.vendor_app.repository.product.dto.SelectedProduct
 import cz.quanti.android.vendor_app.repository.voucher.VoucherFacade
 import cz.quanti.android.vendor_app.repository.voucher.dto.Voucher
 import cz.quanti.android.vendor_app.utils.CurrentVendor
+import cz.quanti.android.vendor_app.utils.ShoppingHolder
 import io.reactivex.Completable
 import java.util.*
 
-class CheckoutViewModel(private val voucherFacade: VoucherFacade) : ViewModel() {
+class CheckoutViewModel(
+    private val shoppingHolder: ShoppingHolder,
+    private val voucherFacade: VoucherFacade
+) : ViewModel() {
     private var chosenCurrency: String = ""
     private var cart: MutableList<SelectedProduct> = mutableListOf()
     private var vouchers: MutableList<Voucher> = mutableListOf()
 
     fun init(
-        chosenCurrency: String,
-        cart: MutableList<SelectedProduct>,
-        vouchers: MutableList<Voucher>
+        chosenCurrency: String
     ) {
         this.chosenCurrency = chosenCurrency
-        this.cart = cart
-        this.vouchers = vouchers
+        this.cart = shoppingHolder.cart
+        this.vouchers = shoppingHolder.vouchers
     }
 
-    fun proceed(vouchers: List<Voucher>): Completable {
+    fun proceed(): Completable {
         useVouchers()
         return voucherFacade.saveVouchers(vouchers)
     }
@@ -32,6 +34,22 @@ class CheckoutViewModel(private val voucherFacade: VoucherFacade) : ViewModel() 
         val total = cart.map { it.subTotal }.sum()
         val paid = vouchers.map { it.value }.sum()
         return total - paid
+    }
+
+    fun getVouchers(): List<Voucher> {
+        return vouchers
+    }
+
+    fun getShoppingCart(): List<SelectedProduct> {
+        return cart
+    }
+
+    fun clearVouchers() {
+        vouchers.clear()
+    }
+
+    fun clearShoppingCart() {
+        cart.clear()
     }
 
     private fun useVouchers() {

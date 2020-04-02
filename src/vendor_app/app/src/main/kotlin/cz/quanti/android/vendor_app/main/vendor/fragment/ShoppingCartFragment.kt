@@ -12,6 +12,8 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import cz.quanti.android.vendor_app.R
 import cz.quanti.android.vendor_app.main.vendor.adapter.ShoppingCartAdapter
+import cz.quanti.android.vendor_app.main.vendor.callback.ShoppingCartFragmentCallback
+import cz.quanti.android.vendor_app.main.vendor.callback.VendorFragmentCallback
 import cz.quanti.android.vendor_app.main.vendor.viewmodel.VendorViewModel
 import cz.quanti.android.vendor_app.utils.getStringFromDouble
 import kotlinx.android.synthetic.main.fragment_shopping_cart.*
@@ -19,10 +21,10 @@ import kotlinx.android.synthetic.main.fragment_shopping_cart.shoppingCartFooter
 import kotlinx.android.synthetic.main.item_shopping_cart_footer.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
-class ShoppingCartFragment : Fragment() {
+class ShoppingCartFragment : Fragment(), ShoppingCartFragmentCallback {
     private val vm: VendorViewModel by viewModel()
     private lateinit var shoppingCartAdapter: ShoppingCartAdapter
-    private lateinit var vendorFragment: VendorFragment
+    private lateinit var vendorFragmentCallback: VendorFragmentCallback
     lateinit var chosenCurrency: String
 
     override fun onCreateView(
@@ -30,8 +32,8 @@ class ShoppingCartFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        vendorFragment = parentFragment as VendorFragment
-        chosenCurrency = vendorFragment.chosenCurrency
+        vendorFragmentCallback = parentFragment as VendorFragmentCallback
+        chosenCurrency = vendorFragmentCallback.getCurrency()
         shoppingCartAdapter = ShoppingCartAdapter(this)
         return inflater.inflate(R.layout.fragment_shopping_cart, container, false)
     }
@@ -58,26 +60,30 @@ class ShoppingCartFragment : Fragment() {
             0
         )
 
-        val totalText = "${getStringFromDouble(getTotalPrice())} ${vendorFragment.chosenCurrency}"
+        val totalText = "${getStringFromDouble(getTotalPrice())} ${chosenCurrency}"
         totalPriceTextView.text = totalText
     }
 
-    fun removeItemFromCart(position: Int) {
+    override fun removeItemFromCart(position: Int) {
         AlertDialog.Builder(requireContext(), R.style.DialogTheme)
             .setTitle(getString(R.string.areYouSureDialogTitle))
             .setMessage(getString(R.string.removeProductFromCartDialogMessage))
             .setPositiveButton(
                 android.R.string.yes
             ) { _, _ ->
-                vendorFragment.cart.removeAt(position)
+                vendorFragmentCallback.removeFromCart(position)
                 shoppingCartAdapter.removeAt(position)
             }
             .setNegativeButton(android.R.string.no, null)
             .show()
     }
 
+    override fun getCurrency(): String {
+        return chosenCurrency
+    }
+
     private fun getTotalPrice(): Double {
-        return (parentFragment as VendorFragment).cart.map { it.subTotal }.sum()
+        return vendorFragmentCallback.getShoppingCart().map { it.subTotal }.sum()
     }
 
     private fun initShoppingCartAdapter() {
@@ -87,13 +93,13 @@ class ShoppingCartFragment : Fragment() {
         shoppingCartRecyclerView.layoutManager = viewManager
         shoppingCartRecyclerView.adapter = shoppingCartAdapter
 
-        shoppingCartAdapter.setData(vendorFragment.cart)
+        shoppingCartAdapter.setData(vendorFragmentCallback.getShoppingCart())
     }
 
     private fun initOnClickListeners() {
         checkoutButton.setOnClickListener {
             findNavController().navigate(
-                VendorFragmentDirections.actionVendorFragmentToCheckoutFragment(vendorFragment.chosenCurrency)
+                VendorFragmentDirections.actionVendorFragmentToCheckoutFragment(chosenCurrency)
             )
         }
 
@@ -112,7 +118,7 @@ class ShoppingCartFragment : Fragment() {
     }
 
     private fun clearCart() {
-        vendorFragment.cart.clear()
+        vendorFragmentCallback.clearCart()
         shoppingCartAdapter.clearAll()
         noItemsSelectedView.visibility = View.VISIBLE
         shoppingCartFooter.visibility = View.INVISIBLE

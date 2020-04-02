@@ -10,7 +10,9 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import cz.quanti.android.vendor_app.MainActivity
 import cz.quanti.android.vendor_app.R
 import cz.quanti.android.vendor_app.main.vendor.adapter.ShopAdapter
+import cz.quanti.android.vendor_app.main.vendor.callback.VendorFragmentCallback
 import cz.quanti.android.vendor_app.main.vendor.viewmodel.VendorViewModel
+import cz.quanti.android.vendor_app.repository.product.dto.Product
 import cz.quanti.android.vendor_app.repository.product.dto.SelectedProduct
 import cz.quanti.android.vendor_app.repository.voucher.dto.Voucher
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -20,7 +22,7 @@ import kotlinx.android.synthetic.main.fragment_vendor.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import quanti.com.kotlinlog.Log
 
-class VendorFragment() : Fragment() {
+class VendorFragment() : Fragment(), VendorFragmentCallback {
     private val vm: VendorViewModel by viewModel()
     private var disposables = CompositeDisposable()
     private val adapter = ShopAdapter(this)
@@ -75,6 +77,38 @@ class VendorFragment() : Fragment() {
                 }
             )
         )
+    }
+
+    override fun chooseProduct(product: Product) {
+        val productDetailFragment = ProductDetailFragment(product)
+        val transaction = childFragmentManager.beginTransaction().apply {
+            replace(R.id.fragmentContainer, productDetailFragment)
+        }
+        transaction.commit()
+    }
+
+    override fun getCurrency(): String {
+        return chosenCurrency
+    }
+
+    override fun removeFromCart(position: Int) {
+        cart.removeAt(position)
+    }
+
+    override fun getShoppingCart(): MutableList<SelectedProduct> {
+        return cart
+    }
+
+    override fun clearCart() {
+        cart.clear()
+    }
+
+    override fun setCurrency(currency: String) {
+        chosenCurrency = currency
+    }
+
+    override fun addToShoppingCart(product: SelectedProduct) {
+        cart.add(product)
     }
 
     private fun setAdapter() {

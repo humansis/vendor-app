@@ -1,13 +1,13 @@
 package cz.quanti.android.vendor_app.main.checkout.viewmodel
 
 import androidx.lifecycle.ViewModel
-import cz.quanti.android.vendor_app.repository.CommonFacade
 import cz.quanti.android.vendor_app.repository.product.dto.SelectedProduct
+import cz.quanti.android.vendor_app.repository.voucher.VoucherFacade
 import cz.quanti.android.vendor_app.repository.voucher.dto.Voucher
 import io.reactivex.Completable
 import java.util.*
 
-class CheckoutViewModel(private val facade: CommonFacade) : ViewModel() {
+class CheckoutViewModel(private val voucherFacade: VoucherFacade) : ViewModel() {
     // TODO handle differences in currency
 
     private var chosenCurrency: String = ""
@@ -26,7 +26,7 @@ class CheckoutViewModel(private val facade: CommonFacade) : ViewModel() {
 
     fun proceed(vouchers: List<Voucher>): Completable {
         useVouchers()
-        return facade.saveVouchers(vouchers)
+        return voucherFacade.saveVouchers(vouchers)
     }
 
     fun getTotal(): Double {

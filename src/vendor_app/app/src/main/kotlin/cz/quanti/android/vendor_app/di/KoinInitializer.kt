@@ -15,9 +15,12 @@ import cz.quanti.android.vendor_app.main.vendor.viewmodel.VendorViewModel
 import cz.quanti.android.vendor_app.repository.AppPreferences
 import cz.quanti.android.vendor_app.repository.VendorAPI
 import cz.quanti.android.vendor_app.repository.VendorDb
-import cz.quanti.android.vendor_app.repository.common.impl.DbRepositoryImpl
-import cz.quanti.android.vendor_app.repository.common.impl.VendorServerApiRepositoryImpl
-import cz.quanti.android.vendor_app.repository.impl.CommonFacadeImpl
+import cz.quanti.android.vendor_app.repository.login.impl.LoginFacadeImpl
+import cz.quanti.android.vendor_app.repository.login.impl.LoginRepositoryImpl
+import cz.quanti.android.vendor_app.repository.product.impl.ProductFacadeImpl
+import cz.quanti.android.vendor_app.repository.product.impl.ProductRepositoryImpl
+import cz.quanti.android.vendor_app.repository.voucher.impl.VoucherFacadeImpl
+import cz.quanti.android.vendor_app.repository.voucher.impl.VoucherRepositoryImpl
 import cz.quanti.android.vendor_app.utils.LoginManager
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -62,23 +65,15 @@ object KoinInitializer {
 
         val db = Room.databaseBuilder(app, VendorDb::class.java, VendorDb.DB_NAME).build()
 
-        val apiRepository =
-            VendorServerApiRepositoryImpl(
-                api
-            )
-        val dbRepository =
-            DbRepositoryImpl(
-                db.productDao(),
-                db.voucherDao()
-            )
+        // Repository
+        val loginRepo = LoginRepositoryImpl(api)
+        val productRepo = ProductRepositoryImpl(db.productDao(), api)
+        val voucherRepo = VoucherRepositoryImpl(db.voucherDao())
 
-        val facade =
-            CommonFacadeImpl(
-                apiRepository,
-                dbRepository,
-                picasso,
-                loginManager
-            )
+        // Facade
+        val loginFacade = LoginFacadeImpl(loginRepo, productRepo, picasso, loginManager)
+        val productFacade = ProductFacadeImpl(productRepo, picasso)
+        val voucherFacade = VoucherFacadeImpl(voucherRepo)
 
         return module {
             single { AppPreferences(androidContext()) }
@@ -88,10 +83,10 @@ object KoinInitializer {
             single { loginManager }
 
             // View model
-            viewModel { LoginViewModel(facade) }
-            viewModel { VendorViewModel(facade) }
+            viewModel { LoginViewModel(loginFacade) }
+            viewModel { VendorViewModel(productFacade) }
             viewModel { ScannerViewModel() }
-            viewModel { CheckoutViewModel(facade) }
+            viewModel { CheckoutViewModel(voucherFacade) }
         }
     }
 

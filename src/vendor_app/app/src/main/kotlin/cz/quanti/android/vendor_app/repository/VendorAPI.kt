@@ -1,11 +1,11 @@
 package cz.quanti.android.vendor_app.repository
 
-import cz.quanti.android.vendor_app.repository.login.dto.Salt
-import cz.quanti.android.vendor_app.repository.login.dto.Vendor
-import cz.quanti.android.vendor_app.repository.product.dto.Product
-import cz.quanti.android.vendor_app.repository.voucher.dto.Booklet
-import cz.quanti.android.vendor_app.repository.voucher.dto.Voucher
+import cz.quanti.android.vendor_app.repository.login.dto.api.SaltApiEntity
+import cz.quanti.android.vendor_app.repository.login.dto.api.VendorApiEntity
+import cz.quanti.android.vendor_app.repository.product.dto.api.ProductApiEntity
+import cz.quanti.android.vendor_app.repository.voucher.dto.api.BookletApiEntity
 import cz.quanti.android.vendor_app.repository.voucher.dto.api.BookletsResponse
+import cz.quanti.android.vendor_app.repository.voucher.dto.api.VoucherApiEntity
 import io.reactivex.Single
 import retrofit2.Response
 import retrofit2.http.Body
@@ -16,13 +16,13 @@ import retrofit2.http.Path
 interface VendorAPI {
 
     @GET("salt/{username}")
-    fun getSalt(@Path("username") username: String): Single<Response<Salt>>
+    fun getSalt(@Path("username") username: String): Single<Response<SaltApiEntity>>
 
     @POST("login_app")
-    fun postLogin(@Body vendor: Vendor): Single<Response<Vendor>>
+    fun postLogin(@Body vendor: VendorApiEntity): Single<Response<VendorApiEntity>>
 
     @GET("products")
-    fun getProducts(): Single<Response<List<Product>>>
+    fun getProducts(): Single<Response<List<ProductApiEntity>>>
 
     @GET("deactivate-booklets")
     fun getDeactivatedBooklets(): Single<Response<BookletsResponse>>
@@ -32,11 +32,11 @@ interface VendorAPI {
 
     @POST("vouchers/scanned")
     fun postVouchers(
-        @Body vouchers: List<Voucher>
+        @Body vouchers: List<VoucherApiEntity>
     ): Single<Response<Unit>>
 
     @POST("deactivate-booklets")
     fun postBooklets(
-        @Body booklets: List<Booklet>
+        @Body booklets: List<BookletApiEntity>
     ): Single<Response<Unit>>
 }

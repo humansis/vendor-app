@@ -8,6 +8,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import cz.quanti.android.vendor_app.R
 import cz.quanti.android.vendor_app.main.vendor.adapter.CurrencyAdapter
+import cz.quanti.android.vendor_app.main.vendor.callback.VendorFragmentCallback
 import cz.quanti.android.vendor_app.main.vendor.viewmodel.VendorViewModel
 import cz.quanti.android.vendor_app.repository.product.dto.Product
 import cz.quanti.android.vendor_app.repository.product.dto.SelectedProduct
@@ -18,6 +19,7 @@ class ProductDetailFragment(private val product: Product) : Fragment() {
 
     private val vm: VendorViewModel by viewModel()
     private var currencyAdapter: CurrencyAdapter? = null
+    private lateinit var vendorFragmentCallback: VendorFragmentCallback
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -33,13 +35,15 @@ class ProductDetailFragment(private val product: Product) : Fragment() {
         initOnClickListeners()
         initProductRelatedInfo()
 
-        if ((parentFragment as VendorFragment).cart.isEmpty()) {
+        vendorFragmentCallback = parentFragment as VendorFragmentCallback
+
+        if (vendorFragmentCallback.getShoppingCart().isEmpty()) {
             priceUnitSpinner.visibility = View.VISIBLE
             priceUnitTextView.visibility = View.INVISIBLE
         } else {
             priceUnitSpinner.visibility = View.INVISIBLE
             priceUnitTextView.visibility = View.VISIBLE
-            priceUnitTextView.text = (parentFragment as VendorFragment).chosenCurrency
+            priceUnitTextView.text = vendorFragmentCallback.getCurrency()
         }
     }
 
@@ -47,9 +51,8 @@ class ProductDetailFragment(private val product: Product) : Fragment() {
         cartButtonImageView.setOnClickListener {
 
             if (quantityEditText.text.toString() != "" && unitPriceEditText.text.toString() != "") {
-                if ((parentFragment as VendorFragment).cart.isEmpty()) {
-                    (parentFragment as VendorFragment).chosenCurrency =
-                        priceUnitSpinner.selectedItem as String
+                if (vendorFragmentCallback.getShoppingCart().isEmpty()) {
+                    vendorFragmentCallback.setCurrency(priceUnitSpinner.selectedItem as String)
                 }
                 addProductToCart(
                     product,
@@ -87,9 +90,9 @@ class ProductDetailFragment(private val product: Product) : Fragment() {
             this.quantity = quantity
             this.price = unitPrice
             this.subTotal = unitPrice * quantity
-                this.currency = (parentFragment as VendorFragment).chosenCurrency
+                this.currency = vendorFragmentCallback.getCurrency()
         }
-        (parentFragment as VendorFragment).cart.add(selected)
+        vendorFragmentCallback.addToShoppingCart(selected)
     }
 
     private fun initPriceUnitSpinner() {

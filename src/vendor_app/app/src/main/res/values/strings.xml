@@ -37,4 +37,12 @@
     <string name="wrong_code_dialog_message">Your code isn\'t the right format, are you sure it is a BMS Voucher?</string>
     <string name="logout_dialog_message">Are you sure you want to log out?</string>
     <string name="error_while_proceeding">Something went wrong during proceeding with the purchase. Do you have enough space on your device?</string>
+    <string name="please_enter_password">Please enter the voucher\'s password</string>
+    <string name="limited_tries_text">You have only three tries before your booklet deactivates</string>
+    <string name="the_booklet_is_deactivated">The booklet is deactivated</string>
+    <string name="you_just_scanned_a_voucher_from_a_different_booklet">This voucher belongs to a different booklet than others recently scanned</string>
+    <string name="the_voucher_is_of_wrong_currency">This voucher is of different currency</string>
+    <string name="tries_exceeded_booklet_deactivated">You have exceeded your tries at password, your booklet will be deactivated</string>
+    <string name="booklet_deactivated">Booklet deactivated</string>
+    <string name="wrong_voucher_password">You didn\'t type the right password. You have only %1$d tries left.</string>
 </resources>

@@ -5,6 +5,7 @@ import cz.quanti.android.vendor_app.repository.voucher.VoucherFacade
 import cz.quanti.android.vendor_app.repository.voucher.dto.Booklet
 import cz.quanti.android.vendor_app.repository.voucher.dto.Voucher
 import cz.quanti.android.vendor_app.utils.ShoppingHolder
+import io.reactivex.Completable
 import io.reactivex.Single
 
 class ScannerViewModel(
@@ -12,15 +13,28 @@ class ScannerViewModel(
     private val voucherFacade: VoucherFacade
 ) : ViewModel() {
 
+    fun getDeactivatedAndProtectedBooklets(): Single<Pair<List<Booklet>, List<Booklet>>> {
+        return getDeactivatedBooklets().flatMap { deactivated ->
+            getProtectedBooklets().map { protected ->
+                Pair(deactivated, protected)
+            }
+        }
+    }
+
     fun getDeactivatedBooklets(): Single<List<Booklet>> {
         return voucherFacade.getAllDeactivatedBooklets()
+    }
+
+    fun getProtectedBooklets(): Single<List<Booklet>> {
+        return voucherFacade.getProtectedBooklets()
     }
 
 
     fun getVoucherFromScannedCode(
         scannedCode: String,
         chosenCurrency: String,
-        deactivated: List<Booklet>
+        deactivated: List<Booklet>,
+        protected: List<Booklet>
     ): Pair<Voucher?, Int> {
         val passwords = mutableListOf<String>()
         var bookletCode = ""
@@ -63,7 +77,13 @@ class ScannerViewModel(
         scannedCodeInfo.groups[3]?.value?.let { bookletCode = it }
         scannedCodeInfo.groups[4]?.value?.let { id = it.toLong() }
 
-        // TODO handle protected booklets and passwords
+
+        if (returnCode == VOUCHER_WITH_PASSWORD) {
+            val password = getPassword(bookletCode, protected)
+            if (password != "") {
+                passwords.add(password)
+            }
+        }
 
         val voucher = Voucher().apply {
             this.id = id
@@ -71,6 +91,7 @@ class ScannerViewModel(
             this.booklet = bookletCode
             this.currency = currency
             this.value = value
+            this.passwords = passwords
         }
 
         return Pair(voucher, check(voucher, returnCode, chosenCurrency, booklet, deactivated))
@@ -80,6 +101,10 @@ class ScannerViewModel(
         shoppingHolder.vouchers.add(voucher)
     }
 
+    fun deactivate(voucher: Voucher): Completable {
+        return voucherFacade.deactivate(voucher.booklet)
+    }
+
     fun wasAlreadyScanned(code: String): Boolean {
         for (voucher in shoppingHolder.vouchers) {
             if (voucher.qrCode == code) {
@@ -87,6 +112,15 @@ class ScannerViewModel(
             }
         }
         return false
+    }
+
+    private fun getPassword(bookletCode: String, protected: List<Booklet>): String {
+        for (booklet in protected) {
+            if (booklet.code == bookletCode) {
+                return booklet.password
+            }
+        }
+        return ""
     }
 
     private fun check(
@@ -120,6 +154,7 @@ class ScannerViewModel(
     private fun checkIfDeactivated(voucher: Voucher, deactivated: List<Booklet>): Boolean {
         return deactivated.map { booklet -> booklet.code }.contains(voucher.booklet)
     }
+
 
     private fun checkIfInvalidBooklet(voucher: Voucher, booklet: String): Boolean {
         return if (booklet == "") {

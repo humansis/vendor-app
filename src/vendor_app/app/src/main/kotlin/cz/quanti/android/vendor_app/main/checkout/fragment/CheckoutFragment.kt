@@ -58,6 +58,7 @@ class CheckoutFragment() : Fragment() {
     private fun initOnClickListeners() {
 
         cancelButton.setOnClickListener {
+            vm.clearVouchers()
             findNavController().navigate(
                 CheckoutFragmentDirections.actionCheckoutFragmentToVendorFragment(
                     chosenCurrency

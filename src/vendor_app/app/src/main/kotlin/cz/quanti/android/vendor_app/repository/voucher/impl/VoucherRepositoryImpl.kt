@@ -100,6 +100,14 @@ class VoucherRepositoryImpl(
         }
     }
 
+    override fun getProtectedBooklets(): Single<List<Booklet>> {
+        return bookletDao.getProtected().map { list ->
+            list.map {
+                convert(it)
+            }
+        }
+    }
+
     private fun convert(apiEntity: BookletApiEntity): Booklet {
         return Booklet().apply {
             this.code = apiEntity.code

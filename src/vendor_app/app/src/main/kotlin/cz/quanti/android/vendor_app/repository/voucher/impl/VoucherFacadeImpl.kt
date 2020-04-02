@@ -19,4 +19,15 @@ class VoucherFacadeImpl(private val voucherRepo: VoucherRepository) : VoucherFac
     override fun getAllDeactivatedBooklets(): Single<List<Booklet>> {
         return voucherRepo.getAllDeactivatedBooklets()
     }
+
+    override fun deactivate(booklet: String): Completable {
+        return voucherRepo.saveBooklet(Booklet().apply {
+            this.code = booklet
+            this.state = Booklet.STATE_NEWLY_DEACTIVATED
+        })
+    }
+
+    override fun getProtectedBooklets(): Single<List<Booklet>> {
+        return voucherRepo.getProtectedBooklets()
+    }
 }

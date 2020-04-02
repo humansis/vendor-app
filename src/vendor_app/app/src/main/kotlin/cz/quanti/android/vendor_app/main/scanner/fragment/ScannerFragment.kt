@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
@@ -14,11 +15,14 @@ import androidx.navigation.fragment.navArgs
 import com.budiyev.android.codescanner.CodeScanner
 import com.budiyev.android.codescanner.DecodeCallback
 import com.budiyev.android.codescanner.ScanMode
+import com.google.android.material.textfield.TextInputEditText
 import cz.quanti.android.vendor_app.MainActivity
 import cz.quanti.android.vendor_app.R
 import cz.quanti.android.vendor_app.main.scanner.viewmodel.ScannerViewModel
 import cz.quanti.android.vendor_app.repository.voucher.dto.Booklet
+import cz.quanti.android.vendor_app.repository.voucher.dto.Voucher
 import cz.quanti.android.vendor_app.utils.Constants
+import cz.quanti.android.vendor_app.utils.hashSHA1
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
@@ -36,7 +40,8 @@ class ScannerFragment() : Fragment() {
     private var clearCachedTimer: Timer = Timer()
     private lateinit var chosenCurrency: String
     private lateinit var deactivated: List<Booklet>
-    private var disposable: Disposable? = null
+    private lateinit var protected: List<Booklet>
+    private var disposables: MutableList<Disposable> = mutableListOf()
 
     val args: ScannerFragmentArgs by navArgs()
 
@@ -53,23 +58,25 @@ class ScannerFragment() : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         chosenCurrency = args.currency
-        disposable = vm.getDeactivatedBooklets().subscribeOn(Schedulers.io())
+        disposables.add(vm.getDeactivatedAndProtectedBooklets().subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread()).subscribe(
-            {
-                deactivated = it
-                if (!cameraPermissionGranted()) {
-                    requestPermissions(
-                        arrayOf(Manifest.permission.CAMERA),
-                        Constants.CAMERA_PERMISSION_REQUEST_CODE
-                    )
-                } else {
-                    runScanner()
+                {
+                    deactivated = it.first
+                    protected = it.second
+
+                    if (!cameraPermissionGranted()) {
+                        requestPermissions(
+                            arrayOf(Manifest.permission.CAMERA),
+                            Constants.CAMERA_PERMISSION_REQUEST_CODE
+                        )
+                    } else {
+                        runScanner()
+                    }
+                },
+                {
+                    Log.e(it)
                 }
-            },
-            {
-                Log.e(it)
-            }
-        )
+            ))
     }
 
     override fun onRequestPermissionsResult(
@@ -148,8 +155,10 @@ class ScannerFragment() : Fragment() {
 
     override fun onDestroy() {
         codeScanner?.releaseResources()
-        disposable?.dispose()
-        disposable = null
+        for (disposable in disposables) {
+            disposable.dispose()
+        }
+        disposables.clear()
         super.onDestroy()
     }
 
@@ -163,17 +172,24 @@ class ScannerFragment() : Fragment() {
                 .show()
         } else {
             val result =
-                vm.getVoucherFromScannedCode(scannedCode, chosenCurrency, deactivated)
+                vm.getVoucherFromScannedCode(scannedCode, chosenCurrency, deactivated, protected)
             val voucher = result.first
             val resultCode = result.second
             if (voucher != null &&
                 (resultCode == ScannerViewModel.VOUCHER_WITH_PASSWORD ||
                     resultCode == ScannerViewModel.VOUCHER_WITHOUT_PASSWORD)
             ) {
-                vm.addVoucher(voucher)
-                findNavController().navigate(
-                    ScannerFragmentDirections.actionScannerFragmentToCheckoutFragment(chosenCurrency)
-                )
+                if (resultCode == ScannerViewModel.VOUCHER_WITH_PASSWORD) {
+                    showPasswordDialog(3, voucher)
+
+                } else {
+                    vm.addVoucher(voucher)
+                    findNavController().navigate(
+                        ScannerFragmentDirections.actionScannerFragmentToCheckoutFragment(
+                            chosenCurrency
+                        )
+                    )
+                }
             } else {
                 val message = getDialogMessageForResultCode(resultCode)
                 AlertDialog.Builder(requireContext(), R.style.DialogTheme)
@@ -182,6 +198,56 @@ class ScannerFragment() : Fragment() {
                     .setPositiveButton(android.R.string.ok, null)
                     .show()
             }
+        }
+    }
+
+    private fun showPasswordDialog(tries: Int, voucher: Voucher) {
+        if (tries < 1) {
+            disposables.add(vm.deactivate(voucher).subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread()).subscribe(
+                {
+                    AlertDialog.Builder(requireContext(), R.style.DialogTheme)
+                        .setTitle(getString(R.string.booklet_deactivated))
+                        .setMessage(getString(R.string.tries_exceeded_booklet_deactivated))
+                        .setPositiveButton(android.R.string.ok, null)
+                        .show()
+                    findNavController().navigate(
+                        ScannerFragmentDirections.actionScannerFragmentToCheckoutFragment(
+                            chosenCurrency
+                        )
+                    )
+                },
+                {
+                    Log.e(it)
+                }
+            ))
+        } else {
+            val dialogView: View = layoutInflater.inflate(R.layout.dialog_voucher_password, null)
+            val limitedTriesTextView = dialogView.findViewById<TextView>(R.id.limitedTriesTextView)
+            if (tries == 3) {
+                limitedTriesTextView.text = getString(R.string.limited_tries_text)
+            } else {
+                limitedTriesTextView.text = getString(R.string.wrong_voucher_password, tries)
+            }
+            AlertDialog.Builder(requireContext(), R.style.DialogTheme)
+                .setView(dialogView)
+                .setPositiveButton(android.R.string.ok) { _, _ ->
+                    val passwordEditTextView =
+                        dialogView.findViewById<TextInputEditText>(R.id.passwordEditText)
+                    var password = hashSHA1(passwordEditTextView.text.toString())
+                    if (password in voucher.passwords) {
+                        vm.addVoucher(voucher)
+                        findNavController().navigate(
+                            ScannerFragmentDirections.actionScannerFragmentToCheckoutFragment(
+                                chosenCurrency
+                            )
+                        )
+                    } else {
+                        showPasswordDialog(tries - 1, voucher)
+                    }
+                }
+                .setNegativeButton(android.R.string.cancel, null)
+                .show()
         }
     }
 
@@ -195,6 +261,15 @@ class ScannerFragment() : Fragment() {
             }
             ScannerViewModel.WRONG_FORMAT -> {
                 message = getString(R.string.wrong_code_dialog_message)
+            }
+            ScannerViewModel.DEACTIVATED -> {
+                message = getString(R.string.the_booklet_is_deactivated)
+            }
+            ScannerViewModel.WRONG_BOOKLET -> {
+                message = getString(R.string.you_just_scanned_a_voucher_from_a_different_booklet)
+            }
+            ScannerViewModel.WRONG_CURRENCY -> {
+                message = getString(R.string.the_voucher_is_of_wrong_currency)
             }
         }
         return Pair(title, message)

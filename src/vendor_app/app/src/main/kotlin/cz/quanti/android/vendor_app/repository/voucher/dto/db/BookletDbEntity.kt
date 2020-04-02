@@ -7,7 +7,7 @@ import cz.quanti.android.vendor_app.repository.voucher.dto.Booklet
 
 @Entity(tableName = VendorDb.TABLE_BOOKLET)
 data class BookletDbEntity(
-    @PrimaryKey(autoGenerate = false)
+    @PrimaryKey(autoGenerate = true)
     var id: Long = 0,
     var code: String = "",
     var password: String = "",

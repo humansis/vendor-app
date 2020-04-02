@@ -9,4 +9,8 @@ interface VoucherFacade {
     fun saveVouchers(vouchers: List<Voucher>): Completable
 
     fun getAllDeactivatedBooklets(): Single<List<Booklet>>
+
+    fun deactivate(booklet: String): Completable
+
+    fun getProtectedBooklets(): Single<List<Booklet>>
 }

@@ -29,4 +29,6 @@ interface VoucherRepository {
     fun sendVouchersToServer(vouchers: List<Voucher>): Single<Int>
 
     fun sendDeactivatedBookletsToServer(booklets: List<Booklet>): Single<Int>
+
+    fun getProtectedBooklets(): Single<List<Booklet>>
 }

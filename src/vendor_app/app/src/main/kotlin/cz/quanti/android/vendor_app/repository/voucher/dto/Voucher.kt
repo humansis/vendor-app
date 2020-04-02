@@ -11,5 +11,6 @@ data class Voucher(
     var currency: String = "",
     var value: Long = 0,
     var booklet: String = "",
-    var usedAt: Date = Date()
+    var usedAt: Date = Date(),
+    var passwords: List<String> = listOf()
 )

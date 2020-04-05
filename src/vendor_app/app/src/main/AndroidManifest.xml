@@ -20,7 +20,6 @@
         android:theme="@style/AppTheme">
 
         <activity android:name="cz.quanti.android.vendor_app.MainActivity"
-            android:screenOrientation="landscape"
             tools:ignore="LockedOrientationActivity"
             android:windowSoftInputMode="stateHidden|adjustResize">>
             <intent-filter>

@@ -18,7 +18,7 @@
         android:theme="@style/AppTheme">
 
         <activity android:name="cz.quanti.android.vendor_app.MainActivity"
-            android:windowSoftInputMode="stateHidden|adjustPan">
+            android:windowSoftInputMode="stateHidden|adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>

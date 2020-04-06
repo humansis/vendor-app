@@ -8,4 +8,5 @@ interface VendorFragmentCallback {
     fun setCurrency(currency: String)
     fun showCart()
     fun showProducts()
+    fun getSelectedProduct(): Product
 }

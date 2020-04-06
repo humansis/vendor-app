@@ -11,18 +11,19 @@ import cz.quanti.android.vendor_app.R
 import cz.quanti.android.vendor_app.main.vendor.callback.VendorFragmentCallback
 import cz.quanti.android.vendor_app.main.vendor.viewmodel.VendorViewModel
 import cz.quanti.android.vendor_app.repository.product.dto.Product
+import kotlinx.android.synthetic.main.fragment_product_detail.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class VendorFragment() : Fragment(), VendorFragmentCallback {
     private val vm: VendorViewModel by viewModel()
     lateinit var chosenCurrency: String
+    var product: Product = Product()
 
     val args: VendorFragmentArgs by navArgs()
 
     private val STATE_ONLY_PRODUCTS_SHOWED = 0
     private val STATE_SHOPPING_CART_SHOWED = 1
     private val STATE_PRODUCT_DETAIL_SHOWED = 2
-
 
     private var state = STATE_ONLY_PRODUCTS_SHOWED
 
@@ -40,8 +41,14 @@ class VendorFragment() : Fragment(), VendorFragmentCallback {
 
         state = vm.getVendorState()
         chosenCurrency = args.currency
+        product = getProductFromBundle(savedInstanceState)
 
         val fragment = getFragmentFromState()
+
+        if (fragment is ProductDetailFragment) {
+            fragment.savedQuantity = savedInstanceState?.getString("productQuantityEditText", "")
+            fragment.savedUnitPrice = savedInstanceState?.getString("productUnitPriceEditText", "")
+        }
 
         if (isLandscapeOriented()) {
             val transaction = childFragmentManager.beginTransaction().apply {
@@ -72,7 +79,7 @@ class VendorFragment() : Fragment(), VendorFragmentCallback {
 
     override fun chooseProduct(product: Product) {
         val productDetailFragment = ProductDetailFragment()
-        productDetailFragment.product = product
+        this.product = product
 
         state = STATE_PRODUCT_DETAIL_SHOWED
 
@@ -125,13 +132,51 @@ class VendorFragment() : Fragment(), VendorFragmentCallback {
         }
     }
 
+    override fun getSelectedProduct(): Product {
+        return product
+    }
+
     override fun onDestroy() {
         super.onDestroy()
         vm.setVendorState(state)
     }
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        addProductToBundle(outState)
+        addEditTextInfoToBundle(outState)
+    }
+
+    private fun addProductToBundle(bundle: Bundle) {
+        bundle.putLong("productId", product.id)
+        bundle.putString("productName", product.name)
+        bundle.putString("productImage", product.image)
+        bundle.putString("productUnit", product.unit)
+    }
+
+    private fun addEditTextInfoToBundle(bundle: Bundle) {
+
+        productDetailFragment?.let {
+            bundle.putString("productQuantityEditText", quantityEditText.text.toString())
+            bundle.putString("productUnitPriceEditText", unitPriceEditText.text.toString())
+        }
+    }
+
+    private fun getProductFromBundle(bundle: Bundle?): Product {
+        return if (bundle == null) {
+            Product()
+        } else {
+            Product().apply {
+                id = bundle.getLong("productId", 0)
+                name = bundle.getString("productName", "")
+                image = bundle.getString("productImage", "")
+                unit = bundle.getString("productUnit", "")
+            }
+        }
+    }
+
     private fun isLandscapeOriented(): Boolean {
-        return (requireActivity().findViewById<View>(R.id.vendorSingleFragmentContainer) == null)
+        return requireActivity().findViewById<View>(R.id.vendorSingleFragmentContainer) == null
     }
 
     private fun getFragmentFromState(): Fragment {

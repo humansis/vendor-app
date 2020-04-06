@@ -20,7 +20,8 @@ class ProductDetailFragment : Fragment() {
     private val vm: VendorViewModel by viewModel()
     private var currencyAdapter: CurrencyAdapter? = null
     private lateinit var vendorFragmentCallback: VendorFragmentCallback
-    var product: Product? = null
+    var savedQuantity: String? = null
+    var savedUnitPrice: String? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -33,7 +34,6 @@ class ProductDetailFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         vendorFragmentCallback = parentFragment as VendorFragmentCallback
-        product = getProductFromBundle(savedInstanceState)
         init()
     }
 
@@ -50,32 +50,16 @@ class ProductDetailFragment : Fragment() {
             priceUnitTextView.visibility = View.VISIBLE
             priceUnitTextView.text = vendorFragmentCallback.getCurrency()
         }
-    }
 
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        addProductToBundle(outState)
-    }
+        savedQuantity?.let {
+            quantityEditText.setText(savedQuantity)
+        }
 
-    private fun addProductToBundle(bundle: Bundle) {
-        product?.id?.let { bundle.putLong("productId", it) }
-        bundle.putString("productName", product?.name)
-        bundle.putString("productImage", product?.image)
-        bundle.putString("productUnit", product?.unit)
-    }
-
-    private fun getProductFromBundle(bundle: Bundle?): Product? {
-        return if (bundle == null) {
-            null
-        } else {
-            Product().apply {
-                id = bundle.getLong("productId", 0)
-                name = bundle.getString("productName", "")
-                image = bundle.getString("productImage", "")
-                unit = bundle.getString("productUnit", "")
-            }
+        savedUnitPrice?.let {
+            unitPriceEditText.setText(savedUnitPrice)
         }
     }
+
 
     private fun initOnClickListeners() {
         cartButtonImageView.setOnClickListener {
@@ -84,13 +68,11 @@ class ProductDetailFragment : Fragment() {
                 if (vm.getShoppingCart().isEmpty()) {
                     vendorFragmentCallback.setCurrency(priceUnitSpinner.selectedItem as String)
                 }
-                product?.let { it1 ->
-                    addProductToCart(
-                        it1,
-                        quantityEditText.text.toString().toDouble(),
-                        unitPriceEditText.text.toString().toDouble()
-                    )
-                }
+                addProductToCart(
+                    vendorFragmentCallback.getSelectedProduct(),
+                    quantityEditText.text.toString().toDouble(),
+                    unitPriceEditText.text.toString().toDouble()
+                )
                 goToCart()
             } else {
                 AlertDialog.Builder(requireContext(), R.style.DialogTheme)
@@ -114,12 +96,12 @@ class ProductDetailFragment : Fragment() {
     private fun addProductToCart(product: Product, quantity: Double, unitPrice: Double) {
         val selected = SelectedProduct()
             .apply {
-            this.product = product
-            this.quantity = quantity
-            this.price = unitPrice
-            this.subTotal = unitPrice * quantity
+                this.product = product
+                this.quantity = quantity
+                this.price = unitPrice
+                this.subTotal = unitPrice * quantity
                 this.currency = vendorFragmentCallback.getCurrency()
-        }
+            }
         vm.addToShoppingCart(selected)
     }
 
@@ -131,7 +113,8 @@ class ProductDetailFragment : Fragment() {
     }
 
     private fun initProductRelatedInfo() {
-        productName.text = product?.name
-        quantityUnitTextView.text = product?.unit
+        val product = vendorFragmentCallback.getSelectedProduct()
+        productName.text = product.name
+        quantityUnitTextView.text = product.unit
     }
 }

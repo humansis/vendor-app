@@ -41,6 +41,14 @@ class VendorViewModel(
         return shoppingHolder.cart
     }
 
+    fun setVendorState(state: Int) {
+        shoppingHolder.vendorScreenState = state
+    }
+
+    fun getVendorState(): Int {
+        return shoppingHolder.vendorScreenState
+    }
+
     private fun actualizeProducts(): Completable {
         return productFacade.reloadProductFromServer()
     }

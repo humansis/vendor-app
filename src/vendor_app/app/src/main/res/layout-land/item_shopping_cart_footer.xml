@@ -61,30 +61,6 @@
         app:layout_constraintWidth_max="100dp"
         app:layout_constraintWidth_percent="0.30" />
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/toProductsButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:backgroundTint="@color/colorPrimaryDark"
-        android:elevation="3dp"
-        android:text="@string/go_to_products"
-        app:icon="@drawable/arrow_back"
-        android:textColor="@color/white"
-        android:textSize="8sp"
-        app:iconGravity="start"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="@+id/firstDelimiter"
-        app:layout_constraintBottom_toBottomOf="parent" />
-
-    <LinearLayout
-        android:id="@+id/firstDelimiter"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:orientation="vertical"
-        app:layout_constraintWidth_percent="0.33"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/clearAllButton"
@@ -98,16 +74,15 @@
         android:textSize="8sp"
         app:icon="@drawable/clear"
         app:iconGravity="start"
-        app:layout_constraintStart_toStartOf="@+id/secondDelimiter"
-        app:layout_constraintEnd_toEndOf="@+id/secondDelimiter"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/center"
         app:layout_constraintTop_toBottomOf="@id/cartIconImageView" />
 
     <LinearLayout
-        android:id="@+id/secondDelimiter"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
+        android:id="@+id/center"
+        android:layout_width="1dp"
+        android:layout_height="1dp"
         android:orientation="vertical"
-        app:layout_constraintWidth_percent="0.33"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -126,7 +101,7 @@
         android:textSize="8sp"
         app:icon="@drawable/check"
         app:iconGravity="start"
-        app:layout_constraintStart_toStartOf="@+id/center"
+        app:layout_constraintStart_toEndOf="@+id/center"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/cartIconImageView" />
 

@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
+import android.widget.Button
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
@@ -32,10 +33,19 @@ class ShoppingCartFragment : Fragment(), ShoppingCartFragmentCallback {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        return inflater.inflate(R.layout.fragment_shopping_cart, container, false)
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
         vendorFragmentCallback = parentFragment as VendorFragmentCallback
         chosenCurrency = vendorFragmentCallback.getCurrency()
         shoppingCartAdapter = ShoppingCartAdapter(this)
-        return inflater.inflate(R.layout.fragment_shopping_cart, container, false)
+
+        requireActivity().findViewById<Button>(R.id.toProductsButton)?.setOnClickListener {
+            vendorFragmentCallback.showProducts()
+        }
     }
 
     override fun onStart() {
@@ -45,7 +55,11 @@ class ShoppingCartFragment : Fragment(), ShoppingCartFragmentCallback {
 
         if (shoppingCartAdapter.itemCount == 0) {
             noItemsSelectedView.visibility = View.VISIBLE
-            shoppingCartFooter.visibility = View.INVISIBLE
+            if (requireActivity().findViewById<Button>(R.id.toProductsButton) != null) {
+                shoppingCartFooter.visibility = View.VISIBLE
+            } else {
+                shoppingCartFooter.visibility = View.INVISIBLE
+            }
         } else {
             noItemsSelectedView.visibility = View.INVISIBLE
             shoppingCartFooter.visibility = View.VISIBLE
@@ -121,6 +135,10 @@ class ShoppingCartFragment : Fragment(), ShoppingCartFragmentCallback {
         vm.clearCart()
         shoppingCartAdapter.clearAll()
         noItemsSelectedView.visibility = View.VISIBLE
-        shoppingCartFooter.visibility = View.INVISIBLE
+        if (requireActivity().findViewById<Button>(R.id.toProductsButton) != null) {
+            shoppingCartFooter.visibility = View.VISIBLE
+        } else {
+            shoppingCartFooter.visibility = View.INVISIBLE
+        }
     }
 }

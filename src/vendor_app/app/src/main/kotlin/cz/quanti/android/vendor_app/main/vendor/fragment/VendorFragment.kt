@@ -6,30 +6,31 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.navArgs
-import androidx.recyclerview.widget.LinearLayoutManager
 import cz.quanti.android.vendor_app.MainActivity
 import cz.quanti.android.vendor_app.R
-import cz.quanti.android.vendor_app.main.vendor.adapter.ShopAdapter
 import cz.quanti.android.vendor_app.main.vendor.callback.VendorFragmentCallback
 import cz.quanti.android.vendor_app.main.vendor.viewmodel.VendorViewModel
 import cz.quanti.android.vendor_app.repository.product.dto.Product
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.schedulers.Schedulers
-import kotlinx.android.synthetic.main.fragment_vendor.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
-import quanti.com.kotlinlog.Log
 
 class VendorFragment() : Fragment(), VendorFragmentCallback {
     private val vm: VendorViewModel by viewModel()
-    private var disposables = CompositeDisposable()
-    private lateinit var adapter: ShopAdapter
-
     lateinit var chosenCurrency: String
 
     val args: VendorFragmentArgs by navArgs()
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    private val STATE_ONLY_PRODUCTS_SHOWED = 0
+    private val STATE_SHOPPING_CART_SHOWED = 1
+    private val STATE_PRODUCT_DETAIL_SHOWED = 2
+
+
+    private var state = STATE_ONLY_PRODUCTS_SHOWED
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
         (activity as MainActivity).supportActionBar?.show()
         return inflater.inflate(R.layout.fragment_vendor, container, false)
     }
@@ -37,15 +38,23 @@ class VendorFragment() : Fragment(), VendorFragmentCallback {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        adapter = ShopAdapter(this, requireContext())
+        state = vm.getVendorState()
         chosenCurrency = args.currency
 
-        val shoppingCartFragment = ShoppingCartFragment()
+        val fragment = getFragmentFromState()
 
-        val transaction = childFragmentManager.beginTransaction()?.apply {
-            replace(R.id.fragmentContainer, shoppingCartFragment)
+        if (isLandscapeOriented()) {
+            val transaction = childFragmentManager.beginTransaction().apply {
+                replace(R.id.rightFragmentContainer, fragment)
+                replace(R.id.leftFragmentContainer, ProductsFragment())
+            }
+            transaction.commit()
+        } else {
+            val transaction = childFragmentManager.beginTransaction().apply {
+                replace(R.id.vendorSingleFragmentContainer, fragment)
+            }
+            transaction.commit()
         }
-        transaction?.commit()
     }
 
     override fun onResume() {
@@ -59,27 +68,25 @@ class VendorFragment() : Fragment(), VendorFragmentCallback {
 
         (activity as MainActivity).invalidateOptionsMenu()
     }
-    override fun onStart() {
-        super.onStart()
-        setAdapter()
 
-        disposables.add(vm.getProducts().subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(
-                { products ->
-                    adapter.setData(products)
-                },
-                {
-                    Log.e(it)
-                }
-            )
-        )
-    }
 
     override fun chooseProduct(product: Product) {
-        val productDetailFragment = ProductDetailFragment(product)
-        val transaction = childFragmentManager.beginTransaction().apply {
-            replace(R.id.fragmentContainer, productDetailFragment)
+        val productDetailFragment = ProductDetailFragment()
+        productDetailFragment.product = product
+
+        state = STATE_PRODUCT_DETAIL_SHOWED
+
+        if (isLandscapeOriented()) {
+            val transaction = childFragmentManager.beginTransaction().apply {
+                replace(R.id.rightFragmentContainer, productDetailFragment)
+            }
+            transaction.commit()
+        } else {
+            val transaction = childFragmentManager.beginTransaction().apply {
+                replace(R.id.vendorSingleFragmentContainer, productDetailFragment)
+            }
+            transaction.commit()
         }
-        transaction.commit()
     }
 
     override fun getCurrency(): String {
@@ -90,16 +97,60 @@ class VendorFragment() : Fragment(), VendorFragmentCallback {
         chosenCurrency = currency
     }
 
-    private fun setAdapter() {
-        val viewManager = LinearLayoutManager(activity)
+    override fun showCart() {
+        state = STATE_SHOPPING_CART_SHOWED
 
-        shopRecyclerView.setHasFixedSize(true)
-        shopRecyclerView.layoutManager = viewManager
-        shopRecyclerView.adapter = adapter
+        if (!isLandscapeOriented()) {
+            val transaction = childFragmentManager.beginTransaction().apply {
+                replace(R.id.vendorSingleFragmentContainer, ShoppingCartFragment())
+            }
+            transaction.commit()
+        } else {
+            val shoppingCartFragment = ShoppingCartFragment()
+            val transaction = childFragmentManager.beginTransaction().apply {
+                replace(R.id.rightFragmentContainer, shoppingCartFragment)
+            }
+            transaction.commit()
+        }
+    }
+
+    override fun showProducts() {
+        state = STATE_ONLY_PRODUCTS_SHOWED
+
+        if (!isLandscapeOriented()) {
+            val transaction = childFragmentManager.beginTransaction().apply {
+                replace(R.id.vendorSingleFragmentContainer, ProductsFragment())
+            }
+            transaction.commit()
+        }
     }
 
     override fun onDestroy() {
-        disposables.dispose()
         super.onDestroy()
+        vm.setVendorState(state)
     }
+
+    private fun isLandscapeOriented(): Boolean {
+        return (requireActivity().findViewById<View>(R.id.vendorSingleFragmentContainer) == null)
+    }
+
+    private fun getFragmentFromState(): Fragment {
+        return when (state) {
+            STATE_SHOPPING_CART_SHOWED -> {
+                ShoppingCartFragment()
+            }
+            STATE_PRODUCT_DETAIL_SHOWED -> {
+                ProductDetailFragment()
+            }
+            STATE_ONLY_PRODUCTS_SHOWED -> {
+                if (isLandscapeOriented()) {
+                    ShoppingCartFragment()
+                } else {
+                    ProductsFragment()
+                }
+            }
+            else -> ProductsFragment()
+        }
+    }
+
 }

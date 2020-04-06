@@ -6,4 +6,6 @@ interface VendorFragmentCallback {
     fun chooseProduct(product: Product)
     fun getCurrency(): String
     fun setCurrency(currency: String)
+    fun showCart()
+    fun showProducts()
 }

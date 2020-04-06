@@ -15,11 +15,12 @@ import cz.quanti.android.vendor_app.repository.product.dto.SelectedProduct
 import kotlinx.android.synthetic.main.fragment_product_detail.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
-class ProductDetailFragment(private val product: Product) : Fragment() {
+class ProductDetailFragment : Fragment() {
 
     private val vm: VendorViewModel by viewModel()
     private var currencyAdapter: CurrencyAdapter? = null
     private lateinit var vendorFragmentCallback: VendorFragmentCallback
+    var product: Product? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -31,11 +32,15 @@ class ProductDetailFragment(private val product: Product) : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        vendorFragmentCallback = parentFragment as VendorFragmentCallback
+        product = getProductFromBundle(savedInstanceState)
+        init()
+    }
+
+    fun init() {
         initPriceUnitSpinner()
         initOnClickListeners()
         initProductRelatedInfo()
-
-        vendorFragmentCallback = parentFragment as VendorFragmentCallback
 
         if (vm.getShoppingCart().isEmpty()) {
             priceUnitSpinner.visibility = View.VISIBLE
@@ -47,6 +52,31 @@ class ProductDetailFragment(private val product: Product) : Fragment() {
         }
     }
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        addProductToBundle(outState)
+    }
+
+    private fun addProductToBundle(bundle: Bundle) {
+        product?.id?.let { bundle.putLong("productId", it) }
+        bundle.putString("productName", product?.name)
+        bundle.putString("productImage", product?.image)
+        bundle.putString("productUnit", product?.unit)
+    }
+
+    private fun getProductFromBundle(bundle: Bundle?): Product? {
+        return if (bundle == null) {
+            null
+        } else {
+            Product().apply {
+                id = bundle.getLong("productId", 0)
+                name = bundle.getString("productName", "")
+                image = bundle.getString("productImage", "")
+                unit = bundle.getString("productUnit", "")
+            }
+        }
+    }
+
     private fun initOnClickListeners() {
         cartButtonImageView.setOnClickListener {
 
@@ -54,11 +84,13 @@ class ProductDetailFragment(private val product: Product) : Fragment() {
                 if (vm.getShoppingCart().isEmpty()) {
                     vendorFragmentCallback.setCurrency(priceUnitSpinner.selectedItem as String)
                 }
-                addProductToCart(
-                    product,
-                    quantityEditText.text.toString().toDouble(),
-                    unitPriceEditText.text.toString().toDouble()
-                )
+                product?.let { it1 ->
+                    addProductToCart(
+                        it1,
+                        quantityEditText.text.toString().toDouble(),
+                        unitPriceEditText.text.toString().toDouble()
+                    )
+                }
                 goToCart()
             } else {
                 AlertDialog.Builder(requireContext(), R.style.DialogTheme)
@@ -76,11 +108,7 @@ class ProductDetailFragment(private val product: Product) : Fragment() {
     }
 
     private fun goToCart() {
-        val shoppingCartFragment = ShoppingCartFragment()
-        val transaction = parentFragment?.childFragmentManager?.beginTransaction()?.apply {
-            replace(R.id.fragmentContainer, shoppingCartFragment)
-        }
-        transaction?.commit()
+        vendorFragmentCallback.showCart()
     }
 
     private fun addProductToCart(product: Product, quantity: Double, unitPrice: Double) {
@@ -103,7 +131,7 @@ class ProductDetailFragment(private val product: Product) : Fragment() {
     }
 
     private fun initProductRelatedInfo() {
-        productName.text = product.name
-        quantityUnitTextView.text = product.unit
+        productName.text = product?.name
+        quantityUnitTextView.text = product?.unit
     }
 }

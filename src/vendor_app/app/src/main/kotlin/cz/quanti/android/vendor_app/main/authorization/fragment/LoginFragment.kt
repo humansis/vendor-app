@@ -63,11 +63,20 @@ class LoginFragment : Fragment() {
                             passwordEditText.error = getString(R.string.wrong_password)
                             loginButton.isEnabled = true
                             //TODO just for debugging purposes
-                            Toast.makeText(
-                                context,
-                                it.message + " " + (it as VendorAppException).apiResponseCode,
-                                Toast.LENGTH_LONG
-                            ).show()
+                            try {
+                                Toast.makeText(
+                                    context,
+                                    it.message + " " + (it as VendorAppException).apiResponseCode,
+                                    Toast.LENGTH_LONG
+                                ).show()
+                            } catch (e: Exception) {
+                                Toast.makeText(
+                                    context,
+                                    it.message,
+                                    Toast.LENGTH_LONG
+                                ).show()
+                            }
+
                         }
                     )
             }

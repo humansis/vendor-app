@@ -55,13 +55,13 @@
 
             </androidx.cardview.widget.CardView>
 
-            <LinearLayout
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="0dp"
                 android:layout_height="0dp"
                 android:layout_marginStart="5dp"
                 android:layout_marginEnd="5dp"
                 android:orientation="vertical"
-                android:layout_marginTop="20dp"
+                android:layout_marginTop="30dp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -71,28 +71,32 @@
                     android:id="@+id/loginScreenTitleTextView"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:paddingBottom="10dp"
+                    android:paddingBottom="20dp"
                     android:text="@string/login_screen_title"
                     android:textAlignment="center"
                     android:textColor="@color/white"
                     android:textSize="25dp"
-                    android:textStyle="bold" />
+                    android:textStyle="bold"
+                    app:layout_constraintTop_toTopOf="parent" />
 
                 <TextView
                     android:id="@+id/loginScreenSubtitleTextView"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:paddingBottom="10dp"
+                    android:paddingBottom="20dp"
                     android:text="@string/login_screen_subtitle"
                     android:textAlignment="center"
                     android:textColor="@color/white"
                     android:textSize="15dp"
-                    android:textStyle="bold" />
+                    android:textStyle="bold"
+                    app:layout_constraintTop_toBottomOf="@+id/loginScreenTitleTextView" />
 
                 <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/username"
                     style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
+                    android:layout_height="wrap_content"
+                    app:layout_constraintTop_toBottomOf="@+id/loginScreenSubtitleTextView">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/usernameEditText"
@@ -106,9 +110,13 @@
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/password"
                     style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
+                    android:layout_height="wrap_content"
+                    app:layout_constraintTop_toBottomOf="@+id/username"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/passwordEditText"
@@ -129,9 +137,13 @@
                     android:backgroundTint="@color/colorPrimary"
                     android:paddingTop="10dp"
                     android:text="@string/login"
-                    android:textColor="@color/white" />
+                    android:textColor="@color/white"
+                    app:layout_constraintTop_toBottomOf="@+id/password"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    android:layout_marginTop="20dp" />
 
-            </LinearLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
 
         </androidx.constraintlayout.widget.ConstraintLayout>

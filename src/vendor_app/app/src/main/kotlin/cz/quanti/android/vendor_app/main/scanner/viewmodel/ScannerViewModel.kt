@@ -32,7 +32,6 @@ class ScannerViewModel(
 
     fun getVoucherFromScannedCode(
         scannedCode: String,
-        chosenCurrency: String,
         deactivated: List<Booklet>,
         protected: List<Booklet>
     ): Pair<Voucher?, Int> {
@@ -94,7 +93,7 @@ class ScannerViewModel(
             this.passwords = passwords
         }
 
-        return Pair(voucher, check(voucher, returnCode, chosenCurrency, booklet, deactivated))
+        return Pair(voucher, check(voucher, returnCode, booklet, deactivated))
     }
 
     fun addVoucher(voucher: Voucher) {
@@ -126,7 +125,6 @@ class ScannerViewModel(
     private fun check(
         voucher: Voucher,
         returnCode: Int,
-        validCurrency: String,
         booklet: String,
         deactivated: List<Booklet>
     ): Int {
@@ -137,7 +135,7 @@ class ScannerViewModel(
         if (checkIfInvalidBooklet(voucher, booklet)) {
             return WRONG_BOOKLET
         }
-        if (checkIfDifferentCurrency(voucher, validCurrency)) {
+        if (checkIfDifferentCurrency(voucher, shoppingHolder.chosenCurrency)) {
             return WRONG_CURRENCY
         }
         return returnCode

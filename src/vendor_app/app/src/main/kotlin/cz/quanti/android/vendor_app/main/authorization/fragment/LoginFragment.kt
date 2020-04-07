@@ -40,7 +40,7 @@ class LoginFragment : Fragment() {
 
         if (CurrentVendor.isLoggedIn()) {
             findNavController().navigate(
-                LoginFragmentDirections.actionLoginFragmentToVendorFragment("")
+                LoginFragmentDirections.actionLoginFragmentToVendorFragment()
             )
         } else {
             logoImageView.clipToOutline = true
@@ -54,7 +54,7 @@ class LoginFragment : Fragment() {
                     ).observeOn(AndroidSchedulers.mainThread()).subscribe(
                         {
                             findNavController().navigate(
-                                LoginFragmentDirections.actionLoginFragmentToVendorFragment("")
+                                LoginFragmentDirections.actionLoginFragmentToVendorFragment()
                             )
                         },
                         {

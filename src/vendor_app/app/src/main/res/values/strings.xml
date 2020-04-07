@@ -22,7 +22,7 @@
     <string name="products">Products</string>
     <string name="vouchers">Vouchers</string>
     <string name="click_here_to_scan">Click here to scan</string>
-    <string name="please_scan_voucher">Please scan a voucher</string>
+    <string name="please_scan_voucher">Please scan a voucher or pay by card</string>
     <string name="wrong_password">Wrong username or password</string>
     <string name="cannot_proceed_with_purchase_dialog_title">Failed</string>
     <string name="cannot_proceed_with_purchase_dialog_message">Cannot proceed with the purchase until it is paid. Please scan more vouchers.</string>
@@ -47,4 +47,9 @@
     <string name="wrong_voucher_password">You didn\'t type the right password. You have only %1$d tries left.</string>
     <string name="go_to_cart">Show cart</string>
     <string name="go_to_products">Back</string>
+    <string name="back">back</string>
+    <string name="card">card</string>
+    <string name="pay_by_voucher">Scan a\nvoucher</string>
+    <string name="pay_by_card">Pay by\ncard</string>
+    <string name="payment">Payment</string>
 </resources>

@@ -40,7 +40,7 @@ class ShoppingCartFragment : Fragment(), ShoppingCartFragmentCallback {
         super.onViewCreated(view, savedInstanceState)
 
         vendorFragmentCallback = parentFragment as VendorFragmentCallback
-        chosenCurrency = vendorFragmentCallback.getCurrency()
+        chosenCurrency = vm.getCurrency()
         shoppingCartAdapter = ShoppingCartAdapter(this)
 
         requireActivity().findViewById<Button>(R.id.toProductsButton)?.setOnClickListener {
@@ -113,7 +113,7 @@ class ShoppingCartFragment : Fragment(), ShoppingCartFragmentCallback {
     private fun initOnClickListeners() {
         checkoutButton.setOnClickListener {
             findNavController().navigate(
-                VendorFragmentDirections.actionVendorFragmentToCheckoutFragment(chosenCurrency)
+                VendorFragmentDirections.actionVendorFragmentToCheckoutFragment()
             )
         }
 

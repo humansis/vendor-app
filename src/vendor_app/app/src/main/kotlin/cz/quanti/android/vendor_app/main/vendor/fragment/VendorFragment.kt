@@ -5,9 +5,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.navigation.fragment.navArgs
 import cz.quanti.android.vendor_app.MainActivity
 import cz.quanti.android.vendor_app.R
+import cz.quanti.android.vendor_app.main.vendor.VendorScreenState
 import cz.quanti.android.vendor_app.main.vendor.callback.VendorFragmentCallback
 import cz.quanti.android.vendor_app.main.vendor.viewmodel.VendorViewModel
 import cz.quanti.android.vendor_app.repository.product.dto.Product
@@ -16,16 +16,9 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class VendorFragment() : Fragment(), VendorFragmentCallback {
     private val vm: VendorViewModel by viewModel()
-    lateinit var chosenCurrency: String
     var product: Product = Product()
 
-    val args: VendorFragmentArgs by navArgs()
-
-    private val STATE_ONLY_PRODUCTS_SHOWED = 0
-    private val STATE_SHOPPING_CART_SHOWED = 1
-    private val STATE_PRODUCT_DETAIL_SHOWED = 2
-
-    private var state = STATE_ONLY_PRODUCTS_SHOWED
+    private var state = VendorScreenState.STATE_ONLY_PRODUCTS_SHOWED
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -40,7 +33,6 @@ class VendorFragment() : Fragment(), VendorFragmentCallback {
         super.onViewCreated(view, savedInstanceState)
 
         state = vm.getVendorState()
-        chosenCurrency = args.currency
         product = getProductFromBundle(savedInstanceState)
 
         val fragment = getFragmentFromState()
@@ -81,7 +73,7 @@ class VendorFragment() : Fragment(), VendorFragmentCallback {
         val productDetailFragment = ProductDetailFragment()
         this.product = product
 
-        state = STATE_PRODUCT_DETAIL_SHOWED
+        state = VendorScreenState.STATE_PRODUCT_DETAIL_SHOWED
 
         if (isLandscapeOriented()) {
             val transaction = childFragmentManager.beginTransaction().apply {
@@ -96,16 +88,8 @@ class VendorFragment() : Fragment(), VendorFragmentCallback {
         }
     }
 
-    override fun getCurrency(): String {
-        return chosenCurrency
-    }
-
-    override fun setCurrency(currency: String) {
-        chosenCurrency = currency
-    }
-
     override fun showCart() {
-        state = STATE_SHOPPING_CART_SHOWED
+        state = VendorScreenState.STATE_SHOPPING_CART_SHOWED
 
         if (!isLandscapeOriented()) {
             val transaction = childFragmentManager.beginTransaction().apply {
@@ -122,7 +106,7 @@ class VendorFragment() : Fragment(), VendorFragmentCallback {
     }
 
     override fun showProducts() {
-        state = STATE_ONLY_PRODUCTS_SHOWED
+        state = VendorScreenState.STATE_ONLY_PRODUCTS_SHOWED
 
         if (!isLandscapeOriented()) {
             val transaction = childFragmentManager.beginTransaction().apply {
@@ -181,20 +165,19 @@ class VendorFragment() : Fragment(), VendorFragmentCallback {
 
     private fun getFragmentFromState(): Fragment {
         return when (state) {
-            STATE_SHOPPING_CART_SHOWED -> {
+            VendorScreenState.STATE_SHOPPING_CART_SHOWED -> {
                 ShoppingCartFragment()
             }
-            STATE_PRODUCT_DETAIL_SHOWED -> {
+            VendorScreenState.STATE_PRODUCT_DETAIL_SHOWED -> {
                 ProductDetailFragment()
             }
-            STATE_ONLY_PRODUCTS_SHOWED -> {
+            VendorScreenState.STATE_ONLY_PRODUCTS_SHOWED -> {
                 if (isLandscapeOriented()) {
                     ShoppingCartFragment()
                 } else {
                     ProductsFragment()
                 }
             }
-            else -> ProductsFragment()
         }
     }
 

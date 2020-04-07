@@ -48,7 +48,7 @@ class ProductDetailFragment : Fragment() {
         } else {
             priceUnitSpinner.visibility = View.INVISIBLE
             priceUnitTextView.visibility = View.VISIBLE
-            priceUnitTextView.text = vendorFragmentCallback.getCurrency()
+            priceUnitTextView.text = vm.getCurrency()
         }
 
         savedQuantity?.let {
@@ -66,7 +66,7 @@ class ProductDetailFragment : Fragment() {
 
             if (quantityEditText.text.toString() != "" && unitPriceEditText.text.toString() != "") {
                 if (vm.getShoppingCart().isEmpty()) {
-                    vendorFragmentCallback.setCurrency(priceUnitSpinner.selectedItem as String)
+                    vm.setCurrency(priceUnitSpinner.selectedItem as String)
                 }
                 addProductToCart(
                     vendorFragmentCallback.getSelectedProduct(),
@@ -100,7 +100,7 @@ class ProductDetailFragment : Fragment() {
                 this.quantity = quantity
                 this.price = unitPrice
                 this.subTotal = unitPrice * quantity
-                this.currency = vendorFragmentCallback.getCurrency()
+                this.currency = vm.getCurrency()
             }
         vm.addToShoppingCart(selected)
     }

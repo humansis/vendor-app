@@ -11,7 +11,6 @@ import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
-import androidx.navigation.fragment.navArgs
 import com.budiyev.android.codescanner.CodeScanner
 import com.budiyev.android.codescanner.DecodeCallback
 import com.budiyev.android.codescanner.ScanMode
@@ -38,12 +37,9 @@ class ScannerFragment() : Fragment() {
     private var codeScanner: CodeScanner? = null
     private var lastScanned: String = ""
     private var clearCachedTimer: Timer = Timer()
-    private lateinit var chosenCurrency: String
     private lateinit var deactivated: List<Booklet>
     private lateinit var protected: List<Booklet>
     private var disposables: MutableList<Disposable> = mutableListOf()
-
-    val args: ScannerFragmentArgs by navArgs()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -57,7 +53,6 @@ class ScannerFragment() : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        chosenCurrency = args.currency
         disposables.add(vm.getDeactivatedAndProtectedBooklets().subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread()).subscribe(
                 {
@@ -172,7 +167,7 @@ class ScannerFragment() : Fragment() {
                 .show()
         } else {
             val result =
-                vm.getVoucherFromScannedCode(scannedCode, chosenCurrency, deactivated, protected)
+                vm.getVoucherFromScannedCode(scannedCode, deactivated, protected)
             val voucher = result.first
             val resultCode = result.second
             if (voucher != null &&
@@ -185,9 +180,7 @@ class ScannerFragment() : Fragment() {
                 } else {
                     vm.addVoucher(voucher)
                     findNavController().navigate(
-                        ScannerFragmentDirections.actionScannerFragmentToCheckoutFragment(
-                            chosenCurrency
-                        )
+                        ScannerFragmentDirections.actionScannerFragmentToCheckoutFragment()
                     )
                 }
             } else {
@@ -212,9 +205,7 @@ class ScannerFragment() : Fragment() {
                         .setPositiveButton(android.R.string.ok, null)
                         .show()
                     findNavController().navigate(
-                        ScannerFragmentDirections.actionScannerFragmentToCheckoutFragment(
-                            chosenCurrency
-                        )
+                        ScannerFragmentDirections.actionScannerFragmentToCheckoutFragment()
                     )
                 },
                 {
@@ -238,9 +229,7 @@ class ScannerFragment() : Fragment() {
                     if (password in voucher.passwords) {
                         vm.addVoucher(voucher)
                         findNavController().navigate(
-                            ScannerFragmentDirections.actionScannerFragmentToCheckoutFragment(
-                                chosenCurrency
-                            )
+                            ScannerFragmentDirections.actionScannerFragmentToCheckoutFragment()
                         )
                     } else {
                         showPasswordDialog(tries - 1, voucher)

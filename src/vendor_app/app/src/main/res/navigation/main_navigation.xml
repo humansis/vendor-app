@@ -22,9 +22,6 @@
         android:name="cz.quanti.android.vendor_app.main.vendor.fragment.VendorFragment"
         android:label="fragment_vendor"
         tools:layout="@layout/fragment_vendor">
-        <argument
-            android:name="currency"
-            app:argType="string" />
         <action
             android:id="@+id/action_vendorFragment_to_checkoutFragment"
             app:destination="@id/checkoutFragment"
@@ -37,17 +34,11 @@
         android:name="cz.quanti.android.vendor_app.main.checkout.fragment.CheckoutFragment"
         android:label="fragment_checkout"
         tools:layout="@layout/fragment_checkout">
-        <argument
-            android:name="currency"
-            app:argType="string" />
         <action
             android:id="@+id/action_checkoutFragment_to_vendorFragment"
             app:destination="@id/vendorFragment"
             app:popUpTo="@id/vendorFragment"
             app:popUpToInclusive="true">
-            <argument
-                android:name="currency"
-                app:argType="string" />
         </action>
         <action
             android:id="@+id/action_checkoutFragment_to_scannerFragment"
@@ -61,9 +52,6 @@
         android:name="cz.quanti.android.vendor_app.main.scanner.fragment.ScannerFragment"
         android:label="fragment_scanner"
         tools:layout="@layout/fragment_scanner">
-        <argument
-            android:name="currency"
-            app:argType="string" />
         <action
             android:id="@+id/action_scannerFragment_to_checkoutFragment"
             app:destination="@id/checkoutFragment"

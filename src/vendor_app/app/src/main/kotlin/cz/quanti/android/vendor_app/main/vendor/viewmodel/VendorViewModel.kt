@@ -1,6 +1,7 @@
 package cz.quanti.android.vendor_app.main.vendor.viewmodel
 
 import androidx.lifecycle.ViewModel
+import cz.quanti.android.vendor_app.main.vendor.VendorScreenState
 import cz.quanti.android.vendor_app.repository.product.ProductFacade
 import cz.quanti.android.vendor_app.repository.product.dto.Product
 import cz.quanti.android.vendor_app.repository.product.dto.SelectedProduct
@@ -41,12 +42,20 @@ class VendorViewModel(
         return shoppingHolder.cart
     }
 
-    fun setVendorState(state: Int) {
+    fun setVendorState(state: VendorScreenState) {
         shoppingHolder.vendorScreenState = state
     }
 
-    fun getVendorState(): Int {
+    fun getVendorState(): VendorScreenState {
         return shoppingHolder.vendorScreenState
+    }
+
+    fun getCurrency(): String {
+        return shoppingHolder.chosenCurrency
+    }
+
+    fun setCurrency(currency: String) {
+        shoppingHolder.chosenCurrency = currency
     }
 
     private fun actualizeProducts(): Completable {

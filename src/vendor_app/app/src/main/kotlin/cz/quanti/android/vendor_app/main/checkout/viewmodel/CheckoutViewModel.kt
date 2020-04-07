@@ -1,6 +1,7 @@
 package cz.quanti.android.vendor_app.main.checkout.viewmodel
 
 import androidx.lifecycle.ViewModel
+import cz.quanti.android.vendor_app.main.checkout.CheckoutScreenState
 import cz.quanti.android.vendor_app.repository.product.dto.SelectedProduct
 import cz.quanti.android.vendor_app.repository.voucher.VoucherFacade
 import cz.quanti.android.vendor_app.repository.voucher.dto.Voucher
@@ -13,14 +14,10 @@ class CheckoutViewModel(
     private val shoppingHolder: ShoppingHolder,
     private val voucherFacade: VoucherFacade
 ) : ViewModel() {
-    private var chosenCurrency: String = ""
     private var cart: MutableList<SelectedProduct> = mutableListOf()
     private var vouchers: MutableList<Voucher> = mutableListOf()
 
-    fun init(
-        chosenCurrency: String
-    ) {
-        this.chosenCurrency = chosenCurrency
+    fun init() {
         this.cart = shoppingHolder.cart
         this.vouchers = shoppingHolder.vouchers
     }
@@ -50,6 +47,22 @@ class CheckoutViewModel(
 
     fun clearShoppingCart() {
         cart.clear()
+    }
+
+    fun setScreenState(state: CheckoutScreenState) {
+        shoppingHolder.checkoutScreenState = state
+    }
+
+    fun getScreenState(): CheckoutScreenState {
+        return shoppingHolder.checkoutScreenState
+    }
+
+    fun getCurrency(): String {
+        return shoppingHolder.chosenCurrency
+    }
+
+    fun clearCurrency() {
+        shoppingHolder.chosenCurrency = ""
     }
 
     private fun useVouchers() {

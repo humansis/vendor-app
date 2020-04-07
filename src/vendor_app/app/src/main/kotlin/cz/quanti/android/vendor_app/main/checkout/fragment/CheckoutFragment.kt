@@ -10,12 +10,13 @@ import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat.getColor
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
-import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import cz.quanti.android.vendor_app.MainActivity
 import cz.quanti.android.vendor_app.R
+import cz.quanti.android.vendor_app.main.checkout.CheckoutScreenState
 import cz.quanti.android.vendor_app.main.checkout.adapter.ScannedVoucherAdapter
 import cz.quanti.android.vendor_app.main.checkout.adapter.SelectedProductsAdapter
+import cz.quanti.android.vendor_app.main.checkout.callback.CheckoutFragmentCallback
 import cz.quanti.android.vendor_app.main.checkout.viewmodel.CheckoutViewModel
 import cz.quanti.android.vendor_app.utils.getStringFromDouble
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -24,14 +25,11 @@ import kotlinx.android.synthetic.main.fragment_checkout.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import quanti.com.kotlinlog.Log
 
-class CheckoutFragment() : Fragment() {
+class CheckoutFragment() : Fragment(), CheckoutFragmentCallback {
     private val vm: CheckoutViewModel by viewModel()
     private val selectedProductsAdapter = SelectedProductsAdapter()
     private val scannedVoucherAdapter = ScannedVoucherAdapter()
-
-    private val args: CheckoutFragmentArgs by navArgs()
-
-    lateinit var chosenCurrency: String
+    private var state = CheckoutScreenState.STATE_PAYMENT_SHOWED
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -44,10 +42,18 @@ class CheckoutFragment() : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        state = vm.getScreenState()
 
-        chosenCurrency = args.currency
+        val fragment = getFragmentFromState()
 
-        vm.init(chosenCurrency)
+        if (!isLandscapeOriented()) {
+            val transaction = childFragmentManager.beginTransaction().apply {
+                replace(R.id.checkoutFragmentContainer, fragment)
+            }
+            transaction.commit()
+        }
+
+        vm.init()
         initOnClickListeners()
         initSelectedProductsAdapter()
         initScannedVouchersAdapter()
@@ -55,26 +61,59 @@ class CheckoutFragment() : Fragment() {
         actualizeTotal()
     }
 
+    override fun onDestroy() {
+        vm.setScreenState(state)
+        super.onDestroy()
+    }
+
+    override fun showCart() {
+        state = CheckoutScreenState.STATE_PRODUCTS_SHOWED
+
+        val transaction = childFragmentManager.beginTransaction().apply {
+            replace(R.id.checkoutFragmentContainer, CheckoutProductsFragment())
+        }
+        transaction.commit()
+    }
+
+    override fun goToPayment() {
+        state = CheckoutScreenState.STATE_PAYMENT_SHOWED
+
+        val transaction = childFragmentManager.beginTransaction().apply {
+            replace(R.id.checkoutFragmentContainer, CheckoutPaymentFragment())
+        }
+        transaction.commit()
+    }
+
+    private fun getFragmentFromState(): Fragment {
+        return when (state) {
+            CheckoutScreenState.STATE_PAYMENT_SHOWED -> {
+                CheckoutPaymentFragment()
+            }
+            CheckoutScreenState.STATE_PRODUCTS_SHOWED -> {
+                CheckoutProductsFragment()
+            }
+        }
+    }
+
     private fun initOnClickListeners() {
 
-        cancelButton.setOnClickListener {
+        cancelButton?.setOnClickListener {
             vm.clearVouchers()
             findNavController().navigate(
-                CheckoutFragmentDirections.actionCheckoutFragmentToVendorFragment(
-                    chosenCurrency
-                )
+                CheckoutFragmentDirections.actionCheckoutFragmentToVendorFragment()
             )
         }
 
-        proceedButton.setOnClickListener {
+        proceedButton?.setOnClickListener {
             if (vm.getTotal() <= 0) {
                 vm.proceed().subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread()).subscribe(
                         {
                             vm.clearShoppingCart()
                             vm.clearVouchers()
+                            vm.clearCurrency()
                             findNavController().navigate(
-                                CheckoutFragmentDirections.actionCheckoutFragmentToVendorFragment("")
+                                CheckoutFragmentDirections.actionCheckoutFragmentToVendorFragment()
                             )
                         },
                         {
@@ -95,22 +134,25 @@ class CheckoutFragment() : Fragment() {
             }
         }
 
-        scanButton.setOnClickListener {
+        scanButton?.setOnClickListener {
             findNavController().navigate(
-                CheckoutFragmentDirections.actionCheckoutFragmentToScannerFragment(
-                    chosenCurrency
-                )
+                CheckoutFragmentDirections.actionCheckoutFragmentToScannerFragment()
             )
         }
+
+        payByCardButton?.setOnClickListener {
+            // TODO card scanning stuff here
+        }
+
     }
 
     private fun initSelectedProductsAdapter() {
         val viewManager = LinearLayoutManager(activity)
 
-        checkoutSelectedProductsRecyclerView.setHasFixedSize(true)
-        checkoutSelectedProductsRecyclerView.layoutManager = viewManager
-        checkoutSelectedProductsRecyclerView.adapter = selectedProductsAdapter
-        selectedProductsAdapter.chosenCurrency = chosenCurrency
+        checkoutSelectedProductsRecyclerView?.setHasFixedSize(true)
+        checkoutSelectedProductsRecyclerView?.layoutManager = viewManager
+        checkoutSelectedProductsRecyclerView?.adapter = selectedProductsAdapter
+        selectedProductsAdapter.chosenCurrency = vm.getCurrency()
 
         selectedProductsAdapter.setData(vm.getShoppingCart())
     }
@@ -118,35 +160,41 @@ class CheckoutFragment() : Fragment() {
     private fun initScannedVouchersAdapter() {
         val viewManager = LinearLayoutManager(activity)
 
-        scannedVouchersRecyclerView.setHasFixedSize(true)
-        scannedVouchersRecyclerView.layoutManager = viewManager
-        scannedVouchersRecyclerView.adapter = scannedVoucherAdapter
+        scannedVouchersRecyclerView?.setHasFixedSize(true)
+        scannedVouchersRecyclerView?.layoutManager = viewManager
+        scannedVouchersRecyclerView?.adapter = scannedVoucherAdapter
 
         scannedVoucherAdapter.setData(vm.getVouchers())
         if (vm.getVouchers().isEmpty()) {
-            scannedVouchersRecyclerView.visibility = View.INVISIBLE
-            pleaseScanVoucherTextView.visibility = View.VISIBLE
+            scannedVouchersRecyclerView?.visibility = View.INVISIBLE
+            pleaseScanVoucherTextView?.visibility = View.VISIBLE
+            payByCardButton?.visibility = View.VISIBLE
         } else {
-            scannedVouchersRecyclerView.visibility = View.VISIBLE
-            pleaseScanVoucherTextView.visibility = View.INVISIBLE
+            scannedVouchersRecyclerView?.visibility = View.VISIBLE
+            pleaseScanVoucherTextView?.visibility = View.INVISIBLE
+            payByCardButton?.visibility = View.INVISIBLE
         }
     }
 
     private fun actualizeTotal() {
         val total = vm.getTotal()
-        val totalText = "${getStringFromDouble(total)} $chosenCurrency"
-        totalTextView.text = totalText
+        val totalText = "${getStringFromDouble(total)} ${vm.getCurrency()}"
+        totalTextView?.text = totalText
 
         if (total <= 0) {
             val green = getColor(requireContext(), R.color.green)
-            moneyIconImageView.imageTintList = ColorStateList.valueOf(green)
-            totalTitleTextView.setTextColor(green)
-            totalTextView.setTextColor(green)
+            moneyIconImageView?.imageTintList = ColorStateList.valueOf(green)
+            totalTitleTextView?.setTextColor(green)
+            totalTextView?.setTextColor(green)
         } else {
             val red = getColor(requireContext(), R.color.red)
-            moneyIconImageView.imageTintList = ColorStateList.valueOf(red)
-            totalTitleTextView.setTextColor(red)
-            totalTextView.setTextColor(red)
+            moneyIconImageView?.imageTintList = ColorStateList.valueOf(red)
+            totalTitleTextView?.setTextColor(red)
+            totalTextView?.setTextColor(red)
         }
+    }
+
+    private fun isLandscapeOriented(): Boolean {
+        return requireActivity().findViewById<View>(R.id.checkoutFragmentContainer) == null
     }
 }

@@ -16,6 +16,8 @@ import cz.quanti.android.vendor_app.main.checkout.viewmodel.CheckoutViewModel
 import cz.quanti.android.vendor_app.utils.getStringFromDouble
 import kotlinx.android.synthetic.main.fragment_checkout.*
 import kotlinx.android.synthetic.main.item_checkout_vouchers_footer.*
+import kotlinx.android.synthetic.main.item_checkout_vouchers_footer.cancelButton
+import kotlinx.android.synthetic.main.item_checkout_vouchers_footer.proceedButton
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class CheckoutPaymentFragment : Fragment() {
@@ -37,11 +39,7 @@ class CheckoutPaymentFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         checkoutFragmentCallback = parentFragment as CheckoutFragmentCallback
         vm.init()
-
-        toProductsButton?.setOnClickListener {
-            checkoutFragmentCallback.showCart()
-        }
-
+        initOnClickListeners()
         initScannedVouchersAdapter()
         actualizeTotal()
     }
@@ -80,6 +78,29 @@ class CheckoutPaymentFragment : Fragment() {
             moneyIconImageView?.imageTintList = ColorStateList.valueOf(red)
             totalTitleTextView?.setTextColor(red)
             totalTextView?.setTextColor(red)
+        }
+    }
+
+    private fun initOnClickListeners() {
+
+        toProductsButton?.setOnClickListener {
+            checkoutFragmentCallback.showCart()
+        }
+
+        cancelButton.setOnClickListener {
+            checkoutFragmentCallback.cancel()
+        }
+
+        proceedButton.setOnClickListener {
+            checkoutFragmentCallback.proceed()
+        }
+
+        scanButton?.setOnClickListener {
+            checkoutFragmentCallback.scanVoucher()
+        }
+
+        payByCardButton?.setOnClickListener {
+            checkoutFragmentCallback.payByCard()
         }
     }
 }

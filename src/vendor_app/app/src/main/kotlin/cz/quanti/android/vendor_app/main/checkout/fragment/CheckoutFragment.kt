@@ -98,52 +98,67 @@ class CheckoutFragment() : Fragment(), CheckoutFragmentCallback {
     private fun initOnClickListeners() {
 
         cancelButton?.setOnClickListener {
-            vm.clearVouchers()
-            findNavController().navigate(
-                CheckoutFragmentDirections.actionCheckoutFragmentToVendorFragment()
-            )
+            cancel()
         }
 
         proceedButton?.setOnClickListener {
-            if (vm.getTotal() <= 0) {
-                vm.proceed().subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread()).subscribe(
-                        {
-                            vm.clearShoppingCart()
-                            vm.clearVouchers()
-                            vm.clearCurrency()
-                            findNavController().navigate(
-                                CheckoutFragmentDirections.actionCheckoutFragmentToVendorFragment()
-                            )
-                        },
-                        {
-                            Toast.makeText(
-                                context,
-                                getString(R.string.error_while_proceeding),
-                                Toast.LENGTH_SHORT
-                            ).show()
-                            Log.e(it)
-                        }
-                    )
-            } else {
-                AlertDialog.Builder(requireContext(), R.style.DialogTheme)
-                    .setTitle(getString(R.string.cannot_proceed_with_purchase_dialog_title))
-                    .setMessage(getString(R.string.cannot_proceed_with_purchase_dialog_message))
-                    .setPositiveButton(android.R.string.yes, null)
-                    .show()
-            }
+            proceed()
         }
 
         scanButton?.setOnClickListener {
-            findNavController().navigate(
-                CheckoutFragmentDirections.actionCheckoutFragmentToScannerFragment()
-            )
+            scanVoucher()
         }
 
         payByCardButton?.setOnClickListener {
-            // TODO card scanning stuff here
+            payByCard()
         }
+    }
 
+    override fun cancel() {
+        vm.clearVouchers()
+        findNavController().navigate(
+            CheckoutFragmentDirections.actionCheckoutFragmentToVendorFragment()
+        )
+    }
+
+    override fun proceed() {
+        if (vm.getTotal() <= 0) {
+            vm.proceed().subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread()).subscribe(
+                    {
+                        vm.clearShoppingCart()
+                        vm.clearVouchers()
+                        vm.clearCurrency()
+                        findNavController().navigate(
+                            CheckoutFragmentDirections.actionCheckoutFragmentToVendorFragment()
+                        )
+                    },
+                    {
+                        Toast.makeText(
+                            context,
+                            getString(R.string.error_while_proceeding),
+                            Toast.LENGTH_SHORT
+                        ).show()
+                        Log.e(it)
+                    }
+                )
+        } else {
+            AlertDialog.Builder(requireContext(), R.style.DialogTheme)
+                .setTitle(getString(R.string.cannot_proceed_with_purchase_dialog_title))
+                .setMessage(getString(R.string.cannot_proceed_with_purchase_dialog_message))
+                .setPositiveButton(android.R.string.yes, null)
+                .show()
+        }
+    }
+
+    override fun scanVoucher() {
+        findNavController().navigate(
+            CheckoutFragmentDirections.actionCheckoutFragmentToScannerFragment()
+        )
+    }
+
+    override fun payByCard() {
+        // TODO card stuff there
     }
 
     private fun initSelectedProductsAdapter() {

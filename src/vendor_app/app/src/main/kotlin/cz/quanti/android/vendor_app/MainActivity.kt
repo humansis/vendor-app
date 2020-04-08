@@ -2,11 +2,15 @@ package cz.quanti.android.vendor_app
 
 import android.os.Bundle
 import android.view.Menu
+import android.view.animation.Animation
+import android.view.animation.RotateAnimation
+import android.widget.ImageView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.findNavController
 import cz.quanti.android.vendor_app.main.authorization.viewmodel.LoginViewModel
 import cz.quanti.android.vendor_app.main.vendor.viewmodel.VendorViewModel
+import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import quanti.com.kotlinlog.Log
@@ -42,16 +46,26 @@ class MainActivity : AppCompatActivity() {
             true
         }
 
-        menu?.findItem(R.id.syncButton)?.setOnMenuItemClickListener {
-            vendorViewModel.synchronizeWithServer().subscribeOn(Schedulers.io()).subscribe(
+        val syncButton = menu?.findItem(R.id.syncButton)?.actionView as ImageView
+        syncButton.setImageResource(R.drawable.sync)
+        syncButton.setOnClickListener { view ->
+            val animation = RotateAnimation(0f, 360f, view.width / 2f, view.height / 2f)
+            animation.duration = 2500
+            animation.repeatCount = Animation.INFINITE
+            view.startAnimation(animation)
+
+            vendorViewModel.synchronizeWithServer().subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread()).subscribe(
                 {
+                    animation.repeatCount = 0
                 },
-                {
-                    Log.e(it)
+                { e ->
+                    view.animation.repeatCount = 0
+                    Log.e(e)
                 }
             )
-            true
         }
+
 
         return super.onCreateOptionsMenu(menu)
     }

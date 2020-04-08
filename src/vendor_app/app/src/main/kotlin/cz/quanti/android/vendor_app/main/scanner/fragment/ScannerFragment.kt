@@ -17,6 +17,7 @@ import com.budiyev.android.codescanner.ScanMode
 import com.google.android.material.textfield.TextInputEditText
 import cz.quanti.android.vendor_app.MainActivity
 import cz.quanti.android.vendor_app.R
+import cz.quanti.android.vendor_app.main.scanner.ScannedVoucherReturnState
 import cz.quanti.android.vendor_app.main.scanner.viewmodel.ScannerViewModel
 import cz.quanti.android.vendor_app.repository.voucher.dto.Booklet
 import cz.quanti.android.vendor_app.repository.voucher.dto.Voucher
@@ -171,10 +172,10 @@ class ScannerFragment() : Fragment() {
             val voucher = result.first
             val resultCode = result.second
             if (voucher != null &&
-                (resultCode == ScannerViewModel.VOUCHER_WITH_PASSWORD ||
-                    resultCode == ScannerViewModel.VOUCHER_WITHOUT_PASSWORD)
+                (resultCode == ScannedVoucherReturnState.VOUCHER_WITH_PASSWORD ||
+                    resultCode == ScannedVoucherReturnState.VOUCHER_WITHOUT_PASSWORD)
             ) {
-                if (resultCode == ScannerViewModel.VOUCHER_WITH_PASSWORD) {
+                if (resultCode == ScannedVoucherReturnState.VOUCHER_WITH_PASSWORD) {
                     showPasswordDialog(3, voucher)
 
                 } else {
@@ -240,24 +241,24 @@ class ScannerFragment() : Fragment() {
         }
     }
 
-    private fun getDialogMessageForResultCode(code: Int): Pair<String, String> {
+    private fun getDialogMessageForResultCode(code: ScannedVoucherReturnState): Pair<String, String> {
         var title = getString(R.string.wrong_code_title)
         var message = ""
 
         when (code) {
-            ScannerViewModel.BOOKLET -> {
+            ScannedVoucherReturnState.BOOKLET -> {
                 message = getString(R.string.cannot_scan_booklet_dialog_message)
             }
-            ScannerViewModel.WRONG_FORMAT -> {
+            ScannedVoucherReturnState.WRONG_FORMAT -> {
                 message = getString(R.string.wrong_code_dialog_message)
             }
-            ScannerViewModel.DEACTIVATED -> {
+            ScannedVoucherReturnState.DEACTIVATED -> {
                 message = getString(R.string.the_booklet_is_deactivated)
             }
-            ScannerViewModel.WRONG_BOOKLET -> {
+            ScannedVoucherReturnState.WRONG_BOOKLET -> {
                 message = getString(R.string.you_just_scanned_a_voucher_from_a_different_booklet)
             }
-            ScannerViewModel.WRONG_CURRENCY -> {
+            ScannedVoucherReturnState.WRONG_CURRENCY -> {
                 message = getString(R.string.the_voucher_is_of_wrong_currency)
             }
         }

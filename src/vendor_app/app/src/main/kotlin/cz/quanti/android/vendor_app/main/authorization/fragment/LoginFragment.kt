@@ -43,9 +43,15 @@ class LoginFragment : Fragment() {
         CurrentVendor.preferences = preferences
 
         if (CurrentVendor.isLoggedIn()) {
-            findNavController().navigate(
-                LoginFragmentDirections.actionLoginFragmentToVendorFragment()
-            )
+            if (vm.isFirstTimeLoading()) {
+                vm.setIsNotFirstTimeLoading()
+                findNavController().navigate(
+                    LoginFragmentDirections.actionLoginFragmentToVendorFragment()
+                )
+            } else {
+                // hardware back button was probably pressed, exit the application
+                requireActivity().finishAffinity()
+            }
         } else {
             logoImageView.clipToOutline = true
             loginButton.isEnabled = true

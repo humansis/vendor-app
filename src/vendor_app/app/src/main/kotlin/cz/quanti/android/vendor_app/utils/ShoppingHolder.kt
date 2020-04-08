@@ -6,6 +6,7 @@ import cz.quanti.android.vendor_app.repository.product.dto.SelectedProduct
 import cz.quanti.android.vendor_app.repository.voucher.dto.Voucher
 
 data class ShoppingHolder(
+    var justStarted: Boolean = true,
     val cart: MutableList<SelectedProduct> = mutableListOf(),
     val vouchers: MutableList<Voucher> = mutableListOf(),
     var vendorScreenState: VendorScreenState = VendorScreenState.STATE_ONLY_PRODUCTS_SHOWED,

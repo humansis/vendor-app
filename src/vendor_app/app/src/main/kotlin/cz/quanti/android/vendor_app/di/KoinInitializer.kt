@@ -78,7 +78,7 @@ object KoinInitializer {
             single { shoppingHolder }
 
             // View model
-            viewModel { LoginViewModel(loginFacade) }
+            viewModel { LoginViewModel(shoppingHolder, loginFacade) }
             viewModel { VendorViewModel(shoppingHolder, productFacade) }
             viewModel { ScannerViewModel(shoppingHolder, voucherFacade) }
             viewModel { CheckoutViewModel(shoppingHolder, voucherFacade) }

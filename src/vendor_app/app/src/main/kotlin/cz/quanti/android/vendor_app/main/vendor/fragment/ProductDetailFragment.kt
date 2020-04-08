@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
+import com.squareup.picasso.Picasso
 import cz.quanti.android.vendor_app.R
 import cz.quanti.android.vendor_app.main.vendor.adapter.CurrencyAdapter
 import cz.quanti.android.vendor_app.main.vendor.callback.VendorFragmentCallback
@@ -116,5 +117,7 @@ class ProductDetailFragment : Fragment() {
         val product = vendorFragmentCallback.getSelectedProduct()
         productName.text = product.name
         quantityUnitTextView.text = product.unit
+        Picasso.get().load(product.image)
+            .into(productImageView)
     }
 }

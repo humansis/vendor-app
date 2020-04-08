@@ -26,19 +26,26 @@
 
             <androidx.cardview.widget.CardView
                 android:id="@+id/productCardView"
-                android:layout_width="30dp"
-                android:layout_height="40dp"
                 android:visibility="visible"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                app:layout_constraintWidth_max="30dp"
+                app:layout_constraintWidth_percent="0.15"
+                app:layout_constraintDimensionRatio="1:1"
+                android:shape="ring"
+                app:cardCornerRadius="15dp"
+                android:layout_marginStart="5dp"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent">
+                app:layout_constraintTop_toTopOf="@+id/productName"
+                app:layout_constraintBottom_toBottomOf="@+id/productName">
 
                 <androidx.appcompat.widget.AppCompatImageView
+                    android:id="@+id/productImageView"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:adjustViewBounds="true"
                     android:scaleType="centerCrop"
-                    android:visibility="visible"
-                    app:srcCompat="@drawable/login_screen" />
+                    android:visibility="visible" />
             </androidx.cardview.widget.CardView>
 
             <TextView

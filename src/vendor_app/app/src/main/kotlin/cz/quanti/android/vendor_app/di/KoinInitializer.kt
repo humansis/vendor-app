@@ -19,6 +19,7 @@ import cz.quanti.android.vendor_app.repository.product.impl.ProductFacadeImpl
 import cz.quanti.android.vendor_app.repository.product.impl.ProductRepositoryImpl
 import cz.quanti.android.vendor_app.repository.voucher.impl.VoucherFacadeImpl
 import cz.quanti.android.vendor_app.repository.voucher.impl.VoucherRepositoryImpl
+import cz.quanti.android.vendor_app.utils.CurrentVendor
 import cz.quanti.android.vendor_app.utils.LoginManager
 import cz.quanti.android.vendor_app.utils.ShoppingHolder
 import okhttp3.OkHttpClient
@@ -66,9 +67,9 @@ object KoinInitializer {
 
         // Facade
         val loginFacade =
-            LoginFacadeImpl(loginRepo, productRepo, voucherRepo, loginManager)
+            LoginFacadeImpl(loginRepo, loginManager)
         val productFacade = ProductFacadeImpl(productRepo)
-        val voucherFacade = VoucherFacadeImpl(voucherRepo)
+        val voucherFacade = VoucherFacadeImpl(voucherRepo, productRepo)
 
         return module {
             single { AppPreferences(androidContext()) }
@@ -79,7 +80,7 @@ object KoinInitializer {
 
             // View model
             viewModel { LoginViewModel(shoppingHolder, loginFacade) }
-            viewModel { VendorViewModel(shoppingHolder, productFacade) }
+            viewModel { VendorViewModel(shoppingHolder, productFacade, voucherFacade) }
             viewModel { ScannerViewModel(shoppingHolder, voucherFacade) }
             viewModel { CheckoutViewModel(shoppingHolder, voucherFacade) }
         }
@@ -98,15 +99,18 @@ object KoinInitializer {
             .addInterceptor { chain ->
                 val oldRequest = chain.request()
                 val headersBuilder = oldRequest.headers().newBuilder()
-                // TODO
                 loginManager.getAuthHeader()?.let {
                     headersBuilder.add("x-wsse", it)
                 }
-                headersBuilder.add("country", "KHM")
+                headersBuilder.add("country", getCountry())
                 val request = oldRequest.newBuilder().headers(headersBuilder.build()).build()
                 chain.proceed(request)
             }
             .addInterceptor(logging)
             .build()
+    }
+
+    private fun getCountry(): String {
+        return CurrentVendor.vendor.country
     }
 }

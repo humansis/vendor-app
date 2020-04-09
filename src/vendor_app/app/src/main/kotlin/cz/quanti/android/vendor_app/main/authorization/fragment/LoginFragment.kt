@@ -14,7 +14,6 @@ import cz.quanti.android.vendor_app.MainActivity
 import cz.quanti.android.vendor_app.R
 import cz.quanti.android.vendor_app.main.authorization.viewmodel.LoginViewModel
 import cz.quanti.android.vendor_app.utils.CurrentVendor
-import cz.quanti.android.vendor_app.utils.VendorAppException
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
@@ -86,24 +85,17 @@ class LoginFragment : Fragment() {
                             loadingImageView.visibility = View.INVISIBLE
                             loginButton.visibility = View.VISIBLE
                             loginButton.isEnabled = true
-                            Log.e(it) // TODO the error might be caused by internet connection or other causes
-                            usernameEditText.error = getString(R.string.wrong_password)
-                            passwordEditText.error = getString(R.string.wrong_password)
-                            //TODO just for debugging purposes
-                            try {
+                            Log.e(it)
+                            if ((activity as MainActivity).isNetworkAvailable()) {
+                                usernameEditText.error = getString(R.string.wrong_password)
+                                passwordEditText.error = getString(R.string.wrong_password)
+                            } else {
                                 Toast.makeText(
                                     context,
-                                    it.message + " " + (it as VendorAppException).apiResponseCode,
-                                    Toast.LENGTH_LONG
-                                ).show()
-                            } catch (e: Exception) {
-                                Toast.makeText(
-                                    context,
-                                    it.message,
+                                    getString(R.string.no_internet_connection),
                                     Toast.LENGTH_LONG
                                 ).show()
                             }
-
                         }
                     )
             }

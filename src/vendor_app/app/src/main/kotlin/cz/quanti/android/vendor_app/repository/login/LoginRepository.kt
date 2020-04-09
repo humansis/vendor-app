@@ -9,4 +9,6 @@ interface LoginRepository {
     fun getSalt(username: String): Single<Pair<Int, Salt>>
 
     fun login(vendor: Vendor): Single<Pair<Int, Vendor>>
+
+    fun getVendor(id: String): Single<Pair<Int, Vendor>>
 }

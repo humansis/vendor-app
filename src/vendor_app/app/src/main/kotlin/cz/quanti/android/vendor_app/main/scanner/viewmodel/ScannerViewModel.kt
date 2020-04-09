@@ -22,11 +22,11 @@ class ScannerViewModel(
         }
     }
 
-    fun getDeactivatedBooklets(): Single<List<Booklet>> {
+    private fun getDeactivatedBooklets(): Single<List<Booklet>> {
         return voucherFacade.getAllDeactivatedBooklets()
     }
 
-    fun getProtectedBooklets(): Single<List<Booklet>> {
+    private fun getProtectedBooklets(): Single<List<Booklet>> {
         return voucherFacade.getProtectedBooklets()
     }
 

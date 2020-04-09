@@ -8,7 +8,7 @@ import java.util.*
 
 @Entity(tableName = VendorDb.TABLE_VOUCHER)
 data class VoucherDbEntity(
-    @PrimaryKey(autoGenerate = true)
+    @PrimaryKey(autoGenerate = false)
     var id: Long = 0,
     var qrCode: String = "",
     var vendorId: String = "",

@@ -44,6 +44,10 @@ class VoucherRepositoryImpl(
         }
     }
 
+    override fun deleteAllVouchers(): Completable {
+        return Completable.fromCallable { voucherDao.deleteAll() }
+    }
+
     override fun saveBooklet(booklet: Booklet): Completable {
         return Completable.fromCallable { bookletDao.insert(convert(booklet)) }
     }

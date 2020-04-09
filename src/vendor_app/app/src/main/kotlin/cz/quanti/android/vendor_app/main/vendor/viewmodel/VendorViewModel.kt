@@ -5,13 +5,15 @@ import cz.quanti.android.vendor_app.main.vendor.VendorScreenState
 import cz.quanti.android.vendor_app.repository.product.ProductFacade
 import cz.quanti.android.vendor_app.repository.product.dto.Product
 import cz.quanti.android.vendor_app.repository.product.dto.SelectedProduct
+import cz.quanti.android.vendor_app.repository.voucher.VoucherFacade
 import cz.quanti.android.vendor_app.utils.ShoppingHolder
 import io.reactivex.Completable
 import io.reactivex.Single
 
 class VendorViewModel(
     private val shoppingHolder: ShoppingHolder,
-    private val productFacade: ProductFacade
+    private val productFacade: ProductFacade,
+    private val voucherFacade: VoucherFacade
 ) : ViewModel() {
 
     fun getProducts(): Single<List<Product>> {
@@ -19,7 +21,7 @@ class VendorViewModel(
     }
 
     fun synchronizeWithServer(): Completable {
-        return actualizeProducts()
+        return voucherFacade.syncWithServer()
     }
 
     fun getFirstCurrencies(): List<String> {
@@ -56,9 +58,5 @@ class VendorViewModel(
 
     fun setCurrency(currency: String) {
         shoppingHolder.chosenCurrency = currency
-    }
-
-    private fun actualizeProducts(): Completable {
-        return productFacade.reloadProductFromServer()
     }
 }

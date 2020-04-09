@@ -5,18 +5,26 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import cz.quanti.android.vendor_app.App
 import cz.quanti.android.vendor_app.MainActivity
 import cz.quanti.android.vendor_app.R
 import cz.quanti.android.vendor_app.main.vendor.VendorScreenState
 import cz.quanti.android.vendor_app.main.vendor.callback.VendorFragmentCallback
 import cz.quanti.android.vendor_app.main.vendor.viewmodel.VendorViewModel
 import cz.quanti.android.vendor_app.repository.product.dto.Product
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.Disposable
+import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.fragment_product_detail.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
+import quanti.com.kotlinlog.Log
+import java.util.*
 
 class VendorFragment() : Fragment(), VendorFragmentCallback {
     private val vm: VendorViewModel by viewModel()
     var product: Product = Product()
+    private val rightTimeToSyncAgain = 86400000 // one day
+    private var disposable: Disposable? = null
 
     private var state = VendorScreenState.STATE_ONLY_PRODUCTS_SHOWED
 
@@ -54,11 +62,28 @@ class VendorFragment() : Fragment(), VendorFragmentCallback {
             }
             transaction.commit()
         }
+
+        var lastSynced = (requireActivity().application as App).preferences.lastSynced
+        if (Date().time - lastSynced > rightTimeToSyncAgain && (requireActivity() as MainActivity).isNetworkAvailable()) {
+            disposable?.dispose()
+            disposable = vm.synchronizeWithServer().subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                    {
+                        (requireActivity().application as App).preferences.lastSynced = Date().time
+                        notifyDataChanged()
+                    },
+                    {
+                        Log.e(it)
+                    }
+                )
+        }
     }
 
     override fun onResume() {
         super.onResume()
 
+        (activity as MainActivity).vendorFragmentCallback = this
         val toolbar = (activity as MainActivity).supportActionBar
         toolbar?.title = getString(R.string.vendor_title)
         toolbar?.setDisplayHomeAsUpEnabled(false)
@@ -66,6 +91,11 @@ class VendorFragment() : Fragment(), VendorFragmentCallback {
         toolbar?.setDisplayShowCustomEnabled(true)
 
         (activity as MainActivity).invalidateOptionsMenu()
+    }
+
+    override fun onStop() {
+        (activity as MainActivity).vendorFragmentCallback = null
+        super.onStop()
     }
 
 
@@ -120,9 +150,26 @@ class VendorFragment() : Fragment(), VendorFragmentCallback {
         return product
     }
 
+    override fun notifyDataChanged() {
+
+        if (isLandscapeOriented()) {
+            val transaction = childFragmentManager.beginTransaction().apply {
+                replace(R.id.rightFragmentContainer, ShoppingCartFragment())
+                replace(R.id.leftFragmentContainer, ProductsFragment())
+            }
+            transaction.commit()
+        } else {
+            val transaction = childFragmentManager.beginTransaction().apply {
+                replace(R.id.vendorSingleFragmentContainer, ProductsFragment())
+            }
+            transaction.commit()
+        }
+    }
+
     override fun onDestroy() {
-        super.onDestroy()
         vm.setVendorState(state)
+        disposable?.dispose()
+        super.onDestroy()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {

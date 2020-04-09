@@ -22,10 +22,20 @@ class AppPreferences(context: Context) : BasePreferences(context, VERSION, MIGRA
         private const val VENDOR_COUNTRY = "pin_vendor_app_vendor_country"
         private const val VENDOR_LANGUAGE = "pin_vendor_app_vendor_language"
         private const val VENDOR_LOGGED_IN = "pin_vendor_app_vendor_logged_in"
+
+        private const val LAST_SYNCED = "pin_vendor_app_last_synced"
     }
 
     override fun init() {
     }
+
+    var lastSynced: Long
+        get() {
+            return settings.getLong(LAST_SYNCED, 0)
+        }
+        set(lastSynced) {
+            settings.edit().putLong(LAST_SYNCED, lastSynced)
+        }
 
     var vendor: Vendor
         get() {

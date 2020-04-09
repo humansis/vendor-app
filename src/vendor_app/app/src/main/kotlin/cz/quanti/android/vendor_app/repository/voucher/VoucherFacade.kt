@@ -13,4 +13,8 @@ interface VoucherFacade {
     fun deactivate(booklet: String): Completable
 
     fun getProtectedBooklets(): Single<List<Booklet>>
+
+    fun clearVouchers(): Completable
+
+    fun syncWithServer(): Completable
 }

@@ -20,6 +20,8 @@ interface VoucherRepository {
 
     fun getNewlyDeactivatedBooklets(): Single<List<Booklet>>
 
+    fun deleteAllVouchers(): Completable
+
     fun deleteDeactivated(): Completable
 
     fun deleteProtected(): Completable

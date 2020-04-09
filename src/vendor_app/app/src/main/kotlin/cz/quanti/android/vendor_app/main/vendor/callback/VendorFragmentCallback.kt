@@ -7,4 +7,5 @@ interface VendorFragmentCallback {
     fun showCart()
     fun showProducts()
     fun getSelectedProduct(): Product
+    fun notifyDataChanged()
 }

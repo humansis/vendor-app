@@ -20,6 +20,7 @@ import cz.quanti.android.vendor_app.main.checkout.callback.CheckoutFragmentCallb
 import cz.quanti.android.vendor_app.main.checkout.viewmodel.CheckoutViewModel
 import cz.quanti.android.vendor_app.utils.getStringFromDouble
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.fragment_checkout.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -30,6 +31,7 @@ class CheckoutFragment() : Fragment(), CheckoutFragmentCallback {
     private val selectedProductsAdapter = SelectedProductsAdapter()
     private val scannedVoucherAdapter = ScannedVoucherAdapter()
     private var state = CheckoutScreenState.STATE_PAYMENT_SHOWED
+    private var disposable: Disposable? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -63,6 +65,7 @@ class CheckoutFragment() : Fragment(), CheckoutFragmentCallback {
 
     override fun onDestroy() {
         vm.setScreenState(state)
+        disposable?.dispose()
         super.onDestroy()
     }
 
@@ -123,7 +126,8 @@ class CheckoutFragment() : Fragment(), CheckoutFragmentCallback {
 
     override fun proceed() {
         if (vm.getTotal() <= 0) {
-            vm.proceed().subscribeOn(Schedulers.io())
+            disposable?.dispose()
+            disposable = vm.proceed().subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread()).subscribe(
                     {
                         vm.clearShoppingCart()

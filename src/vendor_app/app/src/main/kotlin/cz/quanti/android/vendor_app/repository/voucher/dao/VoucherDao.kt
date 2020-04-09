@@ -14,6 +14,9 @@ interface VoucherDao {
     @Delete
     fun delete(voucher: VoucherDbEntity)
 
+    @Query("DELETE FROM " + VendorDb.TABLE_VOUCHER)
+    fun deleteAll()
+
     @Query("SELECT * FROM " + VendorDb.TABLE_VOUCHER)
     fun getAll(): Single<List<VoucherDbEntity>>
 }

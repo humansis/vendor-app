@@ -31,4 +31,9 @@
             @style/Widget.MaterialComponents.Button.TextButton
         </item>
     </style>
+
+    <style name="PopupMenuTheme" parent="@android:style/Widget.PopupMenu">
+        <item name="android:background">@color/white</item>
+        <item name="android:textColor">@color/black</item>
+    </style>
 </resources>

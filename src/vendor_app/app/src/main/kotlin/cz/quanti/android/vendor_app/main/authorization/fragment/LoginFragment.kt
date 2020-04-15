@@ -1,18 +1,22 @@
 package cz.quanti.android.vendor_app.main.authorization.fragment
 
 import android.os.Bundle
+import android.view.ContextThemeWrapper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.Animation
 import android.view.animation.RotateAnimation
+import android.widget.PopupMenu
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import cz.quanti.android.vendor_app.App
+import cz.quanti.android.vendor_app.BuildConfig
 import cz.quanti.android.vendor_app.MainActivity
 import cz.quanti.android.vendor_app.R
 import cz.quanti.android.vendor_app.main.authorization.viewmodel.LoginViewModel
+import cz.quanti.android.vendor_app.utils.ApiEnvironments
 import cz.quanti.android.vendor_app.utils.CurrentVendor
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
@@ -40,6 +44,29 @@ class LoginFragment : Fragment() {
 
         val preferences = (activity?.application as App).preferences
         CurrentVendor.preferences = preferences
+
+        if (BuildConfig.DEBUG) {
+            settingsImageView.visibility = View.VISIBLE
+            settingsImageView.setOnClickListener {
+                val contextThemeWrapper =
+                    ContextThemeWrapper(requireContext(), R.style.PopupMenuTheme)
+                val popup = PopupMenu(contextThemeWrapper, settingsImageView)
+                popup.inflate(R.menu.api_urls_menu)
+                popup.menu.add(0, ApiEnvironments.FRONT.id, 0, "FRONT API")
+                popup.menu.add(0, ApiEnvironments.DEMO.id, 0, "DEMO API")
+                popup.menu.add(0, ApiEnvironments.STAGE.id, 0, "STAGE API")
+                popup.menu.add(0, ApiEnvironments.DEV.id, 0, "DEV API")
+                popup.menu.add(0, ApiEnvironments.TEST.id, 0, "TEST API")
+                popup.setOnMenuItemClickListener { item ->
+                    val env = ApiEnvironments.values().find { it.id == item?.itemId }
+                    env?.let { initApi(it.getUrl()) }
+                    true
+                }
+                popup.show()
+            }
+        } else {
+            settingsImageView.visibility = View.INVISIBLE
+        }
 
         if (CurrentVendor.isLoggedIn()) {
             if (vm.isFirstTimeLoading()) {
@@ -105,5 +132,9 @@ class LoginFragment : Fragment() {
     override fun onDestroy() {
         super.onDestroy()
         disposable?.dispose()
+    }
+
+    private fun initApi(url: String) {
+        // TODO
     }
 }

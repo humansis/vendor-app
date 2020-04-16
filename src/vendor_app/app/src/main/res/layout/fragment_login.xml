@@ -32,6 +32,18 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
+            <TextView
+                android:id="@+id/envTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="5dp"
+                android:text="dev"
+                android:textColor="@color/black"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toStartOf="@+id/settingsImageView"
+                app:layout_constraintTop_toTopOf="@+id/settingsImageView"
+                app:layout_constraintBottom_toBottomOf="@+id/settingsImageView" />
+
             <ImageView
                 android:id="@+id/settingsImageView"
                 android:layout_width="24dp"

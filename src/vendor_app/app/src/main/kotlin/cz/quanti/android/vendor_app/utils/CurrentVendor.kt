@@ -13,6 +13,21 @@ object CurrentVendor {
             preferences?.vendor = vendor
         }
 
+    var url: ApiEnvironments?
+        get() {
+            try {
+                preferences?.let {
+                    return ApiEnvironments.valueOf(it.url)
+                }
+                return null
+            } catch (e: Exception) {
+                return null
+            }
+        }
+        set(url) {
+            url?.let { preferences?.url = url.name }
+        }
+
     fun isLoggedIn(): Boolean {
         return vendor.loggedIn
     }

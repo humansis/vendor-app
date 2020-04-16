@@ -17,6 +17,7 @@ import cz.quanti.android.vendor_app.MainActivity
 import cz.quanti.android.vendor_app.R
 import cz.quanti.android.vendor_app.main.authorization.viewmodel.LoginViewModel
 import cz.quanti.android.vendor_app.utils.ApiEnvironments
+import cz.quanti.android.vendor_app.utils.ApiManager
 import cz.quanti.android.vendor_app.utils.CurrentVendor
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
@@ -47,6 +48,15 @@ class LoginFragment : Fragment() {
 
         if (BuildConfig.DEBUG) {
             settingsImageView.visibility = View.VISIBLE
+            envTextView.visibility = View.VISIBLE
+            var defaultEnv = ApiEnvironments.DEV
+            val savedEnv = CurrentVendor.url
+            savedEnv?.let {
+                defaultEnv = savedEnv
+            }
+            envTextView.text = defaultEnv.name
+            initApi(defaultEnv.getUrl())
+
             settingsImageView.setOnClickListener {
                 val contextThemeWrapper =
                     ContextThemeWrapper(requireContext(), R.style.PopupMenuTheme)
@@ -59,13 +69,18 @@ class LoginFragment : Fragment() {
                 popup.menu.add(0, ApiEnvironments.TEST.id, 0, "TEST API")
                 popup.setOnMenuItemClickListener { item ->
                     val env = ApiEnvironments.values().find { it.id == item?.itemId }
-                    env?.let { initApi(it.getUrl()) }
+                    env?.let {
+                        initApi(it.getUrl())
+                        envTextView.text = it.name
+                        CurrentVendor.url = it
+                    }
                     true
                 }
                 popup.show()
             }
         } else {
             settingsImageView.visibility = View.INVISIBLE
+            envTextView.visibility = View.INVISIBLE
         }
 
         if (CurrentVendor.isLoggedIn()) {
@@ -135,6 +150,6 @@ class LoginFragment : Fragment() {
     }
 
     private fun initApi(url: String) {
-        // TODO
+        ApiManager.changeUrl(url)
     }
 }

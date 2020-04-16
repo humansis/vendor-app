@@ -24,6 +24,8 @@ class AppPreferences(context: Context) : BasePreferences(context, VERSION, MIGRA
         private const val VENDOR_LOGGED_IN = "pin_vendor_app_vendor_logged_in"
 
         private const val LAST_SYNCED = "pin_vendor_app_last_synced"
+
+        private const val API_URL = "pin_vendor_app_api_url"
     }
 
     override fun init() {
@@ -60,4 +62,8 @@ class AppPreferences(context: Context) : BasePreferences(context, VERSION, MIGRA
             settings.edit().putString(VENDOR_LANGUAGE, vendor.language).apply()
             settings.edit().putBoolean(VENDOR_LOGGED_IN, vendor.loggedIn).apply()
         }
+
+    var url: String
+        get() = settings.getString(API_URL, "")
+        set(url) = settings.edit().putString(API_URL, url).apply()
 }

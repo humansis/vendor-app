@@ -1,31 +1,31 @@
 package cz.quanti.android.vendor_app.repository.login.impl
 
-import cz.quanti.android.vendor_app.repository.VendorAPI
 import cz.quanti.android.vendor_app.repository.login.LoginRepository
 import cz.quanti.android.vendor_app.repository.login.dto.Salt
 import cz.quanti.android.vendor_app.repository.login.dto.Vendor
 import cz.quanti.android.vendor_app.repository.login.dto.api.SaltApiEntity
 import cz.quanti.android.vendor_app.repository.login.dto.api.VendorApiEntity
 import cz.quanti.android.vendor_app.repository.login.dto.api.VendorLocationApiEntity
+import cz.quanti.android.vendor_app.utils.ApiManager
 import io.reactivex.Single
 
-class LoginRepositoryImpl(private val api: VendorAPI) :
+class LoginRepositoryImpl() :
     LoginRepository {
 
     override fun getSalt(username: String): Single<Pair<Int, Salt>> {
-        return api.getSalt(username).map { response ->
+        return ApiManager.getApi().getSalt(username).map { response ->
             Pair(response.code(), convert(response.body()))
         }
     }
 
     override fun login(vendor: Vendor): Single<Pair<Int, Vendor>> {
-        return api.postLogin(convert(vendor)).map { response ->
+        return ApiManager.getApi().postLogin(convert(vendor)).map { response ->
             Pair(response.code(), convert(response.body()))
         }
     }
 
     override fun getVendor(id: String): Single<Pair<Int, Vendor>> {
-        return api.getVendor(id).map { response ->
+        return ApiManager.getApi().getVendor(id).map { response ->
             Pair(response.code(), convert(response.body()))
         }
     }

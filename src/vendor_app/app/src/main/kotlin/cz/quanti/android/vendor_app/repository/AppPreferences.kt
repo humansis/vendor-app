@@ -36,7 +36,7 @@ class AppPreferences(context: Context) : BasePreferences(context, VERSION, MIGRA
             return settings.getLong(LAST_SYNCED, 0)
         }
         set(lastSynced) {
-            settings.edit().putLong(LAST_SYNCED, lastSynced)
+            settings.edit().putLong(LAST_SYNCED, lastSynced).apply()
         }
 
     var vendor: Vendor

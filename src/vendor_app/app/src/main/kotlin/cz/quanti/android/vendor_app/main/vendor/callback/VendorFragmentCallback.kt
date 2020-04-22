@@ -5,7 +5,7 @@ import cz.quanti.android.vendor_app.repository.product.dto.Product
 interface VendorFragmentCallback {
     fun chooseProduct(product: Product)
     fun showCart()
-    fun showProducts()
+    fun backToProducts()
     fun getSelectedProduct(): Product
     fun notifyDataChanged()
 }

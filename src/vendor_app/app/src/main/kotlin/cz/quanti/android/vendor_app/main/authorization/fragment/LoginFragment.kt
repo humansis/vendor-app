@@ -84,15 +84,9 @@ class LoginFragment : Fragment() {
         }
 
         if (CurrentVendor.isLoggedIn()) {
-            if (vm.isFirstTimeLoading()) {
-                vm.setIsNotFirstTimeLoading()
-                findNavController().navigate(
-                    LoginFragmentDirections.actionLoginFragmentToVendorFragment()
-                )
-            } else {
-                // hardware back button was probably pressed, exit the application
-                requireActivity().finishAffinity()
-            }
+            findNavController().navigate(
+                LoginFragmentDirections.actionLoginFragmentToVendorFragment()
+            )
         } else {
             logoImageView.clipToOutline = true
             loginButton.isEnabled = true
@@ -113,33 +107,33 @@ class LoginFragment : Fragment() {
 
                 disposable =
                     vm.login(usernameEditText.text.toString(), passwordEditText.text.toString())
-                    .subscribeOn(
-                        Schedulers.io()
-                    ).observeOn(AndroidSchedulers.mainThread()).subscribe(
-                        {
-                            loadingImageView.animation.repeatCount = 0
-                            findNavController().navigate(
-                                LoginFragmentDirections.actionLoginFragmentToVendorFragment()
-                            )
-                        },
-                        {
-                            loadingImageView.clearAnimation()
-                            loadingImageView.visibility = View.INVISIBLE
-                            loginButton.visibility = View.VISIBLE
-                            loginButton.isEnabled = true
-                            Log.e(it)
-                            if ((activity as MainActivity).isNetworkAvailable()) {
-                                usernameEditText.error = getString(R.string.wrong_password)
-                                passwordEditText.error = getString(R.string.wrong_password)
-                            } else {
-                                Toast.makeText(
-                                    context,
-                                    getString(R.string.no_internet_connection),
-                                    Toast.LENGTH_LONG
-                                ).show()
+                        .subscribeOn(
+                            Schedulers.io()
+                        ).observeOn(AndroidSchedulers.mainThread()).subscribe(
+                            {
+                                loadingImageView.animation.repeatCount = 0
+                                findNavController().navigate(
+                                    LoginFragmentDirections.actionLoginFragmentToVendorFragment()
+                                )
+                            },
+                            {
+                                loadingImageView.clearAnimation()
+                                loadingImageView.visibility = View.INVISIBLE
+                                loginButton.visibility = View.VISIBLE
+                                loginButton.isEnabled = true
+                                Log.e(it)
+                                if ((activity as MainActivity).isNetworkAvailable()) {
+                                    usernameEditText.error = getString(R.string.wrong_password)
+                                    passwordEditText.error = getString(R.string.wrong_password)
+                                } else {
+                                    Toast.makeText(
+                                        context,
+                                        getString(R.string.no_internet_connection),
+                                        Toast.LENGTH_LONG
+                                    ).show()
+                                }
                             }
-                        }
-                    )
+                        )
             }
         }
     }

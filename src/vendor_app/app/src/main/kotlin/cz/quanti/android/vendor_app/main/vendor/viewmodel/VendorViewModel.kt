@@ -44,14 +44,6 @@ class VendorViewModel(
         return shoppingHolder.cart
     }
 
-    fun setVendorState(state: VendorScreenState) {
-        shoppingHolder.vendorScreenState = state
-    }
-
-    fun getVendorState(): VendorScreenState {
-        return shoppingHolder.vendorScreenState
-    }
-
     fun getCurrency(): String {
         return shoppingHolder.chosenCurrency
     }

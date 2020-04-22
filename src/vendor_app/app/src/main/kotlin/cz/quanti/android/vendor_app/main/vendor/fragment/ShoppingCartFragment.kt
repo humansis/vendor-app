@@ -44,7 +44,7 @@ class ShoppingCartFragment : Fragment(), ShoppingCartFragmentCallback {
         shoppingCartAdapter = ShoppingCartAdapter(this)
 
         requireActivity().findViewById<Button>(R.id.toProductsButton)?.setOnClickListener {
-            vendorFragmentCallback.showProducts()
+            vendorFragmentCallback.backToProducts()
         }
     }
 
@@ -121,13 +121,13 @@ class ShoppingCartFragment : Fragment(), ShoppingCartFragmentCallback {
             AlertDialog.Builder(requireContext(), R.style.DialogTheme)
                 .setTitle(getString(R.string.are_you_sure_dialog_title))
                 .setMessage(getString(R.string.clear_cart_dialog_message))
-                    .setPositiveButton(
-                        android.R.string.yes
-                    ) { _, _ ->
-                        clearCart()
-                    }
-                    .setNegativeButton(android.R.string.no, null)
-                    .show()
+                .setPositiveButton(
+                    android.R.string.yes
+                ) { _, _ ->
+                    clearCart()
+                }
+                .setNegativeButton(android.R.string.no, null)
+                .show()
         }
     }
 

@@ -18,12 +18,17 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class ProductDetailFragment : Fragment() {
 
+    companion object {
+        const val ID = "productId"
+        const val NAME = "productName"
+        const val IMAGE = "productImage"
+        const val UNIT = "productUnit"
+    }
+
     private val vm: VendorViewModel by viewModel()
     private var currencyAdapter: CurrencyAdapter? = null
     private lateinit var vendorFragmentCallback: VendorFragmentCallback
-    var savedQuantity: String? = null
-    var savedUnitPrice: String? = null
-
+    private lateinit var product: Product
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -35,10 +40,23 @@ class ProductDetailFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         vendorFragmentCallback = parentFragment as VendorFragmentCallback
-        init()
+        if (savedInstanceState != null) {
+            init(savedInstanceState)
+        } else {
+            arguments?.let {
+                init(it)
+            }
+        }
     }
 
-    fun init() {
+    fun init(bundle: Bundle) {
+        product = Product().apply {
+            this.id = bundle.getLong(ID)
+            this.name = bundle.getString(NAME, "")
+            this.unit = bundle.getString(UNIT, "")
+            this.image = bundle.getString(IMAGE, "")
+        }
+
         initPriceUnitSpinner()
         initOnClickListeners()
         initProductRelatedInfo()
@@ -51,26 +69,17 @@ class ProductDetailFragment : Fragment() {
             priceUnitTextView.visibility = View.VISIBLE
             priceUnitTextView.text = vm.getCurrency()
         }
-
-        savedQuantity?.let {
-            quantityEditText.setText(savedQuantity)
-        }
-
-        savedUnitPrice?.let {
-            unitPriceEditText.setText(savedUnitPrice)
-        }
     }
 
 
     private fun initOnClickListeners() {
         cartButtonImageView.setOnClickListener {
-
             if (quantityEditText.text.toString() != "" && unitPriceEditText.text.toString() != "") {
                 if (vm.getShoppingCart().isEmpty()) {
                     vm.setCurrency(priceUnitSpinner.selectedItem as String)
                 }
                 addProductToCart(
-                    vendorFragmentCallback.getSelectedProduct(),
+                    product,
                     quantityEditText.text.toString().toDouble(),
                     unitPriceEditText.text.toString().toDouble()
                 )
@@ -88,6 +97,14 @@ class ProductDetailFragment : Fragment() {
                     .show()
             }
         }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putLong(ID, product.id)
+        outState.putString(NAME, product.name)
+        outState.putString(IMAGE, product.image)
+        outState.putString(UNIT, product.unit)
     }
 
     private fun goToCart() {
@@ -114,10 +131,8 @@ class ProductDetailFragment : Fragment() {
     }
 
     private fun initProductRelatedInfo() {
-        val product = vendorFragmentCallback.getSelectedProduct()
         productName.text = product.name
         quantityUnitTextView.text = product.unit
-        Picasso.get().load(product.image)
-            .into(productImageView)
+        Picasso.get().load(product.image).into(productImageView)
     }
 }

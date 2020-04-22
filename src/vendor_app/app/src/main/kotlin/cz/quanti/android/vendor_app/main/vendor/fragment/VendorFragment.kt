@@ -1,10 +1,13 @@
 package cz.quanti.android.vendor_app.main.vendor.fragment
 
+import android.content.res.Configuration
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentTransaction
 import cz.quanti.android.vendor_app.App
 import cz.quanti.android.vendor_app.MainActivity
 import cz.quanti.android.vendor_app.R
@@ -15,12 +18,17 @@ import cz.quanti.android.vendor_app.repository.product.dto.Product
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
-import kotlinx.android.synthetic.main.fragment_product_detail.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import quanti.com.kotlinlog.Log
-import java.util.*
+import java.util.Date
 
 class VendorFragment() : Fragment(), VendorFragmentCallback {
+
+    companion object {
+        const val PRODUCT_DETAIL_FRAGMENT_TAG = "ProductDetailFragment"
+        const val STATE = "state"
+    }
+
     private val vm: VendorViewModel by viewModel()
     var product: Product = Product()
     private val rightTimeToSyncAgain = 86400000 // one day
@@ -34,36 +42,29 @@ class VendorFragment() : Fragment(), VendorFragmentCallback {
         savedInstanceState: Bundle?
     ): View? {
         (activity as MainActivity).supportActionBar?.show()
+        val callback: OnBackPressedCallback =
+            object : OnBackPressedCallback(true /* enabled by default */) {
+                override fun handleOnBackPressed() { // Handle the back button event
+                    when (state) {
+                        VendorScreenState.STATE_ONLY_PRODUCTS_SHOWED -> {
+                            requireActivity().finish()
+                        }
+                        VendorScreenState.STATE_SHOPPING_CART_SHOWED -> {
+                            showProducts()
+                        }
+                        VendorScreenState.STATE_PRODUCT_DETAIL_SHOWED -> {
+                            showProducts()
+                        }
+                    }
+                }
+            }
+        requireActivity().onBackPressedDispatcher.addCallback(this, callback)
         return inflater.inflate(R.layout.fragment_vendor, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        state = vm.getVendorState()
-        product = getProductFromBundle(savedInstanceState)
-
-        val fragment = getFragmentFromState()
-
-        if (fragment is ProductDetailFragment) {
-            fragment.savedQuantity = savedInstanceState?.getString("productQuantityEditText", "")
-            fragment.savedUnitPrice = savedInstanceState?.getString("productUnitPriceEditText", "")
-        }
-
-        if (isLandscapeOriented()) {
-            val transaction = childFragmentManager.beginTransaction().apply {
-                replace(R.id.rightFragmentContainer, fragment)
-                replace(R.id.leftFragmentContainer, ProductsFragment())
-            }
-            transaction.commit()
-        } else {
-            val transaction = childFragmentManager.beginTransaction().apply {
-                replace(R.id.vendorSingleFragmentContainer, fragment)
-            }
-            transaction.commit()
-        }
-
-        var lastSynced = (requireActivity().application as App).preferences.lastSynced
+        val lastSynced = (requireActivity().application as App).preferences.lastSynced
         if (Date().time - lastSynced > rightTimeToSyncAgain && (requireActivity() as MainActivity).isNetworkAvailable()) {
             disposable?.dispose()
             disposable = vm.synchronizeWithServer().subscribeOn(Schedulers.io())
@@ -71,18 +72,102 @@ class VendorFragment() : Fragment(), VendorFragmentCallback {
                 .subscribe(
                     {
                         (requireActivity().application as App).preferences.lastSynced = Date().time
-                        notifyDataChanged()
+                        initFragments(savedInstanceState)
                     },
                     {
+                        initFragments(savedInstanceState)
                         Log.e(it)
                     }
                 )
+        } else {
+            initFragments(savedInstanceState)
         }
+    }
+
+    private fun initFragments(bundle: Bundle?) {
+        if (bundle == null) {
+            showProducts()
+        } else {
+            val state = VendorScreenState.valueOf(
+                bundle.getString(
+                    STATE,
+                    VendorScreenState.STATE_ONLY_PRODUCTS_SHOWED.name
+                )
+            )
+            when (state) {
+                VendorScreenState.STATE_ONLY_PRODUCTS_SHOWED -> {
+                    showProducts()
+                }
+                VendorScreenState.STATE_SHOPPING_CART_SHOWED -> {
+                    showShoppingCart()
+                }
+                VendorScreenState.STATE_PRODUCT_DETAIL_SHOWED -> {
+                    showProductDetail(bundle)
+                }
+            }
+        }
+    }
+
+    private fun showProductDetail(bundle: Bundle) {
+        state = VendorScreenState.STATE_PRODUCT_DETAIL_SHOWED
+        val productDetailFragment = childFragmentManager.getFragment(
+            bundle,
+            PRODUCT_DETAIL_FRAGMENT_TAG
+        ) as ProductDetailFragment
+
+        val transaction: FragmentTransaction = if (isLandscapeOriented()) {
+            childFragmentManager.beginTransaction().apply {
+                replace(
+                    R.id.rightFragmentContainer,
+                    productDetailFragment
+                )
+                replace(R.id.leftFragmentContainer, ProductsFragment())
+            }
+        } else {
+            childFragmentManager.beginTransaction().apply {
+                replace(
+                    R.id.rightFragmentContainer,
+                    productDetailFragment
+                )
+            }
+        }
+        transaction.commit()
+    }
+
+    private fun showShoppingCart() {
+        state = VendorScreenState.STATE_SHOPPING_CART_SHOWED
+        val transaction: FragmentTransaction = if (isLandscapeOriented()) {
+            childFragmentManager.beginTransaction().apply {
+                replace(R.id.rightFragmentContainer, ShoppingCartFragment())
+                replace(R.id.leftFragmentContainer, ProductsFragment())
+            }
+        } else {
+            childFragmentManager.beginTransaction().apply {
+                replace(R.id.rightFragmentContainer, ShoppingCartFragment())
+            }
+
+        }
+        transaction.commit()
+    }
+
+    private fun showProducts() {
+        state = VendorScreenState.STATE_ONLY_PRODUCTS_SHOWED
+        val transaction: FragmentTransaction = if (isLandscapeOriented()) {
+            childFragmentManager.beginTransaction().apply {
+                replace(R.id.rightFragmentContainer, ShoppingCartFragment())
+                replace(R.id.leftFragmentContainer, ProductsFragment())
+            }
+        } else {
+            childFragmentManager.beginTransaction().apply {
+                replace(R.id.rightFragmentContainer, ProductsFragment())
+            }
+
+        }
+        transaction.commit()
     }
 
     override fun onResume() {
         super.onResume()
-
         (activity as MainActivity).vendorFragmentCallback = this
         val toolbar = (activity as MainActivity).supportActionBar
         toolbar?.title = getString(R.string.vendor_title)
@@ -100,47 +185,46 @@ class VendorFragment() : Fragment(), VendorFragmentCallback {
 
 
     override fun chooseProduct(product: Product) {
-        val productDetailFragment = ProductDetailFragment()
-        this.product = product
-
         state = VendorScreenState.STATE_PRODUCT_DETAIL_SHOWED
-
+        val bundle = Bundle().apply {
+            putLong(ProductDetailFragment.ID, product.id)
+            putString(ProductDetailFragment.NAME, product.name)
+            putString(ProductDetailFragment.IMAGE, product.image)
+            putString(ProductDetailFragment.UNIT, product.unit)
+        }
         if (isLandscapeOriented()) {
             val transaction = childFragmentManager.beginTransaction().apply {
-                replace(R.id.rightFragmentContainer, productDetailFragment)
+                replace(
+                    R.id.rightFragmentContainer,
+                    ProductDetailFragment::class.java,
+                    bundle,
+                    PRODUCT_DETAIL_FRAGMENT_TAG
+                )
             }
             transaction.commit()
         } else {
             val transaction = childFragmentManager.beginTransaction().apply {
-                replace(R.id.vendorSingleFragmentContainer, productDetailFragment)
+                replace(
+                    R.id.rightFragmentContainer,
+                    ProductDetailFragment::class.java,
+                    bundle,
+                    PRODUCT_DETAIL_FRAGMENT_TAG
+                )
             }
             transaction.commit()
         }
     }
 
     override fun showCart() {
-        state = VendorScreenState.STATE_SHOPPING_CART_SHOWED
-
-        if (!isLandscapeOriented()) {
-            val transaction = childFragmentManager.beginTransaction().apply {
-                replace(R.id.vendorSingleFragmentContainer, ShoppingCartFragment())
-            }
-            transaction.commit()
-        } else {
-            val shoppingCartFragment = ShoppingCartFragment()
-            val transaction = childFragmentManager.beginTransaction().apply {
-                replace(R.id.rightFragmentContainer, shoppingCartFragment)
-            }
-            transaction.commit()
-        }
+        showShoppingCart()
     }
 
-    override fun showProducts() {
+    override fun backToProducts() {
         state = VendorScreenState.STATE_ONLY_PRODUCTS_SHOWED
 
         if (!isLandscapeOriented()) {
             val transaction = childFragmentManager.beginTransaction().apply {
-                replace(R.id.vendorSingleFragmentContainer, ProductsFragment())
+                replace(R.id.rightFragmentContainer, ProductsFragment())
             }
             transaction.commit()
         }
@@ -151,81 +235,24 @@ class VendorFragment() : Fragment(), VendorFragmentCallback {
     }
 
     override fun notifyDataChanged() {
-
-        if (isLandscapeOriented()) {
-            val transaction = childFragmentManager.beginTransaction().apply {
-                replace(R.id.rightFragmentContainer, ShoppingCartFragment())
-                replace(R.id.leftFragmentContainer, ProductsFragment())
-            }
-            transaction.commit()
-        } else {
-            val transaction = childFragmentManager.beginTransaction().apply {
-                replace(R.id.vendorSingleFragmentContainer, ProductsFragment())
-            }
-            transaction.commit()
-        }
+        showProducts()
     }
 
     override fun onDestroy() {
-        vm.setVendorState(state)
         disposable?.dispose()
         super.onDestroy()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        addProductToBundle(outState)
-        addEditTextInfoToBundle(outState)
-    }
-
-    private fun addProductToBundle(bundle: Bundle) {
-        bundle.putLong("productId", product.id)
-        bundle.putString("productName", product.name)
-        bundle.putString("productImage", product.image)
-        bundle.putString("productUnit", product.unit)
-    }
-
-    private fun addEditTextInfoToBundle(bundle: Bundle) {
-
+        val productDetailFragment = childFragmentManager.findFragmentByTag(PRODUCT_DETAIL_FRAGMENT_TAG)
         productDetailFragment?.let {
-            bundle.putString("productQuantityEditText", quantityEditText.text.toString())
-            bundle.putString("productUnitPriceEditText", unitPriceEditText.text.toString())
+            childFragmentManager.putFragment(outState, PRODUCT_DETAIL_FRAGMENT_TAG, it)
         }
-    }
-
-    private fun getProductFromBundle(bundle: Bundle?): Product {
-        return if (bundle == null) {
-            Product()
-        } else {
-            Product().apply {
-                id = bundle.getLong("productId", 0)
-                name = bundle.getString("productName", "")
-                image = bundle.getString("productImage", "")
-                unit = bundle.getString("productUnit", "")
-            }
-        }
+        outState.putString(STATE, state.name)
     }
 
     private fun isLandscapeOriented(): Boolean {
-        return requireActivity().findViewById<View>(R.id.vendorSingleFragmentContainer) == null
+        return requireActivity().resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
     }
-
-    private fun getFragmentFromState(): Fragment {
-        return when (state) {
-            VendorScreenState.STATE_SHOPPING_CART_SHOWED -> {
-                ShoppingCartFragment()
-            }
-            VendorScreenState.STATE_PRODUCT_DETAIL_SHOWED -> {
-                ProductDetailFragment()
-            }
-            VendorScreenState.STATE_ONLY_PRODUCTS_SHOWED -> {
-                if (isLandscapeOriented()) {
-                    ShoppingCartFragment()
-                } else {
-                    ProductsFragment()
-                }
-            }
-        }
-    }
-
 }

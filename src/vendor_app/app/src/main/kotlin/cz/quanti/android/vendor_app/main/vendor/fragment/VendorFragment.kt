@@ -228,6 +228,11 @@ class VendorFragment() : Fragment(), VendorFragmentCallback {
                 replace(R.id.rightFragmentContainer, ProductsFragment())
             }
             transaction.commit()
+        } else {
+            val transaction = childFragmentManager.beginTransaction().apply {
+                replace(R.id.rightFragmentContainer, ShoppingCartFragment())
+            }
+            transaction.commit()
         }
     }
 

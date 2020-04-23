@@ -55,4 +55,5 @@
     <string name="no_internet_connection">Please make sure you are connected to the internet</string>
     <string name="could_not_synchronize_data_with_server">Could not synchronize data with the server</string>
     <string name="data_were_successfully_synchronized">Data were successfully synchronized with the server</string>
+    <string name="add_to_cart">Add to cart</string>
 </resources>

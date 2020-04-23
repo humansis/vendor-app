@@ -1,10 +1,11 @@
 package cz.quanti.android.vendor_app.main.vendor.fragment
 
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import com.squareup.picasso.Picasso
 import cz.quanti.android.vendor_app.R
@@ -60,6 +61,7 @@ class ProductDetailFragment : Fragment() {
         initPriceUnitSpinner()
         initOnClickListeners()
         initProductRelatedInfo()
+        initEditTextChangedListeners()
 
         if (vm.getShoppingCart().isEmpty()) {
             priceUnitSpinner.visibility = View.VISIBLE
@@ -73,8 +75,7 @@ class ProductDetailFragment : Fragment() {
 
 
     private fun initOnClickListeners() {
-        cartButtonImageView.setOnClickListener {
-            if (quantityEditText.text.toString() != "" && unitPriceEditText.text.toString() != "") {
+        addToCartButton.setOnClickListener {
                 if (vm.getShoppingCart().isEmpty()) {
                     vm.setCurrency(priceUnitSpinner.selectedItem as String)
                 }
@@ -84,19 +85,72 @@ class ProductDetailFragment : Fragment() {
                     unitPriceEditText.text.toString().toDouble()
                 )
                 goToCart()
-            } else {
-                AlertDialog.Builder(requireContext(), R.style.DialogTheme)
-                    .setTitle(getString(R.string.are_you_sure_dialog_title))
-                    .setMessage(getString(R.string.leave_product_detail_dialog_message))
-                    .setPositiveButton(
-                        android.R.string.yes
-                    ) { _, _ ->
-                        goToCart()
-                    }
-                    .setNegativeButton(android.R.string.no, null)
-                    .show()
-            }
         }
+
+        cancelButton.setOnClickListener {
+            goToProducts()
+        }
+
+
+    }
+
+    private fun initEditTextChangedListeners() {
+
+        quantityEditText.addTextChangedListener(object : TextWatcher {
+
+            override fun afterTextChanged(s: Editable) {}
+
+            override fun beforeTextChanged(
+                s: CharSequence, start: Int,
+                count: Int, after: Int
+            ) {
+            }
+
+            override fun onTextChanged(
+                s: CharSequence, start: Int,
+                before: Int, count: Int
+            ) {
+                if (s.isEmpty() || unitPriceEditText.text.toString().isEmpty()) {
+                    disableAddToCartButton()
+                }
+
+                if (s.isNotEmpty() && unitPriceEditText.text.toString().isNotEmpty()) {
+                    enableAddToCartButton()
+                }
+            }
+        })
+
+        unitPriceEditText.addTextChangedListener(object : TextWatcher {
+
+            override fun afterTextChanged(s: Editable) {}
+
+            override fun beforeTextChanged(
+                s: CharSequence, start: Int,
+                count: Int, after: Int
+            ) {
+            }
+
+            override fun onTextChanged(
+                s: CharSequence, start: Int,
+                before: Int, count: Int
+            ) {
+                if (s.isEmpty() || quantityEditText.text.toString().isEmpty()) {
+                    disableAddToCartButton()
+                }
+
+                if (s.isNotEmpty() && quantityEditText.text.toString().isNotEmpty()) {
+                    enableAddToCartButton()
+                }
+            }
+        })
+    }
+
+    private fun disableAddToCartButton() {
+        addToCartButton.isEnabled = false
+    }
+
+    private fun enableAddToCartButton() {
+        addToCartButton.isEnabled = true
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -109,6 +163,10 @@ class ProductDetailFragment : Fragment() {
 
     private fun goToCart() {
         vendorFragmentCallback.showCart()
+    }
+
+    private fun goToProducts() {
+        vendorFragmentCallback.backToProducts()
     }
 
     private fun addProductToCart(product: Product, quantity: Double, unitPrice: Double) {

@@ -1,6 +1,7 @@
 package cz.quanti.android.vendor_app.main.checkout.fragment
 
 import android.content.res.ColorStateList
+import android.content.res.Configuration
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -214,6 +215,6 @@ class CheckoutFragment() : Fragment(), CheckoutFragmentCallback {
     }
 
     private fun isLandscapeOriented(): Boolean {
-        return requireActivity().findViewById<View>(R.id.checkoutFragmentContainer) == null
+        return requireActivity().resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
     }
 }

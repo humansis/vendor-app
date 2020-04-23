@@ -16,6 +16,7 @@ import cz.quanti.android.vendor_app.BuildConfig
 import cz.quanti.android.vendor_app.R
 import cz.quanti.android.vendor_app.main.authorization.viewmodel.LoginViewModel
 import cz.quanti.android.vendor_app.utils.ApiEnvironments
+import cz.quanti.android.vendor_app.utils.Constants
 import cz.quanti.android.vendor_app.utils.isNetworkAvailable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
@@ -96,7 +97,7 @@ class LoginFragment : Fragment() {
                     loadingImageView.width / 2f,
                     loadingImageView.height / 2f
                 )
-                animation.duration = 2500
+                animation.duration = Constants.SYNCING_BUTTON_ANIMATION_DURATION_IN_MS
                 animation.repeatCount = Animation.INFINITE
                 loadingImageView.startAnimation(animation)
 

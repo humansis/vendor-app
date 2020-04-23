@@ -1,7 +1,7 @@
 package cz.quanti.android.vendor_app.main.vendor.viewmodel
 
 import androidx.lifecycle.ViewModel
-import cz.quanti.android.vendor_app.main.vendor.VendorScreenState
+import cz.quanti.android.vendor_app.repository.AppPreferences
 import cz.quanti.android.vendor_app.repository.product.ProductFacade
 import cz.quanti.android.vendor_app.repository.product.dto.Product
 import cz.quanti.android.vendor_app.repository.product.dto.SelectedProduct
@@ -13,7 +13,8 @@ import io.reactivex.Single
 class VendorViewModel(
     private val shoppingHolder: ShoppingHolder,
     private val productFacade: ProductFacade,
-    private val voucherFacade: VoucherFacade
+    private val voucherFacade: VoucherFacade,
+    private val preferences: AppPreferences
 ) : ViewModel() {
 
     fun getProducts(): Single<List<Product>> {
@@ -50,5 +51,13 @@ class VendorViewModel(
 
     fun setCurrency(currency: String) {
         shoppingHolder.chosenCurrency = currency
+    }
+
+    fun getLastSynced(): Long {
+        return preferences.lastSynced
+    }
+
+    fun setLastSynced(time: Long) {
+        preferences.lastSynced = time
     }
 }

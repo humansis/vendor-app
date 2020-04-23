@@ -6,21 +6,22 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
-import cz.quanti.android.vendor_app.App
 import cz.quanti.android.vendor_app.MainActivity
 import cz.quanti.android.vendor_app.R
 import cz.quanti.android.vendor_app.main.vendor.VendorScreenState
 import cz.quanti.android.vendor_app.main.vendor.callback.VendorFragmentCallback
 import cz.quanti.android.vendor_app.main.vendor.viewmodel.VendorViewModel
 import cz.quanti.android.vendor_app.repository.product.dto.Product
+import cz.quanti.android.vendor_app.utils.isNetworkAvailable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import quanti.com.kotlinlog.Log
-import java.util.Date
+import java.util.*
 
 class VendorFragment() : Fragment(), VendorFragmentCallback {
 
@@ -41,7 +42,7 @@ class VendorFragment() : Fragment(), VendorFragmentCallback {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        (activity as MainActivity).supportActionBar?.show()
+        (activity as AppCompatActivity).supportActionBar?.show()
         val callback: OnBackPressedCallback =
             object : OnBackPressedCallback(true /* enabled by default */) {
                 override fun handleOnBackPressed() { // Handle the back button event
@@ -64,14 +65,14 @@ class VendorFragment() : Fragment(), VendorFragmentCallback {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val lastSynced = (requireActivity().application as App).preferences.lastSynced
-        if (Date().time - lastSynced > rightTimeToSyncAgain && (requireActivity() as MainActivity).isNetworkAvailable()) {
+        val lastSynced = vm.getLastSynced()
+        if (Date().time - lastSynced > rightTimeToSyncAgain && isNetworkAvailable(requireActivity())) {
             disposable?.dispose()
             disposable = vm.synchronizeWithServer().subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                     {
-                        (requireActivity().application as App).preferences.lastSynced = Date().time
+                        vm.setLastSynced(Date().time)
                         initFragments(savedInstanceState)
                     },
                     {
@@ -169,7 +170,7 @@ class VendorFragment() : Fragment(), VendorFragmentCallback {
     override fun onResume() {
         super.onResume()
         (activity as MainActivity).vendorFragmentCallback = this
-        val toolbar = (activity as MainActivity).supportActionBar
+        val toolbar = (activity as AppCompatActivity).supportActionBar
         toolbar?.title = getString(R.string.vendor_title)
         toolbar?.setDisplayHomeAsUpEnabled(false)
         toolbar?.setDisplayShowTitleEnabled(true)

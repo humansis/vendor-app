@@ -13,10 +13,10 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import cz.quanti.android.vendor_app.BuildConfig
-import cz.quanti.android.vendor_app.MainActivity
 import cz.quanti.android.vendor_app.R
 import cz.quanti.android.vendor_app.main.authorization.viewmodel.LoginViewModel
 import cz.quanti.android.vendor_app.utils.ApiEnvironments
+import cz.quanti.android.vendor_app.utils.isNetworkAvailable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
@@ -117,7 +117,7 @@ class LoginFragment : Fragment() {
                                 loginButton.visibility = View.VISIBLE
                                 loginButton.isEnabled = true
                                 Log.e(it)
-                                if ((activity as MainActivity).isNetworkAvailable()) {
+                                if (isNetworkAvailable(requireActivity())) {
                                     usernameEditText.error = getString(R.string.wrong_password)
                                     passwordEditText.error = getString(R.string.wrong_password)
                                 } else {

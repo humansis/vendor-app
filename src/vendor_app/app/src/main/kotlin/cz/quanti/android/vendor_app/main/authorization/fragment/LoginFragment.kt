@@ -9,15 +9,14 @@ import android.view.animation.Animation
 import android.view.animation.RotateAnimation
 import android.widget.PopupMenu
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
-import cz.quanti.android.vendor_app.App
 import cz.quanti.android.vendor_app.BuildConfig
 import cz.quanti.android.vendor_app.MainActivity
 import cz.quanti.android.vendor_app.R
 import cz.quanti.android.vendor_app.main.authorization.viewmodel.LoginViewModel
 import cz.quanti.android.vendor_app.utils.ApiEnvironments
-import cz.quanti.android.vendor_app.utils.CurrentVendor
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
@@ -35,21 +34,18 @@ class LoginFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        (activity as MainActivity).supportActionBar?.hide()
+        (activity as AppCompatActivity).supportActionBar?.hide()
         return inflater.inflate(R.layout.fragment_login, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val preferences = (activity?.application as App).preferences
-        CurrentVendor.preferences = preferences
-
         if (BuildConfig.DEBUG) {
             settingsImageView.visibility = View.VISIBLE
             envTextView.visibility = View.VISIBLE
             var defaultEnv = ApiEnvironments.DEV
-            val savedEnv = CurrentVendor.url
+            val savedEnv = vm.getSavedApiHost()
             savedEnv?.let {
                 defaultEnv = savedEnv
             }
@@ -71,7 +67,7 @@ class LoginFragment : Fragment() {
                     env?.let {
                         vm.setApiHost(it)
                         envTextView.text = it.name
-                        CurrentVendor.url = it
+                        vm.saveApiHost(it)
                     }
                     true
                 }
@@ -82,7 +78,7 @@ class LoginFragment : Fragment() {
             envTextView.visibility = View.INVISIBLE
         }
 
-        if (CurrentVendor.isLoggedIn()) {
+        if (vm.isVendorLoggedIn()) {
             findNavController().navigate(
                 LoginFragmentDirections.actionLoginFragmentToVendorFragment()
             )

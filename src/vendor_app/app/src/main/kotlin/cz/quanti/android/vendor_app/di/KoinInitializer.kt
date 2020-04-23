@@ -1,6 +1,5 @@
 package cz.quanti.android.vendor_app.di
 
-import android.content.Context
 import androidx.room.Room
 import com.google.gson.GsonBuilder
 import com.jakewharton.retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
@@ -49,9 +48,11 @@ object KoinInitializer {
 
     private fun createAppModule(app: App): Module {
 
-        val loginManager = LoginManager()
+        val preferences = AppPreferences(app)
         val shoppingHolder = ShoppingHolder()
         val hostUrlInterceptor = HostUrlInterceptor()
+        val currentVendor = CurrentVendor(preferences)
+        val loginManager = LoginManager(currentVendor)
 
         val api = Retrofit.Builder()
             .baseUrl("https://" + BuildConfig.API_URL + "/api/wsse/")
@@ -61,7 +62,7 @@ object KoinInitializer {
                 )
             )
             .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-            .client(createClient(app, loginManager, hostUrlInterceptor))
+            .client(createClient(loginManager, hostUrlInterceptor, currentVendor))
             .build().create(VendorAPI::class.java)
 
 
@@ -74,30 +75,31 @@ object KoinInitializer {
 
         // Facade
         val loginFacade =
-            LoginFacadeImpl(loginRepo, loginManager)
+            LoginFacadeImpl(loginRepo, loginManager, currentVendor)
         val productFacade = ProductFacadeImpl(productRepo)
         val voucherFacade = VoucherFacadeImpl(voucherRepo, productRepo)
 
         return module {
-            single { AppPreferences(androidContext()) }
+            single { preferences }
             single { db }
             single { api }
             single { hostUrlInterceptor }
             single { loginManager }
             single { shoppingHolder }
+            single { currentVendor }
 
             // View model
-            viewModel { LoginViewModel(loginFacade, hostUrlInterceptor) }
+            viewModel { LoginViewModel(loginFacade, hostUrlInterceptor, currentVendor) }
             viewModel { VendorViewModel(shoppingHolder, productFacade, voucherFacade) }
             viewModel { ScannerViewModel(shoppingHolder, voucherFacade) }
-            viewModel { CheckoutViewModel(shoppingHolder, voucherFacade) }
+            viewModel { CheckoutViewModel(shoppingHolder, voucherFacade, currentVendor) }
         }
     }
 
     private fun createClient(
-        context: Context,
         loginManager: LoginManager,
-        hostUrlInterceptor: HostUrlInterceptor
+        hostUrlInterceptor: HostUrlInterceptor,
+        currentVendor: CurrentVendor
     ): OkHttpClient {
 
         val logging = HttpLoggingInterceptor().apply {
@@ -114,7 +116,7 @@ object KoinInitializer {
                 loginManager.getAuthHeader()?.let {
                     headersBuilder.add("x-wsse", it)
                 }
-                headersBuilder.add("country", getCountry())
+                headersBuilder.add("country", getCountry(currentVendor))
                 val request = oldRequest.newBuilder().headers(headersBuilder.build()).build()
                 chain.proceed(request)
             }
@@ -123,7 +125,7 @@ object KoinInitializer {
             .build()
     }
 
-    private fun getCountry(): String {
-        return CurrentVendor.vendor.country
+    private fun getCountry(currentVendor: CurrentVendor): String {
+        return currentVendor.vendor.country
     }
 }

@@ -9,7 +9,8 @@ import io.reactivex.Completable
 
 class LoginViewModel(
     private val loginFacade: LoginFacade,
-    private val hostUrlInterceptor: HostUrlInterceptor
+    private val hostUrlInterceptor: HostUrlInterceptor,
+    private val currentVendor: CurrentVendor
 ) : ViewModel() {
 
     fun login(username: String, password: String): Completable {
@@ -17,10 +18,22 @@ class LoginViewModel(
     }
 
     fun logout() {
-        CurrentVendor.clear()
+        currentVendor.clear()
     }
 
     fun setApiHost(host: ApiEnvironments) {
         hostUrlInterceptor.setHost(host)
+    }
+
+    fun getSavedApiHost(): ApiEnvironments? {
+        return currentVendor.url
+    }
+
+    fun isVendorLoggedIn(): Boolean {
+        return currentVendor.isLoggedIn()
+    }
+
+    fun saveApiHost(host: ApiEnvironments) {
+        currentVendor.url = host
     }
 }

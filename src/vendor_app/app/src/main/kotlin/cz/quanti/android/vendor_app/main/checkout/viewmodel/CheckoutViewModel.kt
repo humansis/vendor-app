@@ -12,7 +12,8 @@ import java.util.*
 
 class CheckoutViewModel(
     private val shoppingHolder: ShoppingHolder,
-    private val voucherFacade: VoucherFacade
+    private val voucherFacade: VoucherFacade,
+    private val currentVendor: CurrentVendor
 ) : ViewModel() {
     private var cart: MutableList<SelectedProduct> = mutableListOf()
     private var vouchers: MutableList<Voucher> = mutableListOf()
@@ -68,7 +69,7 @@ class CheckoutViewModel(
     private fun useVouchers() {
         for (voucher in vouchers) {
             voucher.usedAt = Calendar.getInstance().time
-            voucher.vendorId = CurrentVendor.vendor.id
+            voucher.vendorId = currentVendor.vendor.id
             voucher.price = cart.map { it.subTotal }.sum()
             voucher.productIds =
                 cart.map { product -> product.product.id }.distinct().toTypedArray()

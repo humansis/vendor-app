@@ -1,19 +1,19 @@
 package cz.quanti.android.vendor_app.repository.product.impl
 
+import cz.quanti.android.vendor_app.repository.VendorAPI
 import cz.quanti.android.vendor_app.repository.product.ProductRepository
 import cz.quanti.android.vendor_app.repository.product.dao.ProductDao
 import cz.quanti.android.vendor_app.repository.product.dto.Product
 import cz.quanti.android.vendor_app.repository.product.dto.api.ProductApiEntity
 import cz.quanti.android.vendor_app.repository.product.dto.db.ProductDbEntity
-import cz.quanti.android.vendor_app.utils.ApiManager
 import io.reactivex.Completable
 import io.reactivex.Single
 
-class ProductRepositoryImpl(private val productDao: ProductDao) :
+class ProductRepositoryImpl(private val productDao: ProductDao, private val api: VendorAPI) :
     ProductRepository {
 
     override fun getProductsFromServer(): Single<Pair<Int, List<Product>>> {
-        return ApiManager.getApi().getProducts().map { response ->
+        return api.getProducts().map { response ->
             var products = response.body()
             if (products == null) {
                 products = listOf()

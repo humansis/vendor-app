@@ -17,7 +17,6 @@ import cz.quanti.android.vendor_app.MainActivity
 import cz.quanti.android.vendor_app.R
 import cz.quanti.android.vendor_app.main.authorization.viewmodel.LoginViewModel
 import cz.quanti.android.vendor_app.utils.ApiEnvironments
-import cz.quanti.android.vendor_app.utils.ApiManager
 import cz.quanti.android.vendor_app.utils.CurrentVendor
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
@@ -55,7 +54,7 @@ class LoginFragment : Fragment() {
                 defaultEnv = savedEnv
             }
             envTextView.text = defaultEnv.name
-            initApi(defaultEnv.getUrl())
+            vm.setApiHost(defaultEnv)
 
             settingsImageView.setOnClickListener {
                 val contextThemeWrapper =
@@ -70,7 +69,7 @@ class LoginFragment : Fragment() {
                 popup.setOnMenuItemClickListener { item ->
                     val env = ApiEnvironments.values().find { it.id == item?.itemId }
                     env?.let {
-                        initApi(it.getUrl())
+                        vm.setApiHost(it)
                         envTextView.text = it.name
                         CurrentVendor.url = it
                     }
@@ -141,9 +140,5 @@ class LoginFragment : Fragment() {
     override fun onDestroy() {
         super.onDestroy()
         disposable?.dispose()
-    }
-
-    private fun initApi(url: String) {
-        ApiManager.changeUrl(url)
     }
 }

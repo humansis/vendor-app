@@ -1,5 +1,6 @@
 package cz.quanti.android.vendor_app.repository.voucher.impl
 
+import cz.quanti.android.vendor_app.repository.VendorAPI
 import cz.quanti.android.vendor_app.repository.utils.wrapper.ProductIdListWrapper
 import cz.quanti.android.vendor_app.repository.voucher.VoucherRepository
 import cz.quanti.android.vendor_app.repository.voucher.dao.BookletDao
@@ -11,13 +12,13 @@ import cz.quanti.android.vendor_app.repository.voucher.dto.api.BookletCodesBody
 import cz.quanti.android.vendor_app.repository.voucher.dto.api.VoucherApiEntity
 import cz.quanti.android.vendor_app.repository.voucher.dto.db.BookletDbEntity
 import cz.quanti.android.vendor_app.repository.voucher.dto.db.VoucherDbEntity
-import cz.quanti.android.vendor_app.utils.ApiManager
 import io.reactivex.Completable
 import io.reactivex.Single
 
 class VoucherRepositoryImpl(
     private val voucherDao: VoucherDao,
-    private val bookletDao: BookletDao
+    private val bookletDao: BookletDao,
+    private val api: VendorAPI
 ) : VoucherRepository {
     override fun getVouchers(): Single<List<Voucher>> {
         return voucherDao.getAll().map { list ->
@@ -52,7 +53,7 @@ class VoucherRepositoryImpl(
     }
 
     override fun getProtectedBookletsFromServer(): Single<Pair<Int, List<Booklet>>> {
-        return ApiManager.getApi().getProtectedBooklets().map { response ->
+        return api.getProtectedBooklets().map { response ->
             var booklets = response.body()
             if (booklets == null) {
                 booklets = listOf()
@@ -66,7 +67,7 @@ class VoucherRepositoryImpl(
     }
 
     override fun getDeactivatedBookletsFromServer(): Single<Pair<Int, List<Booklet>>> {
-        return ApiManager.getApi().getDeactivatedBooklets().map { response ->
+        return api.getDeactivatedBooklets().map { response ->
             var booklets = response.body()
             if (booklets == null) {
                 booklets = listOf()
@@ -92,13 +93,13 @@ class VoucherRepositoryImpl(
     }
 
     override fun sendVouchersToServer(vouchers: List<Voucher>): Single<Int> {
-        return ApiManager.getApi().postVouchers(vouchers.map { convertToApi(it) }).map { response ->
+        return api.postVouchers(vouchers.map { convertToApi(it) }).map { response ->
             response.code()
         }
     }
 
     override fun sendDeactivatedBookletsToServer(booklets: List<Booklet>): Single<Int> {
-        return ApiManager.getApi().postBooklets(BookletCodesBody(booklets.map { it.code }))
+        return api.postBooklets(BookletCodesBody(booklets.map { it.code }))
             .map { response ->
             response.code()
         }

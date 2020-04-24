@@ -3,29 +3,23 @@ package cz.quanti.android.vendor_app.utils
 import cz.quanti.android.vendor_app.repository.AppPreferences
 import cz.quanti.android.vendor_app.repository.login.dto.Vendor
 
-object CurrentVendor {
-    val emptyVendor = Vendor()
-
-    var preferences: AppPreferences? = null
+class CurrentVendor(private val preferences: AppPreferences) {
     var vendor: Vendor
-        get() = preferences?.vendor ?: emptyVendor
+        get() = preferences.vendor
         set(vendor) {
-            preferences?.vendor = vendor
+            preferences.vendor = vendor
         }
 
     var url: ApiEnvironments?
         get() {
-            try {
-                preferences?.let {
-                    return ApiEnvironments.valueOf(it.url)
-                }
-                return null
+            return try {
+                ApiEnvironments.valueOf(preferences.url)
             } catch (e: Exception) {
-                return null
+                null
             }
         }
         set(url) {
-            url?.let { preferences?.url = url.name }
+            url?.let { preferences.url = url.name }
         }
 
     fun isLoggedIn(): Boolean {
@@ -33,6 +27,6 @@ object CurrentVendor {
     }
 
     fun clear() {
-        preferences?.vendor = emptyVendor
+        preferences.vendor = Vendor()
     }
 }

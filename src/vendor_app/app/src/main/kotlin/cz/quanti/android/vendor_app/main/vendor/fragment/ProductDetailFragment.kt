@@ -4,7 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.appcompat.app.AlertDialog
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.squareup.picasso.Picasso
 import cz.quanti.android.vendor_app.R
@@ -73,8 +73,16 @@ class ProductDetailFragment : Fragment() {
 
 
     private fun initOnClickListeners() {
-        cartButtonImageView.setOnClickListener {
-            if (quantityEditText.text.toString() != "" && unitPriceEditText.text.toString() != "") {
+        addToCartButton.setOnClickListener {
+            if (quantityEditText.text.toString().isEmpty() || unitPriceEditText.text.toString()
+                    .isEmpty()
+            ) {
+                Toast.makeText(
+                    requireContext(),
+                    getString(R.string.please_enter_quantity_and_price),
+                    Toast.LENGTH_LONG
+                ).show()
+            } else {
                 if (vm.getShoppingCart().isEmpty()) {
                     vm.setCurrency(priceUnitSpinner.selectedItem as String)
                 }
@@ -84,18 +92,11 @@ class ProductDetailFragment : Fragment() {
                     unitPriceEditText.text.toString().toDouble()
                 )
                 goToCart()
-            } else {
-                AlertDialog.Builder(requireContext(), R.style.DialogTheme)
-                    .setTitle(getString(R.string.are_you_sure_dialog_title))
-                    .setMessage(getString(R.string.leave_product_detail_dialog_message))
-                    .setPositiveButton(
-                        android.R.string.yes
-                    ) { _, _ ->
-                        goToCart()
-                    }
-                    .setNegativeButton(android.R.string.no, null)
-                    .show()
             }
+        }
+
+        cancelButton.setOnClickListener {
+            goToProducts()
         }
     }
 
@@ -109,6 +110,10 @@ class ProductDetailFragment : Fragment() {
 
     private fun goToCart() {
         vendorFragmentCallback.showCart()
+    }
+
+    private fun goToProducts() {
+        vendorFragmentCallback.backToProducts()
     }
 
     private fun addProductToCart(product: Product, quantity: Double, unitPrice: Double) {

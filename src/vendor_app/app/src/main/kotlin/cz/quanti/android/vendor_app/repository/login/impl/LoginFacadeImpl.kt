@@ -8,7 +8,8 @@ import io.reactivex.Completable
 
 class LoginFacadeImpl(
     private val loginRepo: LoginRepository,
-    private val loginManager: LoginManager
+    private val loginManager: LoginManager,
+    private val currentVendor: CurrentVendor
 ) : LoginFacade {
 
     override fun login(username: String, password: String): Completable {
@@ -39,7 +40,7 @@ class LoginFacadeImpl(
                         loggedVendor.loggedIn = true
                         loggedVendor.username = vendor.username
                         loggedVendor.saltedPassword = vendor.saltedPassword
-                        CurrentVendor.vendor = loggedVendor
+                        currentVendor.vendor = loggedVendor
                         getVendor(loggedVendor.id)
                     } else {
                         Completable.error(VendorAppException("Cannot login").apply {
@@ -52,12 +53,16 @@ class LoginFacadeImpl(
         }
     }
 
+    override fun logout() {
+        currentVendor.clear()
+    }
+
     private fun getVendor(id: String): Completable {
         return loginRepo.getVendor(id).flatMapCompletable { response ->
             val responseCode = response.first
             val vendor = response.second
             if (isPositiveResponseHttpCode(responseCode)) {
-                CurrentVendor.vendor.country = vendor.country
+                currentVendor.vendor.country = vendor.country
                 Completable.complete()
             } else {
                 Completable.error(VendorAppException("Cannot get the vendor").apply {

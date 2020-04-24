@@ -1,17 +1,18 @@
 package cz.quanti.android.vendor_app.main.checkout.fragment
 
 import android.content.res.ColorStateList
+import android.content.res.Configuration
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat.getColor
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
-import cz.quanti.android.vendor_app.MainActivity
 import cz.quanti.android.vendor_app.R
 import cz.quanti.android.vendor_app.main.checkout.CheckoutScreenState
 import cz.quanti.android.vendor_app.main.checkout.adapter.ScannedVoucherAdapter
@@ -38,7 +39,7 @@ class CheckoutFragment() : Fragment(), CheckoutFragmentCallback {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        (activity as MainActivity).supportActionBar?.show()
+        (activity as AppCompatActivity).supportActionBar?.show()
         return inflater.inflate(R.layout.fragment_checkout, container, false)
     }
 
@@ -214,6 +215,6 @@ class CheckoutFragment() : Fragment(), CheckoutFragmentCallback {
     }
 
     private fun isLandscapeOriented(): Boolean {
-        return requireActivity().findViewById<View>(R.id.checkoutFragmentContainer) == null
+        return requireActivity().resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
     }
 }

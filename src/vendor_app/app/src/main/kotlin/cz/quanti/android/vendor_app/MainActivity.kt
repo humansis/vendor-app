@@ -1,7 +1,5 @@
 package cz.quanti.android.vendor_app
 
-import android.content.Context
-import android.net.ConnectivityManager
 import android.os.Bundle
 import android.view.Menu
 import android.view.animation.Animation
@@ -11,20 +9,24 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.findNavController
-import cz.quanti.android.vendor_app.main.authorization.viewmodel.LoginViewModel
 import cz.quanti.android.vendor_app.main.vendor.callback.VendorFragmentCallback
-import cz.quanti.android.vendor_app.main.vendor.viewmodel.VendorViewModel
+import cz.quanti.android.vendor_app.repository.AppPreferences
+import cz.quanti.android.vendor_app.repository.login.LoginFacade
+import cz.quanti.android.vendor_app.repository.voucher.VoucherFacade
+import cz.quanti.android.vendor_app.utils.isNetworkAvailable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
-import org.koin.androidx.viewmodel.ext.android.viewModel
+import org.koin.android.ext.android.inject
 import quanti.com.kotlinlog.Log
 import java.util.*
 
 
 class MainActivity : AppCompatActivity() {
 
-    private val loginViewModel: LoginViewModel by viewModel()
-    private val vendorViewModel: VendorViewModel by viewModel()
+    private val loginFacade: LoginFacade by inject()
+    private val voucherFacade: VoucherFacade by inject()
+    private val preferences: AppPreferences by inject()
+
     var vendorFragmentCallback: VendorFragmentCallback? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -43,7 +45,7 @@ class MainActivity : AppCompatActivity() {
                 .setPositiveButton(
                     android.R.string.yes
                 ) { _, _ ->
-                    loginViewModel.logout()
+                    loginFacade.logout()
                     findNavController(R.id.main_nav_host).popBackStack(R.id.loginFragment, false)
                 }
                 .setNegativeButton(android.R.string.no, null)
@@ -60,11 +62,11 @@ class MainActivity : AppCompatActivity() {
             animation.repeatCount = Animation.INFINITE
             view.startAnimation(animation)
 
-            vendorViewModel.synchronizeWithServer().subscribeOn(Schedulers.io())
+            voucherFacade.syncWithServer().subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                     {
-                        (application as App).preferences.lastSynced = Date().time
+                        preferences.lastSynced = Date().time
                         vendorFragmentCallback?.notifyDataChanged()
                         animation.repeatCount = 0
                         Toast.makeText(
@@ -78,7 +80,7 @@ class MainActivity : AppCompatActivity() {
                         view.animation.repeatCount = 0
                         Log.e(e)
 
-                        if (!isNetworkAvailable()) {
+                        if (!isNetworkAvailable(this)) {
                             Toast.makeText(
                                 this,
                                 getString(R.string.no_internet_connection),
@@ -95,12 +97,5 @@ class MainActivity : AppCompatActivity() {
                 )
         }
         return super.onCreateOptionsMenu(menu)
-    }
-
-    fun isNetworkAvailable(): Boolean {
-        val connectivityManager =
-            getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        val networkInfo = connectivityManager.activeNetworkInfo
-        return networkInfo != null && networkInfo.isConnected
     }
 }

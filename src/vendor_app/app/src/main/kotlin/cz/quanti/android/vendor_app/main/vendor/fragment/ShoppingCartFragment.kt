@@ -1,6 +1,7 @@
 package cz.quanti.android.vendor_app.main.vendor.fragment
 
 import android.content.Context
+import android.content.res.Configuration
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -55,7 +56,7 @@ class ShoppingCartFragment : Fragment(), ShoppingCartFragmentCallback {
 
         if (shoppingCartAdapter.itemCount == 0) {
             noItemsSelectedView.visibility = View.VISIBLE
-            if (requireActivity().findViewById<Button>(R.id.toProductsButton) != null) {
+            if (requireActivity().resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
                 shoppingCartFooter.visibility = View.VISIBLE
             } else {
                 shoppingCartFooter.visibility = View.INVISIBLE
@@ -135,7 +136,7 @@ class ShoppingCartFragment : Fragment(), ShoppingCartFragmentCallback {
         vm.clearCart()
         shoppingCartAdapter.clearAll()
         noItemsSelectedView.visibility = View.VISIBLE
-        if (requireActivity().findViewById<Button>(R.id.toProductsButton) != null) {
+        if (requireActivity().resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
             shoppingCartFooter.visibility = View.VISIBLE
         } else {
             shoppingCartFooter.visibility = View.INVISIBLE

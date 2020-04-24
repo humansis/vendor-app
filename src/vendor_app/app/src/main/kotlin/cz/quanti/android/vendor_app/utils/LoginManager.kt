@@ -1,15 +1,15 @@
 package cz.quanti.android.vendor_app.utils
 
-class LoginManager {
+class LoginManager(private val currentVendor: CurrentVendor) {
 
     fun login(username: String, saltedPassword: String) {
-        CurrentVendor.vendor.username = username
-        CurrentVendor.vendor.saltedPassword = saltedPassword
+        currentVendor.vendor.username = username
+        currentVendor.vendor.saltedPassword = saltedPassword
     }
 
     fun getAuthHeader(): String? {
         return generateXWSSEHeader(
-            CurrentVendor.vendor.username, CurrentVendor.vendor.saltedPassword, true
+            currentVendor.vendor.username, currentVendor.vendor.saltedPassword, true
         )
     }
 }

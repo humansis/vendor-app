@@ -1,11 +1,10 @@
 package cz.quanti.android.vendor_app.main.vendor.fragment
 
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.squareup.picasso.Picasso
 import cz.quanti.android.vendor_app.R
@@ -61,7 +60,6 @@ class ProductDetailFragment : Fragment() {
         initPriceUnitSpinner()
         initOnClickListeners()
         initProductRelatedInfo()
-        initEditTextChangedListeners()
 
         if (vm.getShoppingCart().isEmpty()) {
             priceUnitSpinner.visibility = View.VISIBLE
@@ -76,6 +74,15 @@ class ProductDetailFragment : Fragment() {
 
     private fun initOnClickListeners() {
         addToCartButton.setOnClickListener {
+            if (quantityEditText.text.toString().isEmpty() || unitPriceEditText.text.toString()
+                    .isEmpty()
+            ) {
+                Toast.makeText(
+                    requireContext(),
+                    getString(R.string.please_enter_quantity_and_price),
+                    Toast.LENGTH_LONG
+                ).show()
+            } else {
                 if (vm.getShoppingCart().isEmpty()) {
                     vm.setCurrency(priceUnitSpinner.selectedItem as String)
                 }
@@ -85,72 +92,12 @@ class ProductDetailFragment : Fragment() {
                     unitPriceEditText.text.toString().toDouble()
                 )
                 goToCart()
+            }
         }
 
         cancelButton.setOnClickListener {
             goToProducts()
         }
-
-
-    }
-
-    private fun initEditTextChangedListeners() {
-
-        quantityEditText.addTextChangedListener(object : TextWatcher {
-
-            override fun afterTextChanged(s: Editable) {}
-
-            override fun beforeTextChanged(
-                s: CharSequence, start: Int,
-                count: Int, after: Int
-            ) {
-            }
-
-            override fun onTextChanged(
-                s: CharSequence, start: Int,
-                before: Int, count: Int
-            ) {
-                if (s.isEmpty() || unitPriceEditText.text.toString().isEmpty()) {
-                    disableAddToCartButton()
-                }
-
-                if (s.isNotEmpty() && unitPriceEditText.text.toString().isNotEmpty()) {
-                    enableAddToCartButton()
-                }
-            }
-        })
-
-        unitPriceEditText.addTextChangedListener(object : TextWatcher {
-
-            override fun afterTextChanged(s: Editable) {}
-
-            override fun beforeTextChanged(
-                s: CharSequence, start: Int,
-                count: Int, after: Int
-            ) {
-            }
-
-            override fun onTextChanged(
-                s: CharSequence, start: Int,
-                before: Int, count: Int
-            ) {
-                if (s.isEmpty() || quantityEditText.text.toString().isEmpty()) {
-                    disableAddToCartButton()
-                }
-
-                if (s.isNotEmpty() && quantityEditText.text.toString().isNotEmpty()) {
-                    enableAddToCartButton()
-                }
-            }
-        })
-    }
-
-    private fun disableAddToCartButton() {
-        addToCartButton.isEnabled = false
-    }
-
-    private fun enableAddToCartButton() {
-        addToCartButton.isEnabled = true
     }
 
     override fun onSaveInstanceState(outState: Bundle) {

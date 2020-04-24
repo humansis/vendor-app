@@ -12,11 +12,14 @@ import cz.quanti.android.vendor_app.main.vendor.viewmodel.VendorViewModel
 import cz.quanti.android.vendor_app.repository.AppPreferences
 import cz.quanti.android.vendor_app.repository.VendorAPI
 import cz.quanti.android.vendor_app.repository.VendorDb
+import cz.quanti.android.vendor_app.repository.login.LoginFacade
 import cz.quanti.android.vendor_app.repository.login.impl.LoginFacadeImpl
 import cz.quanti.android.vendor_app.repository.login.impl.LoginRepositoryImpl
+import cz.quanti.android.vendor_app.repository.product.ProductFacade
 import cz.quanti.android.vendor_app.repository.product.impl.ProductFacadeImpl
 import cz.quanti.android.vendor_app.repository.product.impl.ProductRepositoryImpl
 import cz.quanti.android.vendor_app.repository.utils.interceptor.HostUrlInterceptor
+import cz.quanti.android.vendor_app.repository.voucher.VoucherFacade
 import cz.quanti.android.vendor_app.repository.voucher.impl.VoucherFacadeImpl
 import cz.quanti.android.vendor_app.repository.voucher.impl.VoucherRepositoryImpl
 import cz.quanti.android.vendor_app.utils.CurrentVendor
@@ -74,10 +77,10 @@ object KoinInitializer {
         val voucherRepo = VoucherRepositoryImpl(db.voucherDao(), db.bookletDao(), api)
 
         // Facade
-        val loginFacade =
+        val loginFacade: LoginFacade =
             LoginFacadeImpl(loginRepo, loginManager, currentVendor)
-        val productFacade = ProductFacadeImpl(productRepo)
-        val voucherFacade = VoucherFacadeImpl(voucherRepo, productRepo)
+        val productFacade: ProductFacade = ProductFacadeImpl(productRepo)
+        val voucherFacade: VoucherFacade = VoucherFacadeImpl(voucherRepo, productRepo)
 
         return module {
             single { preferences }
@@ -87,6 +90,9 @@ object KoinInitializer {
             single { loginManager }
             single { shoppingHolder }
             single { currentVendor }
+            single { voucherFacade }
+            single { loginFacade }
+            single { productFacade }
 
             // View model
             viewModel { LoginViewModel(loginFacade, hostUrlInterceptor, currentVendor) }

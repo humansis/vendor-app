@@ -17,10 +17,6 @@ class LoginViewModel(
         return loginFacade.login(username, password)
     }
 
-    fun logout() {
-        currentVendor.clear()
-    }
-
     fun setApiHost(host: ApiEnvironments) {
         hostUrlInterceptor.setHost(host)
     }

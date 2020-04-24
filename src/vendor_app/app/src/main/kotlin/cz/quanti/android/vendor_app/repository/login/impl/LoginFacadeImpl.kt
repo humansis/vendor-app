@@ -53,6 +53,10 @@ class LoginFacadeImpl(
         }
     }
 
+    override fun logout() {
+        currentVendor.clear()
+    }
+
     private fun getVendor(id: String): Completable {
         return loginRepo.getVendor(id).flatMapCompletable { response ->
             val responseCode = response.first

@@ -4,7 +4,7 @@ import cz.quanti.android.vendor_app.repository.login.dto.api.SaltApiEntity
 import cz.quanti.android.vendor_app.repository.login.dto.api.VendorApiEntity
 import cz.quanti.android.vendor_app.repository.product.dto.api.ProductApiEntity
 import cz.quanti.android.vendor_app.repository.voucher.dto.api.BookletApiEntity
-import cz.quanti.android.vendor_app.repository.voucher.dto.api.BookletsResponse
+import cz.quanti.android.vendor_app.repository.voucher.dto.api.BookletCodesBody
 import cz.quanti.android.vendor_app.repository.voucher.dto.api.VoucherApiEntity
 import io.reactivex.Single
 import retrofit2.Response
@@ -21,14 +21,17 @@ interface VendorAPI {
     @POST("login_app")
     fun postLogin(@Body vendor: VendorApiEntity): Single<Response<VendorApiEntity>>
 
+    @GET("vendors/{id}")
+    fun getVendor(@Path("id") id: String): Single<Response<VendorApiEntity>>
+
     @GET("products")
     fun getProducts(): Single<Response<List<ProductApiEntity>>>
 
-    @GET("deactivate-booklets")
-    fun getDeactivatedBooklets(): Single<Response<BookletsResponse>>
+    @GET("deactivated-booklets")
+    fun getDeactivatedBooklets(): Single<Response<List<BookletApiEntity>>>
 
     @GET("protected-booklets")
-    fun getProtectedBooklets(): Single<Response<BookletsResponse>>
+    fun getProtectedBooklets(): Single<Response<List<BookletApiEntity>>>
 
     @POST("vouchers/scanned")
     fun postVouchers(
@@ -37,6 +40,6 @@ interface VendorAPI {
 
     @POST("deactivate-booklets")
     fun postBooklets(
-        @Body booklets: List<BookletApiEntity>
+        @Body bookletCodes: BookletCodesBody
     ): Single<Response<Unit>>
 }

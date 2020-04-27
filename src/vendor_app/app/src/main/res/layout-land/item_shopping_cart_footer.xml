@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/shoppingCartFooter"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/lightGrey"
+    android:orientation="horizontal">
+
+    <LinearLayout
+        android:id="@+id/delimiterLayout"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="10dp"
+        android:background="@color/black"
+        android:orientation="horizontal"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/cartIconImageView"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_gravity="center"
+        android:layout_marginStart="10dp"
+        app:layout_constraintBottom_toBottomOf="@id/totalTitleTextView"
+        app:layout_constraintDimensionRatio="1:1"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/totalTitleTextView"
+        app:layout_constraintWidth_max="30dp"
+        app:layout_constraintWidth_percent="0.15"
+        app:srcCompat="@drawable/shopping_cart" />
+
+    <TextView
+        android:id="@+id/totalTitleTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="10dp"
+        android:text="@string/total"
+        android:textColor="@color/black"
+        android:textSize="18sp"
+        app:layout_constraintEnd_toStartOf="@id/totalPriceTextView"
+        app:layout_constraintStart_toEndOf="@id/cartIconImageView"
+        app:layout_constraintTop_toTopOf="@id/delimiterLayout" />
+
+    <TextView
+        android:id="@+id/totalPriceTextView"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:text="100 SYP"
+        android:textColor="@color/black"
+        android:textSize="18sp"
+        app:layout_constraintBottom_toBottomOf="@id/totalTitleTextView"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/totalTitleTextView"
+        app:layout_constraintWidth_max="100dp"
+        app:layout_constraintWidth_percent="0.30" />
+
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/clearAllButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:backgroundTint="@color/red"
+        android:elevation="3dp"
+        android:text="@string/clear_all"
+        android:textColor="@color/white"
+        android:textSize="12sp"
+        app:icon="@drawable/clear"
+        app:iconGravity="start"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/center"
+        app:layout_constraintTop_toBottomOf="@id/cartIconImageView" />
+
+    <LinearLayout
+        android:id="@+id/center"
+        android:layout_width="1dp"
+        android:layout_height="1dp"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/checkoutButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:layout_marginEnd="10dp"
+        android:backgroundTint="@color/green"
+        android:elevation="3dp"
+        android:text="@string/checkout"
+        android:textColor="@color/white"
+        android:textSize="12sp"
+        app:icon="@drawable/check"
+        app:iconGravity="start"
+        app:layout_constraintStart_toEndOf="@+id/center"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/cartIconImageView" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

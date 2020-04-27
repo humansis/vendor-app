@@ -12,6 +12,6 @@ data class VendorApiEntity(
     var adress: String = "",
     var loggedIn: Boolean = false,
     var products: Array<String> = arrayOf(),
-    var country: String = "",
-    var language: String = ""
+    var language: String = "",
+    var location: VendorLocationApiEntity = VendorLocationApiEntity()
 )

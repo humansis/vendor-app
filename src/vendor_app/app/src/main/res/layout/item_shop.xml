@@ -28,8 +28,7 @@
                 android:orientation="horizontal"
                 android:id="@+id/firstProductImage"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@drawable/login_screen"/>
+                android:layout_height="match_parent" />
         </androidx.cardview.widget.CardView>
 
         <androidx.cardview.widget.CardView
@@ -76,8 +75,7 @@
                 android:orientation="horizontal"
                 android:id="@+id/secondProductImage"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@drawable/login_screen"/>
+                android:layout_height="match_parent" />
         </androidx.cardview.widget.CardView>
 
         <androidx.cardview.widget.CardView
@@ -124,8 +122,7 @@
                 android:orientation="horizontal"
                 android:id="@+id/thirdProductImage"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@drawable/login_screen"/>
+                android:layout_height="match_parent" />
         </androidx.cardview.widget.CardView>
 
         <androidx.cardview.widget.CardView

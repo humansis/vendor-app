@@ -3,6 +3,7 @@ package cz.quanti.android.vendor_app.main.vendor.adapter
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.squareup.picasso.Picasso
 import cz.quanti.android.vendor_app.R
 import cz.quanti.android.vendor_app.main.vendor.callback.ShoppingCartFragmentCallback
 import cz.quanti.android.vendor_app.main.vendor.viewholder.ShoppingCartViewHolder
@@ -27,7 +28,9 @@ class ShoppingCartAdapter(private val shoppingCartFragmentCallback: ShoppingCart
     override fun onBindViewHolder(holder: ShoppingCartViewHolder, position: Int) {
         val item = cart[position]
 
-        // TODO handle images
+        Picasso.get().load(item.product.image)
+            .into(holder.image)
+
         val productDetailText =
             "${item.product.name} ${getStringFromDouble(item.quantity)} ${item.product.unit}"
         val priceText =

@@ -1,10 +1,10 @@
 package cz.quanti.android.vendor_app.repository.voucher.dao
 
-import androidx.room.Dao
-import androidx.room.Delete
-import androidx.room.Insert
-import androidx.room.OnConflictStrategy
+import androidx.room.*
+import cz.quanti.android.vendor_app.repository.VendorDb
+import cz.quanti.android.vendor_app.repository.voucher.dto.Booklet
 import cz.quanti.android.vendor_app.repository.voucher.dto.db.BookletDbEntity
+import io.reactivex.Single
 
 @Dao
 interface BookletDao {
@@ -14,4 +14,26 @@ interface BookletDao {
 
     @Delete
     fun delete(booklet: BookletDbEntity)
+
+    @Query(
+        "SELECT * FROM " + VendorDb.TABLE_BOOKLET
+            + " WHERE state = " + Booklet.STATE_DEACTIVATED
+            + " OR state = " + Booklet.STATE_NEWLY_DEACTIVATED
+    )
+    fun getAllDeactivated(): Single<List<BookletDbEntity>>
+
+    @Query("SELECT * FROM " + VendorDb.TABLE_BOOKLET + " WHERE state = " + Booklet.STATE_NEWLY_DEACTIVATED)
+    fun getNewlyDeactivated(): Single<List<BookletDbEntity>>
+
+    @Query("SELECT * FROM " + VendorDb.TABLE_BOOKLET + " WHERE state = " + Booklet.STATE_PROTECTED)
+    fun getProtected(): Single<List<BookletDbEntity>>
+
+    @Query("DELETE FROM " + VendorDb.TABLE_BOOKLET + " WHERE state = " + Booklet.STATE_DEACTIVATED)
+    fun deleteDeactivated()
+
+    @Query("DELETE FROM " + VendorDb.TABLE_BOOKLET + " WHERE state = " + Booklet.STATE_PROTECTED)
+    fun deleteProtected()
+
+    @Query("DELETE FROM " + VendorDb.TABLE_BOOKLET + " WHERE state = " + Booklet.STATE_NEWLY_DEACTIVATED)
+    fun deleteNewlyDeactivated()
 }

@@ -1,17 +1,48 @@
 package cz.quanti.android.vendor_app.main.scanner.viewmodel
 
 import androidx.lifecycle.ViewModel
+import cz.quanti.android.vendor_app.main.scanner.ScannedVoucherReturnState
+import cz.quanti.android.vendor_app.repository.voucher.VoucherFacade
+import cz.quanti.android.vendor_app.repository.voucher.dto.Booklet
 import cz.quanti.android.vendor_app.repository.voucher.dto.Voucher
+import cz.quanti.android.vendor_app.utils.ShoppingHolder
+import io.reactivex.Completable
+import io.reactivex.Single
 
-class ScannerViewModel : ViewModel() {
+class ScannerViewModel(
+    private val shoppingHolder: ShoppingHolder,
+    private val voucherFacade: VoucherFacade
+) : ViewModel() {
 
-    fun getVoucherFromScannedCode(scannedCode: String): Pair<Voucher?, Int> {
+    fun getDeactivatedAndProtectedBooklets(): Single<Pair<List<Booklet>, List<Booklet>>> {
+        return getDeactivatedBooklets().flatMap { deactivated ->
+            getProtectedBooklets().map { protected ->
+                Pair(deactivated, protected)
+            }
+        }
+    }
+
+    private fun getDeactivatedBooklets(): Single<List<Booklet>> {
+        return voucherFacade.getAllDeactivatedBooklets()
+    }
+
+    private fun getProtectedBooklets(): Single<List<Booklet>> {
+        return voucherFacade.getProtectedBooklets()
+    }
+
+
+    fun getVoucherFromScannedCode(
+        scannedCode: String,
+        deactivated: List<Booklet>,
+        protected: List<Booklet>
+    ): Pair<Voucher?, ScannedVoucherReturnState> {
         val passwords = mutableListOf<String>()
         var bookletCode = ""
         var currency = ""
         var id: Long = 0
         var value: Long = 0
-        var returnCode: Int
+        var returnCode: ScannedVoucherReturnState
+        val booklet = getBooklet()
 
         var regex = Regex(
             "^([A-Z$€£]+)(\\d+)\\*([\\d]+-[\\d]+-[\\d]+)-([\\d]+)-([\\dA-Z=+-/]+)$",
@@ -20,7 +51,7 @@ class ScannerViewModel : ViewModel() {
         var scannedCodeInfo = regex.matchEntire(scannedCode)
         if (scannedCodeInfo != null) {
             scannedCodeInfo.groups[5]?.value?.let { passwords.add(it) }
-            returnCode = VOUCHER_WITH_PASSWORD
+            returnCode = ScannedVoucherReturnState.VOUCHER_WITH_PASSWORD
         } else {
             regex = Regex(
                 "^([A-Z$€£]+)(\\d+)\\*([\\d]+-[\\d]+-[\\d]+)-([\\d]+)$",
@@ -29,14 +60,14 @@ class ScannerViewModel : ViewModel() {
             scannedCodeInfo = regex.matchEntire(scannedCode)
             if (scannedCodeInfo != null) {
                 scannedCodeInfo.groups[3]?.value?.let { bookletCode = it }
-                returnCode = VOUCHER_WITHOUT_PASSWORD
+                returnCode = ScannedVoucherReturnState.VOUCHER_WITHOUT_PASSWORD
             } else {
                 regex = Regex("^([\\d]+-[\\d]+-[\\d]+)$", RegexOption.IGNORE_CASE)
                 scannedCodeInfo = regex.matchEntire(scannedCode)
                 return if (scannedCodeInfo != null) {
-                    Pair(null, BOOKLET)
+                    Pair(null, ScannedVoucherReturnState.BOOKLET)
                 } else {
-                    Pair(null, WRONG_FORMAT)
+                    Pair(null, ScannedVoucherReturnState.WRONG_FORMAT)
                 }
             }
         }
@@ -46,7 +77,13 @@ class ScannerViewModel : ViewModel() {
         scannedCodeInfo.groups[3]?.value?.let { bookletCode = it }
         scannedCodeInfo.groups[4]?.value?.let { id = it.toLong() }
 
-        // TODO handle protected booklets and passwords
+
+        if (returnCode == ScannedVoucherReturnState.VOUCHER_WITH_PASSWORD) {
+            val password = getPassword(bookletCode, protected)
+            if (password != "") {
+                passwords.add(password)
+            }
+        }
 
         val voucher = Voucher().apply {
             this.id = id
@@ -54,24 +91,79 @@ class ScannerViewModel : ViewModel() {
             this.booklet = bookletCode
             this.currency = currency
             this.value = value
-            // TODO set vendor id, product ids, price and date (the checkout part will take care of that?)
+            this.passwords = passwords
         }
 
-        return Pair(voucher, check(voucher, returnCode))
+        return Pair(voucher, check(voucher, returnCode, booklet, deactivated))
     }
 
-    private fun check(voucher: Voucher, returnCode: Int): Int {
-        var newReturnCode = returnCode
-        // TODO check if not deactivated
-        // TODO check if from same booklet
-        // TODO check if of same currency
-        return newReturnCode
+    fun addVoucher(voucher: Voucher) {
+        shoppingHolder.vouchers.add(voucher)
     }
 
-    companion object {
-        const val VOUCHER_WITH_PASSWORD = 1
-        const val VOUCHER_WITHOUT_PASSWORD = 2
-        const val BOOKLET = 3
-        const val WRONG_FORMAT = 4
+    fun deactivate(voucher: Voucher): Completable {
+        return voucherFacade.deactivate(voucher.booklet)
+    }
+
+    fun wasAlreadyScanned(code: String): Boolean {
+        for (voucher in shoppingHolder.vouchers) {
+            if (voucher.qrCode == code) {
+                return true
+            }
+        }
+        return false
+    }
+
+    private fun getPassword(bookletCode: String, protected: List<Booklet>): String {
+        for (booklet in protected) {
+            if (booklet.code == bookletCode) {
+                return booklet.password
+            }
+        }
+        return ""
+    }
+
+    private fun check(
+        voucher: Voucher,
+        returnCode: ScannedVoucherReturnState,
+        booklet: String,
+        deactivated: List<Booklet>
+    ): ScannedVoucherReturnState {
+
+        if (checkIfDeactivated(voucher, deactivated)) {
+            return ScannedVoucherReturnState.DEACTIVATED
+        }
+        if (checkIfInvalidBooklet(voucher, booklet)) {
+            return ScannedVoucherReturnState.WRONG_BOOKLET
+        }
+        if (checkIfDifferentCurrency(voucher, shoppingHolder.chosenCurrency)) {
+            return ScannedVoucherReturnState.WRONG_CURRENCY
+        }
+        return returnCode
+    }
+
+    private fun getBooklet(): String {
+        return if (shoppingHolder.vouchers.size > 0) {
+            shoppingHolder.vouchers[0].booklet
+        } else {
+            ""
+        }
+    }
+
+    private fun checkIfDeactivated(voucher: Voucher, deactivated: List<Booklet>): Boolean {
+        return deactivated.map { booklet -> booklet.code }.contains(voucher.booklet)
+    }
+
+
+    private fun checkIfInvalidBooklet(voucher: Voucher, booklet: String): Boolean {
+        return if (booklet == "") {
+            false
+        } else {
+            voucher.booklet != booklet
+        }
+    }
+
+    private fun checkIfDifferentCurrency(voucher: Voucher, validCurrency: String): Boolean {
+        return voucher.currency != validCurrency
     }
 }

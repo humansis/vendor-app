@@ -3,16 +3,17 @@ package cz.quanti.android.vendor_app.main.checkout.adapter
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.squareup.picasso.Picasso
 import cz.quanti.android.vendor_app.R
-import cz.quanti.android.vendor_app.main.checkout.fragment.CheckoutFragment
 import cz.quanti.android.vendor_app.main.checkout.viewholder.SelectedProductsViewHolder
 import cz.quanti.android.vendor_app.repository.product.dto.SelectedProduct
 import cz.quanti.android.vendor_app.utils.getStringFromDouble
 
-class SelectedProductsAdapter(private val checkoutFragment: CheckoutFragment) :
+class SelectedProductsAdapter() :
     RecyclerView.Adapter<SelectedProductsViewHolder>() {
 
     private val products: MutableList<SelectedProduct> = mutableListOf()
+    var chosenCurrency: String = ""
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SelectedProductsViewHolder {
         val view = LayoutInflater.from(parent.context)
@@ -27,13 +28,15 @@ class SelectedProductsAdapter(private val checkoutFragment: CheckoutFragment) :
     override fun onBindViewHolder(holder: SelectedProductsViewHolder, position: Int) {
         val item = products[position]
 
-        // TODO handle images
+        Picasso.get().load(item.product.image)
+            .into(holder.image)
+
         holder.productDetail.text = item.product.name
         holder.amount.text = getStringFromDouble(
             item.quantity
         ) + " " + item.product.unit
         holder.price.text =
-            getStringFromDouble(item.subTotal) + " " + checkoutFragment.chosenCurrency
+            getStringFromDouble(item.subTotal) + " " + chosenCurrency
     }
 
     fun setData(data: List<SelectedProduct>) {

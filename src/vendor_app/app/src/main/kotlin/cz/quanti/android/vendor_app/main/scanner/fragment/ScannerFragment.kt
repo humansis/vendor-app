@@ -6,18 +6,27 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
-import androidx.navigation.fragment.navArgs
 import com.budiyev.android.codescanner.CodeScanner
 import com.budiyev.android.codescanner.DecodeCallback
 import com.budiyev.android.codescanner.ScanMode
+import com.google.android.material.textfield.TextInputEditText
 import cz.quanti.android.vendor_app.MainActivity
 import cz.quanti.android.vendor_app.R
+import cz.quanti.android.vendor_app.main.scanner.ScannedVoucherReturnState
 import cz.quanti.android.vendor_app.main.scanner.viewmodel.ScannerViewModel
+import cz.quanti.android.vendor_app.repository.voucher.dto.Booklet
+import cz.quanti.android.vendor_app.repository.voucher.dto.Voucher
 import cz.quanti.android.vendor_app.utils.Constants
+import cz.quanti.android.vendor_app.utils.hashSHA1
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.Disposable
+import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.fragment_scanner.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import quanti.com.kotlinlog.Log
@@ -30,32 +39,41 @@ class ScannerFragment() : Fragment() {
     private var codeScanner: CodeScanner? = null
     private var lastScanned: String = ""
     private var clearCachedTimer: Timer = Timer()
-    private lateinit var chosenCurrency: String
-
-    val args: ScannerFragmentArgs by navArgs()
+    private lateinit var deactivated: List<Booklet>
+    private lateinit var protected: List<Booklet>
+    private var disposables: MutableList<Disposable> = mutableListOf()
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        (activity as MainActivity).supportActionBar?.show()
+        (activity as AppCompatActivity).supportActionBar?.show()
         return inflater.inflate(R.layout.fragment_scanner, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        chosenCurrency = args.currency
+        disposables.add(vm.getDeactivatedAndProtectedBooklets().subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread()).subscribe(
+                {
+                    deactivated = it.first
+                    protected = it.second
 
-        if (!cameraPermissionGranted()) {
-            requestPermissions(
-                arrayOf(Manifest.permission.CAMERA),
-                Constants.CAMERA_PERMISSION_REQUEST_CODE
-            )
-        } else {
-            runScanner()
-        }
+                    if (!cameraPermissionGranted()) {
+                        requestPermissions(
+                            arrayOf(Manifest.permission.CAMERA),
+                            Constants.CAMERA_PERMISSION_REQUEST_CODE
+                        )
+                    } else {
+                        runScanner()
+                    }
+                },
+                {
+                    Log.e(it)
+                }
+            ))
     }
 
     override fun onRequestPermissionsResult(
@@ -134,29 +152,39 @@ class ScannerFragment() : Fragment() {
 
     override fun onDestroy() {
         codeScanner?.releaseResources()
+        for (disposable in disposables) {
+            disposable.dispose()
+        }
+        disposables.clear()
         super.onDestroy()
     }
 
     private fun processScannedCode(scannedCode: String) {
         val code = scannedCode.replace(" ", "+")
-        if (alreadyScanned(code)) {
+        if (vm.wasAlreadyScanned(code)) {
             AlertDialog.Builder(requireContext(), R.style.DialogTheme)
-                .setTitle(getString(R.string.alreadyScannedDialogTitle))
-                .setMessage(getString(R.string.alreadyScannedDialogMessage))
+                .setTitle(getString(R.string.already_scanned_dialog_title))
+                .setMessage(getString(R.string.already_scanned_dialog_message))
                 .setPositiveButton(android.R.string.ok, null)
                 .show()
         } else {
-            val result = vm.getVoucherFromScannedCode(scannedCode)
+            val result =
+                vm.getVoucherFromScannedCode(scannedCode, deactivated, protected)
             val voucher = result.first
             val resultCode = result.second
             if (voucher != null &&
-                (resultCode == ScannerViewModel.VOUCHER_WITH_PASSWORD ||
-                    resultCode == ScannerViewModel.VOUCHER_WITHOUT_PASSWORD)
+                (resultCode == ScannedVoucherReturnState.VOUCHER_WITH_PASSWORD ||
+                    resultCode == ScannedVoucherReturnState.VOUCHER_WITHOUT_PASSWORD)
             ) {
-                (activity as MainActivity).vouchers.add(voucher)
-                findNavController().navigate(
-                    ScannerFragmentDirections.actionScannerFragmentToCheckoutFragment(chosenCurrency)
-                )
+                if (resultCode == ScannedVoucherReturnState.VOUCHER_WITH_PASSWORD) {
+                    showPasswordDialog(3, voucher)
+
+                } else {
+                    vm.addVoucher(voucher)
+                    findNavController().navigate(
+                        ScannerFragmentDirections.actionScannerFragmentToCheckoutFragment()
+                    )
+                }
             } else {
                 val message = getDialogMessageForResultCode(resultCode)
                 AlertDialog.Builder(requireContext(), R.style.DialogTheme)
@@ -168,27 +196,73 @@ class ScannerFragment() : Fragment() {
         }
     }
 
-    private fun getDialogMessageForResultCode(code: Int): Pair<String, String> {
-        var title = getString(R.string.wrongCodeTitle)
+    private fun showPasswordDialog(tries: Int, voucher: Voucher) {
+        if (tries < 1) {
+            disposables.add(vm.deactivate(voucher).subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread()).subscribe(
+                {
+                    AlertDialog.Builder(requireContext(), R.style.DialogTheme)
+                        .setTitle(getString(R.string.booklet_deactivated))
+                        .setMessage(getString(R.string.tries_exceeded_booklet_deactivated))
+                        .setPositiveButton(android.R.string.ok, null)
+                        .show()
+                    findNavController().navigate(
+                        ScannerFragmentDirections.actionScannerFragmentToCheckoutFragment()
+                    )
+                },
+                {
+                    Log.e(it)
+                }
+            ))
+        } else {
+            val dialogView: View = layoutInflater.inflate(R.layout.dialog_voucher_password, null)
+            val limitedTriesTextView = dialogView.findViewById<TextView>(R.id.limitedTriesTextView)
+            if (tries == 3) {
+                limitedTriesTextView.text = getString(R.string.limited_tries_text)
+            } else {
+                limitedTriesTextView.text = getString(R.string.wrong_voucher_password, tries)
+            }
+            AlertDialog.Builder(requireContext(), R.style.DialogTheme)
+                .setView(dialogView)
+                .setPositiveButton(android.R.string.ok) { _, _ ->
+                    val passwordEditTextView =
+                        dialogView.findViewById<TextInputEditText>(R.id.passwordEditText)
+                    var password = hashSHA1(passwordEditTextView.text.toString())
+                    if (password in voucher.passwords) {
+                        vm.addVoucher(voucher)
+                        findNavController().navigate(
+                            ScannerFragmentDirections.actionScannerFragmentToCheckoutFragment()
+                        )
+                    } else {
+                        showPasswordDialog(tries - 1, voucher)
+                    }
+                }
+                .setNegativeButton(android.R.string.cancel, null)
+                .show()
+        }
+    }
+
+    private fun getDialogMessageForResultCode(code: ScannedVoucherReturnState): Pair<String, String> {
+        var title = getString(R.string.wrong_code_title)
         var message = ""
 
         when (code) {
-            ScannerViewModel.BOOKLET -> {
-                message = getString(R.string.cannotScanBookletDialogMessage)
+            ScannedVoucherReturnState.BOOKLET -> {
+                message = getString(R.string.cannot_scan_booklet_dialog_message)
             }
-            ScannerViewModel.WRONG_FORMAT -> {
-                message = getString(R.string.wrongCodeDialogMessage)
+            ScannedVoucherReturnState.WRONG_FORMAT -> {
+                message = getString(R.string.wrong_code_dialog_message)
+            }
+            ScannedVoucherReturnState.DEACTIVATED -> {
+                message = getString(R.string.the_booklet_is_deactivated)
+            }
+            ScannedVoucherReturnState.WRONG_BOOKLET -> {
+                message = getString(R.string.you_just_scanned_a_voucher_from_a_different_booklet)
+            }
+            ScannedVoucherReturnState.WRONG_CURRENCY -> {
+                message = getString(R.string.the_voucher_is_of_wrong_currency)
             }
         }
         return Pair(title, message)
-    }
-
-    private fun alreadyScanned(code: String): Boolean {
-        for (voucher in (activity as MainActivity).vouchers) {
-            if (voucher.qrCode == code) {
-                return true
-            }
-        }
-        return false
     }
 }

@@ -1,11 +1,8 @@
 package cz.quanti.android.vendor_app.di
 
-import android.content.Context
 import androidx.room.Room
 import com.google.gson.GsonBuilder
 import com.jakewharton.retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
-import com.squareup.picasso.OkHttp3Downloader
-import com.squareup.picasso.Picasso
 import cz.quanti.android.vendor_app.App
 import cz.quanti.android.vendor_app.BuildConfig
 import cz.quanti.android.vendor_app.main.authorization.viewmodel.LoginViewModel
@@ -15,13 +12,19 @@ import cz.quanti.android.vendor_app.main.vendor.viewmodel.VendorViewModel
 import cz.quanti.android.vendor_app.repository.AppPreferences
 import cz.quanti.android.vendor_app.repository.VendorAPI
 import cz.quanti.android.vendor_app.repository.VendorDb
+import cz.quanti.android.vendor_app.repository.login.LoginFacade
 import cz.quanti.android.vendor_app.repository.login.impl.LoginFacadeImpl
 import cz.quanti.android.vendor_app.repository.login.impl.LoginRepositoryImpl
+import cz.quanti.android.vendor_app.repository.product.ProductFacade
 import cz.quanti.android.vendor_app.repository.product.impl.ProductFacadeImpl
 import cz.quanti.android.vendor_app.repository.product.impl.ProductRepositoryImpl
+import cz.quanti.android.vendor_app.repository.utils.interceptor.HostUrlInterceptor
+import cz.quanti.android.vendor_app.repository.voucher.VoucherFacade
 import cz.quanti.android.vendor_app.repository.voucher.impl.VoucherFacadeImpl
 import cz.quanti.android.vendor_app.repository.voucher.impl.VoucherRepositoryImpl
+import cz.quanti.android.vendor_app.utils.CurrentVendor
 import cz.quanti.android.vendor_app.utils.LoginManager
+import cz.quanti.android.vendor_app.utils.ShoppingHolder
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import org.koin.android.ext.koin.androidContext
@@ -48,52 +51,65 @@ object KoinInitializer {
 
     private fun createAppModule(app: App): Module {
 
-        val loginManager = LoginManager()
+        val preferences = AppPreferences(app)
+        val shoppingHolder = ShoppingHolder()
+        val hostUrlInterceptor = HostUrlInterceptor()
+        val currentVendor = CurrentVendor(preferences)
+        val loginManager = LoginManager(currentVendor)
 
         val api = Retrofit.Builder()
-            .baseUrl(BuildConfig.API_URL)
-            .addConverterFactory(GsonConverterFactory.create(GsonBuilder().serializeNulls().create()))
+            .baseUrl("https://" + BuildConfig.API_URL + "/api/wsse/")
+            .addConverterFactory(
+                GsonConverterFactory.create(
+                    GsonBuilder().serializeNulls().create()
+                )
+            )
             .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-            .client(createClient(app, loginManager))
+            .client(createClient(loginManager, hostUrlInterceptor, currentVendor))
             .build().create(VendorAPI::class.java)
 
-        val picasso = Picasso.Builder(app)
-            .loggingEnabled(BuildConfig.DEBUG)
-            .indicatorsEnabled(BuildConfig.DEBUG)
-            .downloader(OkHttp3Downloader(app))
-            .build()
 
         val db = Room.databaseBuilder(app, VendorDb::class.java, VendorDb.DB_NAME).build()
 
         // Repository
         val loginRepo = LoginRepositoryImpl(api)
         val productRepo = ProductRepositoryImpl(db.productDao(), api)
-        val voucherRepo = VoucherRepositoryImpl(db.voucherDao())
+        val voucherRepo = VoucherRepositoryImpl(db.voucherDao(), db.bookletDao(), api)
 
         // Facade
-        val loginFacade = LoginFacadeImpl(loginRepo, productRepo, picasso, loginManager)
-        val productFacade = ProductFacadeImpl(productRepo, picasso)
-        val voucherFacade = VoucherFacadeImpl(voucherRepo)
+        val loginFacade: LoginFacade =
+            LoginFacadeImpl(loginRepo, loginManager, currentVendor)
+        val productFacade: ProductFacade = ProductFacadeImpl(productRepo)
+        val voucherFacade: VoucherFacade = VoucherFacadeImpl(voucherRepo, productRepo)
 
         return module {
-            single { AppPreferences(androidContext()) }
-            single { api }
+            single { preferences }
             single { db }
-            single { picasso }
+            single { api }
+            single { hostUrlInterceptor }
             single { loginManager }
+            single { shoppingHolder }
+            single { currentVendor }
+            single { voucherFacade }
+            single { loginFacade }
+            single { productFacade }
 
             // View model
-            viewModel { LoginViewModel(loginFacade) }
-            viewModel { VendorViewModel(productFacade) }
-            viewModel { ScannerViewModel() }
-            viewModel { CheckoutViewModel(voucherFacade) }
+            viewModel { LoginViewModel(loginFacade, hostUrlInterceptor, currentVendor) }
+            viewModel { VendorViewModel(shoppingHolder, productFacade, voucherFacade, preferences) }
+            viewModel { ScannerViewModel(shoppingHolder, voucherFacade) }
+            viewModel { CheckoutViewModel(shoppingHolder, voucherFacade, currentVendor) }
         }
     }
 
-    private fun createClient(context: Context, loginManager: LoginManager): OkHttpClient {
+    private fun createClient(
+        loginManager: LoginManager,
+        hostUrlInterceptor: HostUrlInterceptor,
+        currentVendor: CurrentVendor
+    ): OkHttpClient {
 
         val logging = HttpLoggingInterceptor().apply {
-                HttpLoggingInterceptor.Level.BODY
+            HttpLoggingInterceptor.Level.BODY
         }
 
         return OkHttpClient.Builder()
@@ -103,15 +119,19 @@ object KoinInitializer {
             .addInterceptor { chain ->
                 val oldRequest = chain.request()
                 val headersBuilder = oldRequest.headers().newBuilder()
-                // TODO
                 loginManager.getAuthHeader()?.let {
                     headersBuilder.add("x-wsse", it)
                 }
-                headersBuilder.add("country", "KHM")
+                headersBuilder.add("country", getCountry(currentVendor))
                 val request = oldRequest.newBuilder().headers(headersBuilder.build()).build()
                 chain.proceed(request)
             }
+            .addInterceptor(hostUrlInterceptor)
             .addInterceptor(logging)
             .build()
+    }
+
+    private fun getCountry(currentVendor: CurrentVendor): String {
+        return currentVendor.vendor.country
     }
 }

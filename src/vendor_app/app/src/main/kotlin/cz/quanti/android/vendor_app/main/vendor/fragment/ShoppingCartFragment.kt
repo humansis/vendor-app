@@ -1,11 +1,13 @@
 package cz.quanti.android.vendor_app.main.vendor.fragment
 
 import android.content.Context
+import android.content.res.Configuration
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
+import android.widget.Button
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
@@ -32,10 +34,19 @@ class ShoppingCartFragment : Fragment(), ShoppingCartFragmentCallback {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        vendorFragmentCallback = parentFragment as VendorFragmentCallback
-        chosenCurrency = vendorFragmentCallback.getCurrency()
-        shoppingCartAdapter = ShoppingCartAdapter(this)
         return inflater.inflate(R.layout.fragment_shopping_cart, container, false)
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        vendorFragmentCallback = parentFragment as VendorFragmentCallback
+        chosenCurrency = vm.getCurrency()
+        shoppingCartAdapter = ShoppingCartAdapter(this)
+
+        requireActivity().findViewById<Button>(R.id.toProductsButton)?.setOnClickListener {
+            vendorFragmentCallback.backToProducts()
+        }
     }
 
     override fun onStart() {
@@ -45,7 +56,11 @@ class ShoppingCartFragment : Fragment(), ShoppingCartFragmentCallback {
 
         if (shoppingCartAdapter.itemCount == 0) {
             noItemsSelectedView.visibility = View.VISIBLE
-            shoppingCartFooter.visibility = View.INVISIBLE
+            if (requireActivity().resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
+                shoppingCartFooter.visibility = View.VISIBLE
+            } else {
+                shoppingCartFooter.visibility = View.INVISIBLE
+            }
         } else {
             noItemsSelectedView.visibility = View.INVISIBLE
             shoppingCartFooter.visibility = View.VISIBLE
@@ -66,12 +81,12 @@ class ShoppingCartFragment : Fragment(), ShoppingCartFragmentCallback {
 
     override fun removeItemFromCart(position: Int) {
         AlertDialog.Builder(requireContext(), R.style.DialogTheme)
-            .setTitle(getString(R.string.areYouSureDialogTitle))
-            .setMessage(getString(R.string.removeProductFromCartDialogMessage))
+            .setTitle(getString(R.string.are_you_sure_dialog_title))
+            .setMessage(getString(R.string.remove_product_from_cart_dialog_message))
             .setPositiveButton(
                 android.R.string.yes
             ) { _, _ ->
-                vendorFragmentCallback.removeFromCart(position)
+                vm.removeFromCart(position)
                 shoppingCartAdapter.removeAt(position)
             }
             .setNegativeButton(android.R.string.no, null)
@@ -83,7 +98,7 @@ class ShoppingCartFragment : Fragment(), ShoppingCartFragmentCallback {
     }
 
     private fun getTotalPrice(): Double {
-        return vendorFragmentCallback.getShoppingCart().map { it.subTotal }.sum()
+        return vm.getShoppingCart().map { it.subTotal }.sum()
     }
 
     private fun initShoppingCartAdapter() {
@@ -93,34 +108,38 @@ class ShoppingCartFragment : Fragment(), ShoppingCartFragmentCallback {
         shoppingCartRecyclerView.layoutManager = viewManager
         shoppingCartRecyclerView.adapter = shoppingCartAdapter
 
-        shoppingCartAdapter.setData(vendorFragmentCallback.getShoppingCart())
+        shoppingCartAdapter.setData(vm.getShoppingCart())
     }
 
     private fun initOnClickListeners() {
         checkoutButton.setOnClickListener {
             findNavController().navigate(
-                VendorFragmentDirections.actionVendorFragmentToCheckoutFragment(chosenCurrency)
+                VendorFragmentDirections.actionVendorFragmentToCheckoutFragment()
             )
         }
 
         clearAllButton.setOnClickListener {
             AlertDialog.Builder(requireContext(), R.style.DialogTheme)
-                    .setTitle(getString(R.string.areYouSureDialogTitle))
-                    .setMessage(getString(R.string.clearCartDialogMessage))
-                    .setPositiveButton(
-                        android.R.string.yes
-                    ) { _, _ ->
-                        clearCart()
-                    }
-                    .setNegativeButton(android.R.string.no, null)
-                    .show()
+                .setTitle(getString(R.string.are_you_sure_dialog_title))
+                .setMessage(getString(R.string.clear_cart_dialog_message))
+                .setPositiveButton(
+                    android.R.string.yes
+                ) { _, _ ->
+                    clearCart()
+                }
+                .setNegativeButton(android.R.string.no, null)
+                .show()
         }
     }
 
     private fun clearCart() {
-        vendorFragmentCallback.clearCart()
+        vm.clearCart()
         shoppingCartAdapter.clearAll()
         noItemsSelectedView.visibility = View.VISIBLE
-        shoppingCartFooter.visibility = View.INVISIBLE
+        if (requireActivity().resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
+            shoppingCartFooter.visibility = View.VISIBLE
+        } else {
+            shoppingCartFooter.visibility = View.INVISIBLE
+        }
     }
 }

@@ -18,7 +18,7 @@ interface VendorAPI {
     @GET("salt/{username}")
     fun getSalt(@Path("username") username: String): Single<Response<SaltApiEntity>>
 
-    @POST("login_app")
+    @POST("login")
     fun postLogin(@Body vendor: VendorApiEntity): Single<Response<VendorApiEntity>>
 
     @GET("vendors/{id}")

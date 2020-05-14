@@ -58,7 +58,7 @@ object KoinInitializer {
         val loginManager = LoginManager(currentVendor)
 
         val api = Retrofit.Builder()
-            .baseUrl("https://" + BuildConfig.API_URL + "/api/wsse/")
+            .baseUrl("https://" + BuildConfig.API_URL + "/api/wsse/vendor-app/v1/")
             .addConverterFactory(
                 GsonConverterFactory.create(
                     GsonBuilder().serializeNulls().create()

@@ -1,5 +1,6 @@
 package cz.quanti.android.vendor_app.repository
 
+import cz.quanti.android.vendor_app.repository.card.dto.api.CardPaymentApiEntity
 import cz.quanti.android.vendor_app.repository.login.dto.api.SaltApiEntity
 import cz.quanti.android.vendor_app.repository.login.dto.api.VendorApiEntity
 import cz.quanti.android.vendor_app.repository.product.dto.api.ProductApiEntity
@@ -41,5 +42,11 @@ interface VendorAPI {
     @POST("deactivate-booklets")
     fun postBooklets(
         @Body bookletCodes: BookletCodesBody
+    ): Single<Response<Unit>>
+
+    @POST("smartcards/{id}/purchase")
+    fun postCardPayment(
+        @Path("id") cardId: String,
+        @Body cardPayment: CardPaymentApiEntity
     ): Single<Response<Unit>>
 }

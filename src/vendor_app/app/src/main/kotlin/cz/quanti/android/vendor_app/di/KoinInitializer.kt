@@ -12,6 +12,9 @@ import cz.quanti.android.vendor_app.main.vendor.viewmodel.VendorViewModel
 import cz.quanti.android.vendor_app.repository.AppPreferences
 import cz.quanti.android.vendor_app.repository.VendorAPI
 import cz.quanti.android.vendor_app.repository.VendorDb
+import cz.quanti.android.vendor_app.repository.card.CardFacade
+import cz.quanti.android.vendor_app.repository.card.impl.CardFacadeImpl
+import cz.quanti.android.vendor_app.repository.card.impl.CardRepositoryImpl
 import cz.quanti.android.vendor_app.repository.login.LoginFacade
 import cz.quanti.android.vendor_app.repository.login.impl.LoginFacadeImpl
 import cz.quanti.android.vendor_app.repository.login.impl.LoginRepositoryImpl
@@ -75,12 +78,14 @@ object KoinInitializer {
         val loginRepo = LoginRepositoryImpl(api)
         val productRepo = ProductRepositoryImpl(db.productDao(), api)
         val voucherRepo = VoucherRepositoryImpl(db.voucherDao(), db.bookletDao(), api)
+        val cardRepo = CardRepositoryImpl(db.cardPaymentDao(), api)
 
         // Facade
         val loginFacade: LoginFacade =
             LoginFacadeImpl(loginRepo, loginManager, currentVendor)
         val productFacade: ProductFacade = ProductFacadeImpl(productRepo)
         val voucherFacade: VoucherFacade = VoucherFacadeImpl(voucherRepo, productRepo)
+        val cardFacade: CardFacade = CardFacadeImpl(cardRepo)
 
         return module {
             single { preferences }
@@ -93,6 +98,7 @@ object KoinInitializer {
             single { voucherFacade }
             single { loginFacade }
             single { productFacade }
+            single { cardFacade }
 
             // View model
             viewModel { LoginViewModel(loginFacade, hostUrlInterceptor, currentVendor) }

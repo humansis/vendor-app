@@ -57,4 +57,11 @@
     <string name="data_were_successfully_synchronized">Data were successfully synchronized with the server</string>
     <string name="add_to_cart">Add to cart</string>
     <string name="please_enter_quantity_and_price">Please enter the quantity and unit price.</string>
+    <string name="pin">PIN</string>
+    <string name="please_enter_pin">Please enter PIN for your card</string>
+    <string name="no_nfc_available">NFC is not available</string>
+    <string name="you_need_to_enable_nfc">You need to enable NFC</string>
+    <string name="card_successfuly_paid_new_balance">Success! New balance on the card: %1$.2f</string>
+    <string name="not_enough_money_on_card">Not enough money on the card</string>
+    <string name="scan_card">Please scan the card</string>
 </resources>

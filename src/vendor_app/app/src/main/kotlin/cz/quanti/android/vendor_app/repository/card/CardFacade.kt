@@ -8,6 +8,4 @@ interface CardFacade {
     fun saveCardPayment(cardPayment: CardPayment): Completable
 
     fun syncWithServer(): Completable
-
-    fun clearCardPayments(): Completable
 }

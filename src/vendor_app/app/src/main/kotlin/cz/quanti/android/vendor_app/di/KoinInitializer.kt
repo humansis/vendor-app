@@ -3,6 +3,9 @@ package cz.quanti.android.vendor_app.di
 import androidx.room.Room
 import com.google.gson.GsonBuilder
 import com.jakewharton.retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
+import cz.quanti.android.nfc.PINFacade
+import cz.quanti.android.nfc.VendorFacade
+import cz.quanti.android.nfc_io_libray.types.NfcUtil
 import cz.quanti.android.vendor_app.App
 import cz.quanti.android.vendor_app.BuildConfig
 import cz.quanti.android.vendor_app.main.authorization.viewmodel.LoginViewModel
@@ -25,9 +28,7 @@ import cz.quanti.android.vendor_app.repository.utils.interceptor.HostUrlIntercep
 import cz.quanti.android.vendor_app.repository.voucher.VoucherFacade
 import cz.quanti.android.vendor_app.repository.voucher.impl.VoucherFacadeImpl
 import cz.quanti.android.vendor_app.repository.voucher.impl.VoucherRepositoryImpl
-import cz.quanti.android.vendor_app.utils.CurrentVendor
-import cz.quanti.android.vendor_app.utils.LoginManager
-import cz.quanti.android.vendor_app.utils.ShoppingHolder
+import cz.quanti.android.vendor_app.utils.*
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import org.koin.android.ext.koin.androidContext
@@ -72,7 +73,9 @@ object KoinInitializer {
             .build().create(VendorAPI::class.java)
 
 
-        val db = Room.databaseBuilder(app, VendorDb::class.java, VendorDb.DB_NAME).build()
+        val db = Room.databaseBuilder(app, VendorDb::class.java, VendorDb.DB_NAME)
+            .addMigrations(getDbMigration1to2())
+            .build()
 
         // Repository
         val loginRepo = LoginRepositoryImpl(api)
@@ -87,6 +90,14 @@ object KoinInitializer {
         val voucherFacade: VoucherFacade = VoucherFacadeImpl(voucherRepo, productRepo)
         val cardFacade: CardFacade = CardFacadeImpl(cardRepo)
 
+        val nfcFacade: VendorFacade = PINFacade(
+            BuildConfig.APP_VESION,
+            NfcUtil.hexStringToByteArray(BuildConfig.MASTER_KEY),
+            NfcUtil.hexStringToByteArray(BuildConfig.APP_ID)
+        )
+
+        val nfcTagPublisher = NfcTagPublisher()
+
         return module {
             single { preferences }
             single { db }
@@ -99,12 +110,23 @@ object KoinInitializer {
             single { loginFacade }
             single { productFacade }
             single { cardFacade }
+            single { nfcFacade }
+            single { nfcTagPublisher }
 
             // View model
             viewModel { LoginViewModel(loginFacade, hostUrlInterceptor, currentVendor) }
             viewModel { VendorViewModel(shoppingHolder, productFacade, voucherFacade, preferences) }
             viewModel { ScannerViewModel(shoppingHolder, voucherFacade) }
-            viewModel { CheckoutViewModel(shoppingHolder, voucherFacade, currentVendor) }
+            viewModel {
+                CheckoutViewModel(
+                    shoppingHolder,
+                    voucherFacade,
+                    cardFacade,
+                    nfcFacade,
+                    currentVendor,
+                    nfcTagPublisher
+                )
+            }
         }
     }
 

@@ -15,11 +15,15 @@ class CardFacadeImpl(private val cardRepo: CardRepository) : CardFacade {
     }
 
     override fun syncWithServer(): Completable {
+        return sendCardPurchasesToServer().andThen(clearCardPayments())
+    }
+
+    private fun sendCardPurchasesToServer(): Completable {
         return cardRepo.getCardPayments().flatMapCompletable { payments ->
             Observable.fromIterable(payments).flatMapCompletable { payment ->
                 cardRepo.sendCardPaymentToServer(payment).flatMapCompletable { responseCode ->
                     if (isPositiveResponseHttpCode(responseCode)) {
-                        cardRepo.deleteAllCardPayments()
+                        Completable.complete()
                     } else {
                         throw VendorAppException("Could not send card payments to server").apply {
                             apiError = true
@@ -31,7 +35,7 @@ class CardFacadeImpl(private val cardRepo: CardRepository) : CardFacade {
         }
     }
 
-    override fun clearCardPayments(): Completable {
+    private fun clearCardPayments(): Completable {
         return cardRepo.deleteAllCardPayments()
     }
 }

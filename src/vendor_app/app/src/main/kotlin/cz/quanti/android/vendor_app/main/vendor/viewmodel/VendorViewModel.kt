@@ -17,6 +17,14 @@ class VendorViewModel(
     private val preferences: AppPreferences
 ) : ViewModel() {
 
+    fun getLastCurrencySelection(): Int {
+        return shoppingHolder.lastCurrencySelection
+    }
+
+    fun setLastCurrencySelection(selected: Int) {
+        shoppingHolder.lastCurrencySelection = selected
+    }
+
     fun getProducts(): Single<List<Product>> {
         return productFacade.getProducts()
     }

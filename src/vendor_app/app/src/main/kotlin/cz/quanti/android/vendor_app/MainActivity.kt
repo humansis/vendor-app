@@ -1,5 +1,8 @@
 package cz.quanti.android.vendor_app
 
+import android.content.Intent
+import android.nfc.NfcAdapter
+import android.nfc.Tag
 import android.os.Bundle
 import android.view.Menu
 import android.view.animation.Animation
@@ -11,8 +14,10 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.findNavController
 import cz.quanti.android.vendor_app.main.vendor.callback.VendorFragmentCallback
 import cz.quanti.android.vendor_app.repository.AppPreferences
+import cz.quanti.android.vendor_app.repository.card.CardFacade
 import cz.quanti.android.vendor_app.repository.login.LoginFacade
 import cz.quanti.android.vendor_app.repository.voucher.VoucherFacade
+import cz.quanti.android.vendor_app.utils.NfcTagPublisher
 import cz.quanti.android.vendor_app.utils.isNetworkAvailable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
@@ -25,7 +30,9 @@ class MainActivity : AppCompatActivity() {
 
     private val loginFacade: LoginFacade by inject()
     private val voucherFacade: VoucherFacade by inject()
+    private val cardFacade: CardFacade by inject()
     private val preferences: AppPreferences by inject()
+    private val nfcTagPublisher: NfcTagPublisher by inject()
 
     var vendorFragmentCallback: VendorFragmentCallback? = null
 
@@ -62,7 +69,8 @@ class MainActivity : AppCompatActivity() {
             animation.repeatCount = Animation.INFINITE
             view.startAnimation(animation)
 
-            voucherFacade.syncWithServer().subscribeOn(Schedulers.io())
+            cardFacade.syncWithServer().andThen(voucherFacade.syncWithServer())
+                .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                     {
@@ -97,5 +105,13 @@ class MainActivity : AppCompatActivity() {
                 )
         }
         return super.onCreateOptionsMenu(menu)
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        if (NfcAdapter.ACTION_TAG_DISCOVERED == intent.action) {
+            val tag: Tag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG)
+            nfcTagPublisher.getTagSubject().onNext(tag)
+        }
     }
 }

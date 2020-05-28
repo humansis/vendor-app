@@ -45,6 +45,11 @@
             app:destination="@id/scannerFragment"
             app:popUpTo="@id/scannerFragment"
             app:popUpToInclusive="true" />
+        <action
+            android:id="@+id/action_checkoutFragment_to_scanCardFragment"
+            app:destination="@id/scanCardFragment"
+            app:popUpTo="@id/scanCardFragment"
+            app:popUpToInclusive="true" />
     </fragment>
 
     <fragment
@@ -56,6 +61,23 @@
             android:id="@+id/action_scannerFragment_to_checkoutFragment"
             app:destination="@id/checkoutFragment"
             app:popUpTo="@id/checkoutFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/scanCardFragment"
+        android:name="cz.quanti.android.vendor_app.main.checkout.fragment.ScanCardFragment"
+        android:label="fragment_scan_card"
+        tools:layout="@layout/fragment_scan_card">
+        <action
+            android:id="@+id/action_scanCardFragment_to_checkoutFragment"
+            app:destination="@id/checkoutFragment"
+            app:popUpTo="@id/checkoutFragment"
+            app:popUpToInclusive="true" />
+        <action
+            android:id="@+id/action_scanCardFragment_to_vendorFragment"
+            app:destination="@id/vendorFragment"
+            app:popUpTo="@id/vendorFragment"
             app:popUpToInclusive="true" />
     </fragment>
 

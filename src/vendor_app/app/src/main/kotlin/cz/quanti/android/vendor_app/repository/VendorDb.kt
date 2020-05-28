@@ -4,6 +4,7 @@ import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import cz.quanti.android.vendor_app.repository.card.dao.CardPaymentDao
+import cz.quanti.android.vendor_app.repository.card.dto.db.CardPaymentDbEntity
 import cz.quanti.android.vendor_app.repository.product.dao.ProductDao
 import cz.quanti.android.vendor_app.repository.product.dao.SelectedProductDao
 import cz.quanti.android.vendor_app.repository.product.dto.db.ProductDbEntity
@@ -21,7 +22,7 @@ import cz.quanti.android.vendor_app.repository.voucher.dto.db.VoucherDbEntity
         ProductDbEntity::class,
         VoucherDbEntity::class,
         SelectedProductDbEntity::class,
-        CardPaymentDao::class
+        CardPaymentDbEntity::class
     ], version = 2, exportSchema = false
 )
 @TypeConverters(ProductIdListTypeConverter::class, DateTypeConverter::class)

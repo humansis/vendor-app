@@ -1,0 +1,166 @@
+package cz.quanti.android.vendor_app.main.checkout.fragment
+
+import android.app.PendingIntent
+import android.content.Intent
+import android.nfc.NfcAdapter
+import android.os.Bundle
+import android.provider.Settings
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
+import com.google.android.material.textfield.TextInputEditText
+import cz.quanti.android.nfc.exception.PINException
+import cz.quanti.android.vendor_app.R
+import cz.quanti.android.vendor_app.main.checkout.viewmodel.CheckoutViewModel
+import cz.quanti.android.vendor_app.utils.VendorAppException
+import cz.quanti.android.vendor_app.utils.hideKeyboard
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.Disposable
+import io.reactivex.schedulers.Schedulers
+import kotlinx.android.synthetic.main.fragment_scan_card.*
+import org.koin.androidx.viewmodel.ext.android.viewModel
+import quanti.com.kotlinlog.Log
+
+class ScanCardFragment : Fragment() {
+    private val vm: CheckoutViewModel by viewModel()
+    private var disposable: Disposable? = null
+    private var nfcAdapter: NfcAdapter? = null
+    private var pendingIntent: PendingIntent? = null
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        (activity as AppCompatActivity).supportActionBar?.show()
+        return inflater.inflate(R.layout.fragment_scan_card, container, false)
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        nfcAdapter = NfcAdapter.getDefaultAdapter(requireContext())
+
+        if (nfcAdapter == null) {
+            Toast.makeText(
+                requireContext(),
+                getString(R.string.no_nfc_available),
+                Toast.LENGTH_LONG
+            ).show()
+            findNavController().navigate(
+                ScanCardFragmentDirections.actionScanCardFragmentToCheckoutFragment()
+            )
+        }
+
+        pendingIntent = PendingIntent.getActivity(
+            requireContext(), 0,
+            Intent(requireContext(), requireContext().javaClass)
+                .addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0
+        )
+
+        init()
+        payByCard()
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        nfcAdapter?.let { nfcAdapter ->
+            if (!nfcAdapter.isEnabled) {
+                showWirelessSettings()
+            }
+            nfcAdapter.enableForegroundDispatch(requireActivity(), pendingIntent, null, null)
+        }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        nfcAdapter?.disableForegroundDispatch(requireActivity())
+    }
+
+    override fun onDestroy() {
+        disposable?.dispose()
+        super.onDestroy()
+    }
+
+    private fun init() {
+        backButton.setOnClickListener {
+            findNavController().navigate(
+                ScanCardFragmentDirections.actionScanCardFragmentToCheckoutFragment()
+            )
+        }
+    }
+
+    private fun payByCard() {
+        val dialogView: View = layoutInflater.inflate(R.layout.dialog_card_pin, null)
+
+        AlertDialog.Builder(requireContext(), R.style.DialogTheme)
+            .setView(dialogView)
+            .setPositiveButton(android.R.string.ok) { _, _ ->
+                val pinEditTextView =
+                    dialogView.findViewById<TextInputEditText>(R.id.pinEditText)
+                val pin = pinEditTextView.text.toString()
+                hideKeyboard(requireContext())
+
+                disposable?.dispose()
+                disposable = vm.payByCard(pin, vm.getTotal()).subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe({
+                        Toast.makeText(
+                            requireContext(),
+                            getString(R.string.card_successfuly_paid_new_balance, it.balance),
+                            Toast.LENGTH_LONG
+                        ).show()
+                        vm.clearShoppingCart()
+                        vm.clearCurrency()
+                        findNavController().navigate(
+                            ScanCardFragmentDirections.actionScanCardFragmentToVendorFragment()
+                        )
+                    }, {
+                        when (it) {
+                            is PINException -> {
+                                Log.e(this.javaClass.simpleName, it.pinExceptionEnum.name)
+                                Toast.makeText(
+                                    requireContext(),
+                                    it.pinExceptionEnum.name,
+                                    Toast.LENGTH_LONG
+                                ).show()
+                            }
+                            is VendorAppException -> {
+                                Log.e(this.javaClass.simpleName, it)
+                                Toast.makeText(requireContext(), it.message, Toast.LENGTH_LONG)
+                                    .show()
+                            }
+                            else -> {
+                                Log.e(this.javaClass.simpleName, it)
+                                Toast.makeText(requireContext(), it.message, Toast.LENGTH_LONG)
+                                    .show()
+                            }
+                        }
+                        findNavController().navigate(
+                            ScanCardFragmentDirections.actionScanCardFragmentToCheckoutFragment()
+                        )
+                    })
+
+            }
+            .setNegativeButton(android.R.string.cancel) { _, _ ->
+                hideKeyboard(requireContext())
+            }
+            .show()
+    }
+
+    private fun showWirelessSettings() {
+        Toast.makeText(
+            requireContext(),
+            getString(R.string.you_need_to_enable_nfc),
+            Toast.LENGTH_LONG
+        ).show()
+        val intent = Intent(Settings.ACTION_WIRELESS_SETTINGS)
+        startActivity(intent)
+    }
+}

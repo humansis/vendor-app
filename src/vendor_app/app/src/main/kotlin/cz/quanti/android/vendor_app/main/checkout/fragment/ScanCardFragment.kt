@@ -15,6 +15,7 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.textfield.TextInputEditText
 import cz.quanti.android.nfc.exception.PINException
+import cz.quanti.android.nfc.exception.PINExceptionEnum
 import cz.quanti.android.vendor_app.R
 import cz.quanti.android.vendor_app.main.checkout.viewmodel.CheckoutViewModel
 import cz.quanti.android.vendor_app.utils.VendorAppException
@@ -127,18 +128,26 @@ class ScanCardFragment : Fragment() {
                                 Log.e(this.javaClass.simpleName, it.pinExceptionEnum.name)
                                 Toast.makeText(
                                     requireContext(),
-                                    it.pinExceptionEnum.name,
+                                    getNfcCardErrorMessage(it.pinExceptionEnum),
                                     Toast.LENGTH_LONG
                                 ).show()
                             }
                             is VendorAppException -> {
                                 Log.e(this.javaClass.simpleName, it)
-                                Toast.makeText(requireContext(), it.message, Toast.LENGTH_LONG)
+                                Toast.makeText(
+                                    requireContext(),
+                                    getString(R.string.card_error),
+                                    Toast.LENGTH_LONG
+                                )
                                     .show()
                             }
                             else -> {
                                 Log.e(this.javaClass.simpleName, it)
-                                Toast.makeText(requireContext(), it.message, Toast.LENGTH_LONG)
+                                Toast.makeText(
+                                    requireContext(),
+                                    getString(R.string.card_error),
+                                    Toast.LENGTH_LONG
+                                )
                                     .show()
                             }
                         }
@@ -162,5 +171,14 @@ class ScanCardFragment : Fragment() {
         ).show()
         val intent = Intent(Settings.ACTION_WIRELESS_SETTINGS)
         startActivity(intent)
+    }
+
+    private fun getNfcCardErrorMessage(error: PINExceptionEnum): String {
+        return when (error) {
+            PINExceptionEnum.CARD_LOCKED -> getString(R.string.card_locked)
+            PINExceptionEnum.INCORRECT_PIN -> getString(R.string.incorrect_pin)
+            PINExceptionEnum.INSUFFICIENT_FUNDS -> getString(R.string.insufficient_funds)
+            else -> getString(R.string.card_error)
+        }
     }
 }

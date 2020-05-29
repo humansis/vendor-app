@@ -64,4 +64,8 @@
     <string name="card_successfuly_paid_new_balance">Success! New balance on the card: %1$.2f</string>
     <string name="not_enough_money_on_card">Not enough money on the card</string>
     <string name="scan_card">Please scan the card</string>
+    <string name="incorrect_pin">Incorrect PIN</string>
+    <string name="insufficient_funds">"Not enough money on the card. "</string>
+    <string name="card_locked">This card is locked.</string>
+    <string name="card_error">Error. Try again please.</string>
 </resources>

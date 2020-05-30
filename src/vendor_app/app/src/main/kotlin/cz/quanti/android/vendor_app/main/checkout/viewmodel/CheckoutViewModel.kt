@@ -71,8 +71,7 @@ class CheckoutViewModel(
             voucher.usedAt = Calendar.getInstance().time
             voucher.vendorId = currentVendor.vendor.id
             voucher.price = cart.map { it.subTotal }.sum()
-            voucher.productIds =
-                cart.map { product -> product.product.id }.distinct().toTypedArray()
+            //TODO handle productIds
         }
     }
 }

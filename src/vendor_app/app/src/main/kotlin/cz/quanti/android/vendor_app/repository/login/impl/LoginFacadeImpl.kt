@@ -57,7 +57,7 @@ class LoginFacadeImpl(
         currentVendor.clear()
     }
 
-    private fun getVendor(id: String): Completable {
+    private fun getVendor(id: Long): Completable {
         return loginRepo.getVendor(id).flatMapCompletable { response ->
             val responseCode = response.first
             val vendor = response.second

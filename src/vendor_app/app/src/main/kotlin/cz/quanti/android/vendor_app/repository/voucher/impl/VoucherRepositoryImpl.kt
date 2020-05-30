@@ -1,7 +1,6 @@
 package cz.quanti.android.vendor_app.repository.voucher.impl
 
 import cz.quanti.android.vendor_app.repository.VendorAPI
-import cz.quanti.android.vendor_app.repository.utils.wrapper.ProductIdListWrapper
 import cz.quanti.android.vendor_app.repository.voucher.VoucherRepository
 import cz.quanti.android.vendor_app.repository.voucher.dao.BookletDao
 import cz.quanti.android.vendor_app.repository.voucher.dao.VoucherDao
@@ -150,12 +149,10 @@ class VoucherRepositoryImpl(
     private fun convert(dbEntity: VoucherDbEntity): Voucher {
         return Voucher().apply {
             id = dbEntity.id
-            qrCode = dbEntity.qrCode
             vendorId = dbEntity.vendorId
-            productIds = dbEntity.productIds.products.toTypedArray()
-            price = dbEntity.price
-            currency = dbEntity.currency
-            value = dbEntity.value
+            productId = dbEntity.productId
+            price = dbEntity.value
+            quantity = dbEntity.quantity
             booklet = dbEntity.booklet
             usedAt = dbEntity.usedAt
         }
@@ -165,17 +162,12 @@ class VoucherRepositoryImpl(
         return VoucherDbEntity()
             .apply {
                 id = entity.id
-                qrCode = entity.qrCode
                 vendorId = entity.vendorId
-                productIds =
-                    ProductIdListWrapper(
-                        entity.productIds.toList()
-                    )
-                price = entity.price
-                currency = entity.currency
-                value = entity.value
+                productId = entity.productId
+                value = entity.price
                 booklet = entity.booklet
                 usedAt = entity.usedAt
+                quantity = entity.quantity
             }
     }
 
@@ -183,14 +175,12 @@ class VoucherRepositoryImpl(
         return VoucherApiEntity()
             .apply {
                 id = entity.id
-                qrCode = entity.qrCode
                 vendorId = entity.vendorId
-                productIds = entity.productIds.toList().toTypedArray()
-                price = entity.price
-                currency = entity.currency
-                value = entity.value
+                productId = entity.productId
+                value = entity.price
                 booklet = entity.booklet
                 usedAt = entity.usedAt
+                quantity = entity.quantity
             }
     }
 }

@@ -24,7 +24,7 @@ class LoginRepositoryImpl(private val api: VendorAPI) :
         }
     }
 
-    override fun getVendor(id: String): Single<Pair<Int, Vendor>> {
+    override fun getVendor(id: Long): Single<Pair<Int, Vendor>> {
         return api.getVendor(id).map { response ->
             Pair(response.code(), convert(response.body()))
         }

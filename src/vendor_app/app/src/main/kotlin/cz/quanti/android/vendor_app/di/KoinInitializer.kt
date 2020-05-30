@@ -25,6 +25,7 @@ import cz.quanti.android.vendor_app.repository.voucher.impl.VoucherRepositoryImp
 import cz.quanti.android.vendor_app.utils.CurrentVendor
 import cz.quanti.android.vendor_app.utils.LoginManager
 import cz.quanti.android.vendor_app.utils.ShoppingHolder
+import cz.quanti.android.vendor_app.utils.getDbMigration1to2
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import org.koin.android.ext.koin.androidContext
@@ -69,7 +70,9 @@ object KoinInitializer {
             .build().create(VendorAPI::class.java)
 
 
-        val db = Room.databaseBuilder(app, VendorDb::class.java, VendorDb.DB_NAME).build()
+        val db = Room.databaseBuilder(app, VendorDb::class.java, VendorDb.DB_NAME)
+            .addMigrations(getDbMigration1to2())
+            .build()
 
         // Repository
         val loginRepo = LoginRepositoryImpl(api)

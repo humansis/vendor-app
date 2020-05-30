@@ -41,19 +41,25 @@ class AppPreferences(context: Context) : BasePreferences(context, VERSION, MIGRA
 
     var vendor: Vendor
         get() {
-            return Vendor().apply {
-                this.id = settings.getString(VENDOR_ID, "")
-                this.username = settings.getString(VENDOR_USERNAME, "")
-                this.saltedPassword = settings.getString(VENDOR_SALTED_PASSWORD, "")
-                this.shop = settings.getString(VENDOR_SHOP, "")
-                this.address = settings.getString(VENDOR_ADDRESS, "")
-                this.country = settings.getString(VENDOR_COUNTRY, "")
-                this.language = settings.getString(VENDOR_LANGUAGE, "")
-                this.loggedIn = settings.getBoolean(VENDOR_LOGGED_IN, false)
+            var vendor = Vendor()
+            try {
+                vendor.apply {
+                    this.id = settings.getLong(VENDOR_ID, 0)
+                    this.username = settings.getString(VENDOR_USERNAME, "")
+                    this.saltedPassword = settings.getString(VENDOR_SALTED_PASSWORD, "")
+                    this.shop = settings.getString(VENDOR_SHOP, "")
+                    this.address = settings.getString(VENDOR_ADDRESS, "")
+                    this.country = settings.getString(VENDOR_COUNTRY, "")
+                    this.language = settings.getString(VENDOR_LANGUAGE, "")
+                    this.loggedIn = settings.getBoolean(VENDOR_LOGGED_IN, false)
+                }
+            } catch (e: ClassCastException) {
+                settings.edit().remove(VENDOR_ID)
             }
+            return vendor
         }
         set(vendor) {
-            settings.edit().putString(VENDOR_ID, vendor.id).apply()
+            settings.edit().putLong(VENDOR_ID, vendor.id).apply()
             settings.edit().putString(VENDOR_USERNAME, vendor.username).apply()
             settings.edit().putString(VENDOR_SALTED_PASSWORD, vendor.saltedPassword).apply()
             settings.edit().putString(VENDOR_SHOP, vendor.shop).apply()

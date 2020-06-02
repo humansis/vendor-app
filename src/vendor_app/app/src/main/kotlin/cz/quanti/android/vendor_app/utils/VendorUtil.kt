@@ -3,6 +3,8 @@ package cz.quanti.android.vendor_app.utils
 import android.content.Context
 import android.net.ConnectivityManager
 import java.text.DecimalFormat
+import java.text.SimpleDateFormat
+import java.util.*
 import kotlin.math.roundToInt
 
 fun getStringFromDouble(double: Double): String {
@@ -29,4 +31,10 @@ fun isNetworkAvailable(context: Context): Boolean {
         context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
     val networkInfo = connectivityManager.activeNetworkInfo
     return networkInfo != null && networkInfo.isConnected
+}
+
+fun convertDateToString(date: Date): String {
+    val formatter = SimpleDateFormat("dd-MM-yyyy hh:mm:ss", Locale.ENGLISH)
+    formatter.timeZone = TimeZone.getTimeZone("UTC")
+    return formatter.format(date)
 }

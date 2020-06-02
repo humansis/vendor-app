@@ -12,6 +12,7 @@ import cz.quanti.android.vendor_app.repository.voucher.dto.api.BookletCodesBody
 import cz.quanti.android.vendor_app.repository.voucher.dto.api.VoucherApiEntity
 import cz.quanti.android.vendor_app.repository.voucher.dto.db.BookletDbEntity
 import cz.quanti.android.vendor_app.repository.voucher.dto.db.VoucherDbEntity
+import cz.quanti.android.vendor_app.utils.convertDateToString
 import io.reactivex.Completable
 import io.reactivex.Single
 
@@ -190,7 +191,7 @@ class VoucherRepositoryImpl(
                 currency = entity.currency
                 value = entity.value
                 booklet = entity.booklet
-                usedAt = entity.usedAt
+                usedAt = convertDateToString(entity.usedAt)
             }
     }
 }

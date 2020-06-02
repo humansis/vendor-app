@@ -1,6 +1,6 @@
 package cz.quanti.android.vendor_app.repository.voucher.dto.api
 
-import java.util.*
+import com.google.gson.annotations.SerializedName
 
 data class VoucherApiEntity(
     var id: Long = 0,
@@ -11,5 +11,6 @@ data class VoucherApiEntity(
     var currency: String = "",
     var value: Long = 0,
     var booklet: String = "",
-    var usedAt: Date = Date()
+    @SerializedName("used_at")
+    var usedAt: String = ""
 )

@@ -10,5 +10,5 @@ interface LoginRepository {
 
     fun login(vendor: Vendor): Single<Pair<Int, Vendor>>
 
-    fun getVendor(id: String): Single<Pair<Int, Vendor>>
+    fun getVendor(id: Long): Single<Pair<Int, Vendor>>
 }

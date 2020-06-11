@@ -23,7 +23,7 @@ interface VendorAPI {
     fun postLogin(@Body vendor: VendorApiEntity): Single<Response<VendorApiEntity>>
 
     @GET("vendors/{id}")
-    fun getVendor(@Path("id") id: String): Single<Response<VendorApiEntity>>
+    fun getVendor(@Path("id") id: Long): Single<Response<VendorApiEntity>>
 
     @GET("products")
     fun getProducts(): Single<Response<List<ProductApiEntity>>>

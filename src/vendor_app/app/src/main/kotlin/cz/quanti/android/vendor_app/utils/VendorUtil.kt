@@ -11,14 +11,16 @@ import quanti.com.kotlinlog.Log
 import java.text.DecimalFormat
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.math.abs
 import kotlin.math.roundToInt
 
 fun getStringFromDouble(double: Double): String {
+    val abs = abs(double)
     return when {
-        double % 1.0 < 0.001 -> {
+        abs % 1.0 < 0.001 -> {
             double.roundToInt().toString()
         }
-        (double * 10) % 1.0 < 0.01 -> {
+        (abs * 10) % 1.0 < 0.01 -> {
             DecimalFormat("#.#").format(double)
         }
         else -> {

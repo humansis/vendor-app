@@ -6,7 +6,7 @@ import cz.quanti.android.vendor_app.repository.login.dto.api.VendorApiEntity
 import cz.quanti.android.vendor_app.repository.product.dto.api.ProductApiEntity
 import cz.quanti.android.vendor_app.repository.voucher.dto.api.BookletApiEntity
 import cz.quanti.android.vendor_app.repository.voucher.dto.api.BookletCodesBody
-import cz.quanti.android.vendor_app.repository.voucher.dto.api.VoucherApiEntity
+import cz.quanti.android.vendor_app.repository.voucher.dto.api.VoucherPurchaseApiEntity
 import io.reactivex.Single
 import retrofit2.Response
 import retrofit2.http.Body
@@ -34,9 +34,9 @@ interface VendorAPI {
     @GET("protected-booklets")
     fun getProtectedBooklets(): Single<Response<List<BookletApiEntity>>>
 
-    @POST("vouchers/scanned")
-    fun postVouchers(
-        @Body vouchers: List<VoucherApiEntity>
+    @POST("vouchers/purchase")
+    fun postVoucherPurchases(
+        @Body voucherPurchases: List<VoucherPurchaseApiEntity>
     ): Single<Response<Unit>>
 
     @POST("deactivate-booklets")

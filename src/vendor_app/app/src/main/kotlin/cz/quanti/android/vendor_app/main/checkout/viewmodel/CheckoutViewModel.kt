@@ -9,13 +9,14 @@ import cz.quanti.android.vendor_app.repository.card.dto.CardPayment
 import cz.quanti.android.vendor_app.repository.product.dto.SelectedProduct
 import cz.quanti.android.vendor_app.repository.voucher.VoucherFacade
 import cz.quanti.android.vendor_app.repository.voucher.dto.Voucher
+import cz.quanti.android.vendor_app.repository.voucher.dto.VoucherPurchase
 import cz.quanti.android.vendor_app.utils.CurrentVendor
 import cz.quanti.android.vendor_app.utils.NfcTagPublisher
 import cz.quanti.android.vendor_app.utils.ShoppingHolder
+import cz.quanti.android.vendor_app.utils.convertTimeForApiRequestBody
 import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.schedulers.Schedulers
-import java.text.SimpleDateFormat
 import java.util.*
 
 class CheckoutViewModel(
@@ -33,8 +34,8 @@ class CheckoutViewModel(
     }
 
     fun proceed(): Completable {
-        useVouchers()
-        return voucherFacade.saveVouchers(vouchers)
+        val purchase = createVoucherPurchase()
+        return voucherFacade.saveVoucherPurchase(purchase)
     }
 
     fun getTotal(): Double {
@@ -82,6 +83,15 @@ class CheckoutViewModel(
         }
     }
 
+    private fun createVoucherPurchase(): VoucherPurchase {
+        return VoucherPurchase().apply {
+            products.addAll(shoppingHolder.cart)
+            vouchers.addAll(shoppingHolder.vouchers.map { it.id })
+            vendorId = currentVendor.vendor.id
+            createdAt = convertTimeForApiRequestBody(Date())
+        }
+    }
+
     private fun subtractMoneyFromCard(pin: String, value: Double): Observable<UserBalance> {
         return nfcTagPublisher.getTagObservable().take(1).flatMapSingle {
             nfcFacade.subtractFromBalance(it, pin, value)
@@ -90,8 +100,7 @@ class CheckoutViewModel(
 
     private fun saveCardPaymentsToDb(card: String): Completable {
         val payments: MutableList<CardPayment> = mutableListOf()
-        val time = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ", Locale.US)
-            .format(Date())
+        val time = convertTimeForApiRequestBody(Date())
         shoppingHolder.cart.forEach { item ->
             val payment = CardPayment().apply {
                 cardId = card
@@ -104,15 +113,6 @@ class CheckoutViewModel(
         }
         return Observable.fromIterable(payments).flatMapCompletable { payment ->
             cardFacade.saveCardPayment(payment)
-        }
-    }
-
-    private fun useVouchers() {
-        for (voucher in vouchers) {
-            voucher.usedAt = Calendar.getInstance().time
-            voucher.vendorId = currentVendor.vendor.id
-            voucher.price = cart.map { it.subTotal }.sum()
-            //TODO handle productIds
         }
     }
 }

@@ -1,34 +1,78 @@
 package cz.quanti.android.vendor_app.repository.voucher.impl
 
 import cz.quanti.android.vendor_app.repository.VendorAPI
+import cz.quanti.android.vendor_app.repository.product.dao.SelectedProductDao
+import cz.quanti.android.vendor_app.repository.product.dto.Product
+import cz.quanti.android.vendor_app.repository.product.dto.SelectedProduct
+import cz.quanti.android.vendor_app.repository.product.dto.api.SelectedProductApiEntity
+import cz.quanti.android.vendor_app.repository.product.dto.db.SelectedProductDbEntity
 import cz.quanti.android.vendor_app.repository.voucher.VoucherRepository
 import cz.quanti.android.vendor_app.repository.voucher.dao.BookletDao
 import cz.quanti.android.vendor_app.repository.voucher.dao.VoucherDao
+import cz.quanti.android.vendor_app.repository.voucher.dao.VoucherPurchaseDao
 import cz.quanti.android.vendor_app.repository.voucher.dto.Booklet
-import cz.quanti.android.vendor_app.repository.voucher.dto.Voucher
+import cz.quanti.android.vendor_app.repository.voucher.dto.VoucherPurchase
 import cz.quanti.android.vendor_app.repository.voucher.dto.api.BookletApiEntity
 import cz.quanti.android.vendor_app.repository.voucher.dto.api.BookletCodesBody
-import cz.quanti.android.vendor_app.repository.voucher.dto.api.VoucherApiEntity
+import cz.quanti.android.vendor_app.repository.voucher.dto.api.VoucherPurchaseApiEntity
 import cz.quanti.android.vendor_app.repository.voucher.dto.db.BookletDbEntity
 import cz.quanti.android.vendor_app.repository.voucher.dto.db.VoucherDbEntity
+import cz.quanti.android.vendor_app.repository.voucher.dto.db.VoucherPurchaseDbEntity
 import io.reactivex.Completable
+import io.reactivex.Observable
 import io.reactivex.Single
 
 class VoucherRepositoryImpl(
     private val voucherDao: VoucherDao,
     private val bookletDao: BookletDao,
+    private val voucherPurchaseDao: VoucherPurchaseDao,
+    private val selectedProductDao: SelectedProductDao,
     private val api: VendorAPI
 ) : VoucherRepository {
-    override fun getVouchers(): Single<List<Voucher>> {
-        return voucherDao.getAll().map { list ->
-            list.map {
-                convert(it)
-            }
+
+    override fun getVoucherPurchases(): Single<List<VoucherPurchase>> {
+        return voucherPurchaseDao.getAll().flatMap { purchases ->
+            Observable.fromIterable(purchases.map { Pair(convert(it), it.dbId) })
+                .flatMapSingle {
+                    var purchase = it.first
+                    val purchaseDbId = it.second
+                    voucherDao.getVouchersForPurchase(purchaseDbId).flatMap {
+                        purchase.vouchers.addAll(it.map { it.id })
+                        selectedProductDao.getProductsForPurchase(purchaseDbId)
+                            .flatMap { selectedProducts ->
+                                purchase.products.addAll(selectedProducts.map { convert(it) })
+                                Single.just(purchase)
+                            }
+                    }
+                }.toList()
         }
     }
 
-    override fun saveVoucher(voucher: Voucher): Completable {
-        return Completable.fromCallable { voucherDao.insert(convert(voucher)) }
+    override fun deleteAllVoucherPurchases(): Completable {
+        return Completable.fromCallable { voucherPurchaseDao.deleteAll() }
+    }
+
+    override fun deleteAllSelectedProducts(): Completable {
+        return Completable.fromCallable { selectedProductDao.deleteAll() }
+    }
+
+    override fun saveVoucherPurchase(purchase: VoucherPurchase): Single<Long> {
+        return voucherPurchaseDao.insert(convertToDb(purchase))
+    }
+
+    override fun saveSelectedProduct(
+        selectedProduct: SelectedProduct,
+        purchaseDbId: Long
+    ): Single<Long> {
+        val product = convertToDb(selectedProduct).apply {
+            purchaseId = purchaseDbId
+        }
+        return selectedProductDao.insert(product)
+    }
+
+    override fun saveVoucher(voucherId: Long, purchaseDbId: Long): Single<Long> {
+        val voucher = VoucherDbEntity(id = voucherId, purchaseId = purchaseDbId)
+        return voucherDao.insert(voucher)
     }
 
     override fun getAllDeactivatedBooklets(): Single<List<Booklet>> {
@@ -91,10 +135,10 @@ class VoucherRepositoryImpl(
         return Completable.fromCallable { bookletDao.deleteNewlyDeactivated() }
     }
 
-    override fun sendVouchersToServer(vouchers: List<Voucher>): Single<Int> {
-        return api.postVouchers(vouchers.map { convertToApi(it) }).map { response ->
-            response.code()
-        }
+    override fun sendVoucherPurchasesToServer(purchases: List<VoucherPurchase>): Single<Int> {
+        return api.postVoucherPurchases(
+            purchases.map { convertToApi(it) })
+            .map { response -> response.code() }
     }
 
     override fun sendDeactivatedBookletsToServer(booklets: List<Booklet>): Single<Int> {
@@ -128,6 +172,23 @@ class VoucherRepositoryImpl(
         }
     }
 
+    private fun convertToApi(voucherPurchase: VoucherPurchase): VoucherPurchaseApiEntity {
+        return VoucherPurchaseApiEntity().apply {
+            products = voucherPurchase.products.map { convertToApi(it) }
+            vouchers = voucherPurchase.vouchers
+            vendorId = voucherPurchase.vendorId
+            createdAt = voucherPurchase.createdAt
+        }
+    }
+
+    private fun convertToApi(selectedProduct: SelectedProduct): SelectedProductApiEntity {
+        return SelectedProductApiEntity().apply {
+            id = selectedProduct.product.id
+            quantity = selectedProduct.quantity
+            value = selectedProduct.subTotal
+        }
+    }
+
     private fun convert(booklet: Booklet): BookletDbEntity {
         return BookletDbEntity().apply {
             this.code = booklet.code
@@ -146,41 +207,34 @@ class VoucherRepositoryImpl(
         }
     }
 
-    private fun convert(dbEntity: VoucherDbEntity): Voucher {
-        return Voucher().apply {
-            id = dbEntity.id
-            vendorId = dbEntity.vendorId
-            productId = dbEntity.productId
-            price = dbEntity.value
-            quantity = dbEntity.quantity
-            booklet = dbEntity.booklet
-            usedAt = dbEntity.usedAt
+    private fun convert(entity: VoucherPurchaseDbEntity): VoucherPurchase {
+        return VoucherPurchase().apply {
+            vendorId = entity.vendorId
+            createdAt = entity.createdAt
         }
     }
 
-    private fun convert(entity: Voucher): VoucherDbEntity {
-        return VoucherDbEntity()
-            .apply {
-                id = entity.id
-                vendorId = entity.vendorId
-                productId = entity.productId
-                value = entity.price
-                booklet = entity.booklet
-                usedAt = entity.usedAt
-                quantity = entity.quantity
-            }
+    private fun convert(entity: SelectedProductDbEntity): SelectedProduct {
+        return SelectedProduct().apply {
+            product = Product(id = entity.productId)
+            quantity = entity.quantity
+            price = entity.value / entity.quantity
+            subTotal = entity.value
+        }
     }
 
-    private fun convertToApi(entity: Voucher): VoucherApiEntity {
-        return VoucherApiEntity()
-            .apply {
-                id = entity.id
-                vendorId = entity.vendorId
-                productId = entity.productId
-                value = entity.price
-                booklet = entity.booklet
-                usedAt = entity.usedAt
-                quantity = entity.quantity
-            }
+    private fun convertToDb(selectedProduct: SelectedProduct): SelectedProductDbEntity {
+        return SelectedProductDbEntity().apply {
+            productId = selectedProduct.product.id
+            quantity = selectedProduct.quantity
+            value = selectedProduct.subTotal
+        }
+    }
+
+    private fun convertToDb(voucherPurchase: VoucherPurchase): VoucherPurchaseDbEntity {
+        return VoucherPurchaseDbEntity().apply {
+            vendorId = voucherPurchase.vendorId
+            createdAt = voucherPurchase.createdAt
+        }
     }
 }

@@ -9,7 +9,7 @@ import io.reactivex.Single
 interface VoucherDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insert(voucher: VoucherDbEntity)
+    fun insert(voucher: VoucherDbEntity): Single<Long>
 
     @Delete
     fun delete(voucher: VoucherDbEntity)
@@ -19,4 +19,10 @@ interface VoucherDao {
 
     @Query("SELECT * FROM " + VendorDb.TABLE_VOUCHER)
     fun getAll(): Single<List<VoucherDbEntity>>
+
+    @Query(
+        "SELECT * FROM " + VendorDb.TABLE_VOUCHER
+            + " WHERE purchaseId = :purchaseId"
+    )
+    fun getVouchersForPurchase(purchaseId: Long): Single<List<VoucherDbEntity>>
 }

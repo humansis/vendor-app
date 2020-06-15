@@ -3,10 +3,11 @@ package cz.quanti.android.vendor_app.repository.voucher.impl
 import com.squareup.picasso.Picasso
 import cz.quanti.android.vendor_app.repository.product.ProductRepository
 import cz.quanti.android.vendor_app.repository.product.dto.Product
+import cz.quanti.android.vendor_app.repository.product.dto.SelectedProduct
 import cz.quanti.android.vendor_app.repository.voucher.VoucherFacade
 import cz.quanti.android.vendor_app.repository.voucher.VoucherRepository
 import cz.quanti.android.vendor_app.repository.voucher.dto.Booklet
-import cz.quanti.android.vendor_app.repository.voucher.dto.Voucher
+import cz.quanti.android.vendor_app.repository.voucher.dto.VoucherPurchase
 import cz.quanti.android.vendor_app.utils.VendorAppException
 import cz.quanti.android.vendor_app.utils.isPositiveResponseHttpCode
 import io.reactivex.Completable
@@ -18,9 +19,10 @@ class VoucherFacadeImpl(
     private val productRepo: ProductRepository
 ) : VoucherFacade {
 
-    override fun saveVouchers(vouchers: List<Voucher>): Completable {
-        return Observable.fromIterable(vouchers).flatMapCompletable { voucher ->
-            voucherRepo.saveVoucher(voucher)
+    override fun saveVoucherPurchase(purchase: VoucherPurchase): Completable {
+        return voucherRepo.saveVoucherPurchase(purchase).flatMapCompletable { purchaseDbId ->
+            saveSelectedProducts(purchase.products, purchaseDbId)
+                .andThen(saveVouchers(purchase.vouchers, purchaseDbId))
         }
     }
 
@@ -49,9 +51,32 @@ class VoucherFacadeImpl(
             .andThen(getDataFromServer())
     }
 
+    private fun saveSelectedProducts(
+        products: List<SelectedProduct>,
+        purchaseId: Long
+    ): Completable {
+        return Observable.fromIterable(products)
+            .flatMapCompletable { product ->
+                voucherRepo.saveSelectedProduct(product, purchaseId).ignoreElement()
+            }
+    }
+
+    private fun saveVouchers(voucherIds: List<Long>, purchaseId: Long): Completable {
+        return Observable.fromIterable(voucherIds)
+            .flatMapCompletable { voucherId ->
+                voucherRepo.saveVoucher(voucherId, purchaseId).ignoreElement()
+            }
+    }
+
     private fun sendDataToServer(): Completable {
-        return sendVouchers()
+        return sendVoucherPurchases()
             .andThen(sendDeactivatedBooklets())
+            //TODO send card purchases
+            .andThen(clearDb())
+    }
+
+    private fun clearDb(): Completable {
+        return voucherRepo.deleteAllSelectedProducts()
     }
 
     private fun getDataFromServer(): Completable {
@@ -60,11 +85,12 @@ class VoucherFacadeImpl(
             .andThen(reloadProtectedBookletsFromServer())
     }
 
-    private fun sendVouchers(): Completable {
-        return voucherRepo.getVouchers().flatMapCompletable { vouchers ->
-            voucherRepo.sendVouchersToServer(vouchers).flatMapCompletable { responseCode ->
+    private fun sendVoucherPurchases(): Completable {
+        return voucherRepo.getVoucherPurchases().flatMapCompletable { purchases ->
+            voucherRepo.sendVoucherPurchasesToServer(purchases).flatMapCompletable { responseCode ->
                 if (isPositiveResponseHttpCode(responseCode)) {
                     voucherRepo.deleteAllVouchers()
+                        .andThen(voucherRepo.deleteAllVoucherPurchases())
                 } else {
                     throw VendorAppException("Could not send vouchers to server").apply {
                         apiError = true

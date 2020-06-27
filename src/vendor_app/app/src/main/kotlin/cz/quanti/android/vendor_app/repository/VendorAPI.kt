@@ -9,10 +9,7 @@ import cz.quanti.android.vendor_app.repository.voucher.dto.api.BookletCodesBody
 import cz.quanti.android.vendor_app.repository.voucher.dto.api.VoucherPurchaseApiEntity
 import io.reactivex.Single
 import retrofit2.Response
-import retrofit2.http.Body
-import retrofit2.http.GET
-import retrofit2.http.POST
-import retrofit2.http.Path
+import retrofit2.http.*
 
 interface VendorAPI {
 
@@ -44,7 +41,7 @@ interface VendorAPI {
         @Body bookletCodes: BookletCodesBody
     ): Single<Response<Unit>>
 
-    @POST("smartcards/{id}/purchase")
+    @PATCH("smartcards/{id}/purchase")
     fun postCardPayment(
         @Path("id") cardId: String,
         @Body cardPayment: CardPaymentApiEntity

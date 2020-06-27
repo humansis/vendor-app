@@ -32,9 +32,9 @@ class ShoppingCartAdapter(private val shoppingCartFragmentCallback: ShoppingCart
             .into(holder.image)
 
         val productDetailText =
-            "${item.product.name} ${getStringFromDouble(item.quantity)} ${item.product.unit}"
+            "${item.product.name}"
         val priceText =
-            "${getStringFromDouble(item.subTotal)} ${shoppingCartFragmentCallback.getCurrency()}"
+            "${getStringFromDouble(item.price)} ${shoppingCartFragmentCallback.getCurrency()}"
         holder.productDetail.text = productDetailText
         holder.price.text = priceText
         holder.remove.setOnClickListener {
@@ -61,17 +61,6 @@ class ShoppingCartAdapter(private val shoppingCartFragmentCallback: ShoppingCart
     }
 
     private fun add(product: SelectedProduct) {
-        var alreadyInCart = false
-        for (item in cart) {
-            if (item == product) {
-                item.add(product)
-                alreadyInCart = true
-                break
-            }
-        }
-
-        if (!alreadyInCart) {
-            cart.add(product)
-        }
+        cart.add(product)
     }
 }

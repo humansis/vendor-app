@@ -65,62 +65,6 @@
                 app:layout_constraintTop_toTopOf="parent" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <!-- Quantity -->
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingTop="10dp">
-
-            <androidx.appcompat.widget.AppCompatImageView
-                android:id="@+id/cartImageView"
-                android:layout_width="0dp"
-                android:layout_height="30dp"
-                android:layout_marginTop="10dp"
-                android:layout_marginBottom="5dp"
-                app:layout_constraintBottom_toBottomOf="@id/quantityTextInputLayout"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="@id/quantityTextInputLayout"
-                app:layout_constraintWidth_max="30dp"
-                app:layout_constraintWidth_percent="0.1"
-                app:srcCompat="@drawable/shopping_cart" />
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/quantityTextInputLayout"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="10dp"
-                app:boxStrokeColor="@color/colorPrimary"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toEndOf="@id/cartImageView"
-                app:layout_constraintWidth_percent="0.5">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/quantityEditText"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="@string/quantity"
-                    android:imeOptions="flagNoExtractUi"
-                    android:inputType="numberDecimal"
-                    android:nextFocusDown="@+id/unitPriceEditText"
-                    android:singleLine="true" />
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <TextView
-                android:id="@+id/quantityUnitTextView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="10dp"
-                android:layout_marginBottom="5dp"
-                android:text="@string/quantity_unit"
-                android:textColor="@color/black"
-                android:textSize="20sp"
-                app:layout_constraintBottom_toBottomOf="@id/quantityTextInputLayout"
-                app:layout_constraintStart_toEndOf="@id/quantityTextInputLayout"
-                app:layout_constraintTop_toTopOf="@id/quantityTextInputLayout" />
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
         <!-- Price -->
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
@@ -153,7 +97,7 @@
                     android:id="@+id/unitPriceEditText"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="@string/unit_price"
+                    android:hint="@string/price"
                     android:imeOptions="flagNoExtractUi"
                     android:inputType="numberDecimal"
                     android:singleLine="true" />

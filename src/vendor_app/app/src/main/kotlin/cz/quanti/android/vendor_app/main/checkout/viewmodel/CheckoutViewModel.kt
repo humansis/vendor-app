@@ -41,7 +41,7 @@ class CheckoutViewModel(
     }
 
     fun getTotal(): Double {
-        val total = shoppingHolder.cart.map { it.subTotal }.sum()
+        val total = shoppingHolder.cart.map { it.price }.sum()
         val paid = vouchers.map { it.value }.sum()
         return total - paid
     }
@@ -117,8 +117,7 @@ class CheckoutViewModel(
             val payment = CardPayment().apply {
                 cardId = card
                 productId = item.product.id
-                value = item.subTotal
-                quantity = item.quantity
+                value = item.price
                 createdAt = time
             }
             payments.add(payment)

@@ -98,7 +98,7 @@ class ShoppingCartFragment : Fragment(), ShoppingCartFragmentCallback {
     }
 
     private fun getTotalPrice(): Double {
-        return vm.getShoppingCart().map { it.subTotal }.sum()
+        return vm.getShoppingCart().map { it.price }.sum()
     }
 
     private fun initShoppingCartAdapter() {

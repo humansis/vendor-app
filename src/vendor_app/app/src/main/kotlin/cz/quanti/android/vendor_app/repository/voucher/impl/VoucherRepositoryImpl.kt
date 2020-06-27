@@ -160,7 +160,7 @@ class VoucherRepositoryImpl(
         return Booklet().apply {
             this.code = apiEntity.code
             this.id = apiEntity.id
-            this.password = apiEntity.password
+            this.password = apiEntity.password ?: ""
         }
     }
 
@@ -184,8 +184,7 @@ class VoucherRepositoryImpl(
     private fun convertToApi(selectedProduct: SelectedProduct): SelectedProductApiEntity {
         return SelectedProductApiEntity().apply {
             id = selectedProduct.product.id
-            quantity = selectedProduct.quantity
-            value = selectedProduct.subTotal
+            value = selectedProduct.price
         }
     }
 
@@ -217,17 +216,14 @@ class VoucherRepositoryImpl(
     private fun convert(entity: SelectedProductDbEntity): SelectedProduct {
         return SelectedProduct().apply {
             product = Product(id = entity.productId)
-            quantity = entity.quantity
-            price = entity.value / entity.quantity
-            subTotal = entity.value
+            price = entity.value
         }
     }
 
     private fun convertToDb(selectedProduct: SelectedProduct): SelectedProductDbEntity {
         return SelectedProductDbEntity().apply {
             productId = selectedProduct.product.id
-            quantity = selectedProduct.quantity
-            value = selectedProduct.subTotal
+            value = selectedProduct.price
         }
     }
 

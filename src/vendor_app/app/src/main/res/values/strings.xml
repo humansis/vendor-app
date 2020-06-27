@@ -11,9 +11,7 @@
     <string name="no_items_selected">No items selected</string>
     <string name="synchronize">Synchronize</string>
     <string name="logout">Logout</string>
-    <string name="quantity">Quantity</string>
-    <string name="quantity_unit">Kg</string>
-    <string name="unit_price">Unit Price</string>
+    <string name="price">Price</string>
     <string name="total">Total</string>
     <string name="clear_all">Clear All</string>
     <string name="checkout">Checkout</string>
@@ -56,7 +54,7 @@
     <string name="could_not_synchronize_data_with_server">Could not synchronize data with the server</string>
     <string name="data_were_successfully_synchronized">Data were successfully synchronized with the server</string>
     <string name="add_to_cart">Add to cart</string>
-    <string name="please_enter_quantity_and_price">Please enter the quantity and unit price.</string>
+    <string name="please_enter_price">Please enter price.</string>
     <string name="pin">PIN</string>
     <string name="please_enter_pin">Please enter PIN for your card</string>
     <string name="no_nfc_available">NFC is not available</string>

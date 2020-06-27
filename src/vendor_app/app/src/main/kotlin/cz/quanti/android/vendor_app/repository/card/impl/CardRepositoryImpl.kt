@@ -65,7 +65,6 @@ class CardRepositoryImpl(
         return CardPaymentApiEntity().apply {
             productId = cardPayment.productId
             value = cardPayment.value
-            quantity = cardPayment.quantity
             createdAt = cardPayment.createdAt
         }
     }
@@ -75,7 +74,6 @@ class CardRepositoryImpl(
             cardId = cardPayment.cardId
             productId = cardPayment.productId
             value = cardPayment.value
-            quantity = cardPayment.quantity
             createdAt = cardPayment.createdAt
         }
     }
@@ -85,7 +83,6 @@ class CardRepositoryImpl(
             cardId = cardPaymentDbEntity.cardId
             productId = cardPaymentDbEntity.productId
             value = cardPaymentDbEntity.value
-            quantity = cardPaymentDbEntity.quantity
             createdAt = cardPaymentDbEntity.createdAt
         }
     }

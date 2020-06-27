@@ -49,4 +49,7 @@ interface VendorAPI {
         @Path("id") cardId: String,
         @Body cardPayment: CardPaymentApiEntity
     ): Single<Response<Unit>>
+
+    @GET("smartcards/blocked")
+    fun getBlockedCards(): Single<Response<List<String>>>
 }

@@ -3,7 +3,9 @@ package cz.quanti.android.vendor_app.repository
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
+import cz.quanti.android.vendor_app.repository.card.dao.BlockedCardDao
 import cz.quanti.android.vendor_app.repository.card.dao.CardPaymentDao
+import cz.quanti.android.vendor_app.repository.card.dto.db.BlockedCardDbEntity
 import cz.quanti.android.vendor_app.repository.card.dto.db.CardPaymentDbEntity
 import cz.quanti.android.vendor_app.repository.product.dao.ProductDao
 import cz.quanti.android.vendor_app.repository.product.dao.SelectedProductDao
@@ -24,7 +26,8 @@ import cz.quanti.android.vendor_app.repository.voucher.dto.db.VoucherPurchaseDbE
         VoucherDbEntity::class,
         CardPaymentDbEntity::class,
         SelectedProductDbEntity::class,
-        VoucherPurchaseDbEntity::class
+        VoucherPurchaseDbEntity::class,
+        BlockedCardDbEntity::class
     ], version = 2, exportSchema = false
 )
 @TypeConverters(DateTypeConverter::class)
@@ -35,6 +38,7 @@ abstract class VendorDb : RoomDatabase() {
     abstract fun cardPaymentDao(): CardPaymentDao
     abstract fun selectedProductDao(): SelectedProductDao
     abstract fun voucherPurchaseDao(): VoucherPurchaseDao
+    abstract fun blockedCardDao(): BlockedCardDao
 
     companion object {
         const val DB_NAME = "cz.quanti.android.pin.vendor_app.database"
@@ -44,5 +48,6 @@ abstract class VendorDb : RoomDatabase() {
         const val TABLE_CARD_PAYMENT = "card_payment"
         const val TABLE_SELECTED_PRODUCT = "selected_product"
         const val TABLE_VOUCHER_PURCHASE = "voucher_purchase"
+        const val TABLE_BLOCKED_SMARTCARD = "blocked_smartcard"
     }
 }

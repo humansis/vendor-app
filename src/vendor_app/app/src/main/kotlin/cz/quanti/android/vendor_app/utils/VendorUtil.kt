@@ -104,6 +104,10 @@ private fun createCardPaymentTable(database: SupportSQLiteDatabase) {
             " `value` REAL NOT NULL," +
             " `createdAt` TEXT NOT NULL)"
     )
+    database.execSQL(
+        "CREATE TABLE IF NOT EXISTS `blocked_smartcard` (" +
+            "`id` String PRIMARY KEY NOT NULL)"
+    )
 }
 
 private fun changeSelectedProductsTable(database: SupportSQLiteDatabase) {

@@ -2,15 +2,18 @@ package cz.quanti.android.vendor_app.repository.card.impl
 
 import cz.quanti.android.vendor_app.repository.VendorAPI
 import cz.quanti.android.vendor_app.repository.card.CardRepository
+import cz.quanti.android.vendor_app.repository.card.dao.BlockedCardDao
 import cz.quanti.android.vendor_app.repository.card.dao.CardPaymentDao
 import cz.quanti.android.vendor_app.repository.card.dto.CardPayment
 import cz.quanti.android.vendor_app.repository.card.dto.api.CardPaymentApiEntity
+import cz.quanti.android.vendor_app.repository.card.dto.db.BlockedCardDbEntity
 import cz.quanti.android.vendor_app.repository.card.dto.db.CardPaymentDbEntity
 import io.reactivex.Completable
 import io.reactivex.Single
 
 class CardRepositoryImpl(
     private val cardPaymentDao: CardPaymentDao,
+    private val blockedCardDao: BlockedCardDao,
     private val api: VendorAPI
 ) : CardRepository {
 
@@ -32,8 +35,30 @@ class CardRepositoryImpl(
         }
     }
 
+    override fun getBlockedCardsFromServer(): Single<Pair<Int, List<String>>> {
+        return api.getBlockedCards().map { response ->
+            Pair(response.code(), response.body() ?: listOf())
+        }
+    }
+
+    override fun getBlockedCards(): Single<List<String>> {
+        return blockedCardDao.getAll().map {
+            it.map { it.id }
+        }
+    }
+
+    override fun saveBlockedCard(cardId: String): Completable {
+        return Completable.fromCallable {
+            blockedCardDao.insert(BlockedCardDbEntity(cardId))
+        }
+    }
+
     override fun deleteAllCardPayments(): Completable {
         return Completable.fromCallable { cardPaymentDao.deleteAll() }
+    }
+
+    override fun deleteAllBlockedCards(): Completable {
+        return Completable.fromCallable { blockedCardDao.deleteAll() }
     }
 
     private fun convertToApi(cardPayment: CardPayment): CardPaymentApiEntity {

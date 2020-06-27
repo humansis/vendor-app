@@ -1,5 +1,6 @@
 package cz.quanti.android.vendor_app.main.checkout.viewmodel
 
+import android.nfc.Tag
 import androidx.lifecycle.ViewModel
 import cz.quanti.android.nfc.VendorFacade
 import cz.quanti.android.nfc.dto.UserBalance
@@ -16,6 +17,7 @@ import cz.quanti.android.vendor_app.utils.ShoppingHolder
 import cz.quanti.android.vendor_app.utils.convertTimeForApiRequestBody
 import io.reactivex.Completable
 import io.reactivex.Observable
+import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
 import java.util.*
 
@@ -76,10 +78,17 @@ class CheckoutViewModel(
         shoppingHolder.chosenCurrency = ""
     }
 
-    fun payByCard(pin: String, value: Double): Observable<UserBalance> {
-        return subtractMoneyFromCard(pin, value).flatMapSingle { userBalance ->
-            saveCardPaymentsToDb(userBalance.userId).subscribeOn(Schedulers.io())
-                .toSingleDefault(userBalance)
+    fun payByCard(pin: String, value: Double): Single<Pair<Tag, UserBalance>> {
+        return subtractMoneyFromCard(pin, value).flatMap {
+            val tag = it.first
+            val userBalance = it.second
+            saveCardPaymentsToDb(
+                tag.id.asUByteArray().joinToString("") { it.toString(16).padStart(2, '0') })
+                .subscribeOn(Schedulers.io())
+                .toSingleDefault(Pair(tag, userBalance))
+                .flatMap {
+                    Single.just(it)
+                }
         }
     }
 
@@ -92,10 +101,13 @@ class CheckoutViewModel(
         }
     }
 
-    private fun subtractMoneyFromCard(pin: String, value: Double): Observable<UserBalance> {
-        return nfcTagPublisher.getTagObservable().take(1).flatMapSingle {
-            nfcFacade.subtractFromBalance(it, pin, value)
-        }
+    private fun subtractMoneyFromCard(pin: String, value: Double): Single<Pair<Tag, UserBalance>> {
+        return Single.fromObservable(
+            nfcTagPublisher.getTagObservable().take(1).flatMapSingle { tag ->
+                nfcFacade.subtractFromBalance(tag, pin, value).flatMap { userBalance ->
+                    Single.just(Pair(tag, userBalance))
+                }
+            })
     }
 
     private fun saveCardPaymentsToDb(card: String): Completable {

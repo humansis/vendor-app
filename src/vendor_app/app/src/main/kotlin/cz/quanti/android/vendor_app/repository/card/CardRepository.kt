@@ -12,5 +12,13 @@ interface CardRepository {
 
     fun getCardPayments(): Single<List<CardPayment>>
 
+    fun getBlockedCardsFromServer(): Single<Pair<Int, List<String>>>
+
+    fun getBlockedCards(): Single<List<String>>
+
+    fun saveBlockedCard(cardId: String): Completable
+
     fun deleteAllCardPayments(): Completable
+
+    fun deleteAllBlockedCards(): Completable
 }

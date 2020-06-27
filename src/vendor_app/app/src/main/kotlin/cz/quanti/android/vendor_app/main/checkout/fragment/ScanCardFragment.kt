@@ -112,9 +112,11 @@ class ScanCardFragment : Fragment() {
                 disposable = vm.payByCard(pin, vm.getTotal()).subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe({
+                        val tag = it.first
+                        val balance = it.second.balance
                         Toast.makeText(
                             requireContext(),
-                            getString(R.string.card_successfuly_paid_new_balance, it.balance),
+                            getString(R.string.card_successfuly_paid_new_balance, balance),
                             Toast.LENGTH_LONG
                         ).show()
                         vm.clearShoppingCart()

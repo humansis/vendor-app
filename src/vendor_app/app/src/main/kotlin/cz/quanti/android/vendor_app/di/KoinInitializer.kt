@@ -87,7 +87,7 @@ object KoinInitializer {
             db.selectedProductDao(),
             api
         )
-        val cardRepo = CardRepositoryImpl(db.cardPaymentDao(), api)
+        val cardRepo = CardRepositoryImpl(db.cardPaymentDao(), db.blockedCardDao(), api)
 
         // Facade
         val loginFacade: LoginFacade =

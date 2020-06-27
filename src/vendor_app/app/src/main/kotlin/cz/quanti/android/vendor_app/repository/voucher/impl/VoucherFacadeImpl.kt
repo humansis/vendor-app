@@ -71,7 +71,6 @@ class VoucherFacadeImpl(
     private fun sendDataToServer(): Completable {
         return sendVoucherPurchases()
             .andThen(sendDeactivatedBooklets())
-            //TODO send card purchases
             .andThen(clearDb())
     }
 

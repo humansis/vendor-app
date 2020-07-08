@@ -20,7 +20,6 @@ class CurrencyAdapter(context: Context) : SpinnerAdapter, ArrayAdapter<String>(c
         }.toMutableList()
 
         currencies.sort()
-        currencies.removeAll(firstCurrencies)
 
         addAll(firstCurrencies)
         addAll(currencies)

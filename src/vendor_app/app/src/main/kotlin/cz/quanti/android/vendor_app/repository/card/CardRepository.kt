@@ -2,6 +2,7 @@ package cz.quanti.android.vendor_app.repository.card
 
 import cz.quanti.android.vendor_app.repository.card.dto.CardPayment
 import io.reactivex.Completable
+import io.reactivex.Maybe
 import io.reactivex.Single
 
 interface CardRepository {
@@ -15,6 +16,8 @@ interface CardRepository {
     fun getBlockedCardsFromServer(): Single<Pair<Int, List<String>>>
 
     fun getBlockedCards(): Single<List<String>>
+
+    fun getBlockedCard(id: String): Maybe<String>
 
     fun saveBlockedCard(cardId: String): Completable
 

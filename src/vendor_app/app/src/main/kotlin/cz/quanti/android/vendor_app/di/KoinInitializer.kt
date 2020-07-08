@@ -121,7 +121,15 @@ object KoinInitializer {
 
             // View model
             viewModel { LoginViewModel(loginFacade, hostUrlInterceptor, currentVendor) }
-            viewModel { VendorViewModel(shoppingHolder, productFacade, voucherFacade, preferences) }
+            viewModel {
+                VendorViewModel(
+                    shoppingHolder,
+                    productFacade,
+                    voucherFacade,
+                    cardFacade,
+                    preferences
+                )
+            }
             viewModel { ScannerViewModel(shoppingHolder, voucherFacade) }
             viewModel {
                 CheckoutViewModel(

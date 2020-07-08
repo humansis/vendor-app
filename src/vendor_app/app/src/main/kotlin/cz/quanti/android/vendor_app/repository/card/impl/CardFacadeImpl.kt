@@ -12,14 +12,11 @@ import io.reactivex.Observable
 class CardFacadeImpl(private val cardRepo: CardRepository) : CardFacade {
 
     override fun saveCardPayment(cardPayment: CardPayment): Completable {
-        return cardRepo.getBlockedCards().flatMapCompletable { blockedCardsId ->
-            if (cardPayment.cardId in blockedCardsId) {
-                throw BlockedCardError("This card is tagged as blocked on the server")
-            } else {
-                cardRepo.saveCardPayment(cardPayment)
-            }
-        }
-
+        return cardRepo.getBlockedCard(
+            cardPayment.cardId
+        ).flatMapCompletable { itsBlocked ->
+            throw BlockedCardError("This card is tagged as blocked on the server")
+        }.andThen(cardRepo.saveCardPayment(cardPayment))
     }
 
     override fun syncWithServer(): Completable {

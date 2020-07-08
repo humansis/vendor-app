@@ -9,6 +9,7 @@ import cz.quanti.android.vendor_app.repository.card.dto.api.CardPaymentApiEntity
 import cz.quanti.android.vendor_app.repository.card.dto.db.BlockedCardDbEntity
 import cz.quanti.android.vendor_app.repository.card.dto.db.CardPaymentDbEntity
 import io.reactivex.Completable
+import io.reactivex.Maybe
 import io.reactivex.Single
 
 class CardRepositoryImpl(
@@ -44,6 +45,12 @@ class CardRepositoryImpl(
     override fun getBlockedCards(): Single<List<String>> {
         return blockedCardDao.getAll().map {
             it.map { it.id }
+        }
+    }
+
+    override fun getBlockedCard(id: String): Maybe<String> {
+        return blockedCardDao.getBlockedCard(id).map {
+            it.id
         }
     }
 

@@ -6,6 +6,7 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import cz.quanti.android.vendor_app.repository.VendorDb
 import cz.quanti.android.vendor_app.repository.card.dto.db.BlockedCardDbEntity
+import io.reactivex.Maybe
 import io.reactivex.Single
 
 @Dao
@@ -18,4 +19,7 @@ interface BlockedCardDao {
 
     @Query("DELETE FROM " + VendorDb.TABLE_BLOCKED_SMARTCARD)
     fun deleteAll()
+
+    @Query("SELECT * FROM " + VendorDb.TABLE_BLOCKED_SMARTCARD + " WHERE id = :id")
+    fun getBlockedCard(id: String): Maybe<BlockedCardDbEntity>
 }

@@ -109,7 +109,8 @@ class ScanCardFragment : Fragment() {
                 hideKeyboard(requireContext())
 
                 disposable?.dispose()
-                disposable = vm.payByCard(pin, vm.getTotal()).subscribeOn(Schedulers.io())
+                disposable =
+                    vm.payByCard(pin, vm.getTotal(), vm.getCurrency()).subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe({
                         val tag = it.first
@@ -177,6 +178,8 @@ class ScanCardFragment : Fragment() {
 
     private fun getNfcCardErrorMessage(error: PINExceptionEnum): String {
         return when (error) {
+            PINExceptionEnum.DIFFERENT_CURRENCY -> getString(R.string.card_wrong_currency)
+            PINExceptionEnum.INVALID_DATA -> getString(R.string.invalid_data)
             PINExceptionEnum.CARD_LOCKED -> getString(R.string.card_locked)
             PINExceptionEnum.INCORRECT_PIN -> getString(R.string.incorrect_pin)
             PINExceptionEnum.INSUFFICIENT_FUNDS -> getString(R.string.insufficient_funds)

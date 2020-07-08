@@ -61,7 +61,7 @@ class LoginRepositoryImpl(private val api: VendorAPI) :
                 this.username = vendorApiEntity.username
                 this.password = vendorApiEntity.password
                 this.saltedPassword = vendorApiEntity.saltedPassword
-                this.shop = vendorApiEntity.shop
+                this.shop = vendorApiEntity.shop ?: ""
                 this.address = vendorApiEntity.adress
                 this.loggedIn = vendorApiEntity.loggedIn
                 this.products = vendorApiEntity.products

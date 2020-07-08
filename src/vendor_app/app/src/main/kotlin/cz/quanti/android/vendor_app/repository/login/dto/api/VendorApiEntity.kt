@@ -8,7 +8,7 @@ data class VendorApiEntity(
     var password: String = "",
     @SerializedName("salted_password")
     var saltedPassword: String = "",
-    var shop: String = "",
+    var shop: String? = null,
     var adress: String = "",
     var loggedIn: Boolean = false,
     var products: Array<String> = arrayOf(),

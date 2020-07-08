@@ -66,4 +66,6 @@
     <string name="insufficient_funds">"Not enough money on the card. "</string>
     <string name="card_locked">This card is locked.</string>
     <string name="card_error">Error. Try again please.</string>
+    <string name="invalid_data">Error: invalid data on the card</string>
+    <string name="card_wrong_currency">The card is of different currency</string>
 </resources>

@@ -78,8 +78,8 @@ class CheckoutViewModel(
         shoppingHolder.chosenCurrency = ""
     }
 
-    fun payByCard(pin: String, value: Double): Single<Pair<Tag, UserBalance>> {
-        return subtractMoneyFromCard(pin, value).flatMap {
+    fun payByCard(pin: String, value: Double, currency: String): Single<Pair<Tag, UserBalance>> {
+        return subtractMoneyFromCard(pin, value, currency).flatMap {
             val tag = it.first
             val userBalance = it.second
             saveCardPaymentsToDb(
@@ -101,10 +101,14 @@ class CheckoutViewModel(
         }
     }
 
-    private fun subtractMoneyFromCard(pin: String, value: Double): Single<Pair<Tag, UserBalance>> {
+    private fun subtractMoneyFromCard(
+        pin: String,
+        value: Double,
+        currency: String
+    ): Single<Pair<Tag, UserBalance>> {
         return Single.fromObservable(
             nfcTagPublisher.getTagObservable().take(1).flatMapSingle { tag ->
-                nfcFacade.subtractFromBalance(tag, pin, value).flatMap { userBalance ->
+                nfcFacade.subtractFromBalance(tag, pin, value, currency).flatMap { userBalance ->
                     Single.just(Pair(tag, userBalance))
                 }
             })

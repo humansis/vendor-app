@@ -51,7 +51,7 @@ class ScannerViewModel(
         var newRegex = Regex(
             "^([A-Z$€£]+)(\\d+)\\*([a-zA-Z0-9]{2,3}_.+_[0-9]{1,2}-[0-9]{1,2}-[0-9]{2,4}_batch[0-9]+)-([\\d]+)-([\\dA-Z=+-/]+)$",
             RegexOption.IGNORE_CASE
-        ) //TODO not tested {countryCode}_{projectName}_{date}_batch{numbers}
+        )
 
         var scannedCodeInfo = regex.matchEntire(scannedCode)
         if (scannedCodeInfo == null) {

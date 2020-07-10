@@ -62,6 +62,7 @@ class LoginFacadeImpl(
             val responseCode = response.first
             val vendor = response.second
             if (isPositiveResponseHttpCode(responseCode)) {
+                currentVendor.vendor.id = id
                 currentVendor.vendor.country = vendor.country
                 Completable.complete()
             } else {

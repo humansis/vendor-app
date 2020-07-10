@@ -14,7 +14,15 @@ class ProductFacadeImpl(
     private val productRepo: ProductRepository
 ) : ProductFacade {
 
-    override fun reloadProductFromServer(): Completable {
+    override fun getProducts(): Single<List<Product>> {
+        return productRepo.getProducts()
+    }
+
+    override fun syncWithServer(): Completable {
+        return reloadProductFromServer()
+    }
+
+    private fun reloadProductFromServer(): Completable {
         return productRepo.getProductsFromServer().flatMapCompletable { response ->
             val responseCode = response.first
             val products = response.second
@@ -30,10 +38,6 @@ class ProductFacadeImpl(
                     })
             }
         }
-    }
-
-    override fun getProducts(): Single<List<Product>> {
-        return productRepo.getProducts()
     }
 
     private fun actualizeDatabase(products: List<Product>?): Completable {

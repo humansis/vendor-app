@@ -5,7 +5,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import cz.quanti.android.vendor_app.R
 import cz.quanti.android.vendor_app.main.checkout.viewholder.ScannedVouchersViewHolder
-import cz.quanti.android.vendor_app.repository.voucher.dto.Voucher
+import cz.quanti.android.vendor_app.repository.booklet.dto.Voucher
 
 class ScannedVoucherAdapter : RecyclerView.Adapter<ScannedVouchersViewHolder>() {
 

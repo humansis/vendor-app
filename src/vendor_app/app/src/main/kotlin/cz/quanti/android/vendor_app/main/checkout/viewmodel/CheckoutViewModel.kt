@@ -5,26 +5,22 @@ import androidx.lifecycle.ViewModel
 import cz.quanti.android.nfc.VendorFacade
 import cz.quanti.android.nfc.dto.UserBalance
 import cz.quanti.android.vendor_app.main.checkout.CheckoutScreenState
-import cz.quanti.android.vendor_app.repository.card.CardFacade
-import cz.quanti.android.vendor_app.repository.card.dto.CardPayment
-import cz.quanti.android.vendor_app.repository.product.dto.SelectedProduct
-import cz.quanti.android.vendor_app.repository.voucher.VoucherFacade
-import cz.quanti.android.vendor_app.repository.voucher.dto.Voucher
-import cz.quanti.android.vendor_app.repository.voucher.dto.VoucherPurchase
+import cz.quanti.android.vendor_app.repository.booklet.dto.Voucher
+import cz.quanti.android.vendor_app.repository.purchase.PurchaseFacade
+import cz.quanti.android.vendor_app.repository.purchase.dto.Purchase
+import cz.quanti.android.vendor_app.repository.purchase.dto.SelectedProduct
 import cz.quanti.android.vendor_app.utils.CurrentVendor
 import cz.quanti.android.vendor_app.utils.NfcTagPublisher
 import cz.quanti.android.vendor_app.utils.ShoppingHolder
 import cz.quanti.android.vendor_app.utils.convertTimeForApiRequestBody
 import io.reactivex.Completable
-import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
 import java.util.*
 
 class CheckoutViewModel(
     private val shoppingHolder: ShoppingHolder,
-    private val voucherFacade: VoucherFacade,
-    private val cardFacade: CardFacade,
+    private val purchaseFacade: PurchaseFacade,
     private val nfcFacade: VendorFacade,
     private val currentVendor: CurrentVendor,
     private val nfcTagPublisher: NfcTagPublisher
@@ -36,8 +32,7 @@ class CheckoutViewModel(
     }
 
     fun proceed(): Completable {
-        val purchase = createVoucherPurchase()
-        return voucherFacade.saveVoucherPurchase(purchase)
+        return purchaseFacade.savePurchase(createVoucherPurchase())
     }
 
     fun getTotal(): Double {
@@ -82,7 +77,7 @@ class CheckoutViewModel(
         return subtractMoneyFromCard(pin, value, currency).flatMap {
             val tag = it.first
             val userBalance = it.second
-            saveCardPaymentsToDb(
+            saveCardPurchaseToDb(
                 tag.id.asUByteArray().joinToString("") { it.toString(16).padStart(2, '0') })
                 .subscribeOn(Schedulers.io())
                 .toSingleDefault(Pair(tag, userBalance))
@@ -92,8 +87,8 @@ class CheckoutViewModel(
         }
     }
 
-    private fun createVoucherPurchase(): VoucherPurchase {
-        return VoucherPurchase().apply {
+    private fun createVoucherPurchase(): Purchase {
+        return Purchase().apply {
             products.addAll(shoppingHolder.cart)
             vouchers.addAll(shoppingHolder.vouchers.map { it.id })
             vendorId = currentVendor.vendor.id
@@ -114,20 +109,16 @@ class CheckoutViewModel(
             })
     }
 
-    private fun saveCardPaymentsToDb(card: String): Completable {
-        val payments: MutableList<CardPayment> = mutableListOf()
-        val time = convertTimeForApiRequestBody(Date())
-        shoppingHolder.cart.forEach { item ->
-            val payment = CardPayment().apply {
-                cardId = card
-                productId = item.product.id
-                value = item.price
-                createdAt = time
-            }
-            payments.add(payment)
-        }
-        return Observable.fromIterable(payments).flatMapCompletable { payment ->
-            cardFacade.saveCardPayment(payment)
+    private fun saveCardPurchaseToDb(card: String): Completable {
+        return purchaseFacade.savePurchase(createCardPurchase(card))
+    }
+
+    private fun createCardPurchase(card: String): Purchase {
+        return Purchase().apply {
+            products.addAll(shoppingHolder.cart)
+            smartcard = card
+            vendorId = currentVendor.vendor.id
+            createdAt = convertTimeForApiRequestBody(Date())
         }
     }
 }

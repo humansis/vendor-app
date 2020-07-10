@@ -15,6 +15,9 @@ import cz.quanti.android.vendor_app.main.vendor.viewmodel.VendorViewModel
 import cz.quanti.android.vendor_app.repository.AppPreferences
 import cz.quanti.android.vendor_app.repository.VendorAPI
 import cz.quanti.android.vendor_app.repository.VendorDb
+import cz.quanti.android.vendor_app.repository.booklet.BookletFacade
+import cz.quanti.android.vendor_app.repository.booklet.impl.BookletFacadeImpl
+import cz.quanti.android.vendor_app.repository.booklet.impl.BookletRepositoryImpl
 import cz.quanti.android.vendor_app.repository.card.CardFacade
 import cz.quanti.android.vendor_app.repository.card.impl.CardFacadeImpl
 import cz.quanti.android.vendor_app.repository.card.impl.CardRepositoryImpl
@@ -24,11 +27,16 @@ import cz.quanti.android.vendor_app.repository.login.impl.LoginRepositoryImpl
 import cz.quanti.android.vendor_app.repository.product.ProductFacade
 import cz.quanti.android.vendor_app.repository.product.impl.ProductFacadeImpl
 import cz.quanti.android.vendor_app.repository.product.impl.ProductRepositoryImpl
+import cz.quanti.android.vendor_app.repository.purchase.PurchaseFacade
+import cz.quanti.android.vendor_app.repository.purchase.impl.PurchaseFacadeImpl
+import cz.quanti.android.vendor_app.repository.purchase.impl.PurchaseRepositoryImpl
+import cz.quanti.android.vendor_app.repository.synchronization.SynchronizationFacade
+import cz.quanti.android.vendor_app.repository.synchronization.impl.SynchronizationFacadeImpl
 import cz.quanti.android.vendor_app.repository.utils.interceptor.HostUrlInterceptor
-import cz.quanti.android.vendor_app.repository.voucher.VoucherFacade
-import cz.quanti.android.vendor_app.repository.voucher.impl.VoucherFacadeImpl
-import cz.quanti.android.vendor_app.repository.voucher.impl.VoucherRepositoryImpl
-import cz.quanti.android.vendor_app.utils.*
+import cz.quanti.android.vendor_app.utils.CurrentVendor
+import cz.quanti.android.vendor_app.utils.LoginManager
+import cz.quanti.android.vendor_app.utils.NfcTagPublisher
+import cz.quanti.android.vendor_app.utils.ShoppingHolder
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import org.koin.android.ext.koin.androidContext
@@ -74,27 +82,30 @@ object KoinInitializer {
 
 
         val db = Room.databaseBuilder(app, VendorDb::class.java, VendorDb.DB_NAME)
-            .addMigrations(getDbMigration1to2())
+            .fallbackToDestructiveMigration()
             .build()
 
         // Repository
         val loginRepo = LoginRepositoryImpl(api)
         val productRepo = ProductRepositoryImpl(db.productDao(), api)
-        val voucherRepo = VoucherRepositoryImpl(
-            db.voucherDao(),
-            db.bookletDao(),
+        val bookletRepo = BookletRepositoryImpl(db.bookletDao(), api)
+        val cardRepo = CardRepositoryImpl(db.blockedCardDao(), api)
+        val purchaseRepo = PurchaseRepositoryImpl(
+            db.purchaseDao(),
+            db.cardPurchaseDao(),
             db.voucherPurchaseDao(),
             db.selectedProductDao(),
             api
         )
-        val cardRepo = CardRepositoryImpl(db.cardPaymentDao(), db.blockedCardDao(), api)
 
         // Facade
-        val loginFacade: LoginFacade =
-            LoginFacadeImpl(loginRepo, loginManager, currentVendor)
+        val loginFacade: LoginFacade = LoginFacadeImpl(loginRepo, loginManager, currentVendor)
         val productFacade: ProductFacade = ProductFacadeImpl(productRepo)
-        val voucherFacade: VoucherFacade = VoucherFacadeImpl(voucherRepo, productRepo)
+        val bookletFacade: BookletFacade = BookletFacadeImpl(bookletRepo)
         val cardFacade: CardFacade = CardFacadeImpl(cardRepo)
+        val purchaseFacade: PurchaseFacade = PurchaseFacadeImpl(purchaseRepo, cardRepo)
+        val syncFacade: SynchronizationFacade =
+            SynchronizationFacadeImpl(bookletFacade, cardFacade, productFacade, purchaseFacade)
 
         val nfcFacade: VendorFacade = PINFacade(
             BuildConfig.APP_VESION,
@@ -112,10 +123,12 @@ object KoinInitializer {
             single { loginManager }
             single { shoppingHolder }
             single { currentVendor }
-            single { voucherFacade }
+            single { bookletFacade }
             single { loginFacade }
             single { productFacade }
             single { cardFacade }
+            single { purchaseFacade }
+            single { syncFacade }
             single { nfcFacade }
             single { nfcTagPublisher }
 
@@ -125,17 +138,15 @@ object KoinInitializer {
                 VendorViewModel(
                     shoppingHolder,
                     productFacade,
-                    voucherFacade,
-                    cardFacade,
+                    syncFacade,
                     preferences
                 )
             }
-            viewModel { ScannerViewModel(shoppingHolder, voucherFacade) }
+            viewModel { ScannerViewModel(shoppingHolder, bookletFacade) }
             viewModel {
                 CheckoutViewModel(
                     shoppingHolder,
-                    voucherFacade,
-                    cardFacade,
+                    purchaseFacade,
                     nfcFacade,
                     currentVendor,
                     nfcTagPublisher

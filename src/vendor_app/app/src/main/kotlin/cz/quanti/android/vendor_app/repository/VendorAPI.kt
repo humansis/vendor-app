@@ -1,12 +1,12 @@
 package cz.quanti.android.vendor_app.repository
 
-import cz.quanti.android.vendor_app.repository.card.dto.api.CardPaymentApiEntity
+import cz.quanti.android.vendor_app.repository.booklet.dto.api.BookletApiEntity
+import cz.quanti.android.vendor_app.repository.booklet.dto.api.BookletCodesBody
 import cz.quanti.android.vendor_app.repository.login.dto.api.SaltApiEntity
 import cz.quanti.android.vendor_app.repository.login.dto.api.VendorApiEntity
 import cz.quanti.android.vendor_app.repository.product.dto.api.ProductApiEntity
-import cz.quanti.android.vendor_app.repository.voucher.dto.api.BookletApiEntity
-import cz.quanti.android.vendor_app.repository.voucher.dto.api.BookletCodesBody
-import cz.quanti.android.vendor_app.repository.voucher.dto.api.VoucherPurchaseApiEntity
+import cz.quanti.android.vendor_app.repository.purchase.dto.api.CardPurchaseApiEntity
+import cz.quanti.android.vendor_app.repository.purchase.dto.api.VoucherPurchaseApiEntity
 import io.reactivex.Single
 import retrofit2.Response
 import retrofit2.http.*
@@ -42,9 +42,9 @@ interface VendorAPI {
     ): Single<Response<Unit>>
 
     @PATCH("smartcards/{id}/purchase")
-    fun postCardPayment(
+    fun postCardPurchase(
         @Path("id") cardId: String,
-        @Body cardPayment: CardPaymentApiEntity
+        @Body cardPurchase: CardPurchaseApiEntity
     ): Single<Response<Unit>>
 
     @GET("smartcards/blocked")

@@ -14,9 +14,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.findNavController
 import cz.quanti.android.vendor_app.main.vendor.callback.VendorFragmentCallback
 import cz.quanti.android.vendor_app.repository.AppPreferences
-import cz.quanti.android.vendor_app.repository.card.CardFacade
 import cz.quanti.android.vendor_app.repository.login.LoginFacade
-import cz.quanti.android.vendor_app.repository.voucher.VoucherFacade
+import cz.quanti.android.vendor_app.repository.synchronization.SynchronizationFacade
 import cz.quanti.android.vendor_app.utils.NfcTagPublisher
 import cz.quanti.android.vendor_app.utils.isNetworkAvailable
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -29,8 +28,7 @@ import java.util.*
 class MainActivity : AppCompatActivity() {
 
     private val loginFacade: LoginFacade by inject()
-    private val voucherFacade: VoucherFacade by inject()
-    private val cardFacade: CardFacade by inject()
+    private val syncFacade: SynchronizationFacade by inject()
     private val preferences: AppPreferences by inject()
     private val nfcTagPublisher: NfcTagPublisher by inject()
 
@@ -69,7 +67,7 @@ class MainActivity : AppCompatActivity() {
             animation.repeatCount = Animation.INFINITE
             view.startAnimation(animation)
 
-            cardFacade.syncWithServer().andThen(voucherFacade.syncWithServer())
+            syncFacade.synchronize()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(

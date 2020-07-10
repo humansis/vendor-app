@@ -2,11 +2,10 @@ package cz.quanti.android.vendor_app.main.vendor.viewmodel
 
 import androidx.lifecycle.ViewModel
 import cz.quanti.android.vendor_app.repository.AppPreferences
-import cz.quanti.android.vendor_app.repository.card.CardFacade
 import cz.quanti.android.vendor_app.repository.product.ProductFacade
 import cz.quanti.android.vendor_app.repository.product.dto.Product
-import cz.quanti.android.vendor_app.repository.product.dto.SelectedProduct
-import cz.quanti.android.vendor_app.repository.voucher.VoucherFacade
+import cz.quanti.android.vendor_app.repository.purchase.dto.SelectedProduct
+import cz.quanti.android.vendor_app.repository.synchronization.SynchronizationFacade
 import cz.quanti.android.vendor_app.utils.ShoppingHolder
 import io.reactivex.Completable
 import io.reactivex.Single
@@ -14,8 +13,7 @@ import io.reactivex.Single
 class VendorViewModel(
     private val shoppingHolder: ShoppingHolder,
     private val productFacade: ProductFacade,
-    private val voucherFacade: VoucherFacade,
-    private val cardFacade: CardFacade,
+    private val syncFacade: SynchronizationFacade,
     private val preferences: AppPreferences
 ) : ViewModel() {
 
@@ -32,7 +30,7 @@ class VendorViewModel(
     }
 
     fun synchronizeWithServer(): Completable {
-        return cardFacade.syncWithServer().andThen(voucherFacade.syncWithServer())
+        return syncFacade.synchronize()
     }
 
     fun getFirstCurrencies(): List<String> {

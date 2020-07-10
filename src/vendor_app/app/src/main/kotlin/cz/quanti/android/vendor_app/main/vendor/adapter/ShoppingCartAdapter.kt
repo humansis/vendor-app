@@ -7,7 +7,7 @@ import com.squareup.picasso.Picasso
 import cz.quanti.android.vendor_app.R
 import cz.quanti.android.vendor_app.main.vendor.callback.ShoppingCartFragmentCallback
 import cz.quanti.android.vendor_app.main.vendor.viewholder.ShoppingCartViewHolder
-import cz.quanti.android.vendor_app.repository.product.dto.SelectedProduct
+import cz.quanti.android.vendor_app.repository.purchase.dto.SelectedProduct
 import cz.quanti.android.vendor_app.utils.getStringFromDouble
 
 class ShoppingCartAdapter(private val shoppingCartFragmentCallback: ShoppingCartFragmentCallback) :

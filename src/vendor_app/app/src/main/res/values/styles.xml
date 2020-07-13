@@ -10,6 +10,7 @@
         <item name="subtitleTextColor">@color/black</item>
         <item name="actionBarTheme">@style/AppTheme.ActionBarTheme</item>
         <item name="android:textColorHint">@color/darkGrey</item>
+        <item name="popupMenuStyle">@style/PopupMenuTheme</item>
     </style>
 
     <style name="AppTheme.ActionBarTheme" parent="@style/ThemeOverlay.MaterialComponents.ActionBar">

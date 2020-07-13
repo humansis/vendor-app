@@ -39,3 +39,12 @@ fun convertTimeForApiRequestBody(date: Date): String {
     return SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ", Locale.US)
         .format(date)
 }
+
+fun getDefaultCurrency(country: String): String {
+    return when (country) {
+        "KHM" -> "KHR"
+        "SYR" -> "SYP"
+        "UKR" -> "UAH"
+        else -> ""
+    }
+}

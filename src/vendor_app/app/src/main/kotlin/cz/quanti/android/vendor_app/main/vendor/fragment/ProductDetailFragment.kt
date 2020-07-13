@@ -84,7 +84,7 @@ class ProductDetailFragment : Fragment() {
             } else {
                 if (vm.getShoppingCart().isEmpty()) {
                     vm.setCurrency(priceUnitSpinner.selectedItem as String)
-                    vm.setLastCurrencySelection(priceUnitSpinner.selectedItemPosition)
+                    vm.setLastCurrencySelection(priceUnitSpinner.selectedItem as String)
                 }
                 addProductToCart(
                     product,
@@ -130,7 +130,9 @@ class ProductDetailFragment : Fragment() {
         currencyAdapter?.init(vm.getFirstCurrencies())
         currencyAdapter?.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         priceUnitSpinner.adapter = currencyAdapter
-        priceUnitSpinner.setSelection(vm.getLastCurrencySelection())
+        priceUnitSpinner.setSelection(
+            currencyAdapter?.getPosition(vm.getLastCurrencySelection()) ?: 0
+        )
     }
 
     private fun initProductRelatedInfo() {

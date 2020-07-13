@@ -9,5 +9,5 @@ data class ShoppingHolder(
     val vouchers: MutableList<Voucher> = mutableListOf(),
     var checkoutScreenState: CheckoutScreenState = CheckoutScreenState.STATE_PAYMENT_SHOWED,
     var chosenCurrency: String = "",
-    var lastCurrencySelection: Int = 0
+    var lastCurrencySelection: String = ""
 )

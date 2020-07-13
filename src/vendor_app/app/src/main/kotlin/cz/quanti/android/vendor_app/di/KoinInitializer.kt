@@ -139,7 +139,8 @@ object KoinInitializer {
                     shoppingHolder,
                     productFacade,
                     syncFacade,
-                    preferences
+                    preferences,
+                    currentVendor
                 )
             }
             viewModel { ScannerViewModel(shoppingHolder, bookletFacade) }

@@ -6,7 +6,9 @@ import cz.quanti.android.vendor_app.repository.product.ProductFacade
 import cz.quanti.android.vendor_app.repository.product.dto.Product
 import cz.quanti.android.vendor_app.repository.purchase.dto.SelectedProduct
 import cz.quanti.android.vendor_app.repository.synchronization.SynchronizationFacade
+import cz.quanti.android.vendor_app.utils.CurrentVendor
 import cz.quanti.android.vendor_app.utils.ShoppingHolder
+import cz.quanti.android.vendor_app.utils.getDefaultCurrency
 import io.reactivex.Completable
 import io.reactivex.Single
 
@@ -14,14 +16,18 @@ class VendorViewModel(
     private val shoppingHolder: ShoppingHolder,
     private val productFacade: ProductFacade,
     private val syncFacade: SynchronizationFacade,
-    private val preferences: AppPreferences
+    private val preferences: AppPreferences,
+    private val currentVendor: CurrentVendor
 ) : ViewModel() {
 
-    fun getLastCurrencySelection(): Int {
+    fun getLastCurrencySelection(): String {
+        if (shoppingHolder.lastCurrencySelection == "") {
+            shoppingHolder.lastCurrencySelection = getDefaultCurrency(currentVendor.vendor.country)
+        }
         return shoppingHolder.lastCurrencySelection
     }
 
-    fun setLastCurrencySelection(selected: Int) {
+    fun setLastCurrencySelection(selected: String) {
         shoppingHolder.lastCurrencySelection = selected
     }
 

@@ -117,6 +117,10 @@ class CheckoutFragment() : Fragment(), CheckoutFragmentCallback {
         scanButton?.setOnClickListener {
             scanVoucher()
         }
+
+        payByCardButton?.setOnClickListener {
+            payByCard()
+        }
     }
 
     override fun cancel() {

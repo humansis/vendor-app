@@ -1,9 +1,7 @@
 package cz.quanti.android.vendor_app.utils
 
-import android.app.Activity
 import android.content.Context
 import android.net.ConnectivityManager
-import android.view.inputmethod.InputMethodManager
 import java.text.DecimalFormat
 import java.text.SimpleDateFormat
 import java.util.*
@@ -35,12 +33,6 @@ fun isNetworkAvailable(context: Context): Boolean {
         context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
     val networkInfo = connectivityManager.activeNetworkInfo
     return networkInfo != null && networkInfo.isConnected
-}
-
-fun hideKeyboard(context: Context) {
-    val imm: InputMethodManager =
-        context.getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
-    imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0)
 }
 
 fun convertTimeForApiRequestBody(date: Date): String {

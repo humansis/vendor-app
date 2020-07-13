@@ -17,7 +17,6 @@ import cz.quanti.android.vendor_app.R
 import cz.quanti.android.vendor_app.main.authorization.viewmodel.LoginViewModel
 import cz.quanti.android.vendor_app.utils.ApiEnvironments
 import cz.quanti.android.vendor_app.utils.Constants
-import cz.quanti.android.vendor_app.utils.hideKeyboard
 import cz.quanti.android.vendor_app.utils.isNetworkAvailable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
@@ -108,7 +107,6 @@ class LoginFragment : Fragment() {
                             Schedulers.io()
                         ).observeOn(AndroidSchedulers.mainThread()).subscribe(
                             {
-                                hideKeyboard(requireContext())
                                 loadingImageView.animation.repeatCount = 0
                                 findNavController().navigate(
                                     LoginFragmentDirections.actionLoginFragmentToVendorFragment()

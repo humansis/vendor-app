@@ -19,7 +19,6 @@ import cz.quanti.android.nfc.exception.PINExceptionEnum
 import cz.quanti.android.vendor_app.R
 import cz.quanti.android.vendor_app.main.checkout.viewmodel.CheckoutViewModel
 import cz.quanti.android.vendor_app.utils.VendorAppException
-import cz.quanti.android.vendor_app.utils.hideKeyboard
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
@@ -106,7 +105,6 @@ class ScanCardFragment : Fragment() {
                 val pinEditTextView =
                     dialogView.findViewById<TextInputEditText>(R.id.pinEditText)
                 val pin = pinEditTextView.text.toString()
-                hideKeyboard(requireContext())
 
                 disposable?.dispose()
                 disposable =
@@ -161,7 +159,6 @@ class ScanCardFragment : Fragment() {
 
             }
             .setNegativeButton(android.R.string.cancel) { _, _ ->
-                hideKeyboard(requireContext())
             }
             .show()
     }

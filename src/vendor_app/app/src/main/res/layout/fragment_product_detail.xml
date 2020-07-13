@@ -146,7 +146,9 @@
                 android:backgroundTint="@color/red"
                 android:text="@string/cancel"
                 app:icon="@drawable/clear"
-                android:textColor="@color/white" />
+                android:textColor="@color/white"
+                android:stateListAnimator="@null"
+                app:elevation="0dp" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/addToCartButton"
@@ -159,7 +161,9 @@
                 android:backgroundTint="@color/green"
                 android:text="@string/add_to_cart"
                 app:icon="@drawable/shopping_cart"
-                android:textColor="@color/white" />
+                android:textColor="@color/white"
+                android:stateListAnimator="@null"
+                app:elevation="0dp" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
     </LinearLayout>

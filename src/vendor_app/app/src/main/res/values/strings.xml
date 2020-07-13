@@ -1,9 +1,9 @@
 <resources>
-    <string name="app_name">Vendor App</string>
+    <string name="app_name">Humansis Vendor</string>
     <string name="username">Username</string>
     <string name="password">Password</string>
     <string name="login_screen_title">Beneficiary Management System</string>
-    <string name="login_screen_subtitle">VENDOR APPLICATION</string>
+    <string name="login_screen_subtitle">HUMANSIS VENDOR</string>
     <string name="version">v1.0.0</string>
     <string name="login">login</string>
     <string name="vendor_title">Select Product</string>

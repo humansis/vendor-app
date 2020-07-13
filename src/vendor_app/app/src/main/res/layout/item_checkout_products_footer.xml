@@ -12,7 +12,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:backgroundTint="@color/colorPrimaryDark"
-        android:elevation="3dp"
         android:text="@string/back"
         app:icon="@drawable/arrow_back"
         android:textColor="@color/white"
@@ -20,7 +19,9 @@
         app:iconGravity="start"
         android:layout_marginStart="20dp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent" />
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:stateListAnimator="@null"
+        app:elevation="0dp" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
 

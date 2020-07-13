@@ -22,7 +22,6 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="20dp"
         android:backgroundTint="@color/red"
-        android:elevation="3dp"
         android:text="@string/back"
         android:textColor="@color/white"
         android:textSize="12sp"
@@ -30,6 +29,8 @@
         app:iconGravity="start"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent" />
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:stateListAnimator="@null"
+        app:elevation="0dp" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

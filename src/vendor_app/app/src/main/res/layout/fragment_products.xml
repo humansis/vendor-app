@@ -30,7 +30,7 @@
             android:layout_height="wrap_content"
             android:backgroundTint="@color/colorPrimaryDark"
             android:text="@string/go_to_cart"
-            app:icon="@drawable/shopping_cart"
+            app:icon="@drawable/shopping_basket"
             android:textColor="@color/white"
             android:textSize="8sp"
             app:iconGravity="start"

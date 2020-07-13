@@ -160,7 +160,7 @@
                 app:layout_constraintStart_toEndOf="@id/cancelButton"
                 android:backgroundTint="@color/green"
                 android:text="@string/add_to_cart"
-                app:icon="@drawable/shopping_cart"
+                app:icon="@drawable/shopping_basket"
                 android:textColor="@color/white"
                 android:stateListAnimator="@null"
                 app:elevation="0dp" />

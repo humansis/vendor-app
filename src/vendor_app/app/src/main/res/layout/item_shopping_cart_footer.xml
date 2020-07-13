@@ -32,7 +32,7 @@
         app:layout_constraintTop_toTopOf="@id/totalTitleTextView"
         app:layout_constraintWidth_max="30dp"
         app:layout_constraintWidth_percent="0.15"
-        app:srcCompat="@drawable/shopping_cart" />
+        app:srcCompat="@drawable/shopping_basket" />
 
     <TextView
         android:id="@+id/totalTitleTextView"

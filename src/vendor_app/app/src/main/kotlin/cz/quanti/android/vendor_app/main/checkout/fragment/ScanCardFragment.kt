@@ -101,6 +101,7 @@ class ScanCardFragment : Fragment() {
 
         AlertDialog.Builder(requireContext(), R.style.DialogTheme)
             .setView(dialogView)
+            .setCancelable(false)
             .setPositiveButton(android.R.string.ok) { _, _ ->
                 val pinEditTextView =
                     dialogView.findViewById<TextInputEditText>(R.id.pinEditText)
@@ -180,6 +181,7 @@ class ScanCardFragment : Fragment() {
             PINExceptionEnum.CARD_LOCKED -> getString(R.string.card_locked)
             PINExceptionEnum.INCORRECT_PIN -> getString(R.string.incorrect_pin)
             PINExceptionEnum.INSUFFICIENT_FUNDS -> getString(R.string.insufficient_funds)
+            PINExceptionEnum.TAG_LOST -> getString(R.string.tag_lost_card_error)
             else -> getString(R.string.card_error)
         }
     }

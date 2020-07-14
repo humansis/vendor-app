@@ -21,24 +21,8 @@
             android:scrollbars="none"
             android:transcriptMode="alwaysScroll"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toTopOf="@+id/toCartButton"
-            android:layout_marginBottom="20dp" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/toCartButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:backgroundTint="@color/colorPrimaryDark"
-            android:text="@string/go_to_cart"
-            app:icon="@drawable/shopping_basket"
-            android:textColor="@color/white"
-            android:textSize="8sp"
-            app:iconGravity="start"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
-            android:stateListAnimator="@null"
-            app:elevation="0dp" />
+            android:layout_marginBottom="20dp" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

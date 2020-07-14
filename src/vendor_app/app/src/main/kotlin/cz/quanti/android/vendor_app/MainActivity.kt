@@ -9,7 +9,6 @@ import android.view.MenuItem
 import android.view.View
 import android.view.animation.Animation
 import android.view.animation.RotateAnimation
-import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -51,7 +50,7 @@ class MainActivity : AppCompatActivity() {
             showPopupMenu(it)
         }
 
-        val syncButton: View? = findViewById(R.id.syncButton) as ImageView
+        val syncButton: View? = findViewById(R.id.syncButton)
         syncButton?.setOnClickListener { view ->
             val animation = RotateAnimation(0f, 360f, view.width / 2f, view.height / 2f)
             animation.duration = 2500

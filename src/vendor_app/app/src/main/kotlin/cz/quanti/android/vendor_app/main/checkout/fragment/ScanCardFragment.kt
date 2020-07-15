@@ -44,7 +44,7 @@ class ScanCardFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        nfcAdapter = NfcAdapter.getDefaultAdapter(requireContext())
+        nfcAdapter = NfcAdapter.getDefaultAdapter(requireActivity())
 
         if (nfcAdapter == null) {
             Toast.makeText(
@@ -58,8 +58,8 @@ class ScanCardFragment : Fragment() {
         }
 
         pendingIntent = PendingIntent.getActivity(
-            requireContext(), 0,
-            Intent(requireContext(), requireContext().javaClass)
+            requireActivity(), 0,
+            Intent(requireActivity(), requireActivity().javaClass)
                 .addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0
         )
 
@@ -79,8 +79,8 @@ class ScanCardFragment : Fragment() {
     }
 
     override fun onPause() {
-        super.onPause()
         nfcAdapter?.disableForegroundDispatch(requireActivity())
+        super.onPause()
     }
 
     override fun onDestroy() {

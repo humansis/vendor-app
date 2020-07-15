@@ -69,4 +69,5 @@
     <string name="invalid_data">Error: invalid data on the card</string>
     <string name="card_wrong_currency">The card is of different currency</string>
     <string name="tag_lost_card_error">Scanning interrupted. Please scan the card again.</string>
+    <string name="success">Success</string>
 </resources>

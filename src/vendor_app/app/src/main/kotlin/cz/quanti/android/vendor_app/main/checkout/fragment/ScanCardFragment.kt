@@ -188,7 +188,7 @@ class ScanCardFragment : Fragment() {
             PINExceptionEnum.INVALID_DATA -> getString(R.string.invalid_data)
             PINExceptionEnum.CARD_LOCKED -> getString(R.string.card_locked)
             PINExceptionEnum.INCORRECT_PIN -> getString(R.string.incorrect_pin)
-            PINExceptionEnum.INSUFFICIENT_FUNDS -> getString(R.string.insufficient_funds)
+            PINExceptionEnum.INSUFFICIENT_FUNDS -> getString(R.string.not_enough_money_on_card)
             PINExceptionEnum.TAG_LOST -> getString(R.string.tag_lost_card_error)
             else -> getString(R.string.card_error)
         }

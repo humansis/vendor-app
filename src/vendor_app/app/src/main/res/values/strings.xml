@@ -23,10 +23,10 @@
     <string name="please_scan_voucher">Please scan a voucher or pay by card</string>
     <string name="wrong_password">Wrong username or password</string>
     <string name="cannot_proceed_with_purchase_dialog_title">Failed</string>
-    <string name="cannot_proceed_with_purchase_dialog_message">Cannot proceed with the purchase until it is paid. Please scan more vouchers.</string>
+    <string name="cannot_proceed_with_purchase_dialog_message">Cannot proceed with the purchase until it is paid.</string>
     <string name="are_you_sure_dialog_title">Are you sure?</string>
     <string name="clear_cart_dialog_message">Are you sure you want to remove all items from the basket?</string>
-    <string name="leave_product_detail_dialog_message">The price or amount is not set. The product will not be added to the basket. Do you want to leave this page?</string>
+    <string name="leave_product_detail_dialog_message">The price is not set. The product will not be added to the basket. Do you want to leave this page?</string>
     <string name="remove_product_from_cart_dialog_message">Are you sure you want to remove this product from your basket?</string>
     <string name="already_scanned_dialog_title">Voucher Already Used</string>
     <string name="already_scanned_dialog_message">You already used this voucher</string>
@@ -63,7 +63,6 @@
     <string name="not_enough_money_on_card">Not enough money on the card</string>
     <string name="scan_card">Please scan the card</string>
     <string name="incorrect_pin">Incorrect PIN</string>
-    <string name="insufficient_funds">"Not enough money on the card. "</string>
     <string name="card_locked">This card is locked.</string>
     <string name="card_error">Error. Try again please.</string>
     <string name="invalid_data">Error: invalid data on the card</string>

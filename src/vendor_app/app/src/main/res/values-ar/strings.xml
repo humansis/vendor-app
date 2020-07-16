@@ -3,4 +3,7 @@
     <string name="password">كلمة المرور</string>
     <string name="login_screen_title">نظام إدارة المستفيدين</string>
     <string name="login">تسجيل الدخول الى الحساب</string>
+
+
+    <string name="logout">تسجيل خروج</string>
 </resources>

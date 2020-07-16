@@ -1,15 +1,14 @@
 <resources>
-    <string name="app_name">Humansis Vendor</string>
     <string name="username">Username</string>
     <string name="password">Password</string>
     <string name="login_screen_title">Beneficiary Management System</string>
+    <string name="login">login</string>
+    <string name="app_name">Humansis Vendor</string>
     <string name="login_screen_subtitle">HUMANSIS VENDOR</string>
     <string name="version">v1.0.0</string>
-    <string name="login">login</string>
     <string name="vendor_title">Select Product</string>
     <string name="selectedItems">Selected Items</string>
     <string name="no_items_selected">No items selected</string>
-    <string name="synchronize">Synchronize</string>
     <string name="logout">Logout</string>
     <string name="price">Price</string>
     <string name="total">Total</string>
@@ -18,15 +17,12 @@
     <string name="cancel">Cancel</string>
     <string name="proceed">Proceed</string>
     <string name="products">Products</string>
-    <string name="vouchers">Vouchers</string>
-    <string name="click_here_to_scan">Click here to scan</string>
     <string name="please_scan_voucher">Please scan a voucher or pay by card</string>
     <string name="wrong_password">Wrong username or password</string>
     <string name="cannot_proceed_with_purchase_dialog_title">Failed</string>
     <string name="cannot_proceed_with_purchase_dialog_message">Cannot proceed with the purchase until it is paid.</string>
     <string name="are_you_sure_dialog_title">Are you sure?</string>
     <string name="clear_cart_dialog_message">Are you sure you want to remove all items from the basket?</string>
-    <string name="leave_product_detail_dialog_message">The price is not set. The product will not be added to the basket. Do you want to leave this page?</string>
     <string name="remove_product_from_cart_dialog_message">Are you sure you want to remove this product from your basket?</string>
     <string name="already_scanned_dialog_title">Voucher Already Used</string>
     <string name="already_scanned_dialog_message">You already used this voucher</string>
@@ -44,9 +40,7 @@
     <string name="booklet_deactivated">Booklet deactivated</string>
     <string name="wrong_voucher_password">You didn\'t type the right password. You have only %1$d tries left.</string>
     <string name="go_to_cart">Show basket</string>
-    <string name="go_to_products">Back</string>
-    <string name="back">back</string>
-    <string name="card">card</string>
+    <string name="back_button">back</string>
     <string name="pay_by_voucher">Scan a\nvoucher</string>
     <string name="pay_by_card">Pay by\ncard</string>
     <string name="payment">Payment</string>

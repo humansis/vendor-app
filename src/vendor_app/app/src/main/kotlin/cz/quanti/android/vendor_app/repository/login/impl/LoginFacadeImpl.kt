@@ -14,8 +14,8 @@ class LoginFacadeImpl(
 
     override fun login(username: String, password: String): Completable {
         return loginRepo.getSalt(username).flatMapCompletable { saltResponse ->
-            val responseCode = saltResponse.first
-            val salt = saltResponse.second
+            val responseCode = saltResponse.responseCode
+            val salt = saltResponse.salt
             if (!isPositiveResponseHttpCode(responseCode)) {
                 Completable.error(
                     VendorAppException("Could not obtain salt for the user.")
@@ -34,8 +34,8 @@ class LoginFacadeImpl(
                     }
                 loginManager.login(username, saltedPassword)
                 loginRepo.login(vendor).flatMapCompletable { response ->
-                    val responseCode = response.first
-                    val loggedVendor = response.second
+                    val responseCode = response.responseCode
+                    val loggedVendor = response.vendor
                     if (isPositiveResponseHttpCode(responseCode)) {
                         loggedVendor.loggedIn = true
                         loggedVendor.username = vendor.username
@@ -59,8 +59,8 @@ class LoginFacadeImpl(
 
     private fun getVendor(id: Long): Completable {
         return loginRepo.getVendor(id).flatMapCompletable { response ->
-            val responseCode = response.first
-            val vendor = response.second
+            val responseCode = response.responseCode
+            val vendor = response.vendor
             if (isPositiveResponseHttpCode(responseCode)) {
                 currentVendor.vendor.id = id
                 currentVendor.vendor.country = vendor.country

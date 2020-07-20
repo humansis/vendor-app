@@ -144,15 +144,6 @@ class ScanCardFragment : Fragment() {
                                 Toast.LENGTH_LONG
                             ).show()
                         }
-                        is VendorAppException -> {
-                            Log.e(this.javaClass.simpleName, it)
-                            Toast.makeText(
-                                requireContext(),
-                                getString(R.string.card_error),
-                                Toast.LENGTH_LONG
-                            )
-                                .show()
-                        }
                         else -> {
                             Log.e(this.javaClass.simpleName, it)
                             Toast.makeText(

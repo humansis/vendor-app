@@ -21,6 +21,7 @@ import cz.quanti.android.vendor_app.repository.synchronization.SynchronizationFa
 import cz.quanti.android.vendor_app.utils.NfcTagPublisher
 import cz.quanti.android.vendor_app.utils.isNetworkAvailable
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import org.koin.android.ext.android.inject
 import quanti.com.kotlinlog.Log
@@ -33,6 +34,7 @@ class MainActivity : AppCompatActivity() {
     private val syncFacade: SynchronizationFacade by inject()
     private val preferences: AppPreferences by inject()
     private val nfcTagPublisher: NfcTagPublisher by inject()
+    private var disposable: Disposable? = null
 
     var vendorFragmentCallback: VendorFragmentCallback? = null
 
@@ -42,6 +44,11 @@ class MainActivity : AppCompatActivity() {
         supportActionBar?.setCustomView(R.layout.custom_action_bar)
         supportActionBar?.hide()
         setContentView(R.layout.activity_main)
+    }
+
+    override fun onDestroy() {
+        disposable?.dispose()
+        super.onDestroy()
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -57,7 +64,8 @@ class MainActivity : AppCompatActivity() {
             animation.repeatCount = Animation.INFINITE
             view.startAnimation(animation)
 
-            syncFacade.synchronize()
+            disposable?.dispose()
+            disposable = syncFacade.synchronize()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(

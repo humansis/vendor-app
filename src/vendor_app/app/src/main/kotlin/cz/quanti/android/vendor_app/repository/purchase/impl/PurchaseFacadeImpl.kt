@@ -17,9 +17,13 @@ class PurchaseFacadeImpl(
 
     override fun savePurchase(purchase: Purchase): Completable {
         if (purchase.smartcard != null) {
-            return cardRepo.getBlockedCard(purchase.smartcard!!).flatMapCompletable { itsBlocked ->
-                throw BlockedCardError("This card is tagged as blocked on the server")
-            }.andThen(purchaseRepo.savePurchase(purchase))
+            return cardRepo.isBlockedCard(purchase.smartcard!!).flatMapCompletable { itsBlocked ->
+                if(itsBlocked) {
+                    throw BlockedCardError("This card is tagged as blocked on the server")
+                } else {
+                    purchaseRepo.savePurchase(purchase)
+                }
+            }
         } else {
             return purchaseRepo.savePurchase(purchase)
         }
@@ -32,17 +36,16 @@ class PurchaseFacadeImpl(
 
     private fun sendPurchasesToServer(): Completable {
         return purchaseRepo.getAllPurchases().flatMapCompletable { purchases ->
-            purchaseRepo.sendVoucherPurchasesToServer(purchases)
-                .defaultIfEmpty(200)
+            purchaseRepo.sendVoucherPurchasesToServer(purchases.filter { it.vouchers.isNotEmpty() })
                 .flatMapCompletable { responseCode ->
                     if (isPositiveResponseHttpCode(responseCode)) {
+                        purchaseRepo.deleteAllVoucherPurchases().andThen(
                         Observable.fromIterable(purchases.filter { it.smartcard != null })
                             .flatMapCompletable { purchase ->
                                 purchaseRepo.sendCardPurchaseToServer(purchase)
-                                    .defaultIfEmpty(200)
                                     .flatMapCompletable { responseCode ->
                                         if (isPositiveResponseHttpCode(responseCode)) {
-                                            Completable.complete()
+                                            purchaseRepo.deleteCardPurchase(purchase)
                                         } else {
                                             throw VendorAppException("Could not send card purchases to the server").apply {
                                                 apiError = true
@@ -51,6 +54,7 @@ class PurchaseFacadeImpl(
                                         }
                                     }
                             }
+                        )
                     } else {
                         throw VendorAppException("Could not send voucher purchases to the server").apply {
                             apiError = true

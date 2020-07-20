@@ -10,7 +10,7 @@ interface CardRepository {
 
     fun getBlockedCards(): Single<List<String>>
 
-    fun getBlockedCard(id: String): Maybe<String>
+    fun isBlockedCard(id: String): Single<Boolean>
 
     fun saveBlockedCard(cardId: String): Completable
 

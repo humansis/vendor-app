@@ -9,11 +9,15 @@ interface PurchaseRepository {
 
     fun savePurchase(purchase: Purchase): Completable
 
-    fun sendCardPurchaseToServer(purchases: Purchase): Maybe<Int>
+    fun sendCardPurchaseToServer(purchases: Purchase): Single<Int>
 
-    fun sendVoucherPurchasesToServer(purchases: List<Purchase>): Maybe<Int>
+    fun sendVoucherPurchasesToServer(purchases: List<Purchase>): Single<Int>
 
     fun getAllPurchases(): Single<List<Purchase>>
 
     fun deleteAllPurchases(): Completable
+
+    fun deleteCardPurchase(purchase: Purchase): Completable
+
+    fun deleteAllVoucherPurchases(): Completable
 }

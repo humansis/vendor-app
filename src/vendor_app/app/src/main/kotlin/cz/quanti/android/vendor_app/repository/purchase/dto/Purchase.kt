@@ -5,5 +5,6 @@ data class Purchase(
     var vouchers: MutableList<Long> = mutableListOf(),
     var smartcard: String? = null,
     var createdAt: String = "",
-    var vendorId: Long = 0
+    var vendorId: Long = 0,
+    var dbId: Long = 0
 )

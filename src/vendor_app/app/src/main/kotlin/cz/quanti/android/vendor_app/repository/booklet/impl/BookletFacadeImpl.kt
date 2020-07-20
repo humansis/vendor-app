@@ -31,14 +31,14 @@ class BookletFacadeImpl(
 
     override fun syncWithServer(): Completable {
         return sendDataToServer()
-            .andThen(getDataFromServer())
+            .andThen(reloadDataFromServer())
     }
 
     private fun sendDataToServer(): Completable {
         return sendDeactivatedBooklets()
     }
 
-    private fun getDataFromServer(): Completable {
+    private fun reloadDataFromServer(): Completable {
         return reloadDeactivatedBookletsFromServer()
             .andThen(reloadProtectedBookletsFromServer())
     }
@@ -65,9 +65,9 @@ class BookletFacadeImpl(
 
     private fun reloadDeactivatedBookletsFromServer(): Completable {
         return bookletRepo.getDeactivatedBookletsFromServer().flatMapCompletable { response ->
-            val responseCode = response.first
+            val responseCode = response.responseCode
             if (isPositiveResponseHttpCode(responseCode)) {
-                val booklets = response.second
+                val booklets = response.booklets
                 bookletRepo.deleteDeactivated()
                     .andThen(Observable.fromIterable(booklets).flatMapCompletable { booklet ->
                         booklet.state = Booklet.STATE_DEACTIVATED
@@ -84,10 +84,10 @@ class BookletFacadeImpl(
 
     private fun reloadProtectedBookletsFromServer(): Completable {
         return bookletRepo.getProtectedBookletsFromServer().flatMapCompletable { response ->
-            val responseCode = response.first
+            val responseCode = response.responseCode
 
             if (isPositiveResponseHttpCode(responseCode)) {
-                val booklets = response.second
+                val booklets = response.booklets
                 bookletRepo.deleteProtected()
                     .andThen(Observable.fromIterable(booklets).flatMapCompletable { booklet ->
                         booklet.state = Booklet.STATE_PROTECTED

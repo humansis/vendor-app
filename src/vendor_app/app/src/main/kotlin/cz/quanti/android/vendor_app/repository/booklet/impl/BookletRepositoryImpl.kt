@@ -2,6 +2,7 @@ package cz.quanti.android.vendor_app.repository.booklet.impl
 
 import cz.quanti.android.vendor_app.repository.VendorAPI
 import cz.quanti.android.vendor_app.repository.booklet.BookletRepository
+import cz.quanti.android.vendor_app.repository.booklet.dto.api.BookletsWithResponseCode
 import cz.quanti.android.vendor_app.repository.booklet.dao.BookletDao
 import cz.quanti.android.vendor_app.repository.booklet.dto.Booklet
 import cz.quanti.android.vendor_app.repository.booklet.dto.api.BookletApiEntity
@@ -31,31 +32,38 @@ class BookletRepositoryImpl(
         return Completable.fromCallable { bookletDao.insert(convert(booklet)) }
     }
 
-    override fun getProtectedBookletsFromServer(): Single<Pair<Int, List<Booklet>>> {
+    override fun getProtectedBookletsFromServer(): Single<BookletsWithResponseCode> {
         return api.getProtectedBooklets().map { response ->
             var booklets = response.body()
             if (booklets == null) {
                 booklets = listOf()
             }
-            Pair(response.code(), booklets.map {
-                convert(it).apply {
-                    this.state = Booklet.STATE_PROTECTED
-                }
-            })
+            BookletsWithResponseCode(
+                booklets = booklets.map {
+                    convert(it).apply {
+                        this.state = Booklet.STATE_PROTECTED
+                    }
+                },
+                responseCode = response.code()
+            )
         }
     }
 
-    override fun getDeactivatedBookletsFromServer(): Single<Pair<Int, List<Booklet>>> {
+    override fun getDeactivatedBookletsFromServer(): Single<BookletsWithResponseCode> {
         return api.getDeactivatedBooklets().map { response ->
             var booklets = response.body()
             if (booklets == null) {
                 booklets = listOf()
             }
-            Pair(response.code(), booklets.map {
-                convert(it).apply {
-                    this.state = Booklet.STATE_DEACTIVATED
-                }
-            })
+
+            BookletsWithResponseCode(
+                booklets = booklets.map {
+                    convert(it).apply {
+                        this.state = Booklet.STATE_DEACTIVATED
+                    }
+                },
+                responseCode = response.code()
+            )
         }
     }
 

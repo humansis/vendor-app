@@ -20,6 +20,6 @@ interface BlockedCardDao {
     @Query("DELETE FROM " + VendorDb.TABLE_BLOCKED_SMARTCARD)
     fun deleteAll()
 
-    @Query("SELECT * FROM " + VendorDb.TABLE_BLOCKED_SMARTCARD + " WHERE id = :id")
-    fun getBlockedCard(id: String): Maybe<BlockedCardDbEntity>
+    @Query("SELECT EXISTS (SELECT * FROM " + VendorDb.TABLE_BLOCKED_SMARTCARD + " WHERE id = :id)")
+    fun isBlockedCard(id: String): Boolean
 }

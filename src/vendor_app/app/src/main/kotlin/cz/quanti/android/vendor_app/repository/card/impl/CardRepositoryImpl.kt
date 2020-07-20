@@ -5,7 +5,6 @@ import cz.quanti.android.vendor_app.repository.card.CardRepository
 import cz.quanti.android.vendor_app.repository.card.dao.BlockedCardDao
 import cz.quanti.android.vendor_app.repository.card.dto.db.BlockedCardDbEntity
 import io.reactivex.Completable
-import io.reactivex.Maybe
 import io.reactivex.Single
 
 class CardRepositoryImpl(
@@ -25,15 +24,15 @@ class CardRepositoryImpl(
         }
     }
 
-    override fun getBlockedCard(id: String): Maybe<String> {
-        return blockedCardDao.getBlockedCard(id).map {
-            it.id
+    override fun isBlockedCard(id: String): Single<Boolean> {
+        return Single.fromCallable{
+            blockedCardDao.isBlockedCard(id)
         }
     }
 
     override fun saveBlockedCard(cardId: String): Completable {
         return Completable.fromCallable {
-            blockedCardDao.insert(BlockedCardDbEntity(cardId))
+            blockedCardDao.insert(BlockedCardDbEntity(cardId.toUpperCase()))
         }
     }
 

@@ -66,25 +66,25 @@ class PurchaseRepositoryImpl(
         }
     }
 
-    override fun sendCardPurchaseToServer(purchase: Purchase): Maybe<Int> {
+    override fun sendCardPurchaseToServer(purchase: Purchase): Single<Int> {
         return if (purchase.smartcard != null) {
             api.postCardPurchase(purchase.smartcard!!, convertToCardApi(purchase)).map { response ->
                 response.code()
-            }.toMaybe()
+            }
         } else {
-            Maybe.empty()
+            Single.just(200)
         }
     }
 
-    override fun sendVoucherPurchasesToServer(purchases: List<Purchase>): Maybe<Int> {
-        val voucherPurchases =
-            purchases.filter { it.vouchers.isNotEmpty() }.map { convertToVoucherApi(it) }
+    override fun sendVoucherPurchasesToServer(purchases: List<Purchase>): Single<Int> {
+        val voucherPurchases = purchases.map { convertToVoucherApi(it) }
+
         return if (voucherPurchases.isNotEmpty()) {
             api.postVoucherPurchases(voucherPurchases).map { response ->
                 response.code()
-            }.toMaybe()
+            }
         } else {
-            Maybe.empty()
+            Single.just(200)
         }
     }
 
@@ -103,7 +103,8 @@ class PurchaseRepositoryImpl(
                                         .flatMapSingle { voucherPurchasesDb ->
                                             val purchase = Purchase(
                                                 smartcard = cardPurchaseDb.card,
-                                                createdAt = purchaseDb.createdAt
+                                                createdAt = purchaseDb.createdAt,
+                                                dbId = purchaseDb.dbId
                                             )
                                             purchase.products.addAll(productsDb.map { convert(it) })
                                             purchase.vouchers.addAll(voucherPurchasesDb.map { it.voucher })
@@ -123,6 +124,14 @@ class PurchaseRepositoryImpl(
             cardPurchaseDao.deleteAll()
             selectedProductDao.deleteAll()
         }
+    }
+
+    override fun deleteCardPurchase(purchase: Purchase): Completable {
+        return Completable.fromCallable { cardPurchaseDao.deleteCardForPurchase(purchase.dbId) }
+    }
+
+    override fun deleteAllVoucherPurchases(): Completable {
+        return Completable.fromCallable{ voucherPurchaseDao.deleteAll() }
     }
 
     private fun saveSelectedProducts(
@@ -164,7 +173,8 @@ class PurchaseRepositoryImpl(
     private fun convertToDb(purchase: Purchase): PurchaseDbEntity {
         return PurchaseDbEntity(
             createdAt = purchase.createdAt,
-            vendorId = purchase.vendorId
+            vendorId = purchase.vendorId,
+            dbId = purchase.dbId
         )
     }
 

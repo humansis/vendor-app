@@ -1,6 +1,7 @@
 package cz.quanti.android.vendor_app.repository.booklet
 
 import cz.quanti.android.vendor_app.repository.booklet.dto.Booklet
+import cz.quanti.android.vendor_app.repository.booklet.dto.api.BookletsWithResponseCode
 import io.reactivex.Completable
 import io.reactivex.Single
 
@@ -10,9 +11,9 @@ interface BookletRepository {
 
     fun saveBooklet(booklet: Booklet): Completable
 
-    fun getDeactivatedBookletsFromServer(): Single<Pair<Int, List<Booklet>>>
+    fun getDeactivatedBookletsFromServer(): Single<BookletsWithResponseCode>
 
-    fun getProtectedBookletsFromServer(): Single<Pair<Int, List<Booklet>>>
+    fun getProtectedBookletsFromServer(): Single<BookletsWithResponseCode>
 
     fun getNewlyDeactivatedBooklets(): Single<List<Booklet>>
 

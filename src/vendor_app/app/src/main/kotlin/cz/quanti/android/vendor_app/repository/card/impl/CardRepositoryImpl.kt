@@ -6,6 +6,7 @@ import cz.quanti.android.vendor_app.repository.card.dao.BlockedCardDao
 import cz.quanti.android.vendor_app.repository.card.dto.db.BlockedCardDbEntity
 import io.reactivex.Completable
 import io.reactivex.Single
+import java.util.*
 
 class CardRepositoryImpl(
     private val blockedCardDao: BlockedCardDao,
@@ -32,7 +33,7 @@ class CardRepositoryImpl(
 
     override fun saveBlockedCard(cardId: String): Completable {
         return Completable.fromCallable {
-            blockedCardDao.insert(BlockedCardDbEntity(cardId.toUpperCase()))
+            blockedCardDao.insert(BlockedCardDbEntity(cardId.toUpperCase(Locale.US)))
         }
     }
 

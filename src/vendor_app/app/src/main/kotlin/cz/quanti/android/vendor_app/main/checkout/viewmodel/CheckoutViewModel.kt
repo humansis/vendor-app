@@ -78,7 +78,7 @@ class CheckoutViewModel(
         return subtractMoneyFromCard(pin, value, currency).flatMap {
             val tag = it.first
             val userBalance = it.second
-            saveCardPurchaseToDb(NfcUtil.toHexString(tag.id).toUpperCase())
+            saveCardPurchaseToDb(NfcUtil.toHexString(tag.id).toUpperCase(Locale.US))
                 .subscribeOn(Schedulers.io())
                 .toSingleDefault(Pair(tag, userBalance))
                 .flatMap {

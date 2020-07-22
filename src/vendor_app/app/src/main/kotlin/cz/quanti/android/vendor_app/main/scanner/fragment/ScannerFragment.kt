@@ -20,8 +20,8 @@ import cz.quanti.android.vendor_app.MainActivity
 import cz.quanti.android.vendor_app.R
 import cz.quanti.android.vendor_app.main.scanner.ScannedVoucherReturnState
 import cz.quanti.android.vendor_app.main.scanner.viewmodel.ScannerViewModel
-import cz.quanti.android.vendor_app.repository.voucher.dto.Booklet
-import cz.quanti.android.vendor_app.repository.voucher.dto.Voucher
+import cz.quanti.android.vendor_app.repository.booklet.dto.Booklet
+import cz.quanti.android.vendor_app.repository.booklet.dto.Voucher
 import cz.quanti.android.vendor_app.utils.Constants
 import cz.quanti.android.vendor_app.utils.hashSHA1
 import io.reactivex.android.schedulers.AndroidSchedulers

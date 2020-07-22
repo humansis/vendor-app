@@ -127,9 +127,10 @@ class VendorFragment() : Fragment(), VendorFragmentCallback {
         } else {
             childFragmentManager.beginTransaction().apply {
                 replace(
-                    R.id.rightFragmentContainer,
+                    R.id.bottomFragmentContainer,
                     productDetailFragment
                 )
+                replace(R.id.topFragmentContainer, ProductsFragment())
             }
         }
         transaction.commit()
@@ -144,7 +145,8 @@ class VendorFragment() : Fragment(), VendorFragmentCallback {
             }
         } else {
             childFragmentManager.beginTransaction().apply {
-                replace(R.id.rightFragmentContainer, ShoppingCartFragment())
+                replace(R.id.topFragmentContainer, ProductsFragment())
+                replace(R.id.bottomFragmentContainer, ShoppingCartFragment())
             }
 
         }
@@ -160,7 +162,8 @@ class VendorFragment() : Fragment(), VendorFragmentCallback {
             }
         } else {
             childFragmentManager.beginTransaction().apply {
-                replace(R.id.rightFragmentContainer, ProductsFragment())
+                replace(R.id.topFragmentContainer, ProductsFragment())
+                replace(R.id.bottomFragmentContainer, ShoppingCartFragment())
             }
 
         }
@@ -206,7 +209,7 @@ class VendorFragment() : Fragment(), VendorFragmentCallback {
         } else {
             val transaction = childFragmentManager.beginTransaction().apply {
                 replace(
-                    R.id.rightFragmentContainer,
+                    R.id.bottomFragmentContainer,
                     ProductDetailFragment::class.java,
                     bundle,
                     PRODUCT_DETAIL_FRAGMENT_TAG
@@ -225,7 +228,8 @@ class VendorFragment() : Fragment(), VendorFragmentCallback {
 
         if (!isLandscapeOriented()) {
             val transaction = childFragmentManager.beginTransaction().apply {
-                replace(R.id.rightFragmentContainer, ProductsFragment())
+                replace(R.id.topFragmentContainer, ProductsFragment())
+                replace(R.id.bottomFragmentContainer, ShoppingCartFragment())
             }
             transaction.commit()
         } else {

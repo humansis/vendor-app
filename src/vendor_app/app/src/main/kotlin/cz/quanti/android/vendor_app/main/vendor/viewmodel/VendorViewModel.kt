@@ -4,29 +4,43 @@ import androidx.lifecycle.ViewModel
 import cz.quanti.android.vendor_app.repository.AppPreferences
 import cz.quanti.android.vendor_app.repository.product.ProductFacade
 import cz.quanti.android.vendor_app.repository.product.dto.Product
-import cz.quanti.android.vendor_app.repository.product.dto.SelectedProduct
-import cz.quanti.android.vendor_app.repository.voucher.VoucherFacade
+import cz.quanti.android.vendor_app.repository.purchase.dto.SelectedProduct
+import cz.quanti.android.vendor_app.repository.synchronization.SynchronizationFacade
+import cz.quanti.android.vendor_app.utils.CurrentVendor
 import cz.quanti.android.vendor_app.utils.ShoppingHolder
+import cz.quanti.android.vendor_app.utils.getDefaultCurrency
 import io.reactivex.Completable
 import io.reactivex.Single
 
 class VendorViewModel(
     private val shoppingHolder: ShoppingHolder,
     private val productFacade: ProductFacade,
-    private val voucherFacade: VoucherFacade,
-    private val preferences: AppPreferences
+    private val syncFacade: SynchronizationFacade,
+    private val preferences: AppPreferences,
+    private val currentVendor: CurrentVendor
 ) : ViewModel() {
+
+    fun getLastCurrencySelection(): String {
+        if (shoppingHolder.lastCurrencySelection == "") {
+            shoppingHolder.lastCurrencySelection = getDefaultCurrency(currentVendor.vendor.country)
+        }
+        return shoppingHolder.lastCurrencySelection
+    }
+
+    fun setLastCurrencySelection(selected: String) {
+        shoppingHolder.lastCurrencySelection = selected
+    }
 
     fun getProducts(): Single<List<Product>> {
         return productFacade.getProducts()
     }
 
     fun synchronizeWithServer(): Completable {
-        return voucherFacade.syncWithServer()
+        return syncFacade.synchronize()
     }
 
     fun getFirstCurrencies(): List<String> {
-        return listOf("USD", "SYP", "EUR")
+        return listOf("USD", "EUR", "SYP", "KHR", "UAH")
     }
 
     fun removeFromCart(position: Int) {

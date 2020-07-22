@@ -1,35 +1,43 @@
 package cz.quanti.android.vendor_app.main.checkout.viewmodel
 
+import android.nfc.Tag
 import androidx.lifecycle.ViewModel
+import cz.quanti.android.nfc.VendorFacade
+import cz.quanti.android.nfc.dto.UserBalance
+import cz.quanti.android.nfc_io_libray.types.NfcUtil
 import cz.quanti.android.vendor_app.main.checkout.CheckoutScreenState
-import cz.quanti.android.vendor_app.repository.product.dto.SelectedProduct
-import cz.quanti.android.vendor_app.repository.voucher.VoucherFacade
-import cz.quanti.android.vendor_app.repository.voucher.dto.Voucher
+import cz.quanti.android.vendor_app.repository.booklet.dto.Voucher
+import cz.quanti.android.vendor_app.repository.purchase.PurchaseFacade
+import cz.quanti.android.vendor_app.repository.purchase.dto.Purchase
+import cz.quanti.android.vendor_app.repository.purchase.dto.SelectedProduct
 import cz.quanti.android.vendor_app.utils.CurrentVendor
+import cz.quanti.android.vendor_app.utils.NfcTagPublisher
 import cz.quanti.android.vendor_app.utils.ShoppingHolder
+import cz.quanti.android.vendor_app.utils.convertTimeForApiRequestBody
 import io.reactivex.Completable
+import io.reactivex.Single
+import io.reactivex.schedulers.Schedulers
 import java.util.*
 
 class CheckoutViewModel(
     private val shoppingHolder: ShoppingHolder,
-    private val voucherFacade: VoucherFacade,
-    private val currentVendor: CurrentVendor
+    private val purchaseFacade: PurchaseFacade,
+    private val nfcFacade: VendorFacade,
+    private val currentVendor: CurrentVendor,
+    private val nfcTagPublisher: NfcTagPublisher
 ) : ViewModel() {
-    private var cart: MutableList<SelectedProduct> = mutableListOf()
     private var vouchers: MutableList<Voucher> = mutableListOf()
 
     fun init() {
-        this.cart = shoppingHolder.cart
         this.vouchers = shoppingHolder.vouchers
     }
 
     fun proceed(): Completable {
-        useVouchers()
-        return voucherFacade.saveVouchers(vouchers)
+        return purchaseFacade.savePurchase(createVoucherPurchase())
     }
 
     fun getTotal(): Double {
-        val total = cart.map { it.subTotal }.sum()
+        val total = shoppingHolder.cart.map { it.price }.sum()
         val paid = vouchers.map { it.value }.sum()
         return total - paid
     }
@@ -39,7 +47,7 @@ class CheckoutViewModel(
     }
 
     fun getShoppingCart(): List<SelectedProduct> {
-        return cart
+        return shoppingHolder.cart
     }
 
     fun clearVouchers() {
@@ -47,7 +55,7 @@ class CheckoutViewModel(
     }
 
     fun clearShoppingCart() {
-        cart.clear()
+        shoppingHolder.cart.clear()
     }
 
     fun setScreenState(state: CheckoutScreenState) {
@@ -66,13 +74,51 @@ class CheckoutViewModel(
         shoppingHolder.chosenCurrency = ""
     }
 
-    private fun useVouchers() {
-        for (voucher in vouchers) {
-            voucher.usedAt = Calendar.getInstance().time
-            voucher.vendorId = currentVendor.vendor.id
-            voucher.price = cart.map { it.subTotal }.sum()
-            voucher.productIds =
-                cart.map { product -> product.product.id }.distinct().toTypedArray()
+    fun payByCard(pin: String, value: Double, currency: String): Single<Pair<Tag, UserBalance>> {
+        return subtractMoneyFromCard(pin, value, currency).flatMap {
+            val tag = it.first
+            val userBalance = it.second
+            saveCardPurchaseToDb(NfcUtil.toHexString(tag.id).toUpperCase(Locale.US))
+                .subscribeOn(Schedulers.io())
+                .toSingleDefault(Pair(tag, userBalance))
+                .flatMap {
+                    Single.just(it)
+                }
+        }
+    }
+
+    private fun createVoucherPurchase(): Purchase {
+        return Purchase().apply {
+            products.addAll(shoppingHolder.cart)
+            vouchers.addAll(shoppingHolder.vouchers.map { it.id })
+            vendorId = currentVendor.vendor.id
+            createdAt = convertTimeForApiRequestBody(Date())
+        }
+    }
+
+    private fun subtractMoneyFromCard(
+        pin: String,
+        value: Double,
+        currency: String
+    ): Single<Pair<Tag, UserBalance>> {
+        return Single.fromObservable(
+            nfcTagPublisher.getTagObservable().take(1).flatMapSingle { tag ->
+                nfcFacade.subtractFromBalance(tag, pin, value, currency).map { userBalance ->
+                    Pair(tag, userBalance)
+                }
+            })
+    }
+
+    private fun saveCardPurchaseToDb(card: String): Completable {
+        return purchaseFacade.savePurchase(createCardPurchase(card))
+    }
+
+    private fun createCardPurchase(card: String): Purchase {
+        return Purchase().apply {
+            products.addAll(shoppingHolder.cart)
+            smartcard = card
+            vendorId = currentVendor.vendor.id
+            createdAt = convertTimeForApiRequestBody(Date())
         }
     }
 }

@@ -64,6 +64,11 @@ class CheckoutFragment() : Fragment(), CheckoutFragmentCallback {
         actualizeTotal()
     }
 
+    override fun onStop() {
+        disposable?.dispose()
+        super.onStop()
+    }
+
     override fun onDestroy() {
         vm.setScreenState(state)
         disposable?.dispose()
@@ -163,7 +168,9 @@ class CheckoutFragment() : Fragment(), CheckoutFragmentCallback {
     }
 
     override fun payByCard() {
-        // TODO card stuff there
+        findNavController().navigate(
+            CheckoutFragmentDirections.actionCheckoutFragmentToScanCardFragment()
+        )
     }
 
     private fun initSelectedProductsAdapter() {

@@ -90,8 +90,6 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="10dp"
-                    android:backgroundTint="@color/lightGrey"
-                    android:elevation="2dp"
                     android:text="@string/pay_by_voucher"
                     android:textColor="@color/colorPrimaryDark"
                     app:icon="@drawable/photo_camera"
@@ -101,15 +99,14 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/paymentTitleTextView"
                     app:strokeColor="@color/colorPrimaryDark"
-                    app:strokeWidth="1dp" />
+                    app:strokeWidth="1dp"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/payByCardButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="10dp"
-                    android:backgroundTint="@color/lightGrey"
-                    android:elevation="2dp"
                     android:text="@string/pay_by_card"
                     android:textColor="@color/colorPrimaryDark"
                     app:icon="@drawable/credit_card"
@@ -119,7 +116,8 @@
                     app:layout_constraintStart_toEndOf="@+id/center"
                     app:layout_constraintTop_toBottomOf="@+id/paymentTitleTextView"
                     app:strokeColor="@color/colorPrimaryDark"
-                    app:strokeWidth="1dp" />
+                    app:strokeWidth="1dp"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
 
                 <LinearLayout
                     android:id="@+id/center"
@@ -235,7 +233,9 @@
             android:backgroundTint="@color/red"
             android:text="@string/cancel"
             app:icon="@drawable/clear"
-            android:textColor="@color/white" />
+            android:textColor="@color/white"
+            android:stateListAnimator="@null"
+            app:elevation="0dp" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/proceedButton"
@@ -249,7 +249,9 @@
             android:backgroundTint="@color/green"
             android:text="@string/proceed"
             app:icon="@drawable/check"
-            android:textColor="@color/white" />
+            android:textColor="@color/white"
+            android:stateListAnimator="@null"
+            app:elevation="0dp" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

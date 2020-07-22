@@ -2,16 +2,16 @@ package cz.quanti.android.vendor_app.main.scanner.viewmodel
 
 import androidx.lifecycle.ViewModel
 import cz.quanti.android.vendor_app.main.scanner.ScannedVoucherReturnState
-import cz.quanti.android.vendor_app.repository.voucher.VoucherFacade
-import cz.quanti.android.vendor_app.repository.voucher.dto.Booklet
-import cz.quanti.android.vendor_app.repository.voucher.dto.Voucher
+import cz.quanti.android.vendor_app.repository.booklet.BookletFacade
+import cz.quanti.android.vendor_app.repository.booklet.dto.Booklet
+import cz.quanti.android.vendor_app.repository.booklet.dto.Voucher
 import cz.quanti.android.vendor_app.utils.ShoppingHolder
 import io.reactivex.Completable
 import io.reactivex.Single
 
 class ScannerViewModel(
     private val shoppingHolder: ShoppingHolder,
-    private val voucherFacade: VoucherFacade
+    private val bookletFacade: BookletFacade
 ) : ViewModel() {
 
     fun getDeactivatedAndProtectedBooklets(): Single<Pair<List<Booklet>, List<Booklet>>> {
@@ -23,11 +23,11 @@ class ScannerViewModel(
     }
 
     private fun getDeactivatedBooklets(): Single<List<Booklet>> {
-        return voucherFacade.getAllDeactivatedBooklets()
+        return bookletFacade.getAllDeactivatedBooklets()
     }
 
     private fun getProtectedBooklets(): Single<List<Booklet>> {
-        return voucherFacade.getProtectedBooklets()
+        return bookletFacade.getProtectedBooklets()
     }
 
 
@@ -48,7 +48,15 @@ class ScannerViewModel(
             "^([A-Z$€£]+)(\\d+)\\*([\\d]+-[\\d]+-[\\d]+)-([\\d]+)-([\\dA-Z=+-/]+)$",
             RegexOption.IGNORE_CASE
         )
+        var newRegex = Regex(
+            "^([A-Z$€£]+)(\\d+)\\*([a-zA-Z0-9]{2,3}_.+_[0-9]{1,2}-[0-9]{1,2}-[0-9]{2,4}_batch[0-9]+)-([\\d]+)-([\\dA-Z=+-/]+)$",
+            RegexOption.IGNORE_CASE
+        )
+
         var scannedCodeInfo = regex.matchEntire(scannedCode)
+        if (scannedCodeInfo == null) {
+            scannedCodeInfo = newRegex.matchEntire(scannedCode)
+        }
         if (scannedCodeInfo != null) {
             scannedCodeInfo.groups[5]?.value?.let { passwords.add(it) }
             returnCode = ScannedVoucherReturnState.VOUCHER_WITH_PASSWORD
@@ -57,13 +65,28 @@ class ScannerViewModel(
                 "^([A-Z$€£]+)(\\d+)\\*([\\d]+-[\\d]+-[\\d]+)-([\\d]+)$",
                 RegexOption.IGNORE_CASE
             )
+            newRegex = Regex(
+                "^([A-Z$€£]+)(\\d+)\\*([a-zA-Z0-9]{2,3}_.+_[0-9]{1,2}-[0-9]{1,2}-[0-9]{2,4}_batch[0-9]+)-([\\d]+)$",
+                RegexOption.IGNORE_CASE
+            )
+
             scannedCodeInfo = regex.matchEntire(scannedCode)
+            if (scannedCodeInfo == null) {
+                scannedCodeInfo = newRegex.matchEntire(scannedCode)
+            }
             if (scannedCodeInfo != null) {
                 scannedCodeInfo.groups[3]?.value?.let { bookletCode = it }
                 returnCode = ScannedVoucherReturnState.VOUCHER_WITHOUT_PASSWORD
             } else {
                 regex = Regex("^([\\d]+-[\\d]+-[\\d]+)$", RegexOption.IGNORE_CASE)
+                newRegex = Regex(
+                    "^([a-zA-Z0-9]{2,3}_.+_[0-9]{1,2}-[0-9]{1,2}-[0-9]{2,4}_batch[0-9]+)$",
+                    RegexOption.IGNORE_CASE
+                )
                 scannedCodeInfo = regex.matchEntire(scannedCode)
+                if (scannedCodeInfo == null) {
+                    scannedCodeInfo = newRegex.matchEntire(scannedCode)
+                }
                 return if (scannedCodeInfo != null) {
                     Pair(null, ScannedVoucherReturnState.BOOKLET)
                 } else {
@@ -102,7 +125,7 @@ class ScannerViewModel(
     }
 
     fun deactivate(voucher: Voucher): Completable {
-        return voucherFacade.deactivate(voucher.booklet)
+        return bookletFacade.deactivate(voucher.booklet)
     }
 
     fun wasAlreadyScanned(code: String): Boolean {

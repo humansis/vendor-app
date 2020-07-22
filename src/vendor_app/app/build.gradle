@@ -12,6 +12,9 @@ apply plugin: "androidx.navigation.safeargs.kotlin"
 repositories {
     jcenter()
     maven { url 'https://jitpack.io' }
+    flatDir {
+        dirs 'libs'
+    }
 }
 
 configurations {
@@ -32,6 +35,10 @@ android {
         versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
+        buildConfigField "String", "MASTER_KEY", "\"$MASTER_KEY\""
+        buildConfigField "String", "APP_ID", "\"$APP_ID\""
+        buildConfigField "short", "APP_VESION", "$APP_VERSION"
+
         buildConfigField "String", "API_URL", "\"$API_URL\""
         buildConfigField "String", "FRONT_API_URL", "\"$FRONT_API_URL\""
         buildConfigField "String", "DEMO_API_URL", "\"$DEMO_API_URL\""
@@ -63,6 +70,8 @@ android {
 
 dependencies {
 
+    implementation fileTree(dir: 'libs', include: ['*.jar', '*.aar'])
+
     //ktlint
     ktlint "com.pinterest:ktlint:0.35.0"
 
@@ -72,7 +81,6 @@ dependencies {
     // Add the Firebase SDK for Crashlytics.
     implementation 'com.google.firebase:firebase-crashlytics:17.0.0-beta01'
 
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation project(':core')
     implementation "com.github.Qase:KotlinLogger:$kotlin_logger_version"
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"

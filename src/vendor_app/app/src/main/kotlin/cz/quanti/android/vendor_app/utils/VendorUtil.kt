@@ -3,14 +3,18 @@ package cz.quanti.android.vendor_app.utils
 import android.content.Context
 import android.net.ConnectivityManager
 import java.text.DecimalFormat
+import java.text.SimpleDateFormat
+import java.util.*
+import kotlin.math.abs
 import kotlin.math.roundToInt
 
 fun getStringFromDouble(double: Double): String {
+    val abs = abs(double)
     return when {
-        double % 1.0 < 0.001 -> {
+        abs % 1.0 < 0.001 -> {
             double.roundToInt().toString()
         }
-        (double * 10) % 1.0 < 0.01 -> {
+        (abs * 10) % 1.0 < 0.01 -> {
             DecimalFormat("#.#").format(double)
         }
         else -> {
@@ -29,4 +33,18 @@ fun isNetworkAvailable(context: Context): Boolean {
         context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
     val networkInfo = connectivityManager.activeNetworkInfo
     return networkInfo != null && networkInfo.isConnected
+}
+
+fun convertTimeForApiRequestBody(date: Date): String {
+    return SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ", Locale.US)
+        .format(date)
+}
+
+fun getDefaultCurrency(country: String): String {
+    return when (country) {
+        "KHM" -> "KHR"
+        "SYR" -> "SYP"
+        "UKR" -> "UAH"
+        else -> ""
+    }
 }

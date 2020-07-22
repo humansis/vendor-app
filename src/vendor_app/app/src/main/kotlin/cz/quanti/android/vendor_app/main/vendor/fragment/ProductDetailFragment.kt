@@ -12,7 +12,7 @@ import cz.quanti.android.vendor_app.main.vendor.adapter.CurrencyAdapter
 import cz.quanti.android.vendor_app.main.vendor.callback.VendorFragmentCallback
 import cz.quanti.android.vendor_app.main.vendor.viewmodel.VendorViewModel
 import cz.quanti.android.vendor_app.repository.product.dto.Product
-import cz.quanti.android.vendor_app.repository.product.dto.SelectedProduct
+import cz.quanti.android.vendor_app.repository.purchase.dto.SelectedProduct
 import kotlinx.android.synthetic.main.fragment_product_detail.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -74,21 +74,20 @@ class ProductDetailFragment : Fragment() {
 
     private fun initOnClickListeners() {
         addToCartButton.setOnClickListener {
-            if (quantityEditText.text.toString().isEmpty() || unitPriceEditText.text.toString()
-                    .isEmpty()
+            if (unitPriceEditText.text.toString().isEmpty()
             ) {
                 Toast.makeText(
                     requireContext(),
-                    getString(R.string.please_enter_quantity_and_price),
+                    getString(R.string.please_enter_price),
                     Toast.LENGTH_LONG
                 ).show()
             } else {
                 if (vm.getShoppingCart().isEmpty()) {
                     vm.setCurrency(priceUnitSpinner.selectedItem as String)
+                    vm.setLastCurrencySelection(priceUnitSpinner.selectedItem as String)
                 }
                 addProductToCart(
                     product,
-                    quantityEditText.text.toString().toDouble(),
                     unitPriceEditText.text.toString().toDouble()
                 )
                 goToCart()
@@ -116,13 +115,11 @@ class ProductDetailFragment : Fragment() {
         vendorFragmentCallback.backToProducts()
     }
 
-    private fun addProductToCart(product: Product, quantity: Double, unitPrice: Double) {
+    private fun addProductToCart(product: Product, unitPrice: Double) {
         val selected = SelectedProduct()
             .apply {
                 this.product = product
-                this.quantity = quantity
                 this.price = unitPrice
-                this.subTotal = unitPrice * quantity
                 this.currency = vm.getCurrency()
             }
         vm.addToShoppingCart(selected)
@@ -133,11 +130,13 @@ class ProductDetailFragment : Fragment() {
         currencyAdapter?.init(vm.getFirstCurrencies())
         currencyAdapter?.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         priceUnitSpinner.adapter = currencyAdapter
+        priceUnitSpinner.setSelection(
+            currencyAdapter?.getPosition(vm.getLastCurrencySelection()) ?: 0
+        )
     }
 
     private fun initProductRelatedInfo() {
         productName.text = product.name
-        quantityUnitTextView.text = product.unit
         Picasso.get().load(product.image).into(productImageView)
     }
 }

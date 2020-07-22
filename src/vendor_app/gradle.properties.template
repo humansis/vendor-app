@@ -4,6 +4,10 @@ android.enableJetifier=true
 kotlin.code.style=official
 android.enableUnitTestBinaryResources=true
 
+MASTER_KEY=${MASTER_KEY}
+APP_ID=${APP_ID}
+APP_VERSION=${APP_VERSION}
+
 API_URL=${API_URL}
 
 FRONT_API_URL=${FRONT_API_URL}

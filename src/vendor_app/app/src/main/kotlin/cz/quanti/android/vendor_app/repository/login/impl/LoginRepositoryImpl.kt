@@ -4,29 +4,27 @@ import cz.quanti.android.vendor_app.repository.VendorAPI
 import cz.quanti.android.vendor_app.repository.login.LoginRepository
 import cz.quanti.android.vendor_app.repository.login.dto.Salt
 import cz.quanti.android.vendor_app.repository.login.dto.Vendor
-import cz.quanti.android.vendor_app.repository.login.dto.api.SaltApiEntity
-import cz.quanti.android.vendor_app.repository.login.dto.api.VendorApiEntity
-import cz.quanti.android.vendor_app.repository.login.dto.api.VendorLocationApiEntity
+import cz.quanti.android.vendor_app.repository.login.dto.api.*
 import io.reactivex.Single
 
 class LoginRepositoryImpl(private val api: VendorAPI) :
     LoginRepository {
 
-    override fun getSalt(username: String): Single<Pair<Int, Salt>> {
+    override fun getSalt(username: String): Single<SaltWithResponseCode> {
         return api.getSalt(username).map { response ->
-            Pair(response.code(), convert(response.body()))
+            SaltWithResponseCode(salt = convert(response.body()), responseCode = response.code())
         }
     }
 
-    override fun login(vendor: Vendor): Single<Pair<Int, Vendor>> {
+    override fun login(vendor: Vendor): Single<VendorWithResponseCode> {
         return api.postLogin(convert(vendor)).map { response ->
-            Pair(response.code(), convert(response.body()))
+            VendorWithResponseCode(vendor = convert(response.body()), responseCode = response.code())
         }
     }
 
-    override fun getVendor(id: String): Single<Pair<Int, Vendor>> {
+    override fun getVendor(id: Long): Single<VendorWithResponseCode> {
         return api.getVendor(id).map { response ->
-            Pair(response.code(), convert(response.body()))
+            VendorWithResponseCode(vendor = convert(response.body()), responseCode = response.code())
         }
     }
 
@@ -61,7 +59,7 @@ class LoginRepositoryImpl(private val api: VendorAPI) :
                 this.username = vendorApiEntity.username
                 this.password = vendorApiEntity.password
                 this.saltedPassword = vendorApiEntity.saltedPassword
-                this.shop = vendorApiEntity.shop
+                this.shop = vendorApiEntity.shop ?: ""
                 this.address = vendorApiEntity.adress
                 this.loggedIn = vendorApiEntity.loggedIn
                 this.products = vendorApiEntity.products

@@ -101,11 +101,13 @@ class LoginFragment : Fragment() {
                 animation.repeatCount = Animation.INFINITE
                 loadingImageView.startAnimation(animation)
 
+                disposable?.dispose()
                 disposable =
                     vm.login(usernameEditText.text.toString(), passwordEditText.text.toString())
                         .subscribeOn(
                             Schedulers.io()
-                        ).observeOn(AndroidSchedulers.mainThread()).subscribe(
+                        ).observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(
                             {
                                 loadingImageView.animation.repeatCount = 0
                                 findNavController().navigate(
@@ -135,7 +137,7 @@ class LoginFragment : Fragment() {
     }
 
     override fun onDestroy() {
-        super.onDestroy()
         disposable?.dispose()
+        super.onDestroy()
     }
 }

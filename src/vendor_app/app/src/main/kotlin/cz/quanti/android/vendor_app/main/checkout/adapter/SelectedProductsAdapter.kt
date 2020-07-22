@@ -6,7 +6,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.squareup.picasso.Picasso
 import cz.quanti.android.vendor_app.R
 import cz.quanti.android.vendor_app.main.checkout.viewholder.SelectedProductsViewHolder
-import cz.quanti.android.vendor_app.repository.product.dto.SelectedProduct
+import cz.quanti.android.vendor_app.repository.purchase.dto.SelectedProduct
 import cz.quanti.android.vendor_app.utils.getStringFromDouble
 
 class SelectedProductsAdapter() :
@@ -32,11 +32,7 @@ class SelectedProductsAdapter() :
             .into(holder.image)
 
         holder.productDetail.text = item.product.name
-        holder.amount.text = getStringFromDouble(
-            item.quantity
-        ) + " " + item.product.unit
-        holder.price.text =
-            getStringFromDouble(item.subTotal) + " " + chosenCurrency
+        holder.price.text = getStringFromDouble(item.price) + " " + chosenCurrency
     }
 
     fun setData(data: List<SelectedProduct>) {

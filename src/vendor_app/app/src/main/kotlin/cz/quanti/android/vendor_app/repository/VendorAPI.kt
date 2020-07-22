@@ -1,17 +1,15 @@
 package cz.quanti.android.vendor_app.repository
 
+import cz.quanti.android.vendor_app.repository.booklet.dto.api.BookletApiEntity
+import cz.quanti.android.vendor_app.repository.booklet.dto.api.BookletCodesBody
 import cz.quanti.android.vendor_app.repository.login.dto.api.SaltApiEntity
 import cz.quanti.android.vendor_app.repository.login.dto.api.VendorApiEntity
 import cz.quanti.android.vendor_app.repository.product.dto.api.ProductApiEntity
-import cz.quanti.android.vendor_app.repository.voucher.dto.api.BookletApiEntity
-import cz.quanti.android.vendor_app.repository.voucher.dto.api.BookletCodesBody
-import cz.quanti.android.vendor_app.repository.voucher.dto.api.VoucherApiEntity
+import cz.quanti.android.vendor_app.repository.purchase.dto.api.CardPurchaseApiEntity
+import cz.quanti.android.vendor_app.repository.purchase.dto.api.VoucherPurchaseApiEntity
 import io.reactivex.Single
 import retrofit2.Response
-import retrofit2.http.Body
-import retrofit2.http.GET
-import retrofit2.http.POST
-import retrofit2.http.Path
+import retrofit2.http.*
 
 interface VendorAPI {
 
@@ -22,7 +20,7 @@ interface VendorAPI {
     fun postLogin(@Body vendor: VendorApiEntity): Single<Response<VendorApiEntity>>
 
     @GET("vendors/{id}")
-    fun getVendor(@Path("id") id: String): Single<Response<VendorApiEntity>>
+    fun getVendor(@Path("id") id: Long): Single<Response<VendorApiEntity>>
 
     @GET("products")
     fun getProducts(): Single<Response<List<ProductApiEntity>>>
@@ -33,13 +31,22 @@ interface VendorAPI {
     @GET("protected-booklets")
     fun getProtectedBooklets(): Single<Response<List<BookletApiEntity>>>
 
-    @POST("vouchers/scanned")
-    fun postVouchers(
-        @Body vouchers: List<VoucherApiEntity>
+    @POST("vouchers/purchase")
+    fun postVoucherPurchases(
+        @Body voucherPurchases: List<VoucherPurchaseApiEntity>
     ): Single<Response<Unit>>
 
     @POST("deactivate-booklets")
     fun postBooklets(
         @Body bookletCodes: BookletCodesBody
     ): Single<Response<Unit>>
+
+    @PATCH("smartcards/{id}/purchase")
+    fun postCardPurchase(
+        @Path("id") cardId: String,
+        @Body cardPurchase: CardPurchaseApiEntity
+    ): Single<Response<Unit>>
+
+    @GET("smartcards/blocked")
+    fun getBlockedCards(): Single<Response<List<String>>>
 }

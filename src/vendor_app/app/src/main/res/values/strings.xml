@@ -7,7 +7,7 @@
     <string name="login_screen_subtitle">HUMANSIS VENDOR</string>
     <string name="version">v1.0</string>
     <string name="vendor_title">Select Product</string>
-    <string name="selectedItems">Selected Items</string>
+    <string name="selected_items">Selected Items</string>
     <string name="no_items_selected">No items selected</string>
     <string name="logout">Logout</string>
     <string name="price">Price</string>

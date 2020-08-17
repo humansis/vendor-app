@@ -4,7 +4,10 @@
     android:layout_height="wrap_content"
     android:orientation="horizontal">
 
-    <TableRow>
+    <TableRow
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:orientation="horizontal">
 
         <ImageButton
             android:id="@+id/left_menu"
@@ -25,7 +28,6 @@
             android:gravity="center_horizontal"
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:textStyle="bold"
-            android:padding="10dp"
             android:layout_alignParentTop="true"
             android:layout_weight="1" />
 

@@ -220,7 +220,12 @@ class ScannerFragment() : Fragment() {
             if (tries == 3) {
                 limitedTriesTextView.text = getString(R.string.limited_tries_text)
             } else {
-                limitedTriesTextView.text = getString(R.string.wrong_voucher_password, tries)
+                if(tries > 1)
+                {
+                    limitedTriesTextView.text = getString(R.string.wrong_voucher_password_plural, tries)
+                } else {
+                    limitedTriesTextView.text = getString(R.string.wrong_voucher_password, tries)
+                }
             }
             AlertDialog.Builder(requireContext(), R.style.DialogTheme)
                 .setView(dialogView)

@@ -14,7 +14,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_marginTop="3dp"
-        android:text="@string/selectedItems"
+        android:text="@string/selected_items"
         android:textColor="@color/black"
         android:textSize="20sp" />
 

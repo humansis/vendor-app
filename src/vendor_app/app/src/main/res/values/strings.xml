@@ -5,9 +5,9 @@
     <string name="login">login</string>
     <string name="app_name">Humansis Vendor</string>
     <string name="login_screen_subtitle">HUMANSIS VENDOR</string>
-    <string name="version">v1.0</string>
+    <string name="version">v1.1</string>
     <string name="vendor_title">Select Product</string>
-    <string name="selectedItems">Selected Items</string>
+    <string name="selected_items">Selected Items</string>
     <string name="no_items_selected">No items selected</string>
     <string name="logout">Logout</string>
     <string name="price">Price</string>
@@ -39,6 +39,7 @@
     <string name="tries_exceeded_booklet_deactivated">You have exceeded your tries at password, your booklet will be deactivated</string>
     <string name="booklet_deactivated">Booklet deactivated</string>
     <string name="wrong_voucher_password">You didn\'t type the right password. You have only %1$d tries left.</string>
+    <string name="wrong_voucher_password_plural">You didn\'t type the right password. You have only %1$d tries left.</string>
     <string name="go_to_cart">Show basket</string>
     <string name="back_button">back</string>
     <string name="pay_by_voucher">Scan a\nvoucher</string>

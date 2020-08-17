@@ -39,6 +39,7 @@
     <string name="tries_exceeded_booklet_deactivated">You have exceeded your tries at password, your booklet will be deactivated</string>
     <string name="booklet_deactivated">Booklet deactivated</string>
     <string name="wrong_voucher_password">You didn\'t type the right password. You have only %1$d tries left.</string>
+    <string name="wrong_voucher_password_plural">You didn\'t type the right password. You have only %1$d tries left.</string>
     <string name="go_to_cart">Show basket</string>
     <string name="back_button">back</string>
     <string name="pay_by_voucher">Scan a\nvoucher</string>

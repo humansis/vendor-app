@@ -39,10 +39,11 @@
     <string name="tries_exceeded_booklet_deactivated">لقد تجاوزت محاولاتك في كلمة المرور ، سيتم إلغاء تنشيط الكتيب الخاص بك</string>
     <string name="booklet_deactivated">تم إلغاء تنشيط الكتيب</string>
     <string name="wrong_voucher_password">لم تكتب كلمة المرور الصحيحة. لم يبق لديك سوى %1$d محاولة.</string>
+    <string name="wrong_voucher_password_plural">لم تكتب كلمة المرور الصحيحة. لم يبق لديك سوى %1$d محاولة.</string>
     <string name="go_to_cart">عرض السلة</string>
     <string name="back_button">عودة</string>
-    <string name="pay_by_voucher">مسح قسيمة ضوئيا</string>
-    <string name="pay_by_card">الدفع بالبطاقة</string>
+    <string name="pay_by_voucher">قسيمة ضوئيا\nمسح</string>
+    <string name="pay_by_card">ابالبطاقة\nلدفع</string>
     <string name="payment">دفع</string>
     <string name="no_internet_connection">يرجى التأكد من اتصالك بالإنترنت</string>
     <string name="could_not_synchronize_data_with_server">تعذر مزامنة البيانات مع الخادم</string>

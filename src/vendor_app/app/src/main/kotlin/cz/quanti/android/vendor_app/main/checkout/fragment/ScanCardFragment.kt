@@ -124,11 +124,12 @@ class ScanCardFragment : Fragment() {
                     val tag = it.first
                     val balance = it.second.balance
 
-                    AlertDialog.Builder(requireContext(), R.style.DialogTheme)
+                    AlertDialog.Builder(requireContext(), R.style.SuccessDialogTheme)
                         .setTitle(getString(R.string.success))
                         .setMessage(getString(R.string.card_successfuly_paid_new_balance, balance))
-                        .setPositiveButton(android.R.string.yes, null)
+                        .setPositiveButton(android.R.string.ok, null)
                         .show()
+
                     vm.clearShoppingCart()
                     vm.clearCurrency()
                     findNavController().navigate(

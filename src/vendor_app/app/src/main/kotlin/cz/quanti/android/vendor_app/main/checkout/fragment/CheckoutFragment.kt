@@ -142,6 +142,10 @@ class CheckoutFragment() : Fragment(), CheckoutFragmentCallback {
                         findNavController().navigate(
                             CheckoutFragmentDirections.actionCheckoutFragmentToVendorFragment()
                         )
+                        AlertDialog.Builder(requireContext(), R.style.SuccessDialogTheme)
+                            .setTitle(getString(R.string.success))
+                            .setPositiveButton(android.R.string.ok, null)
+                            .show()
                     },
                     {
                         Toast.makeText(

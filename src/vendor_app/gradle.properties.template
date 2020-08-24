@@ -2,7 +2,6 @@
 android.useAndroidX=true
 android.enableJetifier=true
 kotlin.code.style=official
-android.enableUnitTestBinaryResources=true
 
 MASTER_KEY=${MASTER_KEY}
 APP_ID=${APP_ID}

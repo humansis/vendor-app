@@ -45,12 +45,12 @@ class AppPreferences(context: Context) : BasePreferences(context, VERSION, MIGRA
             try {
                 vendor.apply {
                     this.id = settings.getLong(VENDOR_ID, 0)
-                    this.username = settings.getString(VENDOR_USERNAME, "")
-                    this.saltedPassword = settings.getString(VENDOR_SALTED_PASSWORD, "")
-                    this.shop = settings.getString(VENDOR_SHOP, "")
-                    this.address = settings.getString(VENDOR_ADDRESS, "")
-                    this.country = settings.getString(VENDOR_COUNTRY, "")
-                    this.language = settings.getString(VENDOR_LANGUAGE, "")
+                    this.username = settings.getString(VENDOR_USERNAME, "")!!
+                    this.saltedPassword = settings.getString(VENDOR_SALTED_PASSWORD, "")!!
+                    this.shop = settings.getString(VENDOR_SHOP, "")!!
+                    this.address = settings.getString(VENDOR_ADDRESS, "")!!
+                    this.country = settings.getString(VENDOR_COUNTRY, "")!!
+                    this.language = settings.getString(VENDOR_LANGUAGE, "")!!
                     this.loggedIn = settings.getBoolean(VENDOR_LOGGED_IN, false)
                 }
             } catch (e: ClassCastException) {
@@ -70,6 +70,6 @@ class AppPreferences(context: Context) : BasePreferences(context, VERSION, MIGRA
         }
 
     var url: String
-        get() = settings.getString(API_URL, "")
+        get() = settings.getString(API_URL, "")!!
         set(url) = settings.edit().putString(API_URL, url).apply()
 }

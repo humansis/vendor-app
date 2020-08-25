@@ -61,7 +61,7 @@ object SharedPreferencesManager : ISharedPreferencesManager, KoinComponent {
         return when (defaultValue) {
             is Int -> sharedPreferences.getInt(key, defaultValue)
             is Boolean -> sharedPreferences.getBoolean(key, defaultValue)
-            is String -> sharedPreferences.getString(key, defaultValue)
+            is String -> sharedPreferences.getString(key, defaultValue)!!
             is Float -> sharedPreferences.getFloat(key, defaultValue)
             is Long -> sharedPreferences.getLong(key, defaultValue)
             else -> throw NotImplementedError()

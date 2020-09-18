@@ -6,8 +6,9 @@ plugins {
 }
 
 apply plugin: 'kotlin-kapt'
-
 apply plugin: "androidx.navigation.safeargs.kotlin"
+apply plugin: 'com.google.gms.google-services'
+apply plugin: 'com.google.firebase.crashlytics'
 
 repositories {
     jcenter()
@@ -47,10 +48,45 @@ android {
         buildConfigField "String", "DEV_API_URL", "\"$DEV_API_URL\""
     }
 
+    signingConfigs {
+        release {
+            storeFile file("$RELEASE_STORE_FILE_PATH")
+            keyAlias "$RELEASE_STORE_KEY_ALIAS"
+            storePassword "$RELEASE_STORE_PASSWORD"
+            keyPassword "$RELEASE_STORE_KEY_PASSWORD"
+        }
+        debug {
+            storeFile file("$DEBUG_STORE_FILE_PATH")
+            keyAlias "$DEBUG_STORE_KEY_ALIAS"
+            storePassword "$DEBUG_STORE_PASSWORD"
+            keyPassword "$DEBUG_STORE_KEY_PASSWORD"
+        }
+    }
+
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
+        }
+        debug {
+            signingConfig signingConfigs.debug
+        }
+    }
+
+    flavorDimensions "environment"
+
+    productFlavors {
+
+        prod {
+            dimension "environment"
+            buildConfigField "String", "RELEASE_API_URL", "\"$PROD_RELEASE_API_URL\""
+        }
+
+        demo {
+            dimension "environment"
+            applicationIdSuffix ".demo"
+            buildConfigField "String", "RELEASE_API_URL", "\"$DEMO_RELEASE_API_URL\""
         }
     }
 
@@ -76,10 +112,11 @@ dependencies {
     ktlint "com.pinterest:ktlint:0.35.0"
 
     //analytics
-    implementation 'com.google.firebase:firebase-analytics:17.2.3'
+    implementation 'com.google.firebase:firebase-analytics:17.5.0'
+
 
     // Add the Firebase SDK for Crashlytics.
-    implementation 'com.google.firebase:firebase-crashlytics:17.0.0-beta01'
+    implementation 'com.google.firebase:firebase-crashlytics:17.2.1'
 
     implementation project(':core')
     implementation "com.github.Qase:KotlinLogger:$kotlin_logger_version"

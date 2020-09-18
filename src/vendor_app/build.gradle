@@ -43,7 +43,7 @@ buildscript {
         //firebase sdk
         classpath 'com.google.gms:google-services:4.3.3'
         //crashlytics
-        classpath 'com.google.firebase:firebase-crashlytics-gradle:2.0.0-beta02'
+        classpath 'com.google.firebase:firebase-crashlytics-gradle:2.3.0'
 
         //Navigation
         classpath "androidx.navigation:navigation-safe-args-gradle-plugin:$nav_version"

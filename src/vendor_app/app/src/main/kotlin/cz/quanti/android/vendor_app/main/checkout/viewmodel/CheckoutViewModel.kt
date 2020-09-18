@@ -4,9 +4,12 @@ import android.nfc.Tag
 import androidx.lifecycle.ViewModel
 import cz.quanti.android.nfc.VendorFacade
 import cz.quanti.android.nfc.dto.UserBalance
+import cz.quanti.android.nfc.exception.PINException
+import cz.quanti.android.nfc.exception.PINExceptionEnum
 import cz.quanti.android.nfc_io_libray.types.NfcUtil
 import cz.quanti.android.vendor_app.main.checkout.CheckoutScreenState
 import cz.quanti.android.vendor_app.repository.booklet.dto.Voucher
+import cz.quanti.android.vendor_app.repository.card.CardFacade
 import cz.quanti.android.vendor_app.repository.purchase.PurchaseFacade
 import cz.quanti.android.vendor_app.repository.purchase.dto.Purchase
 import cz.quanti.android.vendor_app.repository.purchase.dto.SelectedProduct
@@ -23,6 +26,7 @@ class CheckoutViewModel(
     private val shoppingHolder: ShoppingHolder,
     private val purchaseFacade: PurchaseFacade,
     private val nfcFacade: VendorFacade,
+    private val cardFacade: CardFacade,
     private val currentVendor: CurrentVendor,
     private val nfcTagPublisher: NfcTagPublisher
 ) : ViewModel() {
@@ -103,8 +107,16 @@ class CheckoutViewModel(
     ): Single<Pair<Tag, UserBalance>> {
         return Single.fromObservable(
             nfcTagPublisher.getTagObservable().take(1).flatMapSingle { tag ->
-                nfcFacade.subtractFromBalance(tag, pin, value, currency).map { userBalance ->
-                    Pair(tag, userBalance)
+                cardFacade.getBlockedCards()
+                    .subscribeOn(Schedulers.io())
+                    .flatMap {
+                    if(it.contains(NfcUtil.toHexString(tag.id).toUpperCase(Locale.US))) {
+                        throw PINException(PINExceptionEnum.CARD_LOCKED)
+                    } else {
+                        nfcFacade.subtractFromBalance(tag, pin, value, currency).map { userBalance ->
+                            Pair(tag, userBalance)
+                        }
+                    }
                 }
             })
     }

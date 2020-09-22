@@ -105,7 +105,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
-        if (NfcAdapter.ACTION_TAG_DISCOVERED == intent.action) {
+        if (NfcAdapter.ACTION_TAG_DISCOVERED == intent.action || NfcAdapter.ACTION_NDEF_DISCOVERED == intent.action) {
             val tag: Tag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG)
             nfcTagPublisher.getTagSubject().onNext(tag)
         }

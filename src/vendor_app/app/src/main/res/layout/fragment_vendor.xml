@@ -10,7 +10,7 @@
         android:layout_height="0dp">
 
         <FrameLayout
-            android:id="@+id/topFragmentContainer"
+            android:id="@+id/firstFragmentContainer"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
     </FrameLayout>
@@ -21,7 +21,7 @@
         android:layout_height="0dp">
 
         <FrameLayout
-            android:id="@+id/bottomFragmentContainer"
+            android:id="@+id/secondFragmentContainer"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
     </FrameLayout>

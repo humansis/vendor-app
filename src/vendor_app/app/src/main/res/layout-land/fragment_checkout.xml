@@ -235,6 +235,7 @@
             android:backgroundTint="@color/red"
             android:text="@string/cancel"
             app:icon="@drawable/clear"
+            app:iconTint="@color/white"
             android:textColor="@color/white"
             android:stateListAnimator="@null"
             app:elevation="0dp" />
@@ -251,6 +252,7 @@
             android:backgroundTint="@color/green"
             android:text="@string/proceed"
             app:icon="@drawable/check"
+            app:iconTint="@color/white"
             android:textColor="@color/white"
             android:stateListAnimator="@null"
             app:elevation="0dp" />

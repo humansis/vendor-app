@@ -14,7 +14,7 @@
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="300dp"
-            android:layout_height="630dp"
+            android:layout_height="600dp"
             android:background="@drawable/rounded_corner_box"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -114,7 +114,9 @@
                     style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    app:layout_constraintTop_toBottomOf="@+id/loginScreenSubtitleTextView">
+                    app:layout_constraintTop_toBottomOf="@+id/loginScreenSubtitleTextView"
+                    app:boxStrokeColor="@color/colorPrimary"
+                    android:textColorHint="@color/black">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/usernameEditText"
@@ -134,7 +136,9 @@
                     android:layout_height="wrap_content"
                     app:layout_constraintTop_toBottomOf="@+id/username"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent">
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:boxStrokeColor="@color/colorPrimary"
+                    android:textColorHint="@color/black">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/passwordEditText"

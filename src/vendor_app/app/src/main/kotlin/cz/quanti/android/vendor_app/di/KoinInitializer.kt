@@ -69,8 +69,7 @@ object KoinInitializer {
         val currentVendor = CurrentVendor(preferences)
         val loginManager = LoginManager(currentVendor)
 
-        val api = Retrofit.Builder()
-            .baseUrl("https://" + BuildConfig.API_URL + "/api/wsse/vendor-app/v1/")
+        val builder: Retrofit.Builder = Retrofit.Builder()
             .addConverterFactory(
                 GsonConverterFactory.create(
                     GsonBuilder().serializeNulls().create()
@@ -78,7 +77,14 @@ object KoinInitializer {
             )
             .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
             .client(createClient(loginManager, hostUrlInterceptor, currentVendor))
-            .build().create(VendorAPI::class.java)
+
+        if(BuildConfig.DEBUG) {
+            builder.baseUrl("https://" + BuildConfig.STAGE_API_URL + "/api/wsse/vendor-app/v1/")
+        } else {
+            builder.baseUrl("https://" + BuildConfig.RELEASE_API_URL + "/api/wsse/vendor-app/v1/")
+        }
+
+        val api = builder.build().create(VendorAPI::class.java)
 
 
         val db = Room.databaseBuilder(app, VendorDb::class.java, VendorDb.DB_NAME)
@@ -149,6 +155,7 @@ object KoinInitializer {
                     shoppingHolder,
                     purchaseFacade,
                     nfcFacade,
+                    cardFacade,
                     currentVendor,
                     nfcTagPublisher
                 )
@@ -180,8 +187,8 @@ object KoinInitializer {
                 val request = oldRequest.newBuilder().headers(headersBuilder.build()).build()
                 chain.proceed(request)
             }
-            .addInterceptor(hostUrlInterceptor)
             .addInterceptor(logging)
+            .addInterceptor(hostUrlInterceptor)
             .build()
     }
 

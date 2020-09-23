@@ -26,6 +26,7 @@
         android:textColor="@color/white"
         android:textSize="12sp"
         app:icon="@drawable/clear"
+        app:iconTint="@color/white"
         app:iconGravity="start"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

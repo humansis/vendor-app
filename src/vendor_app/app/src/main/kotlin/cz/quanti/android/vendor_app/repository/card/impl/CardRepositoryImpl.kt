@@ -21,7 +21,7 @@ class CardRepositoryImpl(
 
     override fun getBlockedCards(): Single<List<String>> {
         return blockedCardDao.getAll().map {
-            it.map { it.id }
+            it.map { it.id.toUpperCase(Locale.US) }
         }
     }
 

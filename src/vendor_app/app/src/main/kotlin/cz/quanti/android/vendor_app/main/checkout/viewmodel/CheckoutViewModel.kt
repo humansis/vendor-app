@@ -82,13 +82,17 @@ class CheckoutViewModel(
         return subtractMoneyFromCard(pin, value, currency).flatMap {
             val tag = it.first
             val userBalance = it.second
-            saveCardPurchaseToDb(NfcUtil.toHexString(tag.id).toUpperCase(Locale.US))
+            saveCardPurchaseToDb(convertTagToString(tag))
                 .subscribeOn(Schedulers.io())
                 .toSingleDefault(Pair(tag, userBalance))
                 .flatMap {
                     Single.just(it)
                 }
         }
+    }
+
+    private fun convertTagToString(tag: Tag): String {
+        return NfcUtil.toHexString(tag.id).toUpperCase(Locale.US)
     }
 
     private fun createVoucherPurchase(): Purchase {
@@ -110,7 +114,7 @@ class CheckoutViewModel(
                 cardFacade.getBlockedCards()
                     .subscribeOn(Schedulers.io())
                     .flatMap {
-                    if(it.contains(NfcUtil.toHexString(tag.id).toUpperCase(Locale.US))) {
+                    if(it.contains(convertTagToString(tag))) {
                         throw PINException(PINExceptionEnum.CARD_LOCKED)
                     } else {
                         nfcFacade.subtractFromBalance(tag, pin, value, currency).map { userBalance ->

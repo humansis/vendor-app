@@ -86,7 +86,6 @@ class VendorFragment() : Fragment(), VendorFragmentCallback {
     }
 
     private fun initFragments(bundle: Bundle?) {
-        childFragmentManager.executePendingTransactions()
         if (bundle == null) {
             showProducts()
         } else {

@@ -42,7 +42,9 @@
             android:layout_height="wrap_content"
             app:layout_constraintTop_toBottomOf="@id/subtitle"
             app:layout_constraintStart_toStartOf="parent"
-            android:layout_marginTop="10dp">
+            android:layout_marginTop="10dp"
+            app:boxStrokeColor="@color/colorPrimary"
+            android:textColorHint="@color/black">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/pinEditText"

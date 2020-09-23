@@ -86,6 +86,7 @@ class VendorFragment() : Fragment(), VendorFragmentCallback {
     }
 
     private fun initFragments(bundle: Bundle?) {
+        childFragmentManager.executePendingTransactions()
         if (bundle == null) {
             showProducts()
         } else {
@@ -119,18 +120,18 @@ class VendorFragment() : Fragment(), VendorFragmentCallback {
         val transaction: FragmentTransaction = if (isLandscapeOriented()) {
             childFragmentManager.beginTransaction().apply {
                 replace(
-                    R.id.rightFragmentContainer,
+                    R.id.secondFragmentContainer,
                     productDetailFragment
                 )
-                replace(R.id.leftFragmentContainer, ProductsFragment())
+                replace(R.id.firstFragmentContainer, ProductsFragment())
             }
         } else {
             childFragmentManager.beginTransaction().apply {
                 replace(
-                    R.id.bottomFragmentContainer,
+                    R.id.secondFragmentContainer,
                     productDetailFragment
                 )
-                replace(R.id.topFragmentContainer, ProductsFragment())
+                replace(R.id.firstFragmentContainer, ProductsFragment())
             }
         }
         transaction.commit()
@@ -140,13 +141,13 @@ class VendorFragment() : Fragment(), VendorFragmentCallback {
         state = VendorScreenState.STATE_SHOPPING_CART_SHOWED
         val transaction: FragmentTransaction = if (isLandscapeOriented()) {
             childFragmentManager.beginTransaction().apply {
-                replace(R.id.rightFragmentContainer, ShoppingCartFragment())
-                replace(R.id.leftFragmentContainer, ProductsFragment())
+                replace(R.id.secondFragmentContainer, ShoppingCartFragment())
+                replace(R.id.firstFragmentContainer, ProductsFragment())
             }
         } else {
             childFragmentManager.beginTransaction().apply {
-                replace(R.id.topFragmentContainer, ProductsFragment())
-                replace(R.id.bottomFragmentContainer, ShoppingCartFragment())
+                replace(R.id.firstFragmentContainer, ProductsFragment())
+                replace(R.id.secondFragmentContainer, ShoppingCartFragment())
             }
 
         }
@@ -157,29 +158,17 @@ class VendorFragment() : Fragment(), VendorFragmentCallback {
         state = VendorScreenState.STATE_ONLY_PRODUCTS_SHOWED
         val transaction: FragmentTransaction = if (isLandscapeOriented()) {
             childFragmentManager.beginTransaction().apply {
-                replace(R.id.rightFragmentContainer, ShoppingCartFragment())
-                replace(R.id.leftFragmentContainer, ProductsFragment())
+                replace(R.id.secondFragmentContainer, ShoppingCartFragment())
+                replace(R.id.firstFragmentContainer, ProductsFragment())
             }
         } else {
             childFragmentManager.beginTransaction().apply {
-                replace(R.id.topFragmentContainer, ProductsFragment())
-                replace(R.id.bottomFragmentContainer, ShoppingCartFragment())
+                replace(R.id.firstFragmentContainer, ProductsFragment())
+                replace(R.id.secondFragmentContainer, ShoppingCartFragment())
             }
 
         }
         transaction.commit()
-    }
-
-    override fun onResume() {
-        super.onResume()
-        (activity as MainActivity).vendorFragmentCallback = this
-        val toolbar = (activity as AppCompatActivity).supportActionBar
-        toolbar?.title = getString(R.string.vendor_title)
-        toolbar?.setDisplayHomeAsUpEnabled(false)
-        toolbar?.setDisplayShowTitleEnabled(true)
-        toolbar?.setDisplayShowCustomEnabled(true)
-
-        (activity as MainActivity).invalidateOptionsMenu()
     }
 
     override fun onStop() {
@@ -199,7 +188,7 @@ class VendorFragment() : Fragment(), VendorFragmentCallback {
         if (isLandscapeOriented()) {
             val transaction = childFragmentManager.beginTransaction().apply {
                 replace(
-                    R.id.rightFragmentContainer,
+                    R.id.secondFragmentContainer,
                     ProductDetailFragment::class.java,
                     bundle,
                     PRODUCT_DETAIL_FRAGMENT_TAG
@@ -209,7 +198,7 @@ class VendorFragment() : Fragment(), VendorFragmentCallback {
         } else {
             val transaction = childFragmentManager.beginTransaction().apply {
                 replace(
-                    R.id.bottomFragmentContainer,
+                    R.id.secondFragmentContainer,
                     ProductDetailFragment::class.java,
                     bundle,
                     PRODUCT_DETAIL_FRAGMENT_TAG
@@ -228,13 +217,13 @@ class VendorFragment() : Fragment(), VendorFragmentCallback {
 
         if (!isLandscapeOriented()) {
             val transaction = childFragmentManager.beginTransaction().apply {
-                replace(R.id.topFragmentContainer, ProductsFragment())
-                replace(R.id.bottomFragmentContainer, ShoppingCartFragment())
+                replace(R.id.firstFragmentContainer, ProductsFragment())
+                replace(R.id.secondFragmentContainer, ShoppingCartFragment())
             }
             transaction.commit()
         } else {
             val transaction = childFragmentManager.beginTransaction().apply {
-                replace(R.id.rightFragmentContainer, ShoppingCartFragment())
+                replace(R.id.secondFragmentContainer, ShoppingCartFragment())
             }
             transaction.commit()
         }

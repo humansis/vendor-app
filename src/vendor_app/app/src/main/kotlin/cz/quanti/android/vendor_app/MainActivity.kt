@@ -3,6 +3,7 @@ package cz.quanti.android.vendor_app
 import android.content.Intent
 import android.nfc.NfcAdapter
 import android.nfc.Tag
+import android.os.Build
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
@@ -10,9 +11,11 @@ import android.view.View
 import android.view.animation.Animation
 import android.view.animation.RotateAnimation
 import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
+import androidx.annotation.RequiresApi
+import android.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.PopupMenu
+import androidx.core.graphics.drawable.toDrawable
 import androidx.navigation.findNavController
 import cz.quanti.android.vendor_app.main.vendor.callback.VendorFragmentCallback
 import cz.quanti.android.vendor_app.repository.AppPreferences
@@ -42,7 +45,11 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         supportActionBar?.setCustomView(R.layout.custom_action_bar)
-        supportActionBar?.hide()
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+            supportActionBar?.setBackgroundDrawable(getColor(R.color.colorPrimaryDark).toDrawable())
+        } else {
+            supportActionBar?.setBackgroundDrawable(resources.getColor(R.color.colorPrimaryDark).toDrawable())
+        }
         setContentView(R.layout.activity_main)
     }
 
@@ -143,5 +150,16 @@ class MainActivity : AppCompatActivity() {
             }
             .setNegativeButton(android.R.string.no, null)
             .show()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        val toolbar = supportActionBar
+        toolbar?.title = getString(R.string.vendor_title)
+        toolbar?.setDisplayHomeAsUpEnabled(false)
+        toolbar?.setDisplayShowTitleEnabled(true)
+        toolbar?.setDisplayShowCustomEnabled(true)
+
+        invalidateOptionsMenu()
     }
 }

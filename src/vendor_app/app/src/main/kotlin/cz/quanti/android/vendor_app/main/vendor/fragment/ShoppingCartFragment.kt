@@ -65,7 +65,7 @@ class ShoppingCartFragment : Fragment(), ShoppingCartFragmentCallback {
             0
         )
 
-        val totalText = "${getStringFromDouble(getTotalPrice())} ${chosenCurrency}"
+        val totalText = "${getString(R.string.total)}: ${getStringFromDouble(getTotalPrice())} ${chosenCurrency}"
         totalPriceTextView.text = totalText
     }
 

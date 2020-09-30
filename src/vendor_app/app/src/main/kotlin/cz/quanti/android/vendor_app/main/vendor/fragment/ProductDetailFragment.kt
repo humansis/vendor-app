@@ -94,7 +94,7 @@ class ProductDetailFragment : Fragment() {
             }
         }
 
-        cancelButton.setOnClickListener {
+        backButton.setOnClickListener {
             goToProducts()
         }
     }

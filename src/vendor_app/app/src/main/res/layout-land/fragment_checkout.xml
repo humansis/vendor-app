@@ -4,6 +4,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
     android:background="@color/lightGrey">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -17,7 +18,6 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent">
-
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="0dp"
@@ -34,7 +34,7 @@
                     android:layout_marginTop="5dp"
                     android:text="@string/products"
                     android:textColor="@color/black"
-                    android:textSize="20sp"
+                    android:textSize="@dimen/fragment_title"
                     android:textStyle="bold"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
@@ -44,11 +44,12 @@
                     android:id="@+id/checkoutSelectedProductsRecyclerView"
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
-                    app:layout_constraintBottom_toBottomOf="parent"
                     android:overScrollMode="never"
                     android:scrollbars="none"
                     android:transcriptMode="alwaysScroll"
                     android:layout_marginTop="5dp"
+                    android:layout_marginEnd="5dp"
+                    app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/productsTitleTextView" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
@@ -79,7 +80,7 @@
                     android:layout_marginTop="5dp"
                     android:text="@string/payment"
                     android:textColor="@color/black"
-                    android:textSize="20sp"
+                    android:textSize="@dimen/fragment_title"
                     android:textStyle="bold"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
@@ -93,6 +94,7 @@
                     android:layout_marginEnd="10dp"
                     android:text="@string/pay_by_voucher"
                     android:textColor="@color/colorPrimaryDark"
+                    android:textSize="@dimen/button_text"
                     app:icon="@drawable/photo_camera"
                     app:iconTint="@color/colorPrimaryDark"
                     app:layout_constraintBottom_toTopOf="@id/totalPriceFooter"
@@ -111,6 +113,7 @@
                     android:layout_marginEnd="10dp"
                     android:text="@string/pay_by_card"
                     android:textColor="@color/colorPrimaryDark"
+                    android:textSize="@dimen/button_text"
                     app:icon="@drawable/credit_card"
                     app:iconTint="@color/colorPrimaryDark"
                     app:layout_constraintBottom_toTopOf="@id/totalPriceFooter"
@@ -135,13 +138,12 @@
                     android:id="@+id/pleaseScanVoucherTextView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-
                     android:layout_marginStart="5dp"
                     android:layout_marginEnd="5dp"
                     android:text="@string/please_scan_voucher"
                     android:textAlignment="center"
                     android:textColor="@color/black"
-                    android:textSize="18sp"
+                    android:textSize="@dimen/fragment_text"
                     app:layout_constraintBottom_toTopOf="@id/payByCardButton"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
@@ -150,18 +152,18 @@
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/scannedVouchersRecyclerView"
                     android:layout_width="0dp"
-                    android:layout_height="wrap_content"
+                    android:layout_height="0dp"
                     android:overScrollMode="never"
                     android:scrollbars="none"
                     android:transcriptMode="alwaysScroll"
+                    android:layout_marginEnd="5dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginBottom="5dp"
                     app:layout_constraintTop_toBottomOf="@+id/paymentTitleTextView"
                     app:layout_constraintBottom_toTopOf="@id/totalPriceFooter"
                     app:layout_constraintStart_toEndOf="@+id/center"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_goneMarginStart="5dp"
-                    android:layout_marginEnd="5dp"
-                    android:layout_marginTop="5dp"
-                    android:layout_marginBottom="5dp" />
+                    app:layout_goneMarginStart="5dp"/>
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:id="@+id/totalPriceFooter"
@@ -173,38 +175,25 @@
                         android:id="@+id/moneyIconImageView"
                         android:layout_width="30dp"
                         android:layout_height="30dp"
-                        android:layout_marginStart="10dp"
                         android:src="@drawable/attach_money"
-
                         android:tint="@color/red"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
-
-                    <TextView
-                        android:id="@+id/totalTitleTextView"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="10dp"
-                        android:layout_marginLeft="10dp"
-                        android:layout_toRightOf="@id/moneyIconImageView"
-                        android:text="@string/total"
-                        android:textColor="@color/red"
-                        android:textStyle="bold"
-                        app:layout_constraintBottom_toBottomOf="@id/moneyIconImageView"
-                        app:layout_constraintStart_toEndOf="@id/moneyIconImageView"
-                        app:layout_constraintTop_toTopOf="@id/moneyIconImageView" />
+                        android:contentDescription="@string/total"
+                        app:layout_constraintEnd_toStartOf="@+id/totalTextView"
+                        app:layout_constraintTop_toTopOf="@+id/totalTextView"
+                        app:layout_constraintBottom_toBottomOf="@+id/totalTextView"/>
 
                     <TextView
                         android:id="@+id/totalTextView"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginEnd="20dp"
-                        android:text="125 SYP"
                         android:textColor="@color/red"
-
+                        android:textSize="@dimen/fragment_bigger_text"
                         android:textStyle="bold"
                         app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintTop_toTopOf="@id/totalTitleTextView" />
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        tools:text="Total: 125 SYP"/>
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -219,42 +208,44 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
+        android:layout_marginEnd="20dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toBottomOf="@id/checkoutScreenLayout"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginEnd="20dp">
+        app:layout_constraintEnd_toEndOf="parent">
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/cancelButton"
+            android:id="@+id/backButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="10dp"
+            android:backgroundTint="@color/colorPrimaryDark"
+            android:text="@string/back_button"
+            android:textColor="@color/white"
+            android:textSize="@dimen/button_text"
+            android:stateListAnimator="@null"
+            app:icon="@drawable/arrow_back"
+            app:iconTint="@color/white"
             app:layout_constraintEnd_toStartOf="@id/proceedButton"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintTop_toBottomOf="parent"
-            android:backgroundTint="@color/red"
-            android:text="@string/cancel"
-            app:icon="@drawable/clear"
-            app:iconTint="@color/white"
-            android:textColor="@color/white"
-            android:stateListAnimator="@null"
             app:elevation="0dp" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/proceedButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintTop_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
             android:layout_alignParentEnd="true"
             android:layout_marginEnd="20dp"
             android:backgroundTint="@color/green"
             android:text="@string/proceed"
+            android:textColor="@color/white"
+            android:textSize="@dimen/button_text"
+            android:stateListAnimator="@null"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintTop_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
             app:icon="@drawable/check"
             app:iconTint="@color/white"
-            android:textColor="@color/white"
-            android:stateListAnimator="@null"
             app:elevation="0dp" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 

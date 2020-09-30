@@ -22,10 +22,11 @@ import cz.quanti.android.vendor_app.repository.AppPreferences
 import cz.quanti.android.vendor_app.repository.login.LoginFacade
 import cz.quanti.android.vendor_app.repository.synchronization.SynchronizationFacade
 import cz.quanti.android.vendor_app.utils.NfcTagPublisher
-import cz.quanti.android.vendor_app.utils.isNetworkAvailable
+import extensions.isNetworkConnected
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
+import kotlinx.android.synthetic.main.custom_action_bar.*
 import org.koin.android.ext.android.inject
 import quanti.com.kotlinlog.Log
 import java.util.*
@@ -46,9 +47,9 @@ class MainActivity : AppCompatActivity() {
 
         supportActionBar?.setCustomView(R.layout.custom_action_bar)
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
-            supportActionBar?.setBackgroundDrawable(getColor(R.color.colorPrimaryDark).toDrawable())
+            supportActionBar?.setBackgroundDrawable(getColor(R.color.lightGrey).toDrawable())
         } else {
-            supportActionBar?.setBackgroundDrawable(resources.getColor(R.color.colorPrimaryDark).toDrawable())
+            supportActionBar?.setBackgroundDrawable(resources.getColor(R.color.lightGrey).toDrawable())
         }
         setContentView(R.layout.activity_main)
     }
@@ -64,12 +65,9 @@ class MainActivity : AppCompatActivity() {
             showPopupMenu(it)
         }
 
-        val syncButton: View? = findViewById(R.id.syncButton)
         syncButton?.setOnClickListener { view ->
-            val animation = RotateAnimation(0f, 360f, view.width / 2f, view.height / 2f)
-            animation.duration = 2500
-            animation.repeatCount = Animation.INFINITE
-            view.startAnimation(animation)
+            progressBar?.visibility = View.VISIBLE
+            view.visibility = View.INVISIBLE
 
             disposable?.dispose()
             disposable = syncFacade.synchronize()
@@ -77,9 +75,11 @@ class MainActivity : AppCompatActivity() {
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                     {
+                        progressBar?.visibility = View.GONE
+                        view.visibility = View.VISIBLE
                         preferences.lastSynced = Date().time
                         vendorFragmentCallback?.notifyDataChanged()
-                        animation.repeatCount = 0
+
                         Toast.makeText(
                             this,
                             getString(R.string.data_were_successfully_synchronized),
@@ -88,10 +88,11 @@ class MainActivity : AppCompatActivity() {
 
                     },
                     { e ->
-                        view.animation.repeatCount = 0
+                        progressBar?.visibility = View.GONE
+                        view.visibility = View.VISIBLE
                         Log.e(e)
 
-                        if (!isNetworkAvailable(this)) {
+                        if (!isNetworkConnected()) {
                             Toast.makeText(
                                 this,
                                 getString(R.string.no_internet_connection),

@@ -32,7 +32,7 @@ class SelectedProductsAdapter() :
             .into(holder.image)
 
         holder.productDetail.text = item.product.name
-        holder.price.text = getStringFromDouble(item.price) + " " + chosenCurrency
+        holder.price.text =  "${getStringFromDouble(item.price)} $chosenCurrency "
     }
 
     fun setData(data: List<SelectedProduct>) {

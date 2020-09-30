@@ -6,32 +6,32 @@
     android:background="@color/white">
 
     <TextView
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/scan_card"
-        android:textSize="35sp"
-        android:textColor="@color/black" />
+        android:textSize="@dimen/fragment_big_title"
+        android:textColor="@color/black"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/backButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="20dp"
-        android:backgroundTint="@color/red"
+        android:backgroundTint="@color/colorPrimaryDark"
         android:text="@string/back_button"
         android:textColor="@color/white"
-        android:textSize="12sp"
-        app:icon="@drawable/clear"
+        android:textSize="@dimen/button_text"
+        android:stateListAnimator="@null"
+        app:icon="@drawable/arrow_back"
         app:iconTint="@color/white"
         app:iconGravity="start"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
-        android:stateListAnimator="@null"
         app:elevation="0dp" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -64,5 +64,9 @@
     <string name="card_wrong_currency">البطاقة من عملة مختلفة</string>
     <string name="tag_lost_card_error">المسح توقف. يرجى مسح البطاقة ضوئيًا مرة أخرى.</string>
     <string name="success">نجاح</string>
+    <string name="menu">قائمة طعام</string>
+    <string name="synchronize">مزامنة</string>
+    <string name="humansis">humansis</string>
+    <string name="loading">تحميل</string>
 
 </resources>

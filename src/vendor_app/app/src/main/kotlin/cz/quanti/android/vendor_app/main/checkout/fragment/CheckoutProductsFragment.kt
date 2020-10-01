@@ -35,10 +35,6 @@ class CheckoutProductsFragment : Fragment() {
         checkoutFragmentCallback = parentFragment as CheckoutFragmentCallback
         vm.init()
 
-        toPaymentButton?.setOnClickListener {
-            checkoutFragmentCallback.goToPayment()
-        }
-
         initSelectedProductsAdapter()
     }
 

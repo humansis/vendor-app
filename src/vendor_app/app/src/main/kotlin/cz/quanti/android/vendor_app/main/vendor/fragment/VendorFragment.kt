@@ -15,7 +15,7 @@ import cz.quanti.android.vendor_app.main.vendor.VendorScreenState
 import cz.quanti.android.vendor_app.main.vendor.callback.VendorFragmentCallback
 import cz.quanti.android.vendor_app.main.vendor.viewmodel.VendorViewModel
 import cz.quanti.android.vendor_app.repository.product.dto.Product
-import cz.quanti.android.vendor_app.utils.isNetworkAvailable
+import extensions.isNetworkConnected
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
@@ -66,7 +66,7 @@ class VendorFragment() : Fragment(), VendorFragmentCallback {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val lastSynced = vm.getLastSynced()
-        if (Date().time - lastSynced > rightTimeToSyncAgain && isNetworkAvailable(requireActivity())) {
+        if (Date().time - lastSynced > rightTimeToSyncAgain && requireContext().isNetworkConnected()) {
             disposable?.dispose()
             disposable = vm.synchronizeWithServer().subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())

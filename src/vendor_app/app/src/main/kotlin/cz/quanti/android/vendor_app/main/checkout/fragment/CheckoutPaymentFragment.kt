@@ -15,8 +15,7 @@ import cz.quanti.android.vendor_app.main.checkout.callback.CheckoutFragmentCallb
 import cz.quanti.android.vendor_app.main.checkout.viewmodel.CheckoutViewModel
 import cz.quanti.android.vendor_app.utils.getStringFromDouble
 import kotlinx.android.synthetic.main.fragment_checkout.*
-import kotlinx.android.synthetic.main.item_checkout_vouchers_footer.*
-import kotlinx.android.synthetic.main.item_checkout_vouchers_footer.cancelButton
+import kotlinx.android.synthetic.main.item_checkout_vouchers_footer.backButton
 import kotlinx.android.synthetic.main.item_checkout_vouchers_footer.proceedButton
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -71,23 +70,17 @@ class CheckoutPaymentFragment : Fragment() {
         if (total <= 0) {
             val green = ContextCompat.getColor(requireContext(), R.color.green)
             moneyIconImageView?.imageTintList = ColorStateList.valueOf(green)
-            totalTitleTextView?.setTextColor(green)
             totalTextView?.setTextColor(green)
         } else {
             val red = ContextCompat.getColor(requireContext(), R.color.red)
             moneyIconImageView?.imageTintList = ColorStateList.valueOf(red)
-            totalTitleTextView?.setTextColor(red)
             totalTextView?.setTextColor(red)
         }
     }
 
     private fun initOnClickListeners() {
 
-        toProductsButton?.setOnClickListener {
-            checkoutFragmentCallback.showCart()
-        }
-
-        cancelButton.setOnClickListener {
+        backButton.setOnClickListener {
             checkoutFragmentCallback.cancel()
         }
 

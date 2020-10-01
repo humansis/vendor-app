@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <TextView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/currencyText"
     style="?android:attr/spinnerItemStyle"
+    android:id="@+id/currencyText"
     android:singleLine="true"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -10,6 +10,7 @@
     android:textAlignment="inherit"
     android:gravity="center"
     android:textColor="@color/black"
+    android:textSize="@dimen/fragment_text"
     android:background="@color/lightGrey"
     android:drawableRight="@drawable/arrow_drop_down"
     />

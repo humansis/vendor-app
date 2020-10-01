@@ -5,21 +5,22 @@
     android:orientation="horizontal"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/lightGrey">
+    android:background="@color/lightGrey"
+    android:layout_marginStart="10dp"
+    android:layout_marginEnd="10dp">
 
     <androidx.cardview.widget.CardView
         android:id="@+id/cardView"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:shape="ring"
         app:layout_constraintWidth_max="30dp"
         app:layout_constraintWidth_percent="0.15"
         app:layout_constraintDimensionRatio="1:1"
-        android:shape="ring"
         app:cardCornerRadius="15dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@id/productInfoTextView"
-        app:layout_constraintBottom_toBottomOf="@id/productInfoTextView"
-        android:layout_marginStart="10dp">
+        app:layout_constraintBottom_toBottomOf="@id/productInfoTextView">
 
     <ImageView
         android:id="@+id/productImageView"
@@ -33,30 +34,35 @@
         android:id="@+id/productInfoTextView"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        app:layout_constraintWidth_max="250dp"
-        app:layout_constraintWidth_percent="0.50"
-        tools:text="Cucumber and Bread and Eggs"
         android:textColor="@color/black"
-        android:textSize="18sp"
+        android:textSize="@dimen/fragment_bigger_text"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="10dp"
+        android:textDirection="locale"
+        android:textAlignment="viewStart"
         app:layout_constraintStart_toEndOf="@id/cardView"
         app:layout_constraintEnd_toStartOf="@id/priceTextView"
         app:layout_constraintTop_toTopOf="parent"
-        android:layout_marginStart="10dp"
-        android:layout_marginTop="10dp"/>
+        app:layout_constraintWidth_max="250dp"
+        app:layout_constraintWidth_percent="0.50"
+        tools:text="Cucumber and Bread and Eggs"/>
 
     <TextView
         android:id="@+id/priceTextView"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        app:layout_constraintWidth_max="100dp"
-        app:layout_constraintWidth_percent="0.30"
-        tools:text="100 SYP"
         android:textColor="@color/black"
-        android:textSize="18sp"
+        android:textSize="@dimen/fragment_bigger_text"
+        android:layout_marginStart="10dp"
+        android:textDirection="locale"
+        android:textAlignment="viewStart"
         app:layout_constraintEnd_toStartOf="@id/removeProductImageView"
         app:layout_constraintTop_toTopOf="@id/productInfoTextView"
         app:layout_constraintBottom_toBottomOf="@id/productInfoTextView"
-        android:layout_marginStart="10dp" />
+        app:layout_constraintWidth_max="100dp"
+        app:layout_constraintWidth_percent="0.30"
+        tools:text="100 SYP"/>
+
 
     <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/removeProductImageView"

@@ -3,6 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
     android:background="@color/lightGrey">
 
     <TextView
@@ -12,7 +13,7 @@
         android:layout_marginTop="5dp"
         android:text="@string/products"
         android:textColor="@color/black"
-        android:textSize="20sp"
+        android:textSize="@dimen/fragment_title"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -23,7 +24,7 @@
         android:layout_height="0dp"
         android:orientation="vertical"
         app:layout_constraintTop_toBottomOf="@+id/productsTitleTextView"
-        app:layout_constraintBottom_toTopOf="@id/checkoutFooter"
+        app:layout_constraintBottom_toTopOf="@+id/totalPriceFooter"
         android:layout_marginTop="5dp"
         android:layout_marginBottom="5dp">
 
@@ -36,11 +37,36 @@
             android:transcriptMode="alwaysScroll" />
     </LinearLayout>
 
-
-    <include
-        layout="@layout/item_checkout_products_footer"
-        android:id="@+id/checkoutFooter"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/totalPriceFooter"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintBottom_toBottomOf="parent" />
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <ImageView
+            android:id="@+id/moneyIconImageView"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:src="@drawable/attach_money"
+            android:tint="@color/red"
+            app:layout_constraintEnd_toStartOf="@+id/totalTextView"
+            app:layout_constraintTop_toTopOf="@+id/totalTextView"
+            app:layout_constraintBottom_toBottomOf="@+id/totalTextView"
+            android:contentDescription="@string/total" />
+
+        <TextView
+            android:id="@+id/totalTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="20dp"
+            android:textColor="@color/red"
+            android:textStyle="bold"
+            android:textSize="@dimen/fragment_bigger_text"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            tools:text="Total: 125 SYP"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

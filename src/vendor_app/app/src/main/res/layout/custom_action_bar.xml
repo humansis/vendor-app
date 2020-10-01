@@ -2,14 +2,16 @@
 <TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:color="http://schemas.android.com/tools"
     android:orientation="horizontal"
-    android:background="@color/colorPrimaryDark">
+    android:background="@color/lightGrey">
 
     <TableRow
         android:layout_height="wrap_content"
         android:layout_width="match_parent"
         android:orientation="horizontal"
-        android:background="@color/colorPrimaryDark">
+        android:background="@color/lightGrey">
 
         <ImageButton
             android:id="@+id/left_menu"
@@ -18,8 +20,7 @@
             android:src="@drawable/hamburger_menu"
             android:layout_gravity="center_vertical"
             android:background="@android:color/transparent"
-            android:layout_alignParentTop="true"
-            android:layout_centerHorizontal="true" />
+            android:contentDescription="@string/menu" />
 
 
         <TextView
@@ -30,18 +31,38 @@
             android:gravity="center_horizontal"
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:textStyle="bold"
-            android:layout_alignParentTop="true"
-            android:layout_weight="1" />
+            android:layout_weight="1"
+            android:textSize="@dimen/action_bar_title"
+            android:textColor="@color/black"/>
 
-        <ImageButton
-            android:id="@+id/syncButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/sync"
-            android:layout_gravity="center_vertical"
-            android:background="@android:color/transparent"
-            android:layout_alignParentTop="true"
-            android:layout_centerHorizontal="true" />
+        <androidx.constraintlayout.widget.ConstraintLayout>
+            <ImageButton
+                android:id="@+id/syncButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                android:layout_gravity="center_vertical"
+                android:background="@android:color/transparent"
+                android:contentDescription="@string/synchronize"
+                app:srcCompat="@drawable/ic_cloud"
+                />
+
+            <ProgressBar
+                android:id="@+id/progressBar"
+                style="?android:attr/progressBarStyle"
+                android:indeterminateTint="@color/black"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_gravity="center_vertical"
+                app:layout_constraintStart_toStartOf="@+id/syncButton"
+                app:layout_constraintEnd_toEndOf="@+id/syncButton"
+                app:layout_constraintTop_toTopOf="@+id/syncButton"
+                app:layout_constraintBottom_toBottomOf="@+id/syncButton"
+                android:visibility="gone"/>
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
     </TableRow>
 

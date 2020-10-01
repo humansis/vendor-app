@@ -7,16 +7,16 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:fillViewport="true">
 
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
+    <LinearLayout
         android:id="@+id/productDetailFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@color/lightGrey"
         android:orientation="vertical"
-        android:paddingLeft="5dp"
-        android:paddingTop="5dp"
-        android:paddingBottom="5dp">
+        android:paddingStart="10dp"
+        android:paddingEnd="10dp"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp">
 
         <!-- Header -->
         <androidx.constraintlayout.widget.ConstraintLayout
@@ -30,12 +30,11 @@
                 android:visibility="visible"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
+                android:shape="ring"
                 app:layout_constraintWidth_max="30dp"
                 app:layout_constraintWidth_percent="0.15"
                 app:layout_constraintDimensionRatio="1:1"
-                android:shape="ring"
                 app:cardCornerRadius="15dp"
-                android:layout_marginStart="5dp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="@+id/productName"
                 app:layout_constraintBottom_toBottomOf="@+id/productName">
@@ -55,14 +54,14 @@
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="40sp"
                 android:ellipsize="end"
-                android:paddingLeft="10dp"
+                android:paddingStart="10dp"
                 android:singleLine="true"
-                tools:text="Lentils"
                 android:textColor="@color/black"
-                android:textSize="30sp"
+                android:textSize="@dimen/fragment_title"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@id/productCardView"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="Lentils"/>
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <!-- Price -->
@@ -88,11 +87,11 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="10dp"
+                android:textColorHint="@color/black"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toEndOf="@id/moneyImageView"
                 app:layout_constraintWidth_percent="0.5"
-                app:boxStrokeColor="@color/colorPrimary"
-                android:textColorHint="@color/black">
+                app:boxStrokeColor="@color/colorPrimary">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/unitPriceEditText"
@@ -110,10 +109,10 @@
                 android:layout_width="0dp"
                 android:layout_height="40dp"
                 android:layout_marginStart="10dp"
-                android:layout_marginBottom="10dp"
                 android:background="@drawable/spinner_currency_background"
                 android:popupBackground="@color/lightGrey"
-                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/unitPriceTextInputLayout"
+                app:layout_constraintBottom_toBottomOf="@+id/unitPriceTextInputLayout"
                 app:layout_constraintStart_toEndOf="@id/unitPriceTextInputLayout"
                 app:layout_constraintWidth_max="wrap"
                 app:layout_constraintWidth_percent="0.3" />
@@ -123,13 +122,12 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="10dp"
-                android:layout_marginBottom="5dp"
-                tools:text="EUR"
                 android:textColor="@color/black"
-                android:textSize="20sp"
+                android:textSize="@dimen/fragment_text"
                 app:layout_constraintBottom_toBottomOf="@id/unitPriceTextInputLayout"
                 app:layout_constraintStart_toEndOf="@id/unitPriceTextInputLayout"
-                app:layout_constraintTop_toTopOf="@id/unitPriceTextInputLayout" />
+                app:layout_constraintTop_toTopOf="@id/unitPriceTextInputLayout"
+                tools:text="EUR"/>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -139,34 +137,36 @@
             android:paddingTop="20dp">
 
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/cancelButton"
+                android:id="@+id/backButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:backgroundTint="@color/red"
+                android:text="@string/cancel"
+                android:textColor="@color/white"
+                android:stateListAnimator="@null"
+                android:textSize="@dimen/button_text"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toStartOf="@id/addToCartButton"
                 app:layout_constraintTop_toTopOf="parent"
-                android:backgroundTint="@color/red"
-                android:text="@string/cancel"
                 app:icon="@drawable/clear"
                 app:iconTint="@color/white"
-                android:textColor="@color/white"
-                android:stateListAnimator="@null"
                 app:elevation="0dp" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/addToCartButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:backgroundTint="@color/green"
+                android:text="@string/add_to_cart"
+                android:textColor="@color/white"
+                android:textSize="@dimen/button_text"
+                android:stateListAnimator="@null"
+                app:icon="@drawable/shopping_basket"
+                app:iconTint="@color/white"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintTop_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@id/cancelButton"
-                android:backgroundTint="@color/green"
-                android:text="@string/add_to_cart"
-                app:icon="@drawable/shopping_basket"
-                app:iconTint="@color/white"
-                android:textColor="@color/white"
-                android:stateListAnimator="@null"
+                app:layout_constraintStart_toEndOf="@id/backButton"
                 app:elevation="0dp" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 

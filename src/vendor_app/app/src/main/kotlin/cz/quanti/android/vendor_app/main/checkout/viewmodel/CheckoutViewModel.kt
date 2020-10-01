@@ -62,14 +62,6 @@ class CheckoutViewModel(
         shoppingHolder.cart.clear()
     }
 
-    fun setScreenState(state: CheckoutScreenState) {
-        shoppingHolder.checkoutScreenState = state
-    }
-
-    fun getScreenState(): CheckoutScreenState {
-        return shoppingHolder.checkoutScreenState
-    }
-
     fun getCurrency(): String {
         return shoppingHolder.chosenCurrency
     }

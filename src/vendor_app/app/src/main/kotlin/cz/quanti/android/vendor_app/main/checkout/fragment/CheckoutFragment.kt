@@ -14,7 +14,6 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import cz.quanti.android.vendor_app.R
-import cz.quanti.android.vendor_app.main.checkout.CheckoutScreenState
 import cz.quanti.android.vendor_app.main.checkout.adapter.ScannedVoucherAdapter
 import cz.quanti.android.vendor_app.main.checkout.adapter.SelectedProductsAdapter
 import cz.quanti.android.vendor_app.main.checkout.callback.CheckoutFragmentCallback
@@ -31,7 +30,6 @@ class CheckoutFragment() : Fragment(), CheckoutFragmentCallback {
     private val vm: CheckoutViewModel by viewModel()
     private val selectedProductsAdapter = SelectedProductsAdapter()
     private val scannedVoucherAdapter = ScannedVoucherAdapter()
-    private var state = CheckoutScreenState.STATE_PAYMENT_SHOWED
     private var disposable: Disposable? = null
 
     override fun onCreateView(
@@ -45,13 +43,11 @@ class CheckoutFragment() : Fragment(), CheckoutFragmentCallback {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        state = vm.getScreenState()
-
-        val fragment = getFragmentFromState()
 
         if (!isLandscapeOriented()) {
             val transaction = childFragmentManager.beginTransaction().apply {
-                replace(R.id.checkoutFragmentContainer, fragment)
+                replace(R.id.firstFragmentContainer, CheckoutProductsFragment())
+                replace(R.id.secondFragmentContainer, CheckoutPaymentFragment())
             }
             transaction.commit()
         }
@@ -60,8 +56,6 @@ class CheckoutFragment() : Fragment(), CheckoutFragmentCallback {
         initOnClickListeners()
         initSelectedProductsAdapter()
         initScannedVouchersAdapter()
-
-        actualizeTotal()
     }
 
     override fun onStop() {
@@ -70,43 +64,24 @@ class CheckoutFragment() : Fragment(), CheckoutFragmentCallback {
     }
 
     override fun onDestroy() {
-        vm.setScreenState(state)
         disposable?.dispose()
         super.onDestroy()
     }
 
-    override fun showCart() {
-        state = CheckoutScreenState.STATE_PRODUCTS_SHOWED
-
-        val transaction = childFragmentManager.beginTransaction().apply {
-            replace(R.id.checkoutFragmentContainer, CheckoutProductsFragment())
+    override fun onResume() {
+        super.onResume()
+        if(vm.getVouchers().isNotEmpty() || vm.getTotal() <= 0) {
+            proceedButton?.visibility = View.VISIBLE
+        } else {
+            proceedButton?.visibility = View.GONE
         }
-        transaction.commit()
-    }
 
-    override fun goToPayment() {
-        state = CheckoutScreenState.STATE_PAYMENT_SHOWED
-
-        val transaction = childFragmentManager.beginTransaction().apply {
-            replace(R.id.checkoutFragmentContainer, CheckoutPaymentFragment())
-        }
-        transaction.commit()
-    }
-
-    private fun getFragmentFromState(): Fragment {
-        return when (state) {
-            CheckoutScreenState.STATE_PAYMENT_SHOWED -> {
-                CheckoutPaymentFragment()
-            }
-            CheckoutScreenState.STATE_PRODUCTS_SHOWED -> {
-                CheckoutProductsFragment()
-            }
-        }
+        actualizeTotal()
     }
 
     private fun initOnClickListeners() {
 
-        cancelButton?.setOnClickListener {
+        backButton?.setOnClickListener {
             cancel()
         }
 
@@ -209,18 +184,16 @@ class CheckoutFragment() : Fragment(), CheckoutFragmentCallback {
 
     private fun actualizeTotal() {
         val total = vm.getTotal()
-        val totalText = "${getStringFromDouble(total)} ${vm.getCurrency()}"
+        val totalText = "${getString(R.string.total)}: ${getStringFromDouble(total)} ${vm.getCurrency()}"
         totalTextView?.text = totalText
 
         if (total <= 0) {
             val green = getColor(requireContext(), R.color.green)
             moneyIconImageView?.imageTintList = ColorStateList.valueOf(green)
-            totalTitleTextView?.setTextColor(green)
             totalTextView?.setTextColor(green)
         } else {
             val red = getColor(requireContext(), R.color.red)
             moneyIconImageView?.imageTintList = ColorStateList.valueOf(red)
-            totalTitleTextView?.setTextColor(red)
             totalTextView?.setTextColor(red)
         }
     }

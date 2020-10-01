@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/lightGrey">
@@ -12,7 +13,7 @@
         android:layout_marginTop="5dp"
         android:text="@string/payment"
         android:textColor="@color/black"
-        android:textSize="20sp"
+        android:textSize="@dimen/fragment_title"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -26,15 +27,17 @@
         android:layout_marginEnd="10dp"
         android:text="@string/pay_by_voucher"
         android:textColor="@color/colorPrimaryDark"
+        android:textSize="@dimen/button_text"
         app:icon="@drawable/photo_camera"
         app:iconTint="@color/colorPrimaryDark"
-        app:layout_constraintBottom_toTopOf="@id/totalPriceFooter"
+        app:layout_constraintBottom_toTopOf="@+id/checkoutFooter"
         app:layout_constraintEnd_toStartOf="@id/center"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/paymentTitleTextView"
         app:strokeColor="@color/colorPrimaryDark"
         app:strokeWidth="1dp"
-        style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
+        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+        tools:background="@color/colorPrimary" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/payByCardButton"
@@ -44,15 +47,17 @@
         android:layout_marginEnd="10dp"
         android:text="@string/pay_by_card"
         android:textColor="@color/colorPrimaryDark"
+        android:textSize="@dimen/button_text"
         app:icon="@drawable/credit_card"
         app:iconTint="@color/colorPrimaryDark"
-        app:layout_constraintBottom_toTopOf="@id/totalPriceFooter"
+        app:layout_constraintBottom_toTopOf="@+id/checkoutFooter"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/center"
         app:layout_constraintTop_toBottomOf="@+id/paymentTitleTextView"
         app:strokeColor="@color/colorPrimaryDark"
         app:strokeWidth="1dp"
-        style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
+        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+        tools:background="@color/colorPrimary"/>
 
     <LinearLayout
         android:id="@+id/center"
@@ -68,13 +73,12 @@
         android:id="@+id/pleaseScanVoucherTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-
         android:layout_marginStart="5dp"
         android:layout_marginEnd="5dp"
         android:text="@string/please_scan_voucher"
         android:textAlignment="center"
         android:textColor="@color/black"
-        android:textSize="18sp"
+        android:textSize="@dimen/fragment_text"
         app:layout_constraintBottom_toTopOf="@id/payByCardButton"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -83,64 +87,18 @@
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/scannedVouchersRecyclerView"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
         android:layout_marginTop="5dp"
         android:layout_marginEnd="5dp"
         android:layout_marginBottom="5dp"
         android:overScrollMode="never"
         android:scrollbars="none"
         android:transcriptMode="alwaysScroll"
-        app:layout_constraintBottom_toTopOf="@id/totalPriceFooter"
+        app:layout_constraintBottom_toTopOf="@+id/checkoutFooter"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/center"
         app:layout_constraintTop_toBottomOf="@+id/paymentTitleTextView"
         app:layout_goneMarginStart="5dp" />
-
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/totalPriceFooter"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintBottom_toTopOf="@id/checkoutFooter"
-        android:layout_marginBottom="20dp">
-
-        <ImageView
-            android:id="@+id/moneyIconImageView"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:layout_marginStart="10dp"
-            android:src="@drawable/attach_money"
-
-            android:tint="@color/red"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <TextView
-            android:id="@+id/totalTitleTextView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="10dp"
-            android:layout_marginLeft="10dp"
-            android:layout_toRightOf="@id/moneyIconImageView"
-            android:text="@string/total"
-            android:textColor="@color/red"
-            android:textStyle="bold"
-            app:layout_constraintBottom_toBottomOf="@id/moneyIconImageView"
-            app:layout_constraintStart_toEndOf="@id/moneyIconImageView"
-            app:layout_constraintTop_toTopOf="@id/moneyIconImageView" />
-
-        <TextView
-            android:id="@+id/totalTextView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="20dp"
-            android:text="125 SYP"
-            android:textColor="@color/red"
-
-            android:textStyle="bold"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@id/totalTitleTextView" />
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <include
         layout="@layout/item_checkout_vouchers_footer"

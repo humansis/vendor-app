@@ -2,4 +2,15 @@
 <resources>
     <dimen name="border_padding">15dp</dimen>
     <dimen name="dimen_30">30dp</dimen>
+
+    <dimen name="action_bar_title">20sp</dimen>
+    <dimen name="dialog_title">20sp</dimen>
+    <dimen name="dialog_subtitle">18sp</dimen>
+    <dimen name="dialog_text">14sp</dimen>
+    <dimen name="fragment_title">20sp</dimen>
+    <dimen name="fragment_subtitle">18sp</dimen>
+    <dimen name="fragment_text">14sp</dimen>
+    <dimen name="fragment_bigger_text">16sp</dimen>
+    <dimen name="button_text">14sp</dimen>
+    <dimen name="fragment_big_title">25sp</dimen>
 </resources>

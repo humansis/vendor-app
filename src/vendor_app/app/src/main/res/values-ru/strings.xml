@@ -5,7 +5,7 @@
     <string name="login">логин</string>
     <string name="app_name">Humansis - Приложение поставщика</string>
     <string name="login_screen_subtitle">Humansis - Приложение поставщика</string>
-    <string name="version">Версия 1.1.2</string>
+    <string name="version">Версия 1.1.3</string>
     <string name="vendor_title">Выберите продукт</string>
     <string name="selected_items">Выбранные продукты</string>
     <string name="no_items_selected">Нет выбранных продуктов</string>

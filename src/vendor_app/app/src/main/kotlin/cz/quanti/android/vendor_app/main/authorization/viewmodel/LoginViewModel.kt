@@ -29,6 +29,10 @@ class LoginViewModel(
         return currentVendor.isLoggedIn()
     }
 
+    fun getCurrentVendorName(): String {
+        return currentVendor.vendor.username
+    }
+
     fun saveApiHost(host: ApiEnvironments) {
         currentVendor.url = host
     }

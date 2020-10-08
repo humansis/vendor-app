@@ -80,6 +80,10 @@ class LoginFragment : Fragment() {
         }
 
         if (vm.isVendorLoggedIn()) {
+            if(vm.getCurrentVendorName().equals(BuildConfig.DEMO_ACCOUNT, true)) {
+                vm.setApiHost(ApiEnvironments.STAGE)
+                vm.saveApiHost(ApiEnvironments.STAGE)
+            }
             findNavController().navigate(
                 LoginFragmentDirections.actionLoginFragmentToVendorFragment()
             )
@@ -87,6 +91,12 @@ class LoginFragment : Fragment() {
             logoImageView.clipToOutline = true
             loginButton.isEnabled = true
             loginButton.setOnClickListener {
+
+                if(usernameEditText.text.toString().equals(BuildConfig.DEMO_ACCOUNT, true)) {
+                    vm.setApiHost(ApiEnvironments.STAGE)
+                    vm.saveApiHost(ApiEnvironments.STAGE)
+                }
+
                 loginButton.isEnabled = false
                 loginButton.visibility = View.INVISIBLE
                 loadingImageView.visibility = View.VISIBLE

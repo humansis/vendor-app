@@ -64,7 +64,7 @@
                     android:id="@+id/dot"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    app:layout_constraintBottom_toBottomOf="@id/syncButton"
+                    app:layout_constraintTop_toTopOf="@id/syncButton"
                     app:layout_constraintRight_toRightOf="@id/syncButton"
                     android:src="@drawable/red_dot"
                     />

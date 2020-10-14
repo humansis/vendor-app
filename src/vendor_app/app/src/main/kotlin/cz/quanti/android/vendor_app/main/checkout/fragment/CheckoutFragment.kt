@@ -13,6 +13,7 @@ import androidx.core.content.ContextCompat.getColor
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import cz.quanti.android.vendor_app.ActivityCallback
 import cz.quanti.android.vendor_app.R
 import cz.quanti.android.vendor_app.main.checkout.adapter.ScannedVoucherAdapter
 import cz.quanti.android.vendor_app.main.checkout.adapter.SelectedProductsAdapter
@@ -31,6 +32,7 @@ class CheckoutFragment() : Fragment(), CheckoutFragmentCallback {
     private val selectedProductsAdapter = SelectedProductsAdapter()
     private val scannedVoucherAdapter = ScannedVoucherAdapter()
     private var disposable: Disposable? = null
+    private var activityCallback: ActivityCallback? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -38,6 +40,7 @@ class CheckoutFragment() : Fragment(), CheckoutFragmentCallback {
         savedInstanceState: Bundle?
     ): View? {
         (activity as AppCompatActivity).supportActionBar?.show()
+        activityCallback = activity as ActivityCallback
         return inflater.inflate(R.layout.fragment_checkout, container, false)
     }
 
@@ -111,6 +114,7 @@ class CheckoutFragment() : Fragment(), CheckoutFragmentCallback {
             disposable = vm.proceed().subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread()).subscribe(
                     {
+                        activityCallback?.showDot(true)
                         vm.clearShoppingCart()
                         vm.clearVouchers()
                         vm.clearCurrency()

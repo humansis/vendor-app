@@ -26,4 +26,6 @@ interface BookletRepository {
     fun sendDeactivatedBookletsToServer(booklets: List<Booklet>): Single<Int>
 
     fun getProtectedBooklets(): Single<List<Booklet>>
+
+    fun getNewlyDeactivatedCount(): Single<Int>
 }

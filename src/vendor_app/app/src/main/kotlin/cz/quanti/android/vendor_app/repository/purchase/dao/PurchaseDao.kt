@@ -19,4 +19,7 @@ interface PurchaseDao {
 
     @Query("SELECT * FROM " + VendorDb.TABLE_PURCHASE)
     fun getAll(): Single<List<PurchaseDbEntity>>
+
+    @Query("SELECT count(*) FROM " + VendorDb.TABLE_PURCHASE)
+    fun getCount(): Single<Int>
 }

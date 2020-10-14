@@ -36,19 +36,40 @@
             android:textColor="@color/black"/>
 
         <androidx.constraintlayout.widget.ConstraintLayout>
-            <ImageButton
-                android:id="@+id/syncButton"
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/syncButtonArea"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"
-                android:layout_gravity="center_vertical"
-                android:background="@android:color/transparent"
-                android:contentDescription="@string/synchronize"
-                app:srcCompat="@drawable/ic_cloud"
-                />
+                >
+                <ImageButton
+                    android:id="@+id/syncButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    android:layout_gravity="center_vertical"
+                    android:background="@android:color/transparent"
+                    android:contentDescription="@string/synchronize"
+                    app:srcCompat="@drawable/ic_cloud"
+                    />
+
+                <ImageView
+                    android:id="@+id/dot"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintBottom_toBottomOf="@id/syncButton"
+                    app:layout_constraintRight_toRightOf="@id/syncButton"
+                    android:src="@drawable/red_dot"
+                    />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
             <ProgressBar
                 android:id="@+id/progressBar"
@@ -57,10 +78,10 @@
                 android:layout_width="0dp"
                 android:layout_height="0dp"
                 android:layout_gravity="center_vertical"
-                app:layout_constraintStart_toStartOf="@+id/syncButton"
-                app:layout_constraintEnd_toEndOf="@+id/syncButton"
-                app:layout_constraintTop_toTopOf="@+id/syncButton"
-                app:layout_constraintBottom_toBottomOf="@+id/syncButton"
+                app:layout_constraintStart_toStartOf="@+id/syncButtonArea"
+                app:layout_constraintEnd_toEndOf="@+id/syncButtonArea"
+                app:layout_constraintTop_toTopOf="@+id/syncButtonArea"
+                app:layout_constraintBottom_toBottomOf="@+id/syncButtonArea"
                 android:visibility="gone"/>
         </androidx.constraintlayout.widget.ConstraintLayout>
 

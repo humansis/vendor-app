@@ -34,6 +34,10 @@ class BookletFacadeImpl(
             .andThen(reloadDataFromServer())
     }
 
+    override fun isSyncNeeded(): Single<Boolean> {
+        return bookletRepo.getNewlyDeactivatedCount().map{ it > 0 }
+    }
+
     private fun sendDataToServer(): Completable {
         return sendDeactivatedBooklets()
     }

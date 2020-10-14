@@ -9,6 +9,7 @@ import cz.quanti.android.vendor_app.utils.VendorAppException
 import cz.quanti.android.vendor_app.utils.isPositiveResponseHttpCode
 import io.reactivex.Completable
 import io.reactivex.Observable
+import io.reactivex.Single
 
 class PurchaseFacadeImpl(
     private val purchaseRepo: PurchaseRepository,
@@ -32,6 +33,10 @@ class PurchaseFacadeImpl(
     override fun syncWithServer(): Completable {
         return sendPurchasesToServer()
             .andThen(deleteAllPurchases())
+    }
+
+    override fun isSyncNeeded(): Single<Boolean> {
+        return purchaseRepo.getPurchasesCount().map { it > 0 }
     }
 
     private fun sendPurchasesToServer(): Completable {

@@ -94,6 +94,10 @@ class BookletRepositoryImpl(
         }
     }
 
+    override fun getNewlyDeactivatedCount(): Single<Int> {
+        return bookletDao.getNewlyDeactivatedCount()
+    }
+
     private fun convert(apiEntity: BookletApiEntity): Booklet {
         return Booklet().apply {
             this.code = apiEntity.code

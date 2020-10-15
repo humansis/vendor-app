@@ -8,10 +8,7 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import android.view.animation.Animation
-import android.view.animation.RotateAnimation
 import android.widget.Toast
-import androidx.annotation.RequiresApi
 import android.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.PopupMenu
@@ -32,13 +29,14 @@ import quanti.com.kotlinlog.Log
 import java.util.*
 
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), ActivityCallback {
 
     private val loginFacade: LoginFacade by inject()
     private val syncFacade: SynchronizationFacade by inject()
     private val preferences: AppPreferences by inject()
     private val nfcTagPublisher: NfcTagPublisher by inject()
     private var disposable: Disposable? = null
+    private var syncDisposable: Disposable? = null
 
     var vendorFragmentCallback: VendorFragmentCallback? = null
 
@@ -46,7 +44,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         supportActionBar?.setCustomView(R.layout.custom_action_bar)
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             supportActionBar?.setBackgroundDrawable(getColor(R.color.lightGrey).toDrawable())
         } else {
             supportActionBar?.setBackgroundDrawable(resources.getColor(R.color.lightGrey).toDrawable())
@@ -56,6 +54,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         disposable?.dispose()
+        syncDisposable?.dispose()
         super.onDestroy()
     }
 
@@ -65,21 +64,38 @@ class MainActivity : AppCompatActivity() {
             showPopupMenu(it)
         }
 
+        disposable?.dispose()
+        disposable = syncFacade.isSyncNeeded()
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(
+                {
+                    if(it) {
+                        dot?.visibility = View.VISIBLE
+                    } else {
+                        dot?.visibility = View.INVISIBLE
+                    }
+                },
+                {
+                }
+            )
+
         syncButton?.setOnClickListener { view ->
             progressBar?.visibility = View.VISIBLE
-            view.visibility = View.INVISIBLE
+            syncButtonArea?.visibility = View.INVISIBLE
 
-            disposable?.dispose()
-            disposable = syncFacade.synchronize()
+            syncDisposable?.dispose()
+            syncDisposable = syncFacade.synchronize()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                     {
                         progressBar?.visibility = View.GONE
-                        view.visibility = View.VISIBLE
+                        syncButtonArea?.visibility = View.VISIBLE
                         preferences.lastSynced = Date().time
                         vendorFragmentCallback?.notifyDataChanged()
 
+                        dot?.visibility = View.INVISIBLE
                         Toast.makeText(
                             this,
                             getString(R.string.data_were_successfully_synchronized),
@@ -89,7 +105,7 @@ class MainActivity : AppCompatActivity() {
                     },
                     { e ->
                         progressBar?.visibility = View.GONE
-                        view.visibility = View.VISIBLE
+                        syncButtonArea?.visibility = View.VISIBLE
                         Log.e(e)
 
                         if (!isNetworkConnected()) {
@@ -162,5 +178,13 @@ class MainActivity : AppCompatActivity() {
         toolbar?.setDisplayShowCustomEnabled(true)
 
         invalidateOptionsMenu()
+    }
+
+    override fun showDot(boolean: Boolean) {
+        if(boolean) {
+            dot?.visibility = View.VISIBLE
+        } else {
+            dot?.visibility = View.INVISIBLE
+        }
     }
 }

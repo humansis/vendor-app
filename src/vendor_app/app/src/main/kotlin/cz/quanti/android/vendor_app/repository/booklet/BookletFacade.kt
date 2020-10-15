@@ -13,4 +13,6 @@ interface BookletFacade {
     fun getProtectedBooklets(): Single<List<Booklet>>
 
     fun syncWithServer(): Completable
+
+    fun isSyncNeeded(): Single<Boolean>
 }

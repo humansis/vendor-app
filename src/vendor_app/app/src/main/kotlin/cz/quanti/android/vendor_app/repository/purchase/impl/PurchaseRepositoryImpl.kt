@@ -134,6 +134,10 @@ class PurchaseRepositoryImpl(
         return Completable.fromCallable{ voucherPurchaseDao.deleteAll() }
     }
 
+    override fun getPurchasesCount(): Single<Int> {
+        return purchaseDao.getCount()
+    }
+
     private fun saveSelectedProducts(
         purchaseId: Long,
         products: List<SelectedProduct>

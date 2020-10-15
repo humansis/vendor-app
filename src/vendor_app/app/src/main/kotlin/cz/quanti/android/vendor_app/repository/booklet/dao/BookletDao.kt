@@ -36,4 +36,7 @@ interface BookletDao {
 
     @Query("DELETE FROM " + VendorDb.TABLE_BOOKLET + " WHERE state = " + Booklet.STATE_NEWLY_DEACTIVATED)
     fun deleteNewlyDeactivated()
+
+    @Query("SELECT count(*) FROM " + VendorDb.TABLE_BOOKLET + " WHERE state = " + Booklet.STATE_NEWLY_DEACTIVATED)
+    fun getNewlyDeactivatedCount(): Single<Int>
 }

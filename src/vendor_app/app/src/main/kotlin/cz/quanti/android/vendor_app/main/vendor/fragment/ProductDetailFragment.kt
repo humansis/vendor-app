@@ -74,29 +74,37 @@ class ProductDetailFragment : Fragment() {
 
     private fun initOnClickListeners() {
         addToCartButton.setOnClickListener {
-            if (unitPriceEditText.text.toString().isEmpty()
-            ) {
-                Toast.makeText(
-                    requireContext(),
-                    getString(R.string.please_enter_price),
-                    Toast.LENGTH_LONG
-                ).show()
-            } else {
-                if (vm.getShoppingCart().isEmpty()) {
-                    vm.setCurrency(priceUnitSpinner.selectedItem as String)
-                    vm.setLastCurrencySelection(priceUnitSpinner.selectedItem as String)
+            try {
+                val price = unitPriceEditText.text.toString().toDouble()
+                if (price <= 0.0) {
+                    showInvalidPriceEnteredMessage()
+                } else {
+                    if (vm.getShoppingCart().isEmpty()) {
+                        vm.setCurrency(priceUnitSpinner.selectedItem as String)
+                        vm.setLastCurrencySelection(priceUnitSpinner.selectedItem as String)
+                    }
+                    addProductToCart(
+                        product,
+                        price
+                    )
+                    goToCart()
                 }
-                addProductToCart(
-                    product,
-                    unitPriceEditText.text.toString().toDouble()
-                )
-                goToCart()
+            } catch(e: NumberFormatException) {
+                showInvalidPriceEnteredMessage()
             }
         }
 
         backButton.setOnClickListener {
             goToProducts()
         }
+    }
+
+    private fun showInvalidPriceEnteredMessage() {
+        Toast.makeText(
+            requireContext(),
+            getString(R.string.please_enter_price),
+            Toast.LENGTH_LONG
+        ).show()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {

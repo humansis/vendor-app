@@ -66,12 +66,4 @@ class VendorViewModel(
     fun setCurrency(currency: String) {
         shoppingHolder.chosenCurrency = currency
     }
-
-    fun getLastSynced(): Long {
-        return preferences.lastSynced
-    }
-
-    fun setLastSynced(time: Long) {
-        preferences.lastSynced = time
-    }
 }

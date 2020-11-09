@@ -65,24 +65,7 @@ class VendorFragment() : Fragment(), VendorFragmentCallback {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val lastSynced = vm.getLastSynced()
-        if (Date().time - lastSynced > rightTimeToSyncAgain && requireContext().isNetworkConnected()) {
-            disposable?.dispose()
-            disposable = vm.synchronizeWithServer().subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(
-                    {
-                        vm.setLastSynced(Date().time)
-                        initFragments(savedInstanceState)
-                    },
-                    {
-                        initFragments(savedInstanceState)
-                        Log.e(it)
-                    }
-                )
-        } else {
-            initFragments(savedInstanceState)
-        }
+        initFragments(savedInstanceState)
     }
 
     private fun initFragments(bundle: Bundle?) {

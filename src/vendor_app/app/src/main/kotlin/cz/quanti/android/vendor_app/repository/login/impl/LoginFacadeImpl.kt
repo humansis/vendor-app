@@ -41,7 +41,7 @@ class LoginFacadeImpl(
                         loggedVendor.username = vendor.username
                         loggedVendor.saltedPassword = vendor.saltedPassword
                         currentVendor.vendor = loggedVendor
-                        getVendor(loggedVendor.id)
+                        Completable.complete()
                     } else {
                         Completable.error(VendorAppException("Cannot login").apply {
                             this.apiError = true
@@ -55,22 +55,5 @@ class LoginFacadeImpl(
 
     override fun logout() {
         currentVendor.clear()
-    }
-
-    private fun getVendor(id: Long): Completable {
-        return loginRepo.getVendor(id).flatMapCompletable { response ->
-            val responseCode = response.responseCode
-            val vendor = response.vendor
-            if (isPositiveResponseHttpCode(responseCode)) {
-                currentVendor.vendor.id = id
-                currentVendor.vendor.country = vendor.country
-                Completable.complete()
-            } else {
-                Completable.error(VendorAppException("Cannot get the vendor").apply {
-                    this.apiError = true
-                    this.apiResponseCode = responseCode
-                })
-            }
-        }
     }
 }

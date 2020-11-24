@@ -4,5 +4,5 @@ data class ProductApiEntity(
     var id: Long = 0,
     var name: String = "",
     var image: String = "",
-    var unit: String = ""
+    var unit: String? = ""
 )

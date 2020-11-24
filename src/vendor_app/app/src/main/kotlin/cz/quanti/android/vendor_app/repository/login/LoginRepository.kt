@@ -10,6 +10,4 @@ interface LoginRepository {
     fun getSalt(username: String): Single<SaltWithResponseCode>
 
     fun login(vendor: Vendor): Single<VendorWithResponseCode>
-
-    fun getVendor(id: Long): Single<VendorWithResponseCode>
 }

@@ -22,12 +22,6 @@ class LoginRepositoryImpl(private val api: VendorAPI) :
         }
     }
 
-    override fun getVendor(id: Long): Single<VendorWithResponseCode> {
-        return api.getVendor(id).map { response ->
-            VendorWithResponseCode(vendor = convert(response.body()), responseCode = response.code())
-        }
-    }
-
     private fun convert(saltApiEntity: SaltApiEntity?): Salt {
         return if (saltApiEntity == null) {
             Salt("")

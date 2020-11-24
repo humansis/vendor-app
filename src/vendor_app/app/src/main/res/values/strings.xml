@@ -5,7 +5,7 @@
     <string name="login">login</string>
     <string name="app_name">Humansis Vendor</string>
     <string name="login_screen_subtitle">HUMANSIS VENDOR</string>
-    <string name="version">v1.1.6</string>
+    <string name="version">v1.1.7</string>
     <string name="vendor_title">Select Product</string>
     <string name="selected_items">Selected Items</string>
     <string name="no_items_selected">No items selected</string>

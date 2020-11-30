@@ -91,7 +91,7 @@ class LoginFragment : Fragment() {
             logoImageView.clipToOutline = true
             loginButton.isEnabled = true
             loginButton.setOnClickListener {
-                if (!usernameEditText.text.toString().isNullOrEmpty() && !passwordEditText.text.toString().isNullOrEmpty()) {
+                if (usernameEditText.text.toString().isNotEmpty() && passwordEditText.text.toString().isNotEmpty()) {
 
                     if (usernameEditText.text.toString().equals(BuildConfig.DEMO_ACCOUNT, true)) {
                         vm.setApiHost(ApiEnvironments.STAGE)

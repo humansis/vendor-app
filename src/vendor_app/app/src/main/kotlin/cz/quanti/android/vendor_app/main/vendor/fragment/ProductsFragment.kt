@@ -68,9 +68,9 @@ class ProductsFragment : Fragment(), ProductsFragmentCallback {
                 )
     }
 
-    override fun onDestroy() {
+    override fun onStop() {
         (activity as MainActivity).productsFragmentCallback = null
         disposable?.dispose()
-        super.onDestroy()
+        super.onStop()
     }
 }

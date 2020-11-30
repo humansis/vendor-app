@@ -91,57 +91,59 @@ class LoginFragment : Fragment() {
             logoImageView.clipToOutline = true
             loginButton.isEnabled = true
             loginButton.setOnClickListener {
+                if (!usernameEditText.text.toString().isNullOrEmpty() && !passwordEditText.text.toString().isNullOrEmpty()) {
 
-                if(usernameEditText.text.toString().equals(BuildConfig.DEMO_ACCOUNT, true)) {
-                    vm.setApiHost(ApiEnvironments.STAGE)
-                    vm.saveApiHost(ApiEnvironments.STAGE)
-                }
+                    if (usernameEditText.text.toString().equals(BuildConfig.DEMO_ACCOUNT, true)) {
+                        vm.setApiHost(ApiEnvironments.STAGE)
+                        vm.saveApiHost(ApiEnvironments.STAGE)
+                    }
 
-                loginButton.isEnabled = false
-                loginButton.visibility = View.INVISIBLE
-                loadingImageView.visibility = View.VISIBLE
+                    loginButton.isEnabled = false
+                    loginButton.visibility = View.INVISIBLE
+                    loadingImageView.visibility = View.VISIBLE
 
-                val animation = RotateAnimation(
-                    0f,
-                    360f,
-                    loadingImageView.width / 2f,
-                    loadingImageView.height / 2f
-                )
-                animation.duration = Constants.SYNCING_BUTTON_ANIMATION_DURATION_IN_MS
-                animation.repeatCount = Animation.INFINITE
-                loadingImageView.startAnimation(animation)
+                    val animation = RotateAnimation(
+                        0f,
+                        360f,
+                        loadingImageView.width / 2f,
+                        loadingImageView.height / 2f
+                    )
+                    animation.duration = Constants.SYNCING_BUTTON_ANIMATION_DURATION_IN_MS
+                    animation.repeatCount = Animation.INFINITE
+                    loadingImageView.startAnimation(animation)
 
-                disposable?.dispose()
-                disposable =
-                    vm.login(usernameEditText.text.toString(), passwordEditText.text.toString())
-                        .subscribeOn(
-                            Schedulers.io()
-                        ).observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(
-                            {
-                                loadingImageView.animation.repeatCount = 0
-                                findNavController().navigate(
-                                    LoginFragmentDirections.actionLoginFragmentToVendorFragment()
-                                )
-                            },
-                            {
-                                loadingImageView.clearAnimation()
-                                loadingImageView.visibility = View.INVISIBLE
-                                loginButton.visibility = View.VISIBLE
-                                loginButton.isEnabled = true
-                                Log.e(it)
-                                if (requireContext().isNetworkConnected()) {
-                                    usernameEditText.error = getString(R.string.wrong_password)
-                                    passwordEditText.error = getString(R.string.wrong_password)
-                                } else {
-                                    Toast.makeText(
-                                        context,
-                                        getString(R.string.no_internet_connection),
-                                        Toast.LENGTH_LONG
-                                    ).show()
+                    disposable?.dispose()
+                    disposable =
+                        vm.login(usernameEditText.text.toString(), passwordEditText.text.toString())
+                            .subscribeOn(
+                                Schedulers.io()
+                            ).observeOn(AndroidSchedulers.mainThread())
+                            .subscribe(
+                                {
+                                    loadingImageView.animation.repeatCount = 0
+                                    findNavController().navigate(
+                                        LoginFragmentDirections.actionLoginFragmentToVendorFragment()
+                                    )
+                                },
+                                {
+                                    loadingImageView.clearAnimation()
+                                    loadingImageView.visibility = View.INVISIBLE
+                                    loginButton.visibility = View.VISIBLE
+                                    loginButton.isEnabled = true
+                                    Log.e(it)
+                                    if (requireContext().isNetworkConnected()) {
+                                        usernameEditText.error = getString(R.string.wrong_password)
+                                        passwordEditText.error = getString(R.string.wrong_password)
+                                    } else {
+                                        Toast.makeText(
+                                            context,
+                                            getString(R.string.no_internet_connection),
+                                            Toast.LENGTH_LONG
+                                        ).show()
+                                    }
                                 }
-                            }
-                        )
+                            )
+                }
             }
         }
     }

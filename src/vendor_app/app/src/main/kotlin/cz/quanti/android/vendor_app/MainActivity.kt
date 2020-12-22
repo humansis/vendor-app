@@ -14,6 +14,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.PopupMenu
 import androidx.core.graphics.drawable.toDrawable
 import androidx.navigation.findNavController
+import cz.quanti.android.vendor_app.main.vendor.callback.ProductsFragmentCallback
 import cz.quanti.android.vendor_app.main.vendor.callback.VendorFragmentCallback
 import cz.quanti.android.vendor_app.repository.AppPreferences
 import cz.quanti.android.vendor_app.repository.login.LoginFacade
@@ -39,6 +40,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback {
     private var syncDisposable: Disposable? = null
 
     var vendorFragmentCallback: VendorFragmentCallback? = null
+    var productsFragmentCallback: ProductsFragmentCallback? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -94,6 +96,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback {
                         syncButtonArea?.visibility = View.VISIBLE
                         preferences.lastSynced = Date().time
                         vendorFragmentCallback?.notifyDataChanged()
+                        productsFragmentCallback?.reloadProductsFromDb()
 
                         dot?.visibility = View.INVISIBLE
                         Toast.makeText(

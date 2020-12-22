@@ -32,8 +32,8 @@ android {
         applicationId "cz.quanti.android.vendor_app"
         minSdkVersion min_sdk_version
         targetSdkVersion target_version
-        versionCode 1001006
-        versionName "1.1.6"
+        versionCode 1001008
+        versionName "1.1.8"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
         buildConfigField "String", "MASTER_KEY", "\"$MASTER_KEY\""

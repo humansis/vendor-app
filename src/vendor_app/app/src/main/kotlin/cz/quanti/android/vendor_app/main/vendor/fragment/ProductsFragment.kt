@@ -6,8 +6,10 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
+import cz.quanti.android.vendor_app.MainActivity
 import cz.quanti.android.vendor_app.R
 import cz.quanti.android.vendor_app.main.vendor.adapter.ShopAdapter
+import cz.quanti.android.vendor_app.main.vendor.callback.ProductsFragmentCallback
 import cz.quanti.android.vendor_app.main.vendor.callback.VendorFragmentCallback
 import cz.quanti.android.vendor_app.main.vendor.viewmodel.VendorViewModel
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -17,7 +19,7 @@ import kotlinx.android.synthetic.main.fragment_products.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import quanti.com.kotlinlog.Log
 
-class ProductsFragment : Fragment() {
+class ProductsFragment : Fragment(), ProductsFragmentCallback {
     private val vm: VendorViewModel by viewModel()
     private lateinit var adapter: ShopAdapter
     private lateinit var vendorFragmentCallback: VendorFragmentCallback
@@ -47,8 +49,12 @@ class ProductsFragment : Fragment() {
 
     override fun onStart() {
         super.onStart()
+        (activity as MainActivity).productsFragmentCallback = this
         setAdapter()
+        reloadProductsFromDb()
+    }
 
+    override fun reloadProductsFromDb() {
         disposable?.dispose()
         disposable =
             vm.getProducts().subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
@@ -62,8 +68,9 @@ class ProductsFragment : Fragment() {
                 )
     }
 
-    override fun onDestroy() {
+    override fun onStop() {
+        (activity as MainActivity).productsFragmentCallback = null
         disposable?.dispose()
-        super.onDestroy()
+        super.onStop()
     }
 }

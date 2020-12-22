@@ -64,7 +64,7 @@ class ProductRepositoryImpl(private val productDao: ProductDao, private val api:
             this.id = apiEntity.id
             this.name = apiEntity.name
             this.image = apiEntity.image
-            this.unit = apiEntity.unit
+            this.unit = apiEntity.unit ?: ""
         }
     }
 }

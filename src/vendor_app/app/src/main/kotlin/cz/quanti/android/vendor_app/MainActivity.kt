@@ -27,6 +27,7 @@ import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.custom_action_bar.*
 import org.koin.android.ext.android.inject
 import quanti.com.kotlinlog.Log
+import quanti.com.kotlinlog.file.SendLogDialogFragment
 import java.util.*
 
 
@@ -140,19 +141,19 @@ class MainActivity : AppCompatActivity(), ActivityCallback {
 
     private fun showPopupMenu(v: View) {
         PopupMenu(this, v).apply {
-            setOnMenuItemClickListener(object : PopupMenu.OnMenuItemClickListener {
-                override fun onMenuItemClick(item: MenuItem?): Boolean {
-                    return when (item?.itemId) {
-
-                        R.id.logoutButton -> {
-                            logout()
-                            true
-                        }
-                        else -> false
+            setOnMenuItemClickListener { item ->
+                when (item?.itemId) {
+                    R.id.logoutButton -> {
+                        logout()
+                        true
                     }
+                    R.id.exportLogsButton -> {
+                        exportLogs()
+                        true
+                    }
+                    else -> false
                 }
-
-            })
+            }
             inflate(R.menu.action_bar_left_actions)
             show()
         }
@@ -170,6 +171,16 @@ class MainActivity : AppCompatActivity(), ActivityCallback {
             }
             .setNegativeButton(android.R.string.no, null)
             .show()
+    }
+
+    private fun exportLogs(){
+        SendLogDialogFragment.newInstance(
+            sendEmailAddress = getString(R.string.send_email_adress),
+            title = getString(R.string.logs_dialog_title),
+            message = getString(R.string.logs_dialog_message),
+            emailButtonText = getString(R.string.logs_dialog_email_button),
+            dialogTheme = R.style.DialogTheme
+        ).show(supportFragmentManager, "TAG")
     }
 
     override fun onResume() {

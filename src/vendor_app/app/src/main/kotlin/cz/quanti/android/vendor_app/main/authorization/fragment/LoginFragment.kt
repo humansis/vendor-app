@@ -1,6 +1,5 @@
 package cz.quanti.android.vendor_app.main.authorization.fragment
 
-import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.ContextThemeWrapper
 import android.view.LayoutInflater

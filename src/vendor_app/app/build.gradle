@@ -32,13 +32,13 @@ android {
         applicationId "cz.quanti.android.vendor_app"
         minSdkVersion min_sdk_version
         targetSdkVersion target_version
-        versionCode 1001009
-        versionName "1.1.9"
+        versionCode readVersionCode()
+        versionName readVersionName()
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
         buildConfigField "String", "MASTER_KEY", "\"$MASTER_KEY\""
         buildConfigField "String", "APP_ID", "\"$APP_ID\""
-        buildConfigField "short", "APP_VESION", "$APP_VERSION"
+        buildConfigField "short", "APP_VERSION", "$APP_VERSION"
 
         buildConfigField "String", "API_URL", "\"$API_URL\""
         buildConfigField "String", "FRONT_API_URL", "\"$FRONT_API_URL\""
@@ -214,4 +214,36 @@ task jacocoTestReport(type: JacocoReport, dependsOn: 'testDebugUnitTest') {
     classDirectories.from = files([debugTree])
     sourceDirectories.from = files([mainSrc])
     executionData.from = fileTree(dir: project.buildDir, includes: ['jacoco/testDebugUnitTest.exec'])
+}
+
+def readVersionName() {
+    def version = readVersion()
+    return "${version["major"]}.${version["minor"]}.${version["patch"]}"
+}
+
+def readVersionCode() {
+    def version = readVersion()
+    def patch = version["patch"] as int
+    def minor = version["minor"] as int
+    def major = version["major"] as int
+    return major * 1000000 + minor * 1000 + patch
+}
+
+def readVersion() {
+    def versionFile = new File(project.rootDir, "version.properties")
+    def version = new Properties()
+    def stream
+    try {
+        stream = new FileInputStream(versionFile)
+        version.load(stream)
+    } catch (FileNotFoundException ignore) {
+    } finally {
+        if (stream != null) stream.close()
+    }
+
+    // defaults
+    if (!version["major"]) version["major"] = "1"
+    if (!version["minor"]) version["minor"] = "0"
+    if (!version["patch"]) version["patch"] = "0"
+    return version
 }

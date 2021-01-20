@@ -1,5 +1,6 @@
 package cz.quanti.android.vendor_app.main.authorization.fragment
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.ContextThemeWrapper
 import android.view.LayoutInflater
@@ -41,6 +42,8 @@ class LoginFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        versionTextView.text = getString(R.string.version, BuildConfig.VERSION_NAME)
 
         if (BuildConfig.DEBUG) {
             settingsImageView.visibility = View.VISIBLE

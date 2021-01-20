@@ -40,6 +40,9 @@ fun getDefaultCurrency(country: String): String {
         "KHM" -> "KHR"
         "SYR" -> "SYP"
         "UKR" -> "UAH"
+        "ARM" -> "AMD"
+        "MNG" -> "MNT"
+        "ETH" -> "ETB"
         else -> ""
     }
 }

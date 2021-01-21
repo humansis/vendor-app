@@ -114,7 +114,7 @@ object KoinInitializer {
             SynchronizationFacadeImpl(bookletFacade, cardFacade, productFacade, purchaseFacade)
 
         val nfcFacade: VendorFacade = PINFacade(
-            BuildConfig.APP_VESION,
+            BuildConfig.APP_VERSION,
             NfcUtil.hexStringToByteArray(BuildConfig.MASTER_KEY),
             NfcUtil.hexStringToByteArray(BuildConfig.APP_ID)
         )

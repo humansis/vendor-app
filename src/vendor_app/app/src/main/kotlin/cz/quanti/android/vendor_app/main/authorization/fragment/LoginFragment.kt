@@ -42,6 +42,8 @@ class LoginFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        versionTextView.text = getString(R.string.version, BuildConfig.VERSION_NAME)
+
         if (BuildConfig.DEBUG) {
             settingsImageView.visibility = View.VISIBLE
             envTextView.visibility = View.VISIBLE

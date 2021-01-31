@@ -16,6 +16,7 @@ import cz.quanti.android.vendor_app.main.vendor.callback.ShoppingCartFragmentCal
 import cz.quanti.android.vendor_app.main.vendor.callback.VendorFragmentCallback
 import cz.quanti.android.vendor_app.main.vendor.viewmodel.VendorViewModel
 import cz.quanti.android.vendor_app.utils.getStringFromDouble
+import cz.quanti.android.vendor_app.utils.round
 import kotlinx.android.synthetic.main.fragment_shopping_cart.*
 import kotlinx.android.synthetic.main.fragment_shopping_cart.shoppingCartFooter
 import kotlinx.android.synthetic.main.item_shopping_cart_footer.*
@@ -88,7 +89,7 @@ class ShoppingCartFragment : Fragment(), ShoppingCartFragmentCallback {
     }
 
     private fun getTotalPrice(): Double {
-        return vm.getShoppingCart().map { it.price }.sum()
+        return round(vm.getShoppingCart().map { it.price }.sum(),3)
     }
 
     private fun initShoppingCartAdapter() {

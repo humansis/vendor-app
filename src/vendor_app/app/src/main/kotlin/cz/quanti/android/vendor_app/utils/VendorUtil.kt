@@ -1,13 +1,12 @@
 package cz.quanti.android.vendor_app.utils
 
-import android.content.Context
 import android.net.*
-import android.os.Build
+import java.math.BigDecimal
+import java.math.RoundingMode
 import java.text.DecimalFormat
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.math.abs
-import kotlin.math.roundToInt
 
 fun getStringFromDouble(double: Double): String {
     val abs = abs(double)
@@ -45,4 +44,11 @@ fun getDefaultCurrency(country: String): String {
         "ETH" -> "ETB"
         else -> ""
     }
+}
+
+fun round(value: Double, places: Int): Double {
+    require(places >= 0)
+    var bd: BigDecimal = BigDecimal.valueOf(value)
+    bd = bd.setScale(places, RoundingMode.HALF_UP)
+    return bd.toDouble()
 }

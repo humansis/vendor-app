@@ -7,16 +7,12 @@ import cz.quanti.android.nfc.dto.UserBalance
 import cz.quanti.android.nfc.exception.PINException
 import cz.quanti.android.nfc.exception.PINExceptionEnum
 import cz.quanti.android.nfc_io_libray.types.NfcUtil
-import cz.quanti.android.vendor_app.main.checkout.CheckoutScreenState
 import cz.quanti.android.vendor_app.repository.booklet.dto.Voucher
 import cz.quanti.android.vendor_app.repository.card.CardFacade
 import cz.quanti.android.vendor_app.repository.purchase.PurchaseFacade
 import cz.quanti.android.vendor_app.repository.purchase.dto.Purchase
 import cz.quanti.android.vendor_app.repository.purchase.dto.SelectedProduct
-import cz.quanti.android.vendor_app.utils.CurrentVendor
-import cz.quanti.android.vendor_app.utils.NfcTagPublisher
-import cz.quanti.android.vendor_app.utils.ShoppingHolder
-import cz.quanti.android.vendor_app.utils.convertTimeForApiRequestBody
+import cz.quanti.android.vendor_app.utils.*
 import io.reactivex.Completable
 import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
@@ -43,7 +39,7 @@ class CheckoutViewModel(
     fun getTotal(): Double {
         val total = shoppingHolder.cart.map { it.price }.sum()
         val paid = vouchers.map { it.value }.sum()
-        return total - paid
+        return round(total - paid, 3)
     }
 
     fun getVouchers(): List<Voucher> {

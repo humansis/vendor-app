@@ -116,6 +116,9 @@ dependencies {
     //analytics
     implementation 'com.google.firebase:firebase-analytics:17.5.0'
 
+    // Artifactory
+//    api "cz.quanti.android.nfc:1.0.0"
+    compile(group: 'cz.quanti.android', name: 'nfc', version: '1.0.0', ext: 'aar')
 
     // Add the Firebase SDK for Crashlytics.
     implementation 'com.google.firebase:firebase-crashlytics:17.2.1'

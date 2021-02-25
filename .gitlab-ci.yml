@@ -27,6 +27,7 @@ build_debug_job:
   stage: build
   extends: .gradle_build
   script:
+    - cd ./src/vendor_app
     - ./gradlew clean
     - ./gradlew assembleDebug
 
@@ -35,6 +36,7 @@ archive_debug_job:
   stage: archive
   extends: .gradle_build
   script:
+    - cd ./src/vendor_app
     - ./gradlew clean
     - ./gradlew :app:assembleDemoDebug
   when: manual

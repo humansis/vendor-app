@@ -16,18 +16,18 @@ stages:
 .gradle_build:
   before_script:
     - export PATH=$PATH:$ANDROID_SDK/platform-tools
-    - envsubst < ./src/vendor_app/gradle.properties.template > ./src/vendor_app/gradle.properties
-    - envsubst < ./src/vendor_app/app/google-services-template.json > ./src/vendor_app/app/google-services.json
-    - mkdir ./src/vendor_app/app/keystore
-    - cp $RELEASE_KEYSTORE ./src/vendor_app/app/keystore/release.keystore
-    - cp $DEBUG_KEYSTORE ./src/vendor_app/app/keystore/debug.keystore
+    - cd ./src/vendor_app
+    - envsubst < ./gradle.properties.template > ./gradle.properties
+    - envsubst < ./app/google-services-template.json > ./app/google-services.json
+    - mkdir ./app/keystore
+    - cp $RELEASE_KEYSTORE ./app/keystore/release.keystore
+    - cp $DEBUG_KEYSTORE ./app/keystore/debug.keystore
 
 # Just build application 
 build_debug_job:
   stage: build
   extends: .gradle_build
   script:
-    - cd ./src/vendor_app
     - ./gradlew clean
     - ./gradlew assembleDebug
 
@@ -36,7 +36,6 @@ archive_debug_job:
   stage: archive
   extends: .gradle_build
   script:
-    - cd ./src/vendor_app
     - ./gradlew clean
     - ./gradlew :app:assembleDemoDebug
   when: manual

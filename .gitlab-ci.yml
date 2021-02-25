@@ -28,8 +28,9 @@ build_debug_job:
   stage: build
   extends: .gradle_build
   script:
+    - java -version
     - ./gradlew clean
-    - ./gradlew assembleDebug
+    - ./gradlew assembleDebug --info
 
 # Build debug and archive apk
 archive_debug_job:

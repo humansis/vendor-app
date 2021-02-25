@@ -1,0 +1,52 @@
+include:
+  - project: 'humansis/gitlab-ci-templates'
+    ref: 'mobile/docker-ci'
+    file: 'src/mobile/gradle.template.yml'
+
+# todo: versioning
+variables:
+  ARTIFACT_PATH: ./app/build/outputs/apk/demo/debug/vendor-app-*.apk
+  EMULATOR_TIMEOUT: "60"
+
+stages:
+  - build
+  - archive
+  - upload
+
+.gradle_build:
+  before_script:
+    - export PATH=$PATH:$ANDROID_SDK/platform-tools
+    - envsubst < ./src/vendor_app/gradle.properties.template > ./src/vendor_app/gradle.properties
+    - envsubst < ./src/vendor_app/app/google-services-template.json > ./src/vendor_app/app/google-services.json
+    - mkdir ./src/vendor_app/app/keystore
+    - cp $RELEASE_KEYSTORE ./src/vendor_app/app/keystore/release.keystore
+    - cp $DEBUG_KEYSTORE ./src/vendor_app/app/keystore/debug.keystore
+
+# Just build application 
+build_debug_job:
+  stage: build
+  extends: .gradle_build
+  script:
+    - ./gradlew clean
+    - ./gradlew assembleDebug
+
+# Build debug and archive apk
+archive_debug_job:
+  stage: archive
+  extends: .gradle_build
+  script:
+    - ./gradlew clean
+    - ./gradlew :app:assembleDemoDebug
+  when: manual
+  artifacts:
+    when: always
+    expire_in: 4 week
+    paths:
+      - $ARTIFACT_PATH
+
+upload_to_artifactory:
+  stage: upload
+  variables:
+    ARTIFACTORY_REPOSITORY: /vendor_app-gradle-local/
+  extends: .upload_gradle
+  when: manual

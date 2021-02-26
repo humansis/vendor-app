@@ -5,7 +5,7 @@ include:
 
 # todo: versioning
 variables:
-  ARTIFACT_PATH: ./app/build/outputs/apk/*/vendor-app-*.apk
+  ARTIFACT_PATH: ./src/vendor_app/app/build/outputs/apk/*/vendor-app-*.apk
   EMULATOR_TIMEOUT: "60"
 
 stages:

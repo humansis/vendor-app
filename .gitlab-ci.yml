@@ -67,6 +67,6 @@ archive_release_job:
 upload_to_artifactory:
   stage: upload
   variables:
-    ARTIFACTORY_REPOSITORY: /user_app-gradle-local/
+    ARTIFACTORY_REPOSITORY: /vendor_app-gradle-local/
   extends: .upload_gradle
   when: manual

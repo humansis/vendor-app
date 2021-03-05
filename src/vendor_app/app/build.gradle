@@ -3,12 +3,34 @@ plugins {
     id 'kotlin-android'
     id 'kotlin-android-extensions'
     id 'jacoco'
+    id 'kotlin-kapt'
+    id 'androidx.navigation.safeargs.kotlin'
+    id 'com.google.gms.google-services'
+    id 'com.google.firebase.crashlytics'
 }
 
-apply plugin: 'kotlin-kapt'
-apply plugin: "androidx.navigation.safeargs.kotlin"
-apply plugin: 'com.google.gms.google-services'
-apply plugin: 'com.google.firebase.crashlytics'
+// ****************** CONFIGURATION ************************ ////
+
+def gitVersionCode = { ->
+    def stdout = new ByteArrayOutputStream()
+    exec {
+        commandLine 'git', 'rev-list', 'HEAD', '--count'
+        standardOutput = stdout
+    }
+    def count = stdout.toString().trim().toInteger()
+    println count
+    return stdout.toString().trim().toInteger()
+}
+
+def VERSION_MAJOR = 2
+def VERSION_MINOR = 0
+def VERSION_PATCH = 0
+
+
+String APK_NAME = "vendor-app"
+String VERSION_NAME = "${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}"
+String VERSION_FULL_NAME_FILE = "${APK_NAME}-${VERSION_NAME}.${gitVersionCode()}"
+
 
 repositories {
     jcenter()
@@ -28,12 +50,16 @@ android {
     }
     compileSdkVersion compile_sdk_version
 
+    ndkVersion "21.3.6528147"
+
     defaultConfig {
         applicationId "cz.quanti.android.vendor_app"
         minSdkVersion min_sdk_version
         targetSdkVersion target_version
-        versionCode readVersionCode()
-        versionName readVersionName()
+        versionCode gitVersionCode()
+        versionName VERSION_NAME
+        setProperty("archivesBaseName", VERSION_FULL_NAME_FILE)
+
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
         buildConfigField "String", "MASTER_KEY", "\"$MASTER_KEY\""
@@ -48,6 +74,7 @@ android {
         buildConfigField "String", "DEV_API_URL", "\"$DEV_API_URL\""
 
         buildConfigField "String", "DEMO_ACCOUNT", "\"$DEMO_ACCOUNT\""
+        buildConfigField "String", "RELEASE_API_URL", "\"$PROD_RELEASE_API_URL\""
     }
 
     signingConfigs {
@@ -58,10 +85,10 @@ android {
             keyPassword "$RELEASE_STORE_KEY_PASSWORD"
         }
         debug {
-            storeFile file("$DEBUG_STORE_FILE_PATH")
-            keyAlias "$DEBUG_STORE_KEY_ALIAS"
-            storePassword "$DEBUG_STORE_PASSWORD"
-            keyPassword "$DEBUG_STORE_KEY_PASSWORD"
+            storeFile file(DEBUG_STORE_FILE_PATH)
+            keyAlias DEBUG_STORE_KEY_ALIAS
+            storePassword DEBUG_STORE_PASSWORD
+            keyPassword DEBUG_STORE_KEY_PASSWORD
         }
     }
 
@@ -73,22 +100,6 @@ android {
         }
         debug {
             signingConfig signingConfigs.debug
-        }
-    }
-
-    flavorDimensions "environment"
-
-    productFlavors {
-
-        prod {
-            dimension "environment"
-            buildConfigField "String", "RELEASE_API_URL", "\"$PROD_RELEASE_API_URL\""
-        }
-
-        demo {
-            dimension "environment"
-            applicationIdSuffix ".demo"
-            buildConfigField "String", "RELEASE_API_URL", "\"$DEMO_RELEASE_API_URL\""
         }
     }
 
@@ -116,6 +127,8 @@ dependencies {
     //analytics
     implementation 'com.google.firebase:firebase-analytics:17.5.0'
 
+    // Artifactory
+    implementation "cz.quanti.android:nfc:1.0.0"
 
     // Add the Firebase SDK for Crashlytics.
     implementation 'com.google.firebase:firebase-crashlytics:17.2.1'
@@ -214,36 +227,4 @@ task jacocoTestReport(type: JacocoReport, dependsOn: 'testDebugUnitTest') {
     classDirectories.from = files([debugTree])
     sourceDirectories.from = files([mainSrc])
     executionData.from = fileTree(dir: project.buildDir, includes: ['jacoco/testDebugUnitTest.exec'])
-}
-
-def readVersionName() {
-    def version = readVersion()
-    return "${version["major"]}.${version["minor"]}.${version["patch"]}"
-}
-
-def readVersionCode() {
-    def version = readVersion()
-    def patch = version["patch"] as int
-    def minor = version["minor"] as int
-    def major = version["major"] as int
-    return major * 1000000 + minor * 1000 + patch
-}
-
-def readVersion() {
-    def versionFile = new File(project.rootDir, "version.properties")
-    def version = new Properties()
-    def stream
-    try {
-        stream = new FileInputStream(versionFile)
-        version.load(stream)
-    } catch (FileNotFoundException ignore) {
-    } finally {
-        if (stream != null) stream.close()
-    }
-
-    // defaults
-    if (!version["major"]) version["major"] = "1"
-    if (!version["minor"]) version["minor"] = "0"
-    if (!version["patch"]) version["patch"] = "0"
-    return version
 }

@@ -55,6 +55,13 @@ allprojects {
     repositories {
         google()
         jcenter()
+        maven {
+            url "https://artifactory.quanti.cz:443/artifactory/nfc_secure_library-gradle-local/"
+            credentials {
+                username = artifactoryUsername
+                password = artifactoryPassword
+            }
+        }
     }
 }
 

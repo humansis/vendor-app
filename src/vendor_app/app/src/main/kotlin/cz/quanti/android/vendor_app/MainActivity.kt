@@ -100,7 +100,6 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NavigationView.OnNav
     }
 
     private fun setUpToolbar() {
-
         //todo checknout proc nefunguje dot
         disposable?.dispose()
         disposable = syncFacade.isSyncNeeded()
@@ -195,16 +194,6 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NavigationView.OnNav
         tvAppVersion.text = BuildConfig.VERSION_NAME
 
         loadNavHeader(loginVM.getCurrentVendorName())
-
-        //todo upravit, no more supportActionBar
-
-        val toolbar = supportActionBar
-        toolbar?.title = getString(R.string.vendor_title)
-        toolbar?.setDisplayHomeAsUpEnabled(false)
-        toolbar?.setDisplayShowTitleEnabled(true)
-        toolbar?.setDisplayShowCustomEnabled(true)
-
-        invalidateOptionsMenu()
     }
 
     override fun showDot(boolean: Boolean) {

@@ -1,6 +1,7 @@
 package cz.quanti.android.vendor_app.main.authorization.viewmodel
 
 import androidx.lifecycle.ViewModel
+import cz.quanti.android.vendor_app.ActivityCallback
 import cz.quanti.android.vendor_app.repository.login.LoginFacade
 import cz.quanti.android.vendor_app.repository.utils.interceptor.HostUrlInterceptor
 import cz.quanti.android.vendor_app.utils.ApiEnvironments
@@ -12,7 +13,6 @@ class LoginViewModel(
     private val hostUrlInterceptor: HostUrlInterceptor,
     private val currentVendor: CurrentVendor
 ) : ViewModel() {
-
     fun login(username: String, password: String): Completable {
         return loginFacade.login(username, password)
     }
@@ -35,5 +35,9 @@ class LoginViewModel(
 
     fun saveApiHost(host: ApiEnvironments) {
         currentVendor.url = host
+    }
+
+    fun onLogin(activityCallback: ActivityCallback) {
+        activityCallback.loadNavHeader(currentVendor.vendor.username)
     }
 }

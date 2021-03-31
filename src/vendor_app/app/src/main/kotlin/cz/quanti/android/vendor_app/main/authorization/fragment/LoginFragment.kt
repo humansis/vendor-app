@@ -9,9 +9,9 @@ import android.view.animation.Animation
 import android.view.animation.RotateAnimation
 import android.widget.PopupMenu
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
+import cz.quanti.android.vendor_app.ActivityCallback
 import cz.quanti.android.vendor_app.BuildConfig
 import cz.quanti.android.vendor_app.R
 import cz.quanti.android.vendor_app.main.authorization.viewmodel.LoginViewModel
@@ -35,7 +35,7 @@ class LoginFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        (activity as AppCompatActivity).supportActionBar?.hide()
+        (requireActivity() as (ActivityCallback)).setToolbarVisible(false)
         return inflater.inflate(R.layout.fragment_login, container, false)
     }
 
@@ -122,6 +122,7 @@ class LoginFragment : Fragment() {
                             ).observeOn(AndroidSchedulers.mainThread())
                             .subscribe(
                                 {
+                                    vm.onLogin(requireActivity() as (ActivityCallback))
                                     loadingImageView.animation.repeatCount = 0
                                     findNavController().navigate(
                                         LoginFragmentDirections.actionLoginFragmentToVendorFragment()

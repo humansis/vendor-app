@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn="navigation_view">
+
+    <group android:checkableBehavior="single">
+
+        <item
+            android:id="@+id/homeButton"
+            android:enabled="true"
+            android:icon="@drawable/ic_home"
+            android:title="@string/home"
+            android:visible="true"
+            app:showAsAction="never" />
+
+    </group>
+
+    <!--<item
+        android:title="@string/utilities">
+
+        <menu>
+
+            <item
+                android:id="@+id/readBalanceButton"
+                android:enabled="true"
+                android:icon="@drawable/ic_money"
+                android:title="@string/read_balance"
+                android:visible="true"
+                app:showAsAction="never" />
+
+            <item
+                android:id="@+id/shareLogsButton"
+                android:enabled="true"
+                android:icon="@drawable/ic_export"
+                android:title="@string/export_logs"
+                android:visible="true"
+                app:showAsAction="never" />
+
+        </menu>
+
+    </item>-->
+
+</menu>

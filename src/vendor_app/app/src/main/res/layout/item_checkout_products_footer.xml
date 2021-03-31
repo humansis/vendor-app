@@ -4,7 +4,7 @@
     android:id="@+id/checkoutFooter"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/lightGrey"
+    android:background="@color/screenBackgroundColor"
     android:orientation="horizontal">
 
     <com.google.android.material.button.MaterialButton

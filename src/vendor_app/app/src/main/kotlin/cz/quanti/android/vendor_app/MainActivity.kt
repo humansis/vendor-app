@@ -100,7 +100,6 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NavigationView.OnNav
     }
 
     private fun setUpToolbar() {
-        //todo checknout proc nefunguje dot
         disposable?.dispose()
         disposable = syncFacade.isSyncNeeded()
             .subscribeOn(Schedulers.io())
@@ -133,7 +132,6 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NavigationView.OnNav
                         vendorFragmentCallback?.notifyDataChanged()
                         productsFragmentCallback?.reloadProductsFromDb()
 
-                        //todo checknout proc nefunguje dot
                         dot?.visibility = View.INVISIBLE
                         Toast.makeText(
                             this,
@@ -197,7 +195,6 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NavigationView.OnNav
     }
 
     override fun showDot(boolean: Boolean) {
-        //todo checknout proc nefunguje dot
         if(boolean) {
             dot?.visibility = View.VISIBLE
         } else {

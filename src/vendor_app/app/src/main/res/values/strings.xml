@@ -9,7 +9,7 @@
     <string name="vendor_title">Select Product</string>
     <string name="selected_items">Selected Items</string>
     <string name="no_items_selected">No items selected</string>
-    <string name="logout">Logout</string>
+    <string name="logout">Log out</string>
     <string name="price">Price</string>
     <string name="total">Total</string>
     <string name="clear_all">Clear All</string>
@@ -68,4 +68,11 @@
     <string name="synchronize">synchronize</string>
     <string name="humansis">humansis</string>
     <string name="loading">loading</string>
+    <string name="read_balance">Read balance</string>
+    <string name="home">Home</string>
+    <string name="nav_header_desc">Navigation header</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="utilities">Utilities</string>
+    <string name="status">Status</string>
 </resources>

@@ -67,7 +67,7 @@ class CheckoutViewModel(
     }
 
     fun payByCard(pin: String, value: Double, currency: String): Single<Pair<Tag, UserBalance>> {
-        return subtractMoneyFromCard(pin, value, currency).flatMap {
+        return subtractMoneyFromCard(pin, value, currency).flatMap { it ->
             val tag = it.first
             val userBalance = it.second
             saveCardPurchaseToDb(convertTagToString(tag))

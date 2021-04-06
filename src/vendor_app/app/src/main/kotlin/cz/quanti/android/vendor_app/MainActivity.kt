@@ -239,9 +239,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NavigationView.OnNav
 
     private fun readBalance(): Single<UserBalance> {
         return nfcTagPublisher.getTagObservable().firstOrError().flatMap { tag ->
-            nfcFacade.readUserBalance(tag).map { userBalance ->
-                userBalance
-            }
+            nfcFacade.readUserBalance(tag)
         }
     }
 

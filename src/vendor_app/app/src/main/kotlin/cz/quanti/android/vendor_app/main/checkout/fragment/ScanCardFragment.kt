@@ -1,8 +1,6 @@
 package cz.quanti.android.vendor_app.main.checkout.fragment
 
-import android.app.PendingIntent
 import android.content.Intent
-import android.nfc.NfcAdapter
 import android.os.Bundle
 import android.provider.Settings
 import android.view.LayoutInflater
@@ -18,7 +16,7 @@ import cz.quanti.android.nfc.exception.PINException
 import cz.quanti.android.nfc.exception.PINExceptionEnum
 import cz.quanti.android.vendor_app.R
 import cz.quanti.android.vendor_app.main.checkout.viewmodel.CheckoutViewModel
-import cz.quanti.android.vendor_app.utils.VendorAppException
+import cz.quanti.android.vendor_app.utils.NfcInitializer
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
@@ -29,8 +27,6 @@ import quanti.com.kotlinlog.Log
 class ScanCardFragment : Fragment() {
     private val vm: CheckoutViewModel by viewModel()
     private var disposable: Disposable? = null
-    private var nfcAdapter: NfcAdapter? = null
-    private var pendingIntent: PendingIntent? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -44,42 +40,22 @@ class ScanCardFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        nfcAdapter = NfcAdapter.getDefaultAdapter(requireActivity())
-
-        if (nfcAdapter == null) {
-            Toast.makeText(
-                requireContext(),
-                getString(R.string.no_nfc_available),
-                Toast.LENGTH_LONG
-            ).show()
-            findNavController().navigate(
-                ScanCardFragmentDirections.actionScanCardFragmentToCheckoutFragment()
-            )
-        }
-
-        pendingIntent = PendingIntent.getActivity(
-            requireActivity(), 0,
-            Intent(requireActivity(), requireActivity().javaClass)
-                .addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0
-        )
-
         init()
-        showPinDialogAndPayByCard()
     }
 
     override fun onResume() {
         super.onResume()
-
-        nfcAdapter?.let { nfcAdapter ->
-            if (!nfcAdapter.isEnabled) {
-                showWirelessSettings()
-            }
-            nfcAdapter.enableForegroundDispatch(requireActivity(), pendingIntent, null, null)
+        if (!NfcInitializer.initNfc(requireActivity())){
+            findNavController().navigate(
+                ScanCardFragmentDirections.actionScanCardFragmentToCheckoutFragment()
+            )
+        } else {
+            showPinDialogAndPayByCard()
         }
     }
 
     override fun onPause() {
-        nfcAdapter?.disableForegroundDispatch(requireActivity())
+        NfcInitializer.disableForegroundDispatch(requireActivity())
         super.onPause()
     }
 
@@ -121,7 +97,6 @@ class ScanCardFragment : Fragment() {
             vm.payByCard(pin, vm.getTotal(), vm.getCurrency()).subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({
-                    val tag = it.first
                     val balance = it.second.balance
 
                     AlertDialog.Builder(requireContext(), R.style.SuccessDialogTheme)
@@ -131,6 +106,7 @@ class ScanCardFragment : Fragment() {
                         .show()
 
                     vm.clearShoppingCart()
+
                     vm.clearCurrency()
                     findNavController().navigate(
                         ScanCardFragmentDirections.actionScanCardFragmentToVendorFragment()

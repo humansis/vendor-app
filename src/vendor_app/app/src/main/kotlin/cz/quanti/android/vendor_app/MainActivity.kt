@@ -198,48 +198,49 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NavigationView.OnNav
     }
 
     private fun showReadBalanceDialog() {
-        NfcInitializer(this).initNfc()
-        val scanCardDialog = AlertDialog.Builder(this, R.style.DialogTheme)
-            .setMessage(getString(R.string.scan_card))
-            .setCancelable(false)
-            .setNegativeButton(getString(R.string.cancel)) { dialog, _ ->
-                dialog?.dismiss()
-            }
-            .create()
-
-        scanCardDialog?.show()
-
-        readBalanceDisposable?.dispose()
-        readBalanceDisposable = readBalance()
-        .subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe({
-            scanCardDialog.dismiss()
-            val cardContent = it
-            val cardResultDialog = AlertDialog.Builder(this, R.style.DialogTheme)
-                .setTitle(getString((R.string.read_balance)))
-                .setMessage(
-                    getString(
-                        R.string.scanning_card_balance,
-                        "${cardContent.balance} ${cardContent.currencyCode}"
-                    )
-                )
-                .setCancelable(true)
-                .setNegativeButton(getString(R.string.close)){ dialog, _ ->
+        if (NfcInitializer.initNfc(this)) {
+            val scanCardDialog = AlertDialog.Builder(this, R.style.DialogTheme)
+                .setMessage(getString(R.string.scan_card))
+                .setCancelable(false)
+                .setNegativeButton(getString(R.string.cancel)) { dialog, _ ->
                     dialog?.dismiss()
-                    readBalanceDisposable?.dispose()
-                    readBalanceDisposable = null
                 }
                 .create()
-            cardResultDialog.show()
-        },
-            {
-                Toast.makeText(
-                    this,
-                    getString(R.string.card_error),
-                    Toast.LENGTH_LONG
-                ).show()
-                scanCardDialog.dismiss()
-                nfcAdapter?.disableForegroundDispatch(this)
-        })
+
+            scanCardDialog?.show()
+
+            readBalanceDisposable?.dispose()
+            readBalanceDisposable = readBalance()
+                .subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe({
+                    scanCardDialog.dismiss()
+                    val cardContent = it
+                    val cardResultDialog = AlertDialog.Builder(this, R.style.DialogTheme)
+                        .setTitle(getString((R.string.read_balance)))
+                        .setMessage(
+                            getString(
+                                R.string.scanning_card_balance,
+                                "${cardContent.balance} ${cardContent.currencyCode}"
+                            )
+                        )
+                        .setCancelable(true)
+                        .setNegativeButton(getString(R.string.close)) { dialog, _ ->
+                            dialog?.dismiss()
+                            readBalanceDisposable?.dispose()
+                            readBalanceDisposable = null
+                        }
+                        .create()
+                    cardResultDialog.show()
+                },
+                    {
+                        Toast.makeText(
+                            this,
+                            getString(R.string.card_error),
+                            Toast.LENGTH_LONG
+                        ).show()
+                        scanCardDialog.dismiss()
+                        NfcInitializer.disableForegroundDispatch(this)
+                    })
+        }
     }
 
     private fun readBalance(): Single<UserBalance> {

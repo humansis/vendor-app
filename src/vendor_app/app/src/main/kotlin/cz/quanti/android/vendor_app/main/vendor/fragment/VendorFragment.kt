@@ -39,7 +39,7 @@ class VendorFragment() : Fragment(), VendorFragmentCallback {
         savedInstanceState: Bundle?
     ): View? {
         (requireActivity() as ActivityCallback).setToolbarVisible(true)
-        requireActivity().findViewById<NavigationView>(R.id.nav_view).setCheckedItem(R.id.homeButton)
+        requireActivity().findViewById<NavigationView>(R.id.nav_view).setCheckedItem(R.id.home_button)
         val callback: OnBackPressedCallback =
             object : OnBackPressedCallback(true /* enabled by default */) {
                 override fun handleOnBackPressed() { // Handle the back button event

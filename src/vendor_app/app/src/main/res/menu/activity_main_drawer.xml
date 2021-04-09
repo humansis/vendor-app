@@ -7,7 +7,7 @@
     <group android:checkableBehavior="single">
 
         <item
-            android:id="@+id/homeButton"
+            android:id="@+id/home_button"
             android:enabled="true"
             android:icon="@drawable/ic_home"
             android:title="@string/home"
@@ -16,29 +16,29 @@
 
     </group>
 
-    <!--<item
+    <item
         android:title="@string/utilities">
 
         <menu>
 
             <item
-                android:id="@+id/readBalanceButton"
+                android:id="@+id/read_balance_button"
                 android:enabled="true"
                 android:icon="@drawable/ic_money"
                 android:title="@string/read_balance"
                 android:visible="true"
                 app:showAsAction="never" />
 
-            <item
+            <!--<item
                 android:id="@+id/shareLogsButton"
                 android:enabled="true"
                 android:icon="@drawable/ic_export"
                 android:title="@string/export_logs"
                 android:visible="true"
-                app:showAsAction="never" />
+                app:showAsAction="never" />-->
 
         </menu>
 
-    </item>-->
+    </item>
 
 </menu>

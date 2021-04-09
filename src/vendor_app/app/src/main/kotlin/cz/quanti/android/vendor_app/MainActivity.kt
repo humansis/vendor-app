@@ -16,14 +16,18 @@ import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.navigation.findNavController
 import com.google.android.material.navigation.NavigationView
+import cz.quanti.android.nfc.VendorFacade
+import cz.quanti.android.nfc.dto.UserBalance
 import cz.quanti.android.vendor_app.main.authorization.viewmodel.LoginViewModel
 import cz.quanti.android.vendor_app.main.vendor.callback.ProductsFragmentCallback
 import cz.quanti.android.vendor_app.main.vendor.callback.VendorFragmentCallback
 import cz.quanti.android.vendor_app.repository.AppPreferences
 import cz.quanti.android.vendor_app.repository.login.LoginFacade
 import cz.quanti.android.vendor_app.repository.synchronization.SynchronizationFacade
+import cz.quanti.android.vendor_app.utils.NfcInitializer
 import cz.quanti.android.vendor_app.utils.NfcTagPublisher
 import extensions.isNetworkConnected
+import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
@@ -41,9 +45,12 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NavigationView.OnNav
     private val syncFacade: SynchronizationFacade by inject()
     private val preferences: AppPreferences by inject()
     private val nfcTagPublisher: NfcTagPublisher by inject()
+    private val nfcFacade: VendorFacade by inject()
+    private var nfcAdapter: NfcAdapter? = null
     private val loginVM: LoginViewModel by viewModel()
     private var disposable: Disposable? = null
     private var syncDisposable: Disposable? = null
+    private var readBalanceDisposable: Disposable? = null
     private lateinit var drawer: DrawerLayout
     private lateinit var toolbar: Toolbar
 
@@ -73,12 +80,16 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NavigationView.OnNav
         btn_logout.setOnClickListener {
             logout()
         }
+        nfcAdapter = NfcAdapter.getDefaultAdapter(this)
     }
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.homeButton -> {
+            R.id.home_button -> {
                 findNavController(R.id.nav_host_fragment).popBackStack(R.id.vendorFragment, false)
+            }
+            R.id.read_balance_button -> {
+                showReadBalanceDialog()
             }
         }
         drawer.closeDrawer(GravityCompat.START)
@@ -96,6 +107,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NavigationView.OnNav
     override fun onDestroy() {
         disposable?.dispose()
         syncDisposable?.dispose()
+        readBalanceDisposable?.dispose()
         super.onDestroy()
     }
 
@@ -183,6 +195,58 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NavigationView.OnNav
             }
             .setNegativeButton(android.R.string.no, null)
             .show()
+    }
+
+    private fun showReadBalanceDialog() {
+        if (NfcInitializer.initNfc(this)) {
+            val scanCardDialog = AlertDialog.Builder(this, R.style.DialogTheme)
+                .setMessage(getString(R.string.scan_card))
+                .setCancelable(false)
+                .setNegativeButton(getString(R.string.cancel)) { dialog, _ ->
+                    dialog?.dismiss()
+                }
+                .create()
+
+            scanCardDialog?.show()
+
+            readBalanceDisposable?.dispose()
+            readBalanceDisposable = readBalance()
+                .subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe({
+                    scanCardDialog.dismiss()
+                    val cardContent = it
+                    val cardResultDialog = AlertDialog.Builder(this, R.style.DialogTheme)
+                        .setTitle(getString((R.string.read_balance)))
+                        .setMessage(
+                            getString(
+                                R.string.scanning_card_balance,
+                                "${cardContent.balance} ${cardContent.currencyCode}"
+                            )
+                        )
+                        .setCancelable(true)
+                        .setNegativeButton(getString(R.string.close)) { dialog, _ ->
+                            dialog?.dismiss()
+                            readBalanceDisposable?.dispose()
+                            readBalanceDisposable = null
+                        }
+                        .create()
+                    cardResultDialog.show()
+                },
+                    {
+                        Toast.makeText(
+                            this,
+                            getString(R.string.card_error),
+                            Toast.LENGTH_LONG
+                        ).show()
+                        scanCardDialog.dismiss()
+                        NfcInitializer.disableForegroundDispatch(this)
+                    })
+        }
+    }
+
+    private fun readBalance(): Single<UserBalance> {
+        return nfcTagPublisher.getTagObservable().firstOrError().flatMap { tag ->
+            nfcFacade.readUserBalance(tag)
+        }
     }
 
     override fun onResume() {

@@ -161,7 +161,7 @@ class CheckoutFragment() : Fragment(), CheckoutFragmentCallback {
     }
 
     private fun showPinDialogAndPayByCard() {
-        if (NfcInitializer.initNfc(requireActivity())) {
+       if (NfcInitializer.initNfc(requireActivity())) {
             val dialogView: View = layoutInflater.inflate(R.layout.dialog_card_pin, null)
             AlertDialog.Builder(requireContext(), R.style.DialogTheme)
                 .setView(dialogView)
@@ -176,14 +176,15 @@ class CheckoutFragment() : Fragment(), CheckoutFragmentCallback {
                     )
                 }
                 .setNegativeButton(android.R.string.cancel) { dialog, _ ->
-                    dialog?.dismiss()
+                    dialog?.cancel()
                 }
                 .setOnDismissListener {
-                    //todo opravit.. zahodi se ciselna klavesnice ale normalni zustane
-                    (requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager).hideSoftInputFromWindow(
-                        view?.windowToken,
-                        0
-                    )
+                    view?.postDelayed( Runnable {
+                        (requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager).hideSoftInputFromWindow(
+                            requireActivity().currentFocus?.windowToken,
+                            0
+                        )
+                    },50)
                 }
                 .show()
         }

@@ -27,6 +27,7 @@ class CheckoutViewModel(
     private val nfcTagPublisher: NfcTagPublisher
 ) : ViewModel() {
     private var vouchers: MutableList<Voucher> = mutableListOf()
+    private var pin: String? = null
 
     fun init() {
         this.vouchers = shoppingHolder.vouchers
@@ -65,6 +66,14 @@ class CheckoutViewModel(
     fun clearCurrency() {
         shoppingHolder.chosenCurrency = ""
     }
+
+    fun getPin(): String? {
+        return pin
+    }
+    fun setPin(string: String?) {
+        this.pin = string
+    }
+
 
     fun payByCard(pin: String, value: Double, currency: String): Single<Pair<Tag, UserBalance>> {
         return subtractMoneyFromCard(pin, value, currency).flatMap { it ->

@@ -2,6 +2,7 @@ package cz.quanti.android.vendor_app
 
 import android.app.AlertDialog
 import android.content.Intent
+import android.content.pm.ActivityInfo
 import android.nfc.NfcAdapter
 import android.nfc.Tag
 import android.os.Bundle
@@ -59,6 +60,10 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NavigationView.OnNav
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        if (!this.resources.getBoolean(R.bool.isTablet)){
+            requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+        }
 
         setContentView(R.layout.activity_main)
 

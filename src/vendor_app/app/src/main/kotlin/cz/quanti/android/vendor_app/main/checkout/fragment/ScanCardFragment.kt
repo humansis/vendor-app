@@ -28,6 +28,7 @@ import quanti.com.kotlinlog.Log
 class ScanCardFragment : Fragment() {
     private val vm: CheckoutViewModel by viewModel()
     private var paymentDisposable: Disposable? = null
+    private var pinDialog: AlertDialog? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -68,6 +69,7 @@ class ScanCardFragment : Fragment() {
 
     override fun onDestroy() {
         paymentDisposable?.dispose()
+        paymentDisposable = null
         super.onDestroy()
     }
 
@@ -80,8 +82,9 @@ class ScanCardFragment : Fragment() {
     }
 
     private fun showPinDialogAndPayByCard() {
+        pinDialog?.dismiss()
         val dialogView: View = layoutInflater.inflate(R.layout.dialog_card_pin, null)
-        AlertDialog.Builder(requireContext(), R.style.DialogTheme)
+        pinDialog = AlertDialog.Builder(requireContext(), R.style.DialogTheme)
             .setView(dialogView)
             .setCancelable(false)
             .setPositiveButton(android.R.string.ok) { dialog, _ ->
@@ -150,6 +153,7 @@ class ScanCardFragment : Fragment() {
 
                          if (it is PINException && it.pinExceptionEnum == PINExceptionEnum.INCORRECT_PIN) {
                              paymentDisposable?.dispose()
+                             paymentDisposable = null
                              vm.setPin(null)
                              showPinDialogAndPayByCard()
                          } else {

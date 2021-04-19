@@ -17,7 +17,6 @@ import cz.quanti.android.vendor_app.repository.purchase.dto.db.PurchaseDbEntity
 import cz.quanti.android.vendor_app.repository.purchase.dto.db.SelectedProductDbEntity
 import cz.quanti.android.vendor_app.repository.purchase.dto.db.VoucherPurchaseDbEntity
 import io.reactivex.Completable
-import io.reactivex.Maybe
 import io.reactivex.Observable
 import io.reactivex.Single
 
@@ -67,8 +66,8 @@ class PurchaseRepositoryImpl(
     }
 
     override fun sendCardPurchaseToServer(purchase: Purchase): Single<Int> {
-        return if (purchase.smartcard != null) {
-            api.postCardPurchase(purchase.smartcard!!, convertToCardApi(purchase)).map { response ->
+        return if (purchases.smartcard != null) {
+            api.postCardPurchase(purchases.smartcard!!, convertToCardApi(purchases)).map { response ->
                 response.code()
             }
         } else {
@@ -128,6 +127,10 @@ class PurchaseRepositoryImpl(
 
     override fun deleteCardPurchase(purchase: Purchase): Completable {
         return Completable.fromCallable { cardPurchaseDao.deleteCardForPurchase(purchase.dbId) }
+    }
+
+    override fun deleteVoucherPurchase(purchase: Purchase): Completable {
+        return Completable.fromCallable { voucherPurchaseDao.deleteVoucherForPurchase(purchase.dbId) }
     }
 
     override fun deleteAllVoucherPurchases(): Completable {

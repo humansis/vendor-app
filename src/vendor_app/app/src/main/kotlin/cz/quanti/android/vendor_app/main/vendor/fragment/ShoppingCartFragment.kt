@@ -77,8 +77,12 @@ class ShoppingCartFragment : Fragment(), ShoppingCartFragmentCallback {
             .setPositiveButton(
                 android.R.string.yes
             ) { _, _ ->
-                vm.removeFromCart(position)
-                shoppingCartAdapter.removeAt(position)
+                if (shoppingCartAdapter.itemCount == 1) {
+                    clearCart()
+                } else {
+                    vm.removeFromCart(position)
+                    shoppingCartAdapter.removeAt(position)
+                }
             }
             .setNegativeButton(android.R.string.no, null)
             .show()

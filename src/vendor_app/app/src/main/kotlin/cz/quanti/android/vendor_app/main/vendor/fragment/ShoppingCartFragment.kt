@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import android.app.AlertDialog
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -66,8 +67,7 @@ class ShoppingCartFragment : Fragment(), ShoppingCartFragmentCallback {
             0
         )
 
-        val totalText = "${getString(R.string.total)}: ${getStringFromDouble(getTotalPrice())} ${chosenCurrency}"
-        totalPriceTextView.text = totalText
+        updateTotal()
     }
 
     override fun removeItemFromCart(position: Int) {
@@ -82,6 +82,7 @@ class ShoppingCartFragment : Fragment(), ShoppingCartFragmentCallback {
                 } else {
                     vm.removeFromCart(position)
                     shoppingCartAdapter.removeAt(position)
+                    updateTotal()
                 }
             }
             .setNegativeButton(android.R.string.no, null)
@@ -108,9 +109,17 @@ class ShoppingCartFragment : Fragment(), ShoppingCartFragmentCallback {
 
     private fun initOnClickListeners() {
         checkoutButton.setOnClickListener {
-            findNavController().navigate(
-                VendorFragmentDirections.actionVendorFragmentToCheckoutFragment()
-            )
+            if (shoppingCartAdapter.itemCount > 0){
+                findNavController().navigate(
+                    VendorFragmentDirections.actionVendorFragmentToCheckoutFragment()
+                )
+            } else {
+                Toast.makeText(
+                    requireContext(),
+                    getString(R.string.empty_cart),
+                    Toast.LENGTH_LONG
+                ).show()
+            }
         }
 
         clearAllButton.setOnClickListener {
@@ -132,5 +141,10 @@ class ShoppingCartFragment : Fragment(), ShoppingCartFragmentCallback {
         shoppingCartAdapter.clearAll()
         noItemsSelectedView.visibility = View.VISIBLE
         shoppingCartFooter.visibility = View.INVISIBLE
+    }
+
+    private fun updateTotal() {
+        val totalText = "${getString(R.string.total)}: ${getStringFromDouble(getTotalPrice())} ${chosenCurrency}"
+        totalPriceTextView.text = totalText
     }
 }

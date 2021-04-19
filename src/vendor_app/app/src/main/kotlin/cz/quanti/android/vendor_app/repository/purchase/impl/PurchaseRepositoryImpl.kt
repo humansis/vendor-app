@@ -66,8 +66,8 @@ class PurchaseRepositoryImpl(
     }
 
     override fun sendCardPurchaseToServer(purchase: Purchase): Single<Int> {
-        return if (purchases.smartcard != null) {
-            api.postCardPurchase(purchases.smartcard!!, convertToCardApi(purchases)).map { response ->
+        return if (purchase.smartcard != null) {
+            api.postCardPurchase(purchase.smartcard!!, convertToCardApi(purchase)).map { response ->
                 response.code()
             }
         } else {

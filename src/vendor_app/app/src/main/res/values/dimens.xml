@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <bool name="isTablet">false</bool>
+
     <dimen name="border_padding">15dp</dimen>
     <dimen name="dimen_30">30dp</dimen>
     <dimen name="activity_horizontal_margin">16dp</dimen>

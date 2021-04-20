@@ -17,6 +17,8 @@ interface PurchaseRepository {
 
     fun deleteAllPurchases(): Completable
 
+    fun deletePurchase(purchase: Purchase):Completable
+
     fun deleteCardPurchase(purchase: Purchase): Completable
 
     fun deleteVoucherPurchase(purchase: Purchase): Completable

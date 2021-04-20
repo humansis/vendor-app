@@ -76,6 +76,7 @@ class PurchaseRepositoryImpl(
     }
 
     override fun sendVoucherPurchasesToServer(purchases: List<Purchase>): Single<Int> {
+
         val voucherPurchases = purchases.map { convertToVoucherApi(it) }
 
         return if (voucherPurchases.isNotEmpty()) {
@@ -83,7 +84,7 @@ class PurchaseRepositoryImpl(
                 response.code()
             }
         } else {
-            Single.just(200)
+            Single.just(299)
         }
     }
 
@@ -122,6 +123,14 @@ class PurchaseRepositoryImpl(
             voucherPurchaseDao.deleteAll()
             cardPurchaseDao.deleteAll()
             selectedProductDao.deleteAll()
+        }
+    }
+
+    override fun deletePurchase(purchase: Purchase): Completable {
+        return if (purchase.vouchers.isNotEmpty()) {
+            deleteVoucherPurchase(purchase)
+        } else {
+            deleteCardPurchase(purchase)
         }
     }
 

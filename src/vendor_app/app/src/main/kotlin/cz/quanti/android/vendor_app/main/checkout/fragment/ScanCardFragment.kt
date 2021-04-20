@@ -14,6 +14,7 @@ import androidx.navigation.fragment.findNavController
 import com.google.android.material.textfield.TextInputEditText
 import cz.quanti.android.nfc.exception.PINException
 import cz.quanti.android.nfc.exception.PINExceptionEnum
+import cz.quanti.android.vendor_app.ActivityCallback
 import cz.quanti.android.vendor_app.R
 import cz.quanti.android.vendor_app.main.checkout.viewmodel.CheckoutViewModel
 import cz.quanti.android.vendor_app.utils.NfcInitializer
@@ -29,6 +30,7 @@ class ScanCardFragment : Fragment() {
     private val vm: CheckoutViewModel by viewModel()
     private var paymentDisposable: Disposable? = null
     private var pinDialog: AlertDialog? = null
+    private var activityCallback: ActivityCallback? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -36,6 +38,7 @@ class ScanCardFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         (activity as AppCompatActivity).supportActionBar?.show()
+        activityCallback = activity as ActivityCallback
         return inflater.inflate(R.layout.fragment_scan_card, container, false)
     }
 
@@ -124,8 +127,9 @@ class ScanCardFragment : Fragment() {
                              .setPositiveButton(android.R.string.ok, null)
                              .show()
 
+                         activityCallback?.showDot(true)
                          vm.clearShoppingCart()
-
+                         vm.clearVouchers()
                          vm.clearCurrency()
                          findNavController().navigate(
                              ScanCardFragmentDirections.actionScanCardFragmentToVendorFragment()

@@ -45,7 +45,7 @@ class PurchaseFacadeImpl(
             Observable.fromIterable(purchases.filter { it.products.isEmpty() })
                 .flatMapCompletable {
                     Log.d(
-                        "xxx",
+                        TAG,
                         "Purchase ${it.dbId} created at ${it.createdAt} has no products"
                     )
                     purchaseRepo.deletePurchase(it)
@@ -64,8 +64,8 @@ class PurchaseFacadeImpl(
                     if (isPositiveResponseHttpCode(responseCode)) {
                         if (responseCode != 299) {
                             Log.d(
-                                "xxx",
-                                "Received code: $responseCode when trying to sync voucher purchases"
+                                TAG,
+                                "Received code $responseCode when trying to sync voucher purchases"
                             )
                         }
                         purchaseRepo.deleteAllVoucherPurchases().andThen(
@@ -75,14 +75,14 @@ class PurchaseFacadeImpl(
                                         .flatMapCompletable { responseCode ->
                                             if (isPositiveResponseHttpCode(responseCode)) {
                                                 Log.d(
-                                                    "xxx",
-                                                    "Received code: $responseCode when trying to sync ${purchase.dbId} by ${purchase.smartcard}"
+                                                    TAG,
+                                                    "Received code $responseCode when trying to sync ${purchase.dbId} by ${purchase.smartcard}"
                                                 )
                                                 purchaseRepo.deleteCardPurchase(purchase)
                                             } else {
                                                 Log.d(
-                                                    "xxx",
-                                                    "Received code: $responseCode when trying to sync ${purchase.dbId} by ${purchase.smartcard}"
+                                                    TAG,
+                                                    "Received code $responseCode when trying to sync ${purchase.dbId} by ${purchase.smartcard}"
                                                 )
                                                 invalidPurchases.add(purchase)
                                                 Completable.complete()
@@ -113,4 +113,9 @@ class PurchaseFacadeImpl(
     private fun deleteAllPurchases(): Completable {
         return purchaseRepo.deleteAllPurchases()
     }
+
+    companion object {
+        private val TAG = PurchaseFacadeImpl::class.java.simpleName
+    }
+
 }

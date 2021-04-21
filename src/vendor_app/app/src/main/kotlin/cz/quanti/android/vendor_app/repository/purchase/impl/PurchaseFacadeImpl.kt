@@ -76,17 +76,13 @@ class PurchaseFacadeImpl(
                             .flatMapCompletable { purchase ->
                                 purchaseRepo.sendCardPurchaseToServer(purchase)
                                     .flatMapCompletable { responseCode ->
+                                        Log.d(
+                                            TAG,
+                                            "Received code $responseCode when trying to sync purchase ${purchase.dbId} by ${purchase.smartcard}"
+                                        )
                                         if (isPositiveResponseHttpCode(responseCode)) {
-                                            Log.d(
-                                                TAG,
-                                                "Received code $responseCode when trying to sync purchase ${purchase.dbId} by ${purchase.smartcard}"
-                                            )
                                             purchaseRepo.deleteCardPurchase(purchase)
                                         } else {
-                                            Log.d(
-                                                TAG,
-                                                "Received code $responseCode when trying to sync purchase ${purchase.dbId} by ${purchase.smartcard}"
-                                            )
                                             invalidPurchases.add(purchase)
                                             Completable.complete()
                                         }
@@ -95,7 +91,7 @@ class PurchaseFacadeImpl(
                             //throw exception after all purchases has been iterated
                             .doOnComplete {
                                 if (invalidPurchases.isNotEmpty()) {
-                                    throw VendorAppException("Could not send card purchases to the server.").apply {
+                                    throw VendorAppException("Could not send purchases to the server.").apply {
                                         apiError = true
                                     }
                                 }

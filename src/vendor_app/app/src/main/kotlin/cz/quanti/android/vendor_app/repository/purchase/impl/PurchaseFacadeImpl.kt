@@ -57,56 +57,51 @@ class PurchaseFacadeImpl(
     }
 
     private fun sendPurchasesToServer(): Completable {
-        val invalidPurchases =  mutableListOf<Purchase>()
+        val invalidPurchases = mutableListOf<Purchase>()
         return purchaseRepo.getAllPurchases().flatMapCompletable { purchases ->
-            purchaseRepo.sendVoucherPurchasesToServer(purchases.filter { it.vouchers.isNotEmpty() })
-                .flatMapCompletable { responseCode ->
-                    if (isPositiveResponseHttpCode(responseCode)) {
-                        if (responseCode != 299) {
-                            Log.d(
-                                TAG,
-                                "Received code $responseCode when trying to sync voucher purchases"
-                            )
+            if (purchases.isEmpty()) {
+                Completable.complete()
+            } else {
+                val voucherPurchases = purchases.filter { it.vouchers.isNotEmpty() }
+                purchaseRepo.sendVoucherPurchasesToServer(voucherPurchases)
+                    .flatMapCompletable { responseCode ->
+                        if (isPositiveResponseHttpCode(responseCode)) {
+                            purchaseRepo.deleteAllVoucherPurchases()
+                        } else {
+                            invalidPurchases.addAll(voucherPurchases)
+                            Completable.complete()
                         }
-                        purchaseRepo.deleteAllVoucherPurchases().andThen(
-                            Observable.fromIterable(purchases.filter { it.smartcard != null })
-                                .flatMapCompletable { purchase ->
-                                    purchaseRepo.sendCardPurchaseToServer(purchase)
-                                        .flatMapCompletable { responseCode ->
-                                            if (isPositiveResponseHttpCode(responseCode)) {
-                                                Log.d(
-                                                    TAG,
-                                                    "Received code $responseCode when trying to sync ${purchase.dbId} by ${purchase.smartcard}"
-                                                )
-                                                purchaseRepo.deleteCardPurchase(purchase)
-                                            } else {
-                                                Log.d(
-                                                    TAG,
-                                                    "Received code $responseCode when trying to sync ${purchase.dbId} by ${purchase.smartcard}"
-                                                )
-                                                invalidPurchases.add(purchase)
-                                                Completable.complete()
-                                            }
-                                        }
-                                }
-                                //throw exception after all purchases has been iterated
-                                .doOnComplete {
-                                    if (invalidPurchases.isNotEmpty()) {
-                                        throw VendorAppException("Could not send card purchases to the server.").apply {
-                                            apiError = true
-                                            apiResponseCode = responseCode
+                    }.andThen(
+                        Observable.fromIterable(purchases.filter { it.smartcard != null })
+                            .flatMapCompletable { purchase ->
+                                purchaseRepo.sendCardPurchaseToServer(purchase)
+                                    .flatMapCompletable { responseCode ->
+                                        if (isPositiveResponseHttpCode(responseCode)) {
+                                            Log.d(
+                                                TAG,
+                                                "Received code $responseCode when trying to sync purchase ${purchase.dbId} by ${purchase.smartcard}"
+                                            )
+                                            purchaseRepo.deleteCardPurchase(purchase)
+                                        } else {
+                                            Log.d(
+                                                TAG,
+                                                "Received code $responseCode when trying to sync purchase ${purchase.dbId} by ${purchase.smartcard}"
+                                            )
+                                            invalidPurchases.add(purchase)
+                                            Completable.complete()
                                         }
                                     }
+                            }
+                            //throw exception after all purchases has been iterated
+                            .doOnComplete {
+                                if (invalidPurchases.isNotEmpty()) {
+                                    throw VendorAppException("Could not send card purchases to the server.").apply {
+                                        apiError = true
+                                    }
                                 }
-                        )
-                    } else {
-                        throw VendorAppException("Could not send voucher purchases to the server. Received error code: $responseCode").apply {
-                            apiError = true
-                            apiResponseCode = responseCode
-                        }
-                    }
-
-                }
+                            }
+                    )
+            }
         }
     }
 

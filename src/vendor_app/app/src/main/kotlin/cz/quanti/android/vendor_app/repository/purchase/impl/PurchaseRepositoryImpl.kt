@@ -19,6 +19,7 @@ import cz.quanti.android.vendor_app.repository.purchase.dto.db.VoucherPurchaseDb
 import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.Single
+import quanti.com.kotlinlog.Log
 
 class PurchaseRepositoryImpl(
     private val purchaseDao: PurchaseDao,
@@ -81,10 +82,14 @@ class PurchaseRepositoryImpl(
 
         return if (voucherPurchases.isNotEmpty()) {
             api.postVoucherPurchases(voucherPurchases).map { response ->
+                Log.d(
+                    TAG,
+                    "Received code ${response.code()} when trying to sync voucher purchases"
+                )
                 response.code()
             }
         } else {
-            Single.just(299)
+            Single.just(200)
         }
     }
 
@@ -209,6 +214,10 @@ class PurchaseRepositoryImpl(
             createdAt = purchase.createdAt,
             vendorId = purchase.vendorId
         )
+    }
+
+    companion object {
+        private val TAG = PurchaseRepositoryImpl::class.java.simpleName
     }
 }
 

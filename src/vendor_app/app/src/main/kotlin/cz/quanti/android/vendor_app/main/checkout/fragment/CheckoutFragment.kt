@@ -79,6 +79,7 @@ class CheckoutFragment() : Fragment(), CheckoutFragmentCallback {
         super.onResume()
         if(vm.getVouchers().isNotEmpty() || vm.getTotal() <= 0) {
             proceedButton?.visibility = View.VISIBLE
+            payByCardButton?.visibility = View.INVISIBLE
         } else {
             proceedButton?.visibility = View.GONE
         }
@@ -179,12 +180,15 @@ class CheckoutFragment() : Fragment(), CheckoutFragmentCallback {
                     dialog?.cancel()
                 }
                 .setOnDismissListener {
-                    view?.postDelayed( Runnable {
-                        (requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager).hideSoftInputFromWindow(
-                            requireActivity().currentFocus?.windowToken,
-                            0
-                        )
-                    },50)
+                    view?.postDelayed(
+                        {
+                            (requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager).hideSoftInputFromWindow(
+                                requireActivity().currentFocus?.windowToken,
+                                0
+                            )
+                        },
+                        50
+                    )
                 }
                 .show()
         }

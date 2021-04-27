@@ -17,9 +17,9 @@ import cz.quanti.android.vendor_app.repository.purchase.dto.db.PurchaseDbEntity
 import cz.quanti.android.vendor_app.repository.purchase.dto.db.SelectedProductDbEntity
 import cz.quanti.android.vendor_app.repository.purchase.dto.db.VoucherPurchaseDbEntity
 import io.reactivex.Completable
-import io.reactivex.Maybe
 import io.reactivex.Observable
 import io.reactivex.Single
+import quanti.com.kotlinlog.Log
 
 class PurchaseRepositoryImpl(
     private val purchaseDao: PurchaseDao,
@@ -77,10 +77,15 @@ class PurchaseRepositoryImpl(
     }
 
     override fun sendVoucherPurchasesToServer(purchases: List<Purchase>): Single<Int> {
+
         val voucherPurchases = purchases.map { convertToVoucherApi(it) }
 
         return if (voucherPurchases.isNotEmpty()) {
             api.postVoucherPurchases(voucherPurchases).map { response ->
+                Log.d(
+                    TAG,
+                    "Received code ${response.code()} when trying to sync voucher purchases"
+                )
                 response.code()
             }
         } else {
@@ -126,8 +131,20 @@ class PurchaseRepositoryImpl(
         }
     }
 
+    override fun deletePurchase(purchase: Purchase): Completable {
+        return if (purchase.vouchers.isNotEmpty()) {
+            deleteVoucherPurchase(purchase)
+        } else {
+            deleteCardPurchase(purchase)
+        }
+    }
+
     override fun deleteCardPurchase(purchase: Purchase): Completable {
         return Completable.fromCallable { cardPurchaseDao.deleteCardForPurchase(purchase.dbId) }
+    }
+
+    override fun deleteVoucherPurchase(purchase: Purchase): Completable {
+        return Completable.fromCallable { voucherPurchaseDao.deleteVoucherForPurchase(purchase.dbId) }
     }
 
     override fun deleteAllVoucherPurchases(): Completable {
@@ -197,6 +214,10 @@ class PurchaseRepositoryImpl(
             createdAt = purchase.createdAt,
             vendorId = purchase.vendorId
         )
+    }
+
+    companion object {
+        private val TAG = PurchaseRepositoryImpl::class.java.simpleName
     }
 }
 

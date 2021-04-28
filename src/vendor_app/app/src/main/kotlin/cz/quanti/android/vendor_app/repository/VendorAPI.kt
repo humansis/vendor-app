@@ -5,8 +5,7 @@ import cz.quanti.android.vendor_app.repository.booklet.dto.api.BookletCodesBody
 import cz.quanti.android.vendor_app.repository.login.dto.api.SaltApiEntity
 import cz.quanti.android.vendor_app.repository.login.dto.api.VendorApiEntity
 import cz.quanti.android.vendor_app.repository.product.dto.api.ProductApiEntity
-import cz.quanti.android.vendor_app.repository.purchase.dto.api.CardPurchaseApiEntity
-import cz.quanti.android.vendor_app.repository.purchase.dto.api.VoucherPurchaseApiEntity
+import cz.quanti.android.vendor_app.repository.purchase.dto.api.*
 import io.reactivex.Single
 import retrofit2.Response
 import retrofit2.http.*
@@ -46,4 +45,19 @@ interface VendorAPI {
 
     @GET("smartcards/blocked")
     fun getBlockedCards(): Single<Response<List<String>>>
+
+    @GET("vendors/{id}/smartcard-redemption-batches")
+    fun getRedemptionBatches(
+        @Path("id") vendorId: String
+    ): Single<Response<List<BatchApiEntity>>>
+
+    @GET("vendors/{id}/smartcard-redemption-candidates")
+    fun getRedemptionCandidates(
+        @Path("id") vendorId: String
+    ): Single<Response<List<CandidateApiEntity>>>
+
+    @GET("smartcard-purchases")
+    fun getPurchasesById(
+        @Query("filter") purchaseIds: Array<Int>
+    ): Single<Response<List<CandidatePurchaseApiEntity>>>
 }

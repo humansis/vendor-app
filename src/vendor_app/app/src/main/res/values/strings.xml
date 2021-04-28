@@ -77,4 +77,6 @@
     <string name="status">Status</string>
     <string name="scanning_card_balance">Card Balance: %1$s</string>
     <string name="close">Close</string>
+    <string name="transactions_to_reimburse">Transactions to reimburse</string>
+    <string name="reimbursed_batches">Reimbursed batches</string>
 </resources>

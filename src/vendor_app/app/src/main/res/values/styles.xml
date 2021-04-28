@@ -60,4 +60,11 @@
         <item name="android:textColorSecondary">@color/black</item>
     </style>
 
+    <style name="FragmentTitle">
+        <item name="android:textColor">@color/black</item>
+        <item name="android:textSize">@dimen/fragment_big_title</item>
+        <item name="android:textAlignment">center</item>
+        <item name="android:padding">@dimen/dimen_32dp</item>
+    </style>
+
 </resources>

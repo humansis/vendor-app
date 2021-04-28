@@ -10,6 +10,7 @@ import cz.quanti.android.vendor_app.repository.purchase.dao.VoucherPurchaseDao
 import cz.quanti.android.vendor_app.repository.purchase.dto.Purchase
 import cz.quanti.android.vendor_app.repository.purchase.dto.SelectedProduct
 import cz.quanti.android.vendor_app.repository.purchase.dto.api.CardPurchaseApiEntity
+import cz.quanti.android.vendor_app.repository.purchase.dto.api.CandidatePurchaseApiEntity
 import cz.quanti.android.vendor_app.repository.purchase.dto.api.SelectedProductApiEntity
 import cz.quanti.android.vendor_app.repository.purchase.dto.api.VoucherPurchaseApiEntity
 import cz.quanti.android.vendor_app.repository.purchase.dto.db.CardPurchaseDbEntity
@@ -17,9 +18,9 @@ import cz.quanti.android.vendor_app.repository.purchase.dto.db.PurchaseDbEntity
 import cz.quanti.android.vendor_app.repository.purchase.dto.db.SelectedProductDbEntity
 import cz.quanti.android.vendor_app.repository.purchase.dto.db.VoucherPurchaseDbEntity
 import io.reactivex.Completable
-import io.reactivex.Maybe
 import io.reactivex.Observable
 import io.reactivex.Single
+import quanti.com.kotlinlog.Log
 
 class PurchaseRepositoryImpl(
     private val purchaseDao: PurchaseDao,
@@ -85,6 +86,22 @@ class PurchaseRepositoryImpl(
             }
         } else {
             Single.just(200)
+        }
+    }
+
+    override fun getRedemptionCandidatePurchases(purchaseIds: List<Purchase>): Single<Pair<Int, List<CandidatePurchaseApiEntity>>> {
+        val purchasesArray = ArrayList<Int>()
+        purchaseIds.forEach { purchase ->
+            purchasesArray.add(purchase.dbId.toInt())
+        }
+        Log.d("xxx1", "test")
+        return api.getPurchasesById(purchasesArray.toTypedArray()).map { response ->
+            Log.d("xxx2", "test")
+            var purchases = response.body()
+            if (purchases == null) {
+                purchases = listOf()
+            }
+            Pair(response.code(), purchases)
         }
     }
 

@@ -1,8 +1,8 @@
 package cz.quanti.android.vendor_app.repository.purchase
 
 import cz.quanti.android.vendor_app.repository.purchase.dto.Purchase
+import cz.quanti.android.vendor_app.repository.purchase.dto.api.CandidatePurchaseApiEntity
 import io.reactivex.Completable
-import io.reactivex.Maybe
 import io.reactivex.Single
 
 interface PurchaseRepository {
@@ -22,4 +22,8 @@ interface PurchaseRepository {
     fun deleteAllVoucherPurchases(): Completable
 
     fun getPurchasesCount(): Single<Int>
+
+
+
+    fun getRedemptionCandidatePurchases(purchaseIds: List<Purchase>): Single<Pair<Int, List<CandidatePurchaseApiEntity>>>
 }

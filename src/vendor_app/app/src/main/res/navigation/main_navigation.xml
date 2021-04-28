@@ -30,6 +30,12 @@
     </fragment>
 
     <fragment
+        android:id="@+id/redeemedBatchesFragment"
+        android:name="cz.quanti.android.vendor_app.main.redeemed_batches.fragment.RedeemedBatchesFragment"
+        android:label="fragment_redeemed_batches"
+        tools:layout="@layout/fragment_redeemed_batches"/>
+
+    <fragment
         android:id="@+id/checkoutFragment"
         android:name="cz.quanti.android.vendor_app.main.checkout.fragment.CheckoutFragment"
         android:label="fragment_checkout"

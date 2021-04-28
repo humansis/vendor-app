@@ -90,6 +90,9 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NavigationView.OnNav
             R.id.home_button -> {
                 findNavController(R.id.nav_host_fragment).popBackStack(R.id.vendorFragment, false)
             }
+            R.id.redeemed_batches_button -> {
+                findNavController(R.id.nav_host_fragment).navigate(R.id.redeemedBatchesFragment)
+            }
             R.id.read_balance_button -> {
                 showReadBalanceDialog()
             }

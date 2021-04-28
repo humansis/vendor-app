@@ -31,7 +31,7 @@ def gitVersionCode = { boolean isFileName ->
 }
 
 def VERSION_MAJOR = 2
-def VERSION_MINOR = 0
+def VERSION_MINOR = 1
 def VERSION_PATCH = 1
 
 
@@ -141,7 +141,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-analytics:17.5.0'
 
     // Artifactory
-    implementation "cz.quanti.android:nfc:1.0.0"
+    implementation "cz.quanti.android:nfc:1.2.1"
 
     // Add the Firebase SDK for Crashlytics.
     implementation 'com.google.firebase:firebase-crashlytics:17.2.1'

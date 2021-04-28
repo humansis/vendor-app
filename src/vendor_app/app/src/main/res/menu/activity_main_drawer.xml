@@ -57,4 +57,12 @@
 
     </item>
 
+
+    <!--workaround so log out button does not overlap menu items,
+     remove when NavigationView footers are introduced-->
+    <item
+        android:title=""
+        android:id="@+id/dummy_item"
+        android:enabled="false"/>
+
 </menu>

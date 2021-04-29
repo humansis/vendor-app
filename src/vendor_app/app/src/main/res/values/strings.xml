@@ -79,5 +79,6 @@
     <string name="close">Close</string>
     <string name="empty_cart">Your shopping cart is empty</string>
     <string name="transactions_to_reimburse">Transactions to reimburse</string>
-    <string name="reimbursed_batches">Reimbursed batches</string>
+    <string name="reimbursed_invoices">Reimbursed invoices</string>
+    <string name="unsynced_transactions">Synchronize to display all transactions. \n Unsynchronized: %1$d</string>
 </resources>

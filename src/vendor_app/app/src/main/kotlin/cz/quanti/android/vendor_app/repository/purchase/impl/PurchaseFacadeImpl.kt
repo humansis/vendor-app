@@ -31,13 +31,20 @@ class PurchaseFacadeImpl(
         }
     }
 
-    override fun syncWithServer(): Completable {
+    override fun syncWithServer(vendorId: Int): Completable {
         return preparePurchases()
             .andThen(deleteAllPurchases())
+            .andThen(getInvoices(vendorId))
+            .andThen(getTransactions(vendorId))
+
     }
 
     override fun isSyncNeeded(): Single<Boolean> {
         return purchaseRepo.getPurchasesCount().map { it > 0 }
+    }
+
+    override fun unsyncedPurchases(): Single<List<Purchase>> {
+        return purchaseRepo.getAllPurchases()
     }
 
     private fun preparePurchases(): Completable {
@@ -58,6 +65,7 @@ class PurchaseFacadeImpl(
 
     private fun sendPurchasesToServer(): Completable {
         val invalidPurchases = mutableListOf<Purchase>()
+
         return purchaseRepo.getAllPurchases().flatMapCompletable { purchases ->
             if (purchases.isEmpty()) {
                 Completable.complete()
@@ -103,6 +111,61 @@ class PurchaseFacadeImpl(
 
     private fun deleteAllPurchases(): Completable {
         return purchaseRepo.deleteAllPurchases()
+    }
+
+    private fun getInvoices(vendorId: Int): Completable {
+        return purchaseRepo.getInvoices(vendorId).flatMapCompletable {
+            val responseCode = it.first
+            val invoicesList = it.second
+            if (isPositiveResponseHttpCode(responseCode)) {
+                //todo naplnit databázi ...if invoiceslist.isEmpty() atd
+                Completable.complete()
+            } else {
+                throw VendorAppException("Received code $responseCode when trying download invoices.").apply {
+                    apiError = true
+                    apiResponseCode = responseCode
+                }
+            }
+        }
+    }
+
+    private fun getTransactions(vendorId: Int): Completable {
+        return purchaseRepo.getTransactions(vendorId).flatMapCompletable { it ->
+            val responseCode = it.first
+            val transactionsList = it.second
+            if (isPositiveResponseHttpCode(responseCode)) {
+                if  (transactionsList.isNotEmpty()) {
+                    Observable.fromIterable(transactionsList).flatMapCompletable { transactions ->
+                        purchaseRepo.getPurchasesById(transactions.purchaseIds).flatMapCompletable { response ->
+                            val purchasesList = response.second
+                            if (isPositiveResponseHttpCode(response.first)) {
+                                if (purchasesList.isEmpty()) {
+                                    throw VendorAppException("No purchases").apply {
+                                        apiError = true
+                                    }
+                                } else {
+                                    //todo vyuzit purchases
+                                    Completable.complete()
+                                }
+                            } else {
+                                throw VendorAppException("Received code ${response.first} when trying download purchases.").apply {
+                                    apiError = true
+                                    apiResponseCode = responseCode
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    //todo doresit
+                    Completable.complete()
+                }
+            } else {
+                throw VendorAppException("Received code $responseCode when trying download transactions.").apply {
+                    apiError = true
+                    apiResponseCode = responseCode
+                }
+            }
+        }
     }
 
     companion object {

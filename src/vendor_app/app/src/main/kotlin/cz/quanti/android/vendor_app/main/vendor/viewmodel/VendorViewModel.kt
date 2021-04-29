@@ -35,10 +35,6 @@ class VendorViewModel(
         return productFacade.getProducts()
     }
 
-    fun synchronizeWithServer(): Completable {
-        return syncFacade.synchronize()
-    }
-
     fun getFirstCurrencies(): List<String> {
         return listOf("USD", "EUR", "SYP", "KHR", "UAH", "AMD", "MNT", "ETB")
     }

@@ -30,10 +30,16 @@
     </fragment>
 
     <fragment
-        android:id="@+id/redeemedBatchesFragment"
-        android:name="cz.quanti.android.vendor_app.main.redeemed_batches.fragment.RedeemedBatchesFragment"
-        android:label="fragment_redeemed_batches"
-        tools:layout="@layout/fragment_redeemed_batches"/>
+        android:id="@+id/transactionsFragment"
+        android:name="cz.quanti.android.vendor_app.main.transactions.fragment.TransactionsFragment"
+        android:label="fragment_transactions"
+        tools:layout="@layout/fragment_transactions"/>
+
+    <fragment
+        android:id="@+id/invoicesFragment"
+        android:name="cz.quanti.android.vendor_app.main.invoices.fragment.InvoicesFragment"
+        android:label="fragment_invoices"
+        tools:layout="@layout/fragment_invoices"/>
 
     <fragment
         android:id="@+id/checkoutFragment"

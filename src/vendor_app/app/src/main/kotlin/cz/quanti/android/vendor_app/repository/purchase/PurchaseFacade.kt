@@ -8,7 +8,9 @@ interface PurchaseFacade {
 
     fun savePurchase(purchase: Purchase): Completable
 
-    fun syncWithServer(): Completable
+    fun syncWithServer(vendorId: Int): Completable
 
     fun isSyncNeeded(): Single<Boolean>
+
+    fun unsyncedPurchases(): Single<List<Purchase>>
 }

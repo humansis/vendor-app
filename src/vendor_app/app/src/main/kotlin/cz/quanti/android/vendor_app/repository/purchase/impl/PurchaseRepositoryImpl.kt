@@ -9,10 +9,7 @@ import cz.quanti.android.vendor_app.repository.purchase.dao.SelectedProductDao
 import cz.quanti.android.vendor_app.repository.purchase.dao.VoucherPurchaseDao
 import cz.quanti.android.vendor_app.repository.purchase.dto.Purchase
 import cz.quanti.android.vendor_app.repository.purchase.dto.SelectedProduct
-import cz.quanti.android.vendor_app.repository.purchase.dto.api.CardPurchaseApiEntity
-import cz.quanti.android.vendor_app.repository.purchase.dto.api.CandidatePurchaseApiEntity
-import cz.quanti.android.vendor_app.repository.purchase.dto.api.SelectedProductApiEntity
-import cz.quanti.android.vendor_app.repository.purchase.dto.api.VoucherPurchaseApiEntity
+import cz.quanti.android.vendor_app.repository.purchase.dto.api.*
 import cz.quanti.android.vendor_app.repository.purchase.dto.db.CardPurchaseDbEntity
 import cz.quanti.android.vendor_app.repository.purchase.dto.db.PurchaseDbEntity
 import cz.quanti.android.vendor_app.repository.purchase.dto.db.SelectedProductDbEntity
@@ -94,22 +91,6 @@ class PurchaseRepositoryImpl(
         }
     }
 
-    override fun getRedemptionCandidatePurchases(purchaseIds: List<Purchase>): Single<Pair<Int, List<CandidatePurchaseApiEntity>>> {
-        val purchasesArray = ArrayList<Int>()
-        purchaseIds.forEach { purchase ->
-            purchasesArray.add(purchase.dbId.toInt())
-        }
-        Log.d("xxx1", "test")
-        return api.getPurchasesById(purchasesArray.toTypedArray()).map { response ->
-            Log.d("xxx2", "test")
-            var purchases = response.body()
-            if (purchases == null) {
-                purchases = listOf()
-            }
-            Pair(response.code(), purchases)
-        }
-    }
-
     override fun getAllPurchases(): Single<List<Purchase>> {
         return purchaseDao.getAll().flatMap { purchasesDb ->
             Observable.fromIterable(purchasesDb)
@@ -136,6 +117,24 @@ class PurchaseRepositoryImpl(
                                 }
                         }
                 }.toList()
+        }
+    }
+
+    override fun getInvoices(vendorId: Int): Single<Pair<Int, List<InvoiceApiEntity>>> {
+        return api.getInvoices(vendorId).map { response ->
+            response.body()?.let { Pair(response.code(), it.data) }
+        }
+    }
+
+    override fun getTransactions(vendorId: Int): Single<Pair<Int, List<TransactionsApiEntity>>> {
+        return api.getTransactions(vendorId).map { response ->
+            response.body()?.let { Pair(response.code(), it.data) }
+        }
+    }
+
+    override fun getPurchasesById(purchaseIds: List<Int>): Single<Pair<Int, List<PurchaseApiEntity>>> {
+        return api.getPurchasesById(purchaseIds).map { response ->
+            response.body()?.let { Pair(response.code(), it.data) }
         }
     }
 

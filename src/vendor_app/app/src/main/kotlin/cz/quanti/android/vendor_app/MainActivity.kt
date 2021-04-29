@@ -10,7 +10,6 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.TextView
 import android.widget.Toast
-import androidx.annotation.BoolRes
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
@@ -29,13 +28,14 @@ import cz.quanti.android.vendor_app.repository.synchronization.SynchronizationFa
 import cz.quanti.android.vendor_app.utils.NfcInitializer
 import cz.quanti.android.vendor_app.utils.NfcTagPublisher
 import extensions.isNetworkConnected
-import io.reactivex.Completable
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
+import kotlinx.android.synthetic.main.fragment_transactions.*
+import kotlinx.android.synthetic.main.item_warning.*
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import quanti.com.kotlinlog.Log
@@ -95,8 +95,11 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NavigationView.OnNav
             R.id.home_button -> {
                 findNavController(R.id.nav_host_fragment).popBackStack(R.id.vendorFragment, false)
             }
-            R.id.redeemed_batches_button -> {
-                findNavController(R.id.nav_host_fragment).navigate(R.id.redeemedBatchesFragment)
+            R.id.transactions_button-> {
+                findNavController(R.id.nav_host_fragment).navigate(R.id.transactionsFragment)
+            }
+            R.id.invoices_button -> {
+                findNavController(R.id.nav_host_fragment).navigate(R.id.invoicesFragment)
             }
             R.id.read_balance_button -> {
                 showReadBalanceDialog()
@@ -139,49 +142,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NavigationView.OnNav
             )
 
         syncButton?.setOnClickListener {
-            progressBar?.visibility = View.VISIBLE
-            syncButtonArea?.visibility = View.INVISIBLE
-
-            syncDisposable?.dispose()
-            syncDisposable = syncFacade.synchronize()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(
-                    {
-                        progressBar?.visibility = View.GONE
-                        syncButtonArea?.visibility = View.VISIBLE
-                        preferences.lastSynced = Date().time
-                        vendorFragmentCallback?.notifyDataChanged()
-                        productsFragmentCallback?.reloadProductsFromDb()
-
-                        dot?.visibility = View.INVISIBLE
-                        Toast.makeText(
-                            this,
-                            getString(R.string.data_were_successfully_synchronized),
-                            Toast.LENGTH_LONG
-                        ).show()
-
-                    },
-                    { e ->
-                        progressBar?.visibility = View.GONE
-                        syncButtonArea?.visibility = View.VISIBLE
-                        Log.e(e)
-
-                        if (!isNetworkConnected()) {
-                            Toast.makeText(
-                                this,
-                                getString(R.string.no_internet_connection),
-                                Toast.LENGTH_LONG
-                            ).show()
-                        } else {
-                            Toast.makeText(
-                                this,
-                                getString(R.string.could_not_synchronize_data_with_server),
-                                Toast.LENGTH_LONG
-                            ).show()
-                        }
-                    }
-                )
+            sync()
         }
     }
 
@@ -205,6 +166,55 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NavigationView.OnNav
             }
             .setNegativeButton(android.R.string.no, null)
             .show()
+    }
+
+    override fun sync() {
+        progressBar?.visibility = View.VISIBLE
+        syncButtonArea?.visibility = View.INVISIBLE
+
+        syncDisposable?.dispose()
+        syncDisposable = syncFacade.synchronize(preferences.vendor.id.toInt())
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(
+                {
+                    progressBar?.visibility = View.GONE
+                    syncButtonArea?.visibility = View.VISIBLE
+                    if(unsynced_warning!= null) { unsynced_warning.visibility = View.GONE }
+                    preferences.lastSynced = Date().time
+                    vendorFragmentCallback?.notifyDataChanged()
+                    productsFragmentCallback?.reloadProductsFromDb()
+
+                    dot?.visibility = View.INVISIBLE
+                    Toast.makeText(
+                        this,
+                        getString(R.string.data_were_successfully_synchronized),
+                        Toast.LENGTH_LONG
+                    ).show()
+
+                    //todo nove transakce se stahnou v PurchaseFacadeImpl.syncwithserver.. jak to dostanu do TransactionsFragment?
+                },
+                { e ->
+                    if(unsynced_warning!= null) { warning_button.isEnabled = true } //todo poresit kdyz se purchasy odeslou ale neco se vysere potom, to chci at warning zmizi
+                    progressBar?.visibility = View.GONE
+                    syncButtonArea?.visibility = View.VISIBLE
+                    Log.e(e)
+
+                    if (!isNetworkConnected()) {
+                        Toast.makeText(
+                            this,
+                            getString(R.string.no_internet_connection),
+                            Toast.LENGTH_LONG
+                        ).show()
+                    } else {
+                        Toast.makeText(
+                            this,
+                            getString(R.string.could_not_synchronize_data_with_server),
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }
+                }
+            )
     }
 
     private fun showReadBalanceDialog() {

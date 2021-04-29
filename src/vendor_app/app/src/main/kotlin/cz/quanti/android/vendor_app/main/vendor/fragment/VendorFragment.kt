@@ -26,9 +26,9 @@ class VendorFragment() : Fragment(), VendorFragmentCallback {
         const val STATE = "state"
     }
 
-    private val vm: VendorViewModel by viewModel()
+    private val vm: VendorViewModel by viewModel() //todo remove?
     var product: Product = Product()
-    private val rightTimeToSyncAgain = 86400000 // one day
+    private val rightTimeToSyncAgain = 86400000 // one day //todo remove?
     private var disposable: Disposable? = null
 
     private var state = VendorScreenState.STATE_ONLY_PRODUCTS_SHOWED

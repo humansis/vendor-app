@@ -15,7 +15,7 @@
             app:showAsAction="never" />
 
         <item
-            android:id="@+id/claimed_purchases_button"
+            android:id="@+id/transactions_button"
             android:enabled="true"
             android:icon="@drawable/ic_receipt_long"
             android:title="@string/transactions_to_reimburse"
@@ -23,10 +23,10 @@
             app:showAsAction="never" />
 
         <item
-            android:id="@+id/redeemed_batches_button"
+            android:id="@+id/invoices_button"
             android:enabled="true"
             android:icon="@drawable/ic_price_check"
-            android:title="@string/reimbursed_batches"
+            android:title="@string/reimbursed_invoices"
             android:visible="true"
             app:showAsAction="never" />
 

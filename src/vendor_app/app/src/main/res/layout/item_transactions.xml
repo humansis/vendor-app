@@ -13,10 +13,10 @@
         android:background="@color/screenBackgroundColor">
 
         <TextView
+            android:id="@+id/transactions_project_id"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="8dp"
-            android:text="Project: $s  (dotázat se na název přes id)"
             android:background="@color/colorPrimary"/>
 
         <TableLayout
@@ -37,17 +37,17 @@
             android:padding="8dp">
 
             <TextView
+                android:id="@+id/transactions_quantity"
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
-                android:text="Quantity: $d"
                 android:textColor="@color/black"/>
 
             <TextView
+                android:id="@+id/transactions_total"
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
-                android:text="Total: $d $s"
                 android:textColor="@color/black"/>
 
         </LinearLayout>

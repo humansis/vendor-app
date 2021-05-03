@@ -79,6 +79,14 @@
     <string name="close">Close</string>
     <string name="empty_cart">Your shopping cart is empty</string>
     <string name="transactions_to_reimburse">Transactions to reimburse</string>
+    <string name="no_transactions_to_reimburse">No transactions to reimburse</string>
     <string name="reimbursed_invoices">Reimbursed invoices</string>
+    <string name="no_reimbursed_invoices">No reimbursed invoices</string>
     <string name="unsynced_transactions">Synchronize to display all transactions. \n Unsynchronized: %1$d</string>
+    <string name="humansis_invoice_number">Humansis Invoice No. %1$d</string>
+    <string name="date">Date: %1$s</string>
+    <string name="quantity">Quantity: %1$d</string>
+    <string name="total_price">Total: %1$.2f %2$s</string>
+    <string name="project_number">Project No. %1$d</string>
+    <string name="unknown">Unknown</string>
 </resources>

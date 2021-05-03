@@ -68,5 +68,6 @@
     <string name="synchronize">مزامنة</string>
     <string name="humansis">humansis</string>
     <string name="loading">تحميل</string>
+    <string name="unknown">غير معروف</string>
 
 </resources>

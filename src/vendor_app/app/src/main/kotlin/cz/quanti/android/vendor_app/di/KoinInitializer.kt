@@ -10,7 +10,9 @@ import cz.quanti.android.vendor_app.App
 import cz.quanti.android.vendor_app.BuildConfig
 import cz.quanti.android.vendor_app.main.authorization.viewmodel.LoginViewModel
 import cz.quanti.android.vendor_app.main.checkout.viewmodel.CheckoutViewModel
+import cz.quanti.android.vendor_app.main.invoices.viewmodel.InvoicesViewModel
 import cz.quanti.android.vendor_app.main.scanner.viewmodel.ScannerViewModel
+import cz.quanti.android.vendor_app.main.transactions.viewmodel.TransactionsViewModel
 import cz.quanti.android.vendor_app.main.vendor.viewmodel.VendorViewModel
 import cz.quanti.android.vendor_app.repository.AppPreferences
 import cz.quanti.android.vendor_app.repository.VendorAPI
@@ -163,6 +165,8 @@ object KoinInitializer {
                     nfcTagPublisher
                 )
             }
+            viewModel { InvoicesViewModel(purchaseFacade) }
+            viewModel { TransactionsViewModel(purchaseFacade) }
         }
     }
 

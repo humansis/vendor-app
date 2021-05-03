@@ -6,10 +6,10 @@ data class V2InvoiceApiEntity (
 )
 
 data class InvoiceApiEntity(
-    var id: Int = 0,
+    var id: Long = 0,
     var projectId: Int = 0,
     var quantity: Int = 0,
     var date: String = "",
-    var value: Long = 0,
+    var value: Double = 0.0,
     var currency: String = ""
 )

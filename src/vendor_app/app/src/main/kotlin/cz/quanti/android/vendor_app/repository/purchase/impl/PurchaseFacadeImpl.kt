@@ -3,7 +3,10 @@ package cz.quanti.android.vendor_app.repository.purchase.impl
 import cz.quanti.android.vendor_app.repository.card.CardRepository
 import cz.quanti.android.vendor_app.repository.purchase.PurchaseFacade
 import cz.quanti.android.vendor_app.repository.purchase.PurchaseRepository
+import cz.quanti.android.vendor_app.repository.purchase.dto.Invoice
 import cz.quanti.android.vendor_app.repository.purchase.dto.Purchase
+import cz.quanti.android.vendor_app.repository.purchase.dto.Transaction
+import cz.quanti.android.vendor_app.repository.purchase.dto.TransactionPurchase
 import cz.quanti.android.vendor_app.repository.purchase.dto.api.InvoiceApiEntity
 import cz.quanti.android.vendor_app.repository.purchase.dto.api.TransactionPurchaseApiEntity
 import cz.quanti.android.vendor_app.repository.purchase.dto.api.TransactionApiEntity
@@ -37,8 +40,8 @@ class PurchaseFacadeImpl(
     override fun syncWithServer(vendorId: Int): Completable {
         return preparePurchases()
             .andThen(deleteAllPurchases())
-            .andThen(getInvoices(vendorId))
-            .andThen(getTransactions(vendorId))
+            .andThen(retrieveInvoices(vendorId))
+            .andThen(retrieveTransactions(vendorId))
 
     }
 
@@ -48,6 +51,18 @@ class PurchaseFacadeImpl(
 
     override fun unsyncedPurchases(): Single<List<Purchase>> {
         return purchaseRepo.getAllPurchases()
+    }
+
+    override fun getInvoices(): Single<List<Invoice>> {
+        return purchaseRepo.getInvoices()
+    }
+
+    override fun getTransactions(): Single<List<Transaction>> {
+        return purchaseRepo.getTransactions()
+    }
+
+    override fun getTransactionPurchases(purchaseIds: List<Long>): Single<List<TransactionPurchase>> {
+        return purchaseRepo.getTransactionPurchasesById(purchaseIds)
     }
 
     private fun preparePurchases(): Completable {
@@ -116,21 +131,21 @@ class PurchaseFacadeImpl(
         return purchaseRepo.deleteAllPurchases()
     }
 
-    private fun getInvoices(vendorId: Int): Completable {
-        return purchaseRepo.getInvoices(vendorId).flatMapCompletable { it ->
+    private fun retrieveInvoices(vendorId: Int): Completable {
+        return purchaseRepo.retrieveInvoices(vendorId).flatMapCompletable {
             val responseCode = it.first
             val invoicesList = it.second
             if (isPositiveResponseHttpCode(responseCode)) {
                 if (invoicesList.isNotEmpty()) {
                     actualizeInvoiceDatabase(invoicesList)
-                    //todo nejak vyuzit invoices?
                 } else {
-                    //todo doresit  (zobrazit no invoices nebo neco takoveho?)
+                        //todo doresit aby exceptiony neprerusovaly sync
                     throw VendorAppException("No invoices").apply {
                         apiError = true
                     }
                 }
             } else {
+                //todo doresit aby exceptiony neprerusovaly sync
                 throw VendorAppException("Received code $responseCode when trying download invoices.").apply {
                     apiError = true
                     apiResponseCode = responseCode
@@ -139,29 +154,29 @@ class PurchaseFacadeImpl(
         }
     }
 
-    private fun getTransactions(vendorId: Int): Completable {
-        return purchaseRepo.getTransactions(vendorId).flatMapCompletable {
+    private fun retrieveTransactions(vendorId: Int): Completable {
+        return purchaseRepo.retrieveTransactions(vendorId).flatMapCompletable {
             val responseCode = it.first
             val transactionsList = it.second
             if (isPositiveResponseHttpCode(responseCode)) {
                 deleteAllTransactions()
                 if  (transactionsList.isNotEmpty()) {
                     Observable.fromIterable(transactionsList).flatMapCompletable { transactions ->
-                        purchaseRepo.getTransactionPurchasesById(transactions.purchaseIds).flatMapCompletable { response ->
+                        purchaseRepo.retrieveTransactionsPurchasesById(transactions.purchaseIds).flatMapCompletable { response ->
                             val transactionPurchasesList = response.second
                             if (isPositiveResponseHttpCode(response.first)) {
                                 if (transactionPurchasesList.isNotEmpty()) {
                                     Single.fromCallable { saveTransactionToDb(transactions) }.flatMapCompletable { transactionId ->
                                         actualizeTransactionPurchaseDatabase(transactionPurchasesList, transactionId)
                                     }
-                                    //todo vyuzit purchases?
                                 } else {
-                                    //todo doresit  (zobrazit no purchases nebo neco takoveho?)
+                                    //todo doresit aby exceptiony neprerusovaly sync
                                     throw VendorAppException("No purchases").apply {
                                         apiError = true
                                     }
                                 }
                             } else {
+                                //todo doresit aby exceptiony neprerusovaly sync
                                 throw VendorAppException("Received code ${response.first} when trying download purchases.").apply {
                                     apiError = true
                                     apiResponseCode = responseCode
@@ -170,12 +185,13 @@ class PurchaseFacadeImpl(
                         }
                     }
                 } else {
-                    //todo doresit  (zobrazit no pending transactions nebo neco takoveho?)
+                    //todo doresit aby exceptiony neprerusovaly sync
                     throw VendorAppException("No transactions").apply {
                         apiError = true
                     }
                 }
             } else {
+                //todo doresit aby exceptiony neprerusovaly sync
                 throw VendorAppException("Received code $responseCode when trying download transactions.").apply {
                     apiError = true
                     apiResponseCode = responseCode

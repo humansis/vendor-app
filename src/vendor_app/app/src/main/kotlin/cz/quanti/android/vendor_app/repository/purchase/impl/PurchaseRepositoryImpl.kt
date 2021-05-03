@@ -4,13 +4,13 @@ import cz.quanti.android.vendor_app.repository.VendorAPI
 import cz.quanti.android.vendor_app.repository.product.dto.Product
 import cz.quanti.android.vendor_app.repository.purchase.PurchaseRepository
 import cz.quanti.android.vendor_app.repository.purchase.dao.*
-import cz.quanti.android.vendor_app.repository.purchase.dto.Purchase
-import cz.quanti.android.vendor_app.repository.purchase.dto.SelectedProduct
+import cz.quanti.android.vendor_app.repository.purchase.dto.*
 import cz.quanti.android.vendor_app.repository.purchase.dto.api.*
 import cz.quanti.android.vendor_app.repository.purchase.dto.db.*
 import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.Single
+import io.reactivex.SingleSource
 import quanti.com.kotlinlog.Log
 
 class PurchaseRepositoryImpl(
@@ -117,7 +117,7 @@ class PurchaseRepositoryImpl(
         }
     }
 
-    override fun getInvoices(vendorId: Int): Single<Pair<Int, List<InvoiceApiEntity>>> {
+    override fun retrieveInvoices(vendorId: Int): Single<Pair<Int, List<InvoiceApiEntity>>> {
         return api.getInvoices(vendorId).map { response ->
             response.body()?.let { Pair(response.code(), it.data) }
         }
@@ -131,7 +131,65 @@ class PurchaseRepositoryImpl(
         return Single.fromCallable { invoiceDao.insert(convertToDb(invoice)) }
     }
 
-    override fun getTransactions(vendorId: Int): Single<Pair<Int, List<TransactionApiEntity>>> {
+    override fun getInvoices(): Single<List<Invoice>> {
+        return invoiceDao.getAll().flatMap { invoicesDb ->
+            Observable.fromIterable(invoicesDb)
+                .flatMapSingle { invoiceDb ->
+                    val invoice = Invoice(
+                        invoiceId = invoiceDb.id,
+                        date = invoiceDb.date,
+                        quantity = invoiceDb.quantity,
+                        value = invoiceDb.value,
+                        currency = invoiceDb.currency
+                    )
+                    Single.just(invoice)
+                }.toList()
+        }
+    }
+
+    override fun getTransactions(): Single<List<Transaction>> {
+        return transactionDao.getAll().flatMap { transactionsDb ->
+            Observable.fromIterable(transactionsDb)
+                .flatMapSingle { transactionDb ->
+                    val transaction = Transaction(
+                        projectId = transactionDb.dbId,
+                        purchaseIds = getTransactionPurchaseIdsForTransaction(transactionDb.dbId),
+                        value = transactionDb.value,
+                        currency = transactionDb.currency
+                    )
+                    Single.just(transaction)
+                }.toList()
+        }
+    }
+
+    private fun getTransactionPurchaseIdsForTransaction(transactionId: Long): List<Long> {
+        val transactionPurchaseIds = mutableListOf<Long>()
+        transactionPurchaseDao.getTransactionPurchaseForTransaction(transactionId).forEach {
+            transactionPurchaseIds.add(it.dbId)
+        }
+        return transactionPurchaseIds
+    }
+
+    override fun getTransactionPurchasesById(purchaseIds: List<Long>): Single<List<TransactionPurchase>> {
+        val transactionPurchases = mutableListOf<TransactionPurchase>()
+        purchaseIds.forEach {
+            transactionPurchaseDao.getTransactionPurchasesById(it).map { transactionPurchaseDb ->
+                transactionPurchases.add(
+                    TransactionPurchase(
+                        purchaseId = transactionPurchaseDb.dbId,
+                        transactionId = transactionPurchaseDb.transactionId,
+                        beneficiaryId = transactionPurchaseDb.beneficiaryId,
+                        createdAt = transactionPurchaseDb.createdAt,
+                        value = transactionPurchaseDb.value,
+                        currency = transactionPurchaseDb.currency
+                    )
+                )
+            }
+        }
+        return Single.just(transactionPurchases)
+    }
+
+    override fun retrieveTransactions(vendorId: Int): Single<Pair<Int, List<TransactionApiEntity>>> {
         return api.getTransactions(vendorId).map { response ->
             response.body()?.let { Pair(response.code(), it.data) }
         }
@@ -145,7 +203,7 @@ class PurchaseRepositoryImpl(
         return Single.fromCallable { transactionDao.insert(convertToDb(transaction)) }
     }
 
-    override fun getTransactionPurchasesById(purchaseIds: List<Int>): Single<Pair<Int, List<TransactionPurchaseApiEntity>>> {
+    override fun retrieveTransactionsPurchasesById(purchaseIds: List<Int>): Single<Pair<Int, List<TransactionPurchaseApiEntity>>> {
         return api.getTransactionsPurchasesById(purchaseIds).map { response ->
             response.body()?.let { Pair(response.code(), it.data) }
         }

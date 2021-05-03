@@ -36,6 +36,7 @@ class VendorFragment() : Fragment(), VendorFragmentCallback {
         savedInstanceState: Bundle?
     ): View? {
         (requireActivity() as ActivityCallback).setToolbarVisible(true)
+        (requireActivity() as ActivityCallback).setTitle(getString(R.string.app_name))
         requireActivity().findViewById<NavigationView>(R.id.nav_view).setCheckedItem(R.id.home_button)
         val callback: OnBackPressedCallback =
             object : OnBackPressedCallback(true /* enabled by default */) {
@@ -142,7 +143,6 @@ class VendorFragment() : Fragment(), VendorFragmentCallback {
                 replace(R.id.firstFragmentContainer, ProductsFragment())
                 replace(R.id.secondFragmentContainer, ShoppingCartFragment())
             }
-
         }
         transaction.commit()
     }

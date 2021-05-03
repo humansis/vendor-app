@@ -1,6 +1,9 @@
 package cz.quanti.android.vendor_app.repository.purchase
 
+import cz.quanti.android.vendor_app.repository.purchase.dto.Invoice
 import cz.quanti.android.vendor_app.repository.purchase.dto.Purchase
+import cz.quanti.android.vendor_app.repository.purchase.dto.Transaction
+import cz.quanti.android.vendor_app.repository.purchase.dto.TransactionPurchase
 import cz.quanti.android.vendor_app.repository.purchase.dto.api.InvoiceApiEntity
 import cz.quanti.android.vendor_app.repository.purchase.dto.api.TransactionPurchaseApiEntity
 import cz.quanti.android.vendor_app.repository.purchase.dto.api.TransactionApiEntity
@@ -19,7 +22,7 @@ interface PurchaseRepository {
 
     fun deleteAllPurchases(): Completable
 
-    fun deletePurchase(purchase: Purchase):Completable
+    fun deletePurchase(purchase: Purchase): Completable
 
     fun deleteCardPurchase(purchase: Purchase): Completable
 
@@ -29,21 +32,30 @@ interface PurchaseRepository {
 
     fun getPurchasesCount(): Single<Int>
 
-    fun getInvoices(vendorId: Int): Single<Pair<Int, List<InvoiceApiEntity>>>
+    fun retrieveInvoices(vendorId: Int): Single<Pair<Int, List<InvoiceApiEntity>>>
 
     fun deleteInvoices(): Completable
 
     fun saveInvoice(invoice: InvoiceApiEntity): Single<Long>
 
-    fun getTransactions(vendorId: Int): Single<Pair<Int, List<TransactionApiEntity>>>
+    fun getInvoices(): Single<List<Invoice>>
+
+    fun retrieveTransactions(vendorId: Int): Single<Pair<Int, List<TransactionApiEntity>>>
 
     fun deleteTransactions(): Completable
 
     fun saveTransaction(transaction: TransactionApiEntity): Single<Long>
 
-    fun getTransactionPurchasesById(purchaseIds: List<Int>): Single<Pair<Int, List<TransactionPurchaseApiEntity>>>
+    fun getTransactions(): Single<List<Transaction>>
+
+    fun retrieveTransactionsPurchasesById(purchaseIds: List<Int>): Single<Pair<Int, List<TransactionPurchaseApiEntity>>>
 
     fun deleteTransactionPurchases(): Completable
 
-    fun saveTransactionPurchase(transactionPurchase: TransactionPurchaseApiEntity, transactionId: Long): Single<Long>
+    fun saveTransactionPurchase(
+        transactionPurchase: TransactionPurchaseApiEntity,
+        transactionId: Long
+    ): Single<Long>
+
+    fun getTransactionPurchasesById(purchaseIds: List<Long>): Single<List<TransactionPurchase>>
 }

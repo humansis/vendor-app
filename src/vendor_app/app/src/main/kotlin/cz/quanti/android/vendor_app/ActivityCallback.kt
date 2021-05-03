@@ -5,4 +5,5 @@ interface ActivityCallback {
     fun setToolbarVisible (boolean: Boolean)
     fun loadNavHeader(currentVendorName: String)
     fun sync()
+    fun setTitle(titleText: String)
 }

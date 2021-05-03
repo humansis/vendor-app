@@ -8,6 +8,7 @@ import cz.quanti.android.vendor_app.repository.VendorDb
 data class TransactionDbEntity(
     @PrimaryKey(autoGenerate = true)
     var dbId: Long = 0,
+    var projectId: Long = 0,
     var value: Long = 0,
     var currency: String = ""
 )

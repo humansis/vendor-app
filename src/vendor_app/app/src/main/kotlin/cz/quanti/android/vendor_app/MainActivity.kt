@@ -20,6 +20,8 @@ import com.google.android.material.navigation.NavigationView
 import cz.quanti.android.nfc.VendorFacade
 import cz.quanti.android.nfc.dto.UserBalance
 import cz.quanti.android.vendor_app.main.authorization.viewmodel.LoginViewModel
+import cz.quanti.android.vendor_app.main.invoices.callback.InvoicesFragmentCallback
+import cz.quanti.android.vendor_app.main.transactions.callback.TransactionsFragmentCallback
 import cz.quanti.android.vendor_app.main.vendor.callback.ProductsFragmentCallback
 import cz.quanti.android.vendor_app.main.vendor.callback.VendorFragmentCallback
 import cz.quanti.android.vendor_app.repository.AppPreferences
@@ -59,6 +61,8 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NavigationView.OnNav
 
     var vendorFragmentCallback: VendorFragmentCallback? = null
     var productsFragmentCallback: ProductsFragmentCallback? = null
+    var invoicesFragmentCallback: InvoicesFragmentCallback? = null
+    var transactionsFragmentCallback: TransactionsFragmentCallback? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -184,6 +188,8 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NavigationView.OnNav
                     preferences.lastSynced = Date().time
                     vendorFragmentCallback?.notifyDataChanged()
                     productsFragmentCallback?.reloadProductsFromDb()
+                    invoicesFragmentCallback?.notifyDataChanged()
+                    transactionsFragmentCallback?.notifyDataChanged()
 
                     dot?.visibility = View.INVISIBLE
                     Toast.makeText(
@@ -191,8 +197,6 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NavigationView.OnNav
                         getString(R.string.data_were_successfully_synchronized),
                         Toast.LENGTH_LONG
                     ).show()
-
-                    //todo nove transakce se stahnou v PurchaseFacadeImpl.syncwithserver.. jak to dostanu do TransactionsFragment?
                 },
                 { e ->
                     if(unsynced_warning!= null) { warning_button.isEnabled = true } //todo poresit kdyz se purchasy odeslou ale neco se vysere potom, to chci at warning zmizi
@@ -303,5 +307,9 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NavigationView.OnNav
             val tvUsername = nav_view.getHeaderView(0).findViewById<TextView>(R.id.tv_username)
             tvUsername.text = currentVendorName
         }
+    }
+
+    override fun setTitle(titleText: String) {
+        appbar_title.text = titleText
     }
 }

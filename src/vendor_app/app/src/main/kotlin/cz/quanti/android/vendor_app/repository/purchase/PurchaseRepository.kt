@@ -2,8 +2,8 @@ package cz.quanti.android.vendor_app.repository.purchase
 
 import cz.quanti.android.vendor_app.repository.purchase.dto.Purchase
 import cz.quanti.android.vendor_app.repository.purchase.dto.api.InvoiceApiEntity
-import cz.quanti.android.vendor_app.repository.purchase.dto.api.PurchaseApiEntity
-import cz.quanti.android.vendor_app.repository.purchase.dto.api.TransactionsApiEntity
+import cz.quanti.android.vendor_app.repository.purchase.dto.api.TransactionPurchaseApiEntity
+import cz.quanti.android.vendor_app.repository.purchase.dto.api.TransactionApiEntity
 import io.reactivex.Completable
 import io.reactivex.Single
 
@@ -31,7 +31,19 @@ interface PurchaseRepository {
 
     fun getInvoices(vendorId: Int): Single<Pair<Int, List<InvoiceApiEntity>>>
 
-    fun getTransactions(vendorId: Int): Single<Pair<Int, List<TransactionsApiEntity>>>
+    fun deleteInvoices(): Completable
 
-    fun getPurchasesById(purchaseIds: List<Int>): Single<Pair<Int, List<PurchaseApiEntity>>>
+    fun saveInvoice(invoice: InvoiceApiEntity): Single<Long>
+
+    fun getTransactions(vendorId: Int): Single<Pair<Int, List<TransactionApiEntity>>>
+
+    fun deleteTransactions(): Completable
+
+    fun saveTransaction(transaction: TransactionApiEntity): Single<Long>
+
+    fun getTransactionPurchasesById(purchaseIds: List<Int>): Single<Pair<Int, List<TransactionPurchaseApiEntity>>>
+
+    fun deleteTransactionPurchases(): Completable
+
+    fun saveTransactionPurchase(transactionPurchase: TransactionPurchaseApiEntity, transactionId: Long): Single<Long>
 }

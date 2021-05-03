@@ -14,10 +14,8 @@ import cz.quanti.android.vendor_app.MainActivity
 import cz.quanti.android.vendor_app.R
 import cz.quanti.android.vendor_app.main.vendor.VendorScreenState
 import cz.quanti.android.vendor_app.main.vendor.callback.VendorFragmentCallback
-import cz.quanti.android.vendor_app.main.vendor.viewmodel.VendorViewModel
 import cz.quanti.android.vendor_app.repository.product.dto.Product
 import io.reactivex.disposables.Disposable
-import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class VendorFragment() : Fragment(), VendorFragmentCallback {
 
@@ -26,9 +24,8 @@ class VendorFragment() : Fragment(), VendorFragmentCallback {
         const val STATE = "state"
     }
 
-    private val vm: VendorViewModel by viewModel() //todo remove?
     var product: Product = Product()
-    private val rightTimeToSyncAgain = 86400000 // one day //todo remove?
+    private val rightTimeToSyncAgain = 86400000 // one day //todo pouzit?
     private var disposable: Disposable? = null
 
     private var state = VendorScreenState.STATE_ONLY_PRODUCTS_SHOWED

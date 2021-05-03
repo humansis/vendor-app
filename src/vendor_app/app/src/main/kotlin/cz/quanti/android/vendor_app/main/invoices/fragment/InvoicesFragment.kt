@@ -16,4 +16,8 @@ class InvoicesFragment : Fragment() {
     ): View? {
         return inflater.inflate(R.layout.fragment_invoices, container, false)
     }
+
+    //todo onsynclistener ?
+
+    //todo do nadpisu dat celkovy pocet invoicu
 }

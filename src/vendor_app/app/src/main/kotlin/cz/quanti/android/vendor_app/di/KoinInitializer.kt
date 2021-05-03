@@ -101,6 +101,9 @@ object KoinInitializer {
             db.cardPurchaseDao(),
             db.voucherPurchaseDao(),
             db.selectedProductDao(),
+            db.invoiceDao(),
+            db.transactionDao(),
+            db.transactionPurchaseDao(),
             api
         )
 

@@ -62,5 +62,9 @@ class TransactionsFragment : Fragment() {
             warning_button.isEnabled = false
             (requireActivity() as ActivityCallback).sync()
         }
+
+        //todo onsynclistener, refreshnout tabulku
+
+        //todo do nadpisu dat celkovy pocet transakci
     }
 }

@@ -3,17 +3,11 @@ package cz.quanti.android.vendor_app.repository.purchase.impl
 import cz.quanti.android.vendor_app.repository.VendorAPI
 import cz.quanti.android.vendor_app.repository.product.dto.Product
 import cz.quanti.android.vendor_app.repository.purchase.PurchaseRepository
-import cz.quanti.android.vendor_app.repository.purchase.dao.CardPurchaseDao
-import cz.quanti.android.vendor_app.repository.purchase.dao.PurchaseDao
-import cz.quanti.android.vendor_app.repository.purchase.dao.SelectedProductDao
-import cz.quanti.android.vendor_app.repository.purchase.dao.VoucherPurchaseDao
+import cz.quanti.android.vendor_app.repository.purchase.dao.*
 import cz.quanti.android.vendor_app.repository.purchase.dto.Purchase
 import cz.quanti.android.vendor_app.repository.purchase.dto.SelectedProduct
 import cz.quanti.android.vendor_app.repository.purchase.dto.api.*
-import cz.quanti.android.vendor_app.repository.purchase.dto.db.CardPurchaseDbEntity
-import cz.quanti.android.vendor_app.repository.purchase.dto.db.PurchaseDbEntity
-import cz.quanti.android.vendor_app.repository.purchase.dto.db.SelectedProductDbEntity
-import cz.quanti.android.vendor_app.repository.purchase.dto.db.VoucherPurchaseDbEntity
+import cz.quanti.android.vendor_app.repository.purchase.dto.db.*
 import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.Single
@@ -24,6 +18,9 @@ class PurchaseRepositoryImpl(
     private val cardPurchaseDao: CardPurchaseDao,
     private val voucherPurchaseDao: VoucherPurchaseDao,
     private val selectedProductDao: SelectedProductDao,
+    private val invoiceDao: InvoiceDao,
+    private val transactionDao: TransactionDao,
+    private val transactionPurchaseDao: TransactionPurchaseDao,
     private val api: VendorAPI
 ) : PurchaseRepository {
 
@@ -126,16 +123,40 @@ class PurchaseRepositoryImpl(
         }
     }
 
-    override fun getTransactions(vendorId: Int): Single<Pair<Int, List<TransactionsApiEntity>>> {
+    override fun deleteInvoices(): Completable {
+        return Completable.fromCallable { invoiceDao.deleteAll()}
+    }
+
+    override fun saveInvoice(invoice: InvoiceApiEntity): Single<Long> {
+        return Single.fromCallable { invoiceDao.insert(convertToDb(invoice)) }
+    }
+
+    override fun getTransactions(vendorId: Int): Single<Pair<Int, List<TransactionApiEntity>>> {
         return api.getTransactions(vendorId).map { response ->
             response.body()?.let { Pair(response.code(), it.data) }
         }
     }
 
-    override fun getPurchasesById(purchaseIds: List<Int>): Single<Pair<Int, List<PurchaseApiEntity>>> {
-        return api.getPurchasesById(purchaseIds).map { response ->
+    override fun deleteTransactions(): Completable {
+        return Completable.fromCallable { transactionDao.deleteAll() }
+    }
+
+    override fun saveTransaction(transaction: TransactionApiEntity): Single<Long> {
+        return Single.fromCallable { transactionDao.insert(convertToDb(transaction)) }
+    }
+
+    override fun getTransactionPurchasesById(purchaseIds: List<Int>): Single<Pair<Int, List<TransactionPurchaseApiEntity>>> {
+        return api.getTransactionsPurchasesById(purchaseIds).map { response ->
             response.body()?.let { Pair(response.code(), it.data) }
         }
+    }
+
+    override fun deleteTransactionPurchases(): Completable {
+        return Completable.fromCallable { transactionPurchaseDao.deleteAll() }
+    }
+
+    override fun saveTransactionPurchase(transactionPurchase: TransactionPurchaseApiEntity, transactionId: Long): Single<Long> {
+        return Single.fromCallable { transactionPurchaseDao.insert(convertToDb(transactionPurchase, transactionId)) }
     }
 
     override fun deleteAllPurchases(): Completable {
@@ -204,6 +225,33 @@ class PurchaseRepositoryImpl(
         return SelectedProductApiEntity(
             id = selectedProduct.product.id,
             value = selectedProduct.price
+        )
+    }
+
+    private fun convertToDb(invoice: InvoiceApiEntity): InvoiceDbEntity {
+        return InvoiceDbEntity(
+            id = invoice.id,
+            date = invoice.date,
+            quantity = invoice.quantity,
+            value = invoice.value,
+            currency = invoice.currency
+        )
+    }
+
+    private fun convertToDb(transaction: TransactionApiEntity): TransactionDbEntity {
+        return TransactionDbEntity(
+            value = transaction.value,
+            currency = transaction.currency
+        )
+    }
+
+    private fun convertToDb(transactionPurchase: TransactionPurchaseApiEntity, transactionId: Long): TransactionPurchaseDbEntity {
+        return TransactionPurchaseDbEntity(
+            value = transactionPurchase.value,
+            currency = transactionPurchase.currency,
+            beneficiaryId = transactionPurchase.beneficiaryId,
+            createdAt = transactionPurchase.createdAt,
+            transactionId = transactionId
         )
     }
 

@@ -4,6 +4,9 @@ import cz.quanti.android.vendor_app.repository.card.CardRepository
 import cz.quanti.android.vendor_app.repository.purchase.PurchaseFacade
 import cz.quanti.android.vendor_app.repository.purchase.PurchaseRepository
 import cz.quanti.android.vendor_app.repository.purchase.dto.Purchase
+import cz.quanti.android.vendor_app.repository.purchase.dto.api.InvoiceApiEntity
+import cz.quanti.android.vendor_app.repository.purchase.dto.api.TransactionPurchaseApiEntity
+import cz.quanti.android.vendor_app.repository.purchase.dto.api.TransactionApiEntity
 import cz.quanti.android.vendor_app.utils.BlockedCardError
 import cz.quanti.android.vendor_app.utils.VendorAppException
 import cz.quanti.android.vendor_app.utils.isPositiveResponseHttpCode
@@ -114,12 +117,19 @@ class PurchaseFacadeImpl(
     }
 
     private fun getInvoices(vendorId: Int): Completable {
-        return purchaseRepo.getInvoices(vendorId).flatMapCompletable {
+        return purchaseRepo.getInvoices(vendorId).flatMapCompletable { it ->
             val responseCode = it.first
             val invoicesList = it.second
             if (isPositiveResponseHttpCode(responseCode)) {
-                //todo naplnit databázi ...if invoiceslist.isEmpty() atd
-                Completable.complete()
+                if (invoicesList.isNotEmpty()) {
+                    actualizeInvoiceDatabase(invoicesList)
+                    //todo nejak vyuzit invoices?
+                } else {
+                    //todo doresit  (zobrazit no invoices nebo neco takoveho?)
+                    throw VendorAppException("No invoices").apply {
+                        apiError = true
+                    }
+                }
             } else {
                 throw VendorAppException("Received code $responseCode when trying download invoices.").apply {
                     apiError = true
@@ -130,22 +140,26 @@ class PurchaseFacadeImpl(
     }
 
     private fun getTransactions(vendorId: Int): Completable {
-        return purchaseRepo.getTransactions(vendorId).flatMapCompletable { it ->
+        return purchaseRepo.getTransactions(vendorId).flatMapCompletable {
             val responseCode = it.first
             val transactionsList = it.second
             if (isPositiveResponseHttpCode(responseCode)) {
+                deleteAllTransactions()
                 if  (transactionsList.isNotEmpty()) {
                     Observable.fromIterable(transactionsList).flatMapCompletable { transactions ->
-                        purchaseRepo.getPurchasesById(transactions.purchaseIds).flatMapCompletable { response ->
-                            val purchasesList = response.second
+                        purchaseRepo.getTransactionPurchasesById(transactions.purchaseIds).flatMapCompletable { response ->
+                            val transactionPurchasesList = response.second
                             if (isPositiveResponseHttpCode(response.first)) {
-                                if (purchasesList.isEmpty()) {
+                                if (transactionPurchasesList.isNotEmpty()) {
+                                    Single.fromCallable { saveTransactionToDb(transactions) }.flatMapCompletable { transactionId ->
+                                        actualizeTransactionPurchaseDatabase(transactionPurchasesList, transactionId)
+                                    }
+                                    //todo vyuzit purchases?
+                                } else {
+                                    //todo doresit  (zobrazit no purchases nebo neco takoveho?)
                                     throw VendorAppException("No purchases").apply {
                                         apiError = true
                                     }
-                                } else {
-                                    //todo vyuzit purchases
-                                    Completable.complete()
                                 }
                             } else {
                                 throw VendorAppException("Received code ${response.first} when trying download purchases.").apply {
@@ -156,8 +170,10 @@ class PurchaseFacadeImpl(
                         }
                     }
                 } else {
-                    //todo doresit
-                    Completable.complete()
+                    //todo doresit  (zobrazit no pending transactions nebo neco takoveho?)
+                    throw VendorAppException("No transactions").apply {
+                        apiError = true
+                    }
                 }
             } else {
                 throw VendorAppException("Received code $responseCode when trying download transactions.").apply {
@@ -166,6 +182,29 @@ class PurchaseFacadeImpl(
                 }
             }
         }
+    }
+
+    private fun actualizeInvoiceDatabase(invoices: List<InvoiceApiEntity>?): Completable {
+        return purchaseRepo.deleteInvoices().andThen(
+            Observable.fromIterable(invoices).flatMapCompletable { invoice ->
+                Completable.fromSingle( purchaseRepo.saveInvoice(invoice) )
+            })
+    }
+
+    private fun deleteAllTransactions(): Completable {
+        return purchaseRepo.deleteTransactions()
+    }
+
+    private fun saveTransactionToDb(transaction: TransactionApiEntity): Long {
+        return purchaseRepo.saveTransaction(transaction).blockingGet()
+    }
+
+    private fun actualizeTransactionPurchaseDatabase(transactionPurchases: List<TransactionPurchaseApiEntity>?, transactionId: Long): Completable {
+        return purchaseRepo.deleteTransactionPurchases().andThen(
+            Observable.fromIterable(transactionPurchases).flatMapCompletable { transactionPurchase ->
+                Completable.fromSingle( purchaseRepo.saveTransactionPurchase(transactionPurchase, transactionId) )
+            }
+        )
     }
 
     companion object {

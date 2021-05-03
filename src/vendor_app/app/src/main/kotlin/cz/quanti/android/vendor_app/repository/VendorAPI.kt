@@ -57,8 +57,7 @@ interface VendorAPI {
     ): Single<Response<V2TransactionsApiEntity>>
 
     @GET("v2/smartcard-purchases")
-    fun getPurchasesById(
-        //todo napsat query hezceji
+    fun getTransactionsPurchasesById(
         @Query("filter[id][]") purchaseIds: List<Int>
-    ): Single<Response<V2PurchaseApiEntity>>
+    ): Single<Response<V2TransactionPurchaseApiEntity>>
 }

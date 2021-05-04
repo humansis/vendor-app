@@ -38,35 +38,31 @@ class TransactionsAdapter(
     private fun prepareTable(item: Transaction, holder: TransactionsViewHolder) {
         val inflater = (context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater)
 
-        if (item.purchases.isEmpty()) {
-            val tv = TextView(context,null)
-            tv.text = context.getString(R.string.no_purchases)
-            holder.purchasesTable.addView(tv)
-        } else {
-            item.purchases.forEach { tp ->
-                val row = inflater.inflate(R.layout.item_transaction_purchase, TableRow(context))
-                row.findViewById<TextView>(R.id.transaction_purchase_date).text = context.getString(
-                    R.string.date,
-                    convertStringToDate(context, tp.createdAt) ?: R.string.unknown
-                )
-                row.findViewById<TextView>(R.id.transaction_purchase_total).text = context.getString(
-                    R.string.total_price,
-                    tp.value, tp.currency
-                )
-                holder.purchasesTable.addView(row)
-            }
-        }
         val line = inflater.inflate(R.layout.item_line, TableRow(context))
         holder.purchasesTable.addView(line)
 
-        tableVisibilityToggle(holder)
-    }
-
-    private fun tableVisibilityToggle(holder: TransactionsViewHolder) {
         holder.purchasesTable.visibility = View.GONE
         holder.tableToggle.setImageResource(R.drawable.ic_baseline_keyboard_arrow_down_24)
         holder.cardView.setOnClickListener {
             if (holder.purchasesTable.visibility == View.GONE) {
+                if (item.purchases.isEmpty()) {
+                    val tv = TextView(context,null)
+                    tv.text = context.getString(R.string.no_purchases)
+                    holder.purchasesTable.addView(tv)
+                } else {
+                    item.purchases.forEach { tp ->
+                        val row = inflater.inflate(R.layout.item_transaction_purchase, TableRow(context))
+                        row.findViewById<TextView>(R.id.transaction_purchase_date).text = context.getString(
+                            R.string.date,
+                            convertStringToDate(context, tp.createdAt) ?: R.string.unknown
+                        )
+                        row.findViewById<TextView>(R.id.transaction_purchase_total).text = context.getString(
+                            R.string.total_price,
+                            tp.value, tp.currency
+                        )
+                        holder.purchasesTable.addView(row)
+                    }
+                }
                 holder.purchasesTable.visibility = View.VISIBLE
                 holder.tableToggle.setImageResource(R.drawable.ic_baseline_keyboard_arrow_up_24)
             } else {

@@ -41,15 +41,15 @@ class TransactionsFragment : Fragment(), TransactionsFragmentCallback {
     ): View? {
         (requireActivity() as ActivityCallback).setTitle(getString(R.string.transactions_to_reimburse))
         transactionsAdapter = TransactionsAdapter(requireContext())
-        val viewManager = LinearLayoutManager(activity)
-        transactions_recycler_view.setHasFixedSize(true)
-        transactions_recycler_view.layoutManager = viewManager
-        transactions_recycler_view.adapter = transactionsAdapter
         return inflater.inflate(R.layout.fragment_transactions, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        val viewManager = LinearLayoutManager(activity)
+        transactions_recycler_view.setHasFixedSize(true)
+        transactions_recycler_view.layoutManager = viewManager
+        transactions_recycler_view.adapter = transactionsAdapter
         unsynced_warning.visibility = View.GONE
     }
 

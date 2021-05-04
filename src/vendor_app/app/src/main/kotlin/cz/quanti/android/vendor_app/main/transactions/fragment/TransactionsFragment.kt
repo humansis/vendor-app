@@ -58,6 +58,7 @@ class TransactionsFragment : Fragment() {
     }
 
     private fun initLoadTransactionCheck() {
+        fragment_message.text = getString(R.string.loading)
         loadTransactionsDisposable?.dispose()
         loadTransactionsDisposable =
             vm.syncStateObservable().filter { it == SynchronizationState.SUCCESS }

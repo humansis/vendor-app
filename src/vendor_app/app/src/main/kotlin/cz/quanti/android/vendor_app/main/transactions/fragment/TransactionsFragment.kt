@@ -52,9 +52,9 @@ class TransactionsFragment : Fragment() {
 
     override fun onStart() {
         super.onStart()
+        initLoadTransactionCheck()
         initSyncStartedCheck()
         initUnsyncedPurchasesCheck()
-        initLoadTransactionCheck()
     }
 
     private fun initLoadTransactionCheck() {
@@ -64,7 +64,7 @@ class TransactionsFragment : Fragment() {
                 .flatMapSingle { vm.getTransactions().map { TransactionsDecorator(it, true) } }
                 .startWith(
                     vm.getTransactions().toObservable().map { TransactionsDecorator(it, false) })
-                .observeOn(Schedulers.io())
+                .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({ transactionsDecorator ->
                     transactionsAdapter.setData(transactionsDecorator.transactions)
@@ -85,7 +85,7 @@ class TransactionsFragment : Fragment() {
             vm.syncStateObservable().filter { it == SynchronizationState.ERROR }
                 .flatMapSingle { vm.unsyncedPurchasesSingle() }
                 .startWith(vm.unsyncedPurchasesSingle().toObservable())
-                .observeOn(Schedulers.io())
+                .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({
                     if (it.isNotEmpty()) {
@@ -104,7 +104,7 @@ class TransactionsFragment : Fragment() {
         syncStartedDisposable?.dispose()
         syncStartedDisposable =
             vm.syncStateObservable().filter { it == SynchronizationState.STARTED }
-                .observeOn(Schedulers.io())
+                .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({
                     warning_button.isEnabled = false

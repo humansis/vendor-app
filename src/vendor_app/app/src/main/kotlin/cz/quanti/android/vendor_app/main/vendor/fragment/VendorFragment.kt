@@ -145,11 +145,6 @@ class VendorFragment() : Fragment(), VendorFragmentCallback {
         transaction.commit()
     }
 
-    override fun onStop() {
-        super.onStop()
-    }
-
-
     override fun chooseProduct(product: Product) {
         state = VendorScreenState.STATE_PRODUCT_DETAIL_SHOWED
         val bundle = Bundle().apply {

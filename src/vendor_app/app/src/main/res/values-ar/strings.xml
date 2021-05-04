@@ -69,5 +69,9 @@
     <string name="humansis">humansis</string>
     <string name="loading">تحميل</string>
     <string name="unknown">غير معروف</string>
+    <string name="scanning_card_balance">%1$s:رصيد البطاقة</string>
+    <string name="status">الحالة</string>
+    <string name="close">اغلق</string>
+    <string name="project">مشروع</string>
 
 </resources>

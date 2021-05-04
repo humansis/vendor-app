@@ -89,5 +89,5 @@
     <string name="date">Date: %1$s</string>
     <string name="quantity">Quantity: %1$d</string>
     <string name="total_price">Total: %1$.2f %2$s</string>
-    <string name="project_number">Project No. %1$d</string>
+    <string name="project">Project</string>
 </resources>

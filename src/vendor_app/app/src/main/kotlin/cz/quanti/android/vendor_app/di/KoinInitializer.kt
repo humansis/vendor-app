@@ -145,6 +145,7 @@ object KoinInitializer {
             single { syncFacade }
             single { nfcFacade }
             single { nfcTagPublisher }
+            single { synchronizationManager }
 
             // View model
             viewModel { LoginViewModel(loginFacade, hostUrlInterceptor, currentVendor) }

@@ -90,4 +90,10 @@
     <string name="quantity">Quantity: %1$d</string>
     <string name="total_price">Total: %1$.2f %2$s</string>
     <string name="project">"Project: "</string>
+    <string name="export_logs">Send logs</string>
+    <string name="send_email_adress" translatable="false">support@humansis.org</string>
+    <string name="logs_dialog_title">Share logs</string>
+    <string name="logs_dialog_message">Would you like to share logs?</string>
+    <string name="logs_dialog_email_button">Share</string>
+
 </resources>

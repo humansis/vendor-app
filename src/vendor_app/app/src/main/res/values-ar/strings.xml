@@ -76,5 +76,9 @@
     <string name="quantity">السعر%1$d</string>
     <string name="total_price">مجموع%1$.2f %2$s</string>
     <string name="date">تاريخ%1$s</string>
+    <string name="export_logs">إرسال سجلات</string>
+    <string name="logs_dialog_title">شارك السجلات</string>
+    <string name="logs_dialog_message">هل ترغب في مشاركة السجلات؟</string>
+    <string name="logs_dialog_email_button">شارك</string>
 
 </resources>

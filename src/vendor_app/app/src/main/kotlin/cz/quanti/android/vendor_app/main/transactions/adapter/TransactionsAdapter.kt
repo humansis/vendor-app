@@ -59,7 +59,7 @@ class TransactionsAdapter(
     private fun tableVisibilityToggle(holder: TransactionsViewHolder) {
         holder.purchasesTable.visibility = View.GONE
         holder.tableToggle.setImageResource(R.drawable.ic_baseline_keyboard_arrow_down_24)
-        holder.tableToggle.setOnClickListener {
+        holder.cardView.setOnClickListener {
             if (holder.purchasesTable.visibility == View.GONE) {
                 holder.purchasesTable.visibility = View.VISIBLE
                 holder.tableToggle.setImageResource(R.drawable.ic_baseline_keyboard_arrow_up_24)

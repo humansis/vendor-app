@@ -4,6 +4,7 @@ import android.view.View
 import android.widget.ImageView
 import android.widget.TableLayout
 import android.widget.TextView
+import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.item_transactions.view.*
 
@@ -13,4 +14,5 @@ class TransactionsViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
     var quantity: TextView  = itemView.transactions_quantity
     var total: TextView = itemView.transactions_total
     var tableToggle: ImageView = itemView.table_toggle
+    var cardView: CardView = itemView.transactions_cardview
 }

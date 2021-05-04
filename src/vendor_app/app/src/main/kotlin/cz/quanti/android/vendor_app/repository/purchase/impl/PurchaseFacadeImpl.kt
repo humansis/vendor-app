@@ -16,6 +16,8 @@ import cz.quanti.android.vendor_app.utils.isPositiveResponseHttpCode
 import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.Single
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
 import quanti.com.kotlinlog.Log
 
 class PurchaseFacadeImpl(
@@ -163,7 +165,7 @@ class PurchaseFacadeImpl(
                             val transactionPurchasesList = response.second
                             if (isPositiveResponseHttpCode(response.first)) {
                                 if (transactionPurchasesList.isNotEmpty()) {
-                                    Single.fromCallable { saveTransactionToDb(transactions, id) }.flatMapCompletable { transactionId ->
+                                    saveTransactionToDb(transactions, id).flatMapCompletable { transactionId ->
                                         id++
                                         actualizeTransactionPurchaseDatabase(transactionPurchasesList, transactionId)
                                     }
@@ -209,9 +211,8 @@ class PurchaseFacadeImpl(
         return purchaseRepo.deleteTransactions()
     }
 
-    private fun saveTransactionToDb(transaction: TransactionApiEntity, transactionId: Long): Long {
-        //todo kouknout na blockingget jestli nedela binec
-        return purchaseRepo.saveTransaction(transaction, transactionId).blockingGet()
+    private fun saveTransactionToDb(transaction: TransactionApiEntity, transactionId: Long): Single<Long> {
+        return purchaseRepo.saveTransaction(transaction, transactionId)
     }
 
     private fun actualizeTransactionPurchaseDatabase(transactionPurchases: List<TransactionPurchaseApiEntity>?, transactionId: Long): Completable {

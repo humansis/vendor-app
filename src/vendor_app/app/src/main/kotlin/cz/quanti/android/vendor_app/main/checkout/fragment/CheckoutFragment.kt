@@ -27,6 +27,8 @@ import cz.quanti.android.vendor_app.utils.getStringFromDouble
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
+import kotlinx.android.synthetic.main.dialog_card_pin.view.*
+import kotlinx.android.synthetic.main.dialog_voucher_password.view.*
 import kotlinx.android.synthetic.main.fragment_checkout.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import quanti.com.kotlinlog.Log
@@ -163,8 +165,9 @@ class CheckoutFragment() : Fragment(), CheckoutFragmentCallback {
 
     private fun showPinDialogAndPayByCard() {
        if (NfcInitializer.initNfc(requireActivity())) {
-            val dialogView: View = layoutInflater.inflate(R.layout.dialog_card_pin, null)
-            AlertDialog.Builder(requireContext(), R.style.DialogTheme)
+           val dialogView: View = layoutInflater.inflate(R.layout.dialog_card_pin, null)
+           dialogView.voucher_password_title.text = getString(R.string.total_price, vm.getTotal(), vm.getCurrency())
+           AlertDialog.Builder(requireContext(), R.style.DialogTheme)
                 .setView(dialogView)
                 .setCancelable(false)
                 .setPositiveButton(android.R.string.ok) { dialog, _ ->

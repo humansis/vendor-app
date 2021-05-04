@@ -73,4 +73,7 @@
     <string name="status">Статус</string>
     <string name="close">Закрыть</string>
     <string name="project">Проект</string>
+    <string name="quantity">Количество %1$d</string>
+    <string name="total_price">Итого %1$.2f %2$s</string>
+    <string name="date">Дата %1$s</string>
 </resources>

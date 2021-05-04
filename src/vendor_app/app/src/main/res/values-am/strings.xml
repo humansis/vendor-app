@@ -72,4 +72,7 @@
     <string name="status">" ሁኔታ"</string>
     <string name="close">ዝጋ</string>
     <string name="project">ፕሮጀክት</string>
+    <string name="quantity">ብዛት %1$d</string>
+    <string name="total_price">ድምር %1$.2f %2$s</string>
+    <string name="date">ቀን %1$s</string>
 </resources>

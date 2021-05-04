@@ -88,7 +88,7 @@ class ScanCardFragment : Fragment() {
     private fun showPinDialogAndPayByCard() {
         pinDialog?.dismiss()
         val dialogView: View = layoutInflater.inflate(R.layout.dialog_card_pin, null)
-        dialogView.title.text = getString(R.string.total_price, vm.getTotal(), vm.getCurrency())
+        dialogView.pin_title.text = getString(R.string.total_price, vm.getTotal(), vm.getCurrency())
         pinDialog = AlertDialog.Builder(requireContext(), R.style.DialogTheme)
             .setView(dialogView)
             .setCancelable(false)

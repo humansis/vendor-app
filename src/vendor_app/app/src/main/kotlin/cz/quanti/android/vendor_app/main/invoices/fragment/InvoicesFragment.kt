@@ -35,31 +35,22 @@ class InvoicesFragment : Fragment(), InvoicesFragmentCallback {
         savedInstanceState: Bundle?
     ): View? {
         (requireActivity() as ActivityCallback).setTitle(getString(R.string.reimbursed_invoices))
+        invoicesAdapter = InvoicesAdapter(requireContext())
+        val viewManager = LinearLayoutManager(activity)
+        invoices_recycler_view.setHasFixedSize(true)
+        invoices_recycler_view.layoutManager = viewManager
+        invoices_recycler_view.adapter = invoicesAdapter
         return inflater.inflate(R.layout.fragment_invoices, container, false)
-    }
-
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        invoicesAdapter = InvoicesAdapter(context)
     }
 
     override fun onStart() {
         super.onStart()
         (activity as MainActivity).invoicesFragmentCallback = this
-        setAdapter()
     }
 
     override fun onResume() {
         reloadInvoicesFromDb()
         super.onResume()
-    }
-
-    private fun setAdapter() {
-        val viewManager = LinearLayoutManager(activity)
-
-        invoices_recycler_view.setHasFixedSize(true)
-        invoices_recycler_view.layoutManager = viewManager
-        invoices_recycler_view.adapter = invoicesAdapter
     }
 
     private fun showMessage() {

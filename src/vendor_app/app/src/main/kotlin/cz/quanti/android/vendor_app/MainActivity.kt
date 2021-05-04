@@ -39,6 +39,7 @@ import kotlinx.android.synthetic.main.item_warning.*
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import quanti.com.kotlinlog.Log
+import quanti.com.kotlinlog.file.SendLogDialogFragment
 import java.util.*
 
 class MainActivity : AppCompatActivity(), ActivityCallback,
@@ -102,6 +103,9 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
             }
             R.id.read_balance_button -> {
                 showReadBalanceDialog()
+            }
+            R.id.share_logs_button -> {
+                shareLogsDialog()
             }
         }
         drawer.closeDrawer(GravityCompat.START)
@@ -219,6 +223,17 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
         return nfcTagPublisher.getTagObservable().firstOrError().flatMap { tag ->
             nfcFacade.readUserBalance(tag)
         }
+    }
+
+    private fun shareLogsDialog() {
+        SendLogDialogFragment.newInstance(
+            sendEmailAddress = getString(R.string.send_email_adress),
+            title = getString(R.string.logs_dialog_title),
+            message = getString(R.string.logs_dialog_message),
+            emailButtonText = getString(R.string.logs_dialog_email_button),
+            dialogTheme = R.style.DialogTheme
+        ).show(this.supportFragmentManager, "TAG")
+
     }
 
     override fun onResume() {

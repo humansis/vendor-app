@@ -45,13 +45,13 @@
                 android:visible="true"
                 app:showAsAction="never" />
 
-            <!--<item
-                android:id="@+id/shareLogsButton"
+            <item
+                android:id="@+id/share_logs_button"
                 android:enabled="true"
                 android:icon="@drawable/ic_export"
                 android:title="@string/export_logs"
                 android:visible="true"
-                app:showAsAction="never" />-->
+                app:showAsAction="never" />
 
         </menu>
 

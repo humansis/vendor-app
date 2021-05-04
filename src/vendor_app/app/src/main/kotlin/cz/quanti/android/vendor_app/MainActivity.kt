@@ -10,7 +10,6 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.TextView
 import android.widget.Toast
-import androidx.annotation.BoolRes
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
@@ -21,49 +20,49 @@ import com.google.android.material.navigation.NavigationView
 import cz.quanti.android.nfc.VendorFacade
 import cz.quanti.android.nfc.dto.UserBalance
 import cz.quanti.android.vendor_app.main.authorization.viewmodel.LoginViewModel
-import cz.quanti.android.vendor_app.main.vendor.callback.ProductsFragmentCallback
-import cz.quanti.android.vendor_app.main.vendor.callback.VendorFragmentCallback
 import cz.quanti.android.vendor_app.repository.AppPreferences
 import cz.quanti.android.vendor_app.repository.login.LoginFacade
 import cz.quanti.android.vendor_app.repository.synchronization.SynchronizationFacade
+import cz.quanti.android.vendor_app.sync.SynchronizationManager
+import cz.quanti.android.vendor_app.sync.SynchronizationState
 import cz.quanti.android.vendor_app.utils.NfcInitializer
 import cz.quanti.android.vendor_app.utils.NfcTagPublisher
 import extensions.isNetworkConnected
-import io.reactivex.Completable
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
+import kotlinx.android.synthetic.main.fragment_transactions.*
+import kotlinx.android.synthetic.main.item_warning.*
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import quanti.com.kotlinlog.Log
 import java.util.*
 
-
-class MainActivity : AppCompatActivity(), ActivityCallback, NavigationView.OnNavigationItemSelectedListener {
+class MainActivity : AppCompatActivity(), ActivityCallback,
+    NavigationView.OnNavigationItemSelectedListener {
 
     private val loginFacade: LoginFacade by inject()
     private val syncFacade: SynchronizationFacade by inject()
     private val preferences: AppPreferences by inject()
     private val nfcTagPublisher: NfcTagPublisher by inject()
     private val nfcFacade: VendorFacade by inject()
+    private val synchronizationManager: SynchronizationManager by inject()
     private var nfcAdapter: NfcAdapter? = null
     private val loginVM: LoginViewModel by viewModel()
     private var disposable: Disposable? = null
+    private var syncStateDisposable: Disposable? = null
     private var syncDisposable: Disposable? = null
     private var readBalanceDisposable: Disposable? = null
     private lateinit var drawer: DrawerLayout
     private lateinit var toolbar: Toolbar
 
-    var vendorFragmentCallback: VendorFragmentCallback? = null
-    var productsFragmentCallback: ProductsFragmentCallback? = null
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        if (!this.resources.getBoolean(R.bool.isTablet)){
+        if (!this.resources.getBoolean(R.bool.isTablet)) {
             requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
         }
 
@@ -94,6 +93,12 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NavigationView.OnNav
         when (item.itemId) {
             R.id.home_button -> {
                 findNavController(R.id.nav_host_fragment).popBackStack(R.id.vendorFragment, false)
+            }
+            R.id.transactions_button -> {
+                findNavController(R.id.nav_host_fragment).navigate(R.id.transactionsFragment)
+            }
+            R.id.invoices_button -> {
+                findNavController(R.id.nav_host_fragment).navigate(R.id.invoicesFragment)
             }
             R.id.read_balance_button -> {
                 showReadBalanceDialog()
@@ -136,56 +141,14 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NavigationView.OnNav
             )
 
         syncButton?.setOnClickListener {
-            progressBar?.visibility = View.VISIBLE
-            syncButtonArea?.visibility = View.INVISIBLE
-
-            syncDisposable?.dispose()
-            syncDisposable = syncFacade.synchronize()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(
-                    {
-                        progressBar?.visibility = View.GONE
-                        syncButtonArea?.visibility = View.VISIBLE
-                        preferences.lastSynced = Date().time
-                        vendorFragmentCallback?.notifyDataChanged()
-                        productsFragmentCallback?.reloadProductsFromDb()
-
-                        dot?.visibility = View.INVISIBLE
-                        Toast.makeText(
-                            this,
-                            getString(R.string.data_were_successfully_synchronized),
-                            Toast.LENGTH_LONG
-                        ).show()
-
-                    },
-                    { e ->
-                        progressBar?.visibility = View.GONE
-                        syncButtonArea?.visibility = View.VISIBLE
-                        Log.e(e)
-
-                        if (!isNetworkConnected()) {
-                            Toast.makeText(
-                                this,
-                                getString(R.string.no_internet_connection),
-                                Toast.LENGTH_LONG
-                            ).show()
-                        } else {
-                            Toast.makeText(
-                                this,
-                                getString(R.string.could_not_synchronize_data_with_server),
-                                Toast.LENGTH_LONG
-                            ).show()
-                        }
-                    }
-                )
+            synchronizationManager.synchronizeWithServer()
         }
     }
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         if (NfcAdapter.ACTION_TAG_DISCOVERED == intent.action || NfcAdapter.ACTION_NDEF_DISCOVERED == intent.action) {
-            val tag: Tag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG)?:return
+            val tag: Tag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG) ?: return
             nfcTagPublisher.getTagSubject().onNext(tag)
         }
     }
@@ -265,10 +228,57 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NavigationView.OnNav
         tvAppVersion.text = BuildConfig.VERSION_NAME
 
         loadNavHeader(loginVM.getCurrentVendorName())
+        syncStateDisposable?.dispose()
+        syncStateDisposable = synchronizationManager.syncStateObservable()
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({
+                when (it) {
+                    SynchronizationState.STARTED -> {
+                        progressBar?.visibility = View.VISIBLE
+                        syncButtonArea?.visibility = View.INVISIBLE
+                    }
+                    SynchronizationState.SUCCESS -> {
+                        progressBar?.visibility = View.GONE
+                        syncButtonArea?.visibility = View.VISIBLE
+                        dot?.visibility = View.INVISIBLE
+                        Toast.makeText(
+                            this,
+                            getString(R.string.data_were_successfully_synchronized),
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }
+                    SynchronizationState.ERROR -> {
+                        progressBar?.visibility = View.GONE
+                        syncButtonArea?.visibility = View.VISIBLE
+                        if (!isNetworkConnected()) {
+                            Toast.makeText(
+                                this,
+                                getString(R.string.no_internet_connection),
+                                Toast.LENGTH_LONG
+                            ).show()
+                        } else {
+                            Toast.makeText(
+                                this,
+                                getString(R.string.could_not_synchronize_data_with_server),
+                                Toast.LENGTH_LONG
+                            ).show()
+                        }
+                    }
+                }
+            }, {
+                Log.e(it)
+            })
+
+    }
+
+    override fun onPause() {
+        super.onPause()
+        syncStateDisposable?.dispose()
     }
 
     override fun showDot(boolean: Boolean) {
-        if(boolean) {
+        if (boolean) {
             dot?.visibility = View.VISIBLE
         } else {
             dot?.visibility = View.INVISIBLE
@@ -286,9 +296,13 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NavigationView.OnNav
     }
 
     override fun loadNavHeader(currentVendorName: String) {
-        if(loginVM.isVendorLoggedIn()) {
+        if (loginVM.isVendorLoggedIn()) {
             val tvUsername = nav_view.getHeaderView(0).findViewById<TextView>(R.id.tv_username)
             tvUsername.text = currentVendorName
         }
+    }
+
+    override fun setTitle(titleText: String) {
+        appbar_title.text = titleText
     }
 }

@@ -68,6 +68,7 @@
     <string name="synchronize">synchronize</string>
     <string name="humansis">humansis</string>
     <string name="loading">loading</string>
+    <string name="unknown">Unknown</string>
     <string name="read_balance">Read balance</string>
     <string name="home">Home</string>
     <string name="nav_header_desc">Navigation header</string>
@@ -78,4 +79,15 @@
     <string name="scanning_card_balance">Card Balance: %1$s</string>
     <string name="close">Close</string>
     <string name="empty_cart">Your shopping cart is empty</string>
+    <string name="transactions_to_reimburse">Transactions to reimburse</string>
+    <string name="no_transactions_to_reimburse">No transactions to reimburse</string>
+    <string name="reimbursed_invoices">Reimbursed invoices</string>
+    <string name="no_reimbursed_invoices">No reimbursed invoices</string>
+    <string name="no_purchases">No purchases</string>
+    <string name="unsynced_transactions">Synchronize to display all transactions. \n Unsynchronized: %1$d</string>
+    <string name="humansis_invoice_number">Humansis Invoice No. %1$d</string>
+    <string name="date">Date: %1$s</string>
+    <string name="quantity">Quantity: %1$d</string>
+    <string name="total_price">Total: %1$.2f %2$s</string>
+    <string name="project">"Project: "</string>
 </resources>

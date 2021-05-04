@@ -25,11 +25,6 @@
             android:layout_height="wrap_content">
         </TableLayout>
 
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@android:color/darker_gray"/>
-
         <LinearLayout
             android:orientation="horizontal"
             android:layout_width="match_parent"
@@ -52,7 +47,10 @@
 
         </LinearLayout>
 
-
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/table_toggle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
 
     </LinearLayout>
 </androidx.cardview.widget.CardView>

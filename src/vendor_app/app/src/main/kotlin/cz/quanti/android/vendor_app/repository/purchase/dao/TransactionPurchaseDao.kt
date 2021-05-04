@@ -2,9 +2,7 @@ package cz.quanti.android.vendor_app.repository.purchase.dao
 
 import androidx.room.*
 import cz.quanti.android.vendor_app.repository.VendorDb
-import cz.quanti.android.vendor_app.repository.purchase.dto.db.CardPurchaseDbEntity
 import cz.quanti.android.vendor_app.repository.purchase.dto.db.TransactionPurchaseDbEntity
-import io.reactivex.Maybe
 import io.reactivex.Single
 
 @Dao
@@ -30,9 +28,9 @@ interface TransactionPurchaseDao {
 
     @Query(
         "SELECT * FROM " + VendorDb.TABLE_TRANSACTION_PURCHASE
-            + " WHERE dbId = :purchaseId"
+            + " WHERE dbId = :dbId"
     )
-    fun getTransactionPurchasesById(purchaseId: Long): Single<TransactionPurchaseDbEntity>
+    fun getTransactionPurchasesById(dbId: Long): TransactionPurchaseDbEntity
 
     @Query("SELECT count(*) FROM " + VendorDb.TABLE_TRANSACTION_PURCHASE)
     fun getCount(): Single<Int>

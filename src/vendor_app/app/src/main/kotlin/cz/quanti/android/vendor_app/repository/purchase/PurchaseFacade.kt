@@ -20,5 +20,4 @@ interface PurchaseFacade {
     fun getInvoices(): Single<List<Invoice>>
 
     fun getTransactions(): Single<List<Transaction>>
-    fun getTransactionPurchases(purchaseIds: List<Long>): Single<List<TransactionPurchase>>
 }

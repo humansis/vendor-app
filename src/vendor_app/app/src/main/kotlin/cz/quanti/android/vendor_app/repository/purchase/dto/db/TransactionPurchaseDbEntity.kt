@@ -6,9 +6,9 @@ import cz.quanti.android.vendor_app.repository.VendorDb
 
 @Entity(tableName = VendorDb.TABLE_TRANSACTION_PURCHASE)
 data class TransactionPurchaseDbEntity(
-    @PrimaryKey(autoGenerate = true)
+    @PrimaryKey(autoGenerate = false)
     var dbId: Long = 0,
-    var value: Long = 0,
+    var value: Double = 0.0,
     var currency: String = "",
     var beneficiaryId: Long = 0,
     var createdAt: String = "",

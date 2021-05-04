@@ -1,5 +1,7 @@
 package cz.quanti.android.vendor_app.main.transactions.callback
 
 interface TransactionsFragmentCallback {
-    fun notifyDataChanged()
+    fun reloadTransactionsFromDb()
+    fun setUpWarning()
+    fun disableWarningButton()
 }

@@ -1,12 +1,13 @@
 package cz.quanti.android.vendor_app.utils
 
+import android.content.Context
+import android.text.format.DateFormat.getDateFormat
+import android.text.format.DateFormat.getTimeFormat
 import java.math.BigDecimal
 import java.math.RoundingMode
+import java.text.DateFormat
 import java.text.DecimalFormat
 import java.text.SimpleDateFormat
-import java.time.LocalDate
-import java.time.ZoneId
-import java.time.format.DateTimeFormatter
 import java.util.*
 import kotlin.math.abs
 
@@ -36,8 +37,14 @@ fun convertTimeForApiRequestBody(date: Date): String {
         .format(date)
 }
 
-fun convertStringToDate(date: String): Date? {
-    return SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ", Locale.US).parse(date)
+fun convertStringToDate(context: Context, date: String): String? {
+    val df = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ", Locale.US).parse(date)
+    return if (df != null){
+        "${getDateFormat(context).format(df)}  ${getTimeFormat(context).format(df)}"
+    } else {
+        null
+    }
+
 }
 
 fun getDefaultCurrency(country: String): String {

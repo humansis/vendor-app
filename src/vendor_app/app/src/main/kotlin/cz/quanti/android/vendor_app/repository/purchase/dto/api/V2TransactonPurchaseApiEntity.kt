@@ -6,8 +6,9 @@ data class V2TransactionPurchaseApiEntity (
 )
 
 data class TransactionPurchaseApiEntity(
-    var value: Long = 0,
+    var id: Long = 0,
+    var value: Double = 0.0,
     var currency: String = "",
     var beneficiaryId: Long = 0,
-    var createdAt: String = ""
+    var dateOfPurchase: String = ""
 )

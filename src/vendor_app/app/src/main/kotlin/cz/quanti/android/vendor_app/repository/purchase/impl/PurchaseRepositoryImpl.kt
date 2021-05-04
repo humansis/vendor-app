@@ -151,13 +151,18 @@ class PurchaseRepositoryImpl(
         return transactionDao.getAll().flatMap { transactionsDb ->
             Observable.fromIterable(transactionsDb)
                 .flatMapSingle { transactionDb ->
-                    val transaction = Transaction(
-                        projectId = transactionDb.dbId,
-                        purchaseIds = getTransactionPurchaseIdsForTransaction(transactionDb.dbId),
-                        value = transactionDb.value,
-                        currency = transactionDb.currency
-                    )
-                    Single.just(transaction)
+                    getTransactionPurchasesById(
+                        getTransactionPurchaseIdsForTransaction(transactionDb.dbId)
+                    ).flatMap { transactionPurchases ->
+                        val transaction = Transaction(
+                            //todo dodelat api request na endpoint aby se misto cisla projektu ukazoval jeho nazev
+                            projectId = transactionDb.projectId,
+                            purchases = transactionPurchases,
+                            value = transactionDb.value,
+                            currency = transactionDb.currency
+                        )
+                        Single.just(transaction)
+                    }
                 }.toList()
         }
     }
@@ -170,10 +175,10 @@ class PurchaseRepositoryImpl(
         return transactionPurchaseIds
     }
 
-    override fun getTransactionPurchasesById(purchaseIds: List<Long>): Single<List<TransactionPurchase>> {
+    private fun getTransactionPurchasesById(purchaseIds: List<Long>): Single<List<TransactionPurchase>> {
         val transactionPurchases = mutableListOf<TransactionPurchase>()
         purchaseIds.forEach {
-            transactionPurchaseDao.getTransactionPurchasesById(it).map { transactionPurchaseDb ->
+            val transactionPurchaseDb = transactionPurchaseDao.getTransactionPurchasesById(it)
                 transactionPurchases.add(
                     TransactionPurchase(
                         purchaseId = transactionPurchaseDb.dbId,
@@ -184,7 +189,6 @@ class PurchaseRepositoryImpl(
                         currency = transactionPurchaseDb.currency
                     )
                 )
-            }
         }
         return Single.just(transactionPurchases)
     }
@@ -199,8 +203,8 @@ class PurchaseRepositoryImpl(
         return Completable.fromCallable { transactionDao.deleteAll() }
     }
 
-    override fun saveTransaction(transaction: TransactionApiEntity): Single<Long> {
-        return Single.fromCallable { transactionDao.insert(convertToDb(transaction)) }
+    override fun saveTransaction(transaction: TransactionApiEntity, transactionId: Long): Single<Long> {
+        return Single.fromCallable { transactionDao.insert(convertToDb(transaction, transactionId)) }
     }
 
     override fun retrieveTransactionsPurchasesById(purchaseIds: List<Int>): Single<Pair<Int, List<TransactionPurchaseApiEntity>>> {
@@ -296,8 +300,10 @@ class PurchaseRepositoryImpl(
         )
     }
 
-    private fun convertToDb(transaction: TransactionApiEntity): TransactionDbEntity {
+    private fun convertToDb(transaction: TransactionApiEntity, transactionId: Long): TransactionDbEntity {
         return TransactionDbEntity(
+            dbId = transactionId,
+            projectId = transaction.projectId,
             value = transaction.value,
             currency = transaction.currency
         )
@@ -305,10 +311,11 @@ class PurchaseRepositoryImpl(
 
     private fun convertToDb(transactionPurchase: TransactionPurchaseApiEntity, transactionId: Long): TransactionPurchaseDbEntity {
         return TransactionPurchaseDbEntity(
+            dbId = transactionPurchase.id,
             value = transactionPurchase.value,
             currency = transactionPurchase.currency,
             beneficiaryId = transactionPurchase.beneficiaryId,
-            createdAt = transactionPurchase.createdAt,
+            createdAt = transactionPurchase.dateOfPurchase,
             transactionId = transactionId
         )
     }

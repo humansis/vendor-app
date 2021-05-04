@@ -28,12 +28,6 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"/>
 
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/dimen_16dp"
-            app:layout_constraintTop_toTopOf="parent"
-            android:background="@drawable/shadow_top"/>
-
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/transactions_recycler_view"
             android:layout_width="match_parent"
@@ -43,6 +37,12 @@
             android:transcriptMode="alwaysScroll"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dimen_16dp"
+            app:layout_constraintTop_toTopOf="parent"
+            android:background="@drawable/shadow_top"/>
 
         <View
             android:layout_width="match_parent"

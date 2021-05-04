@@ -175,6 +175,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NavigationView.OnNav
     override fun sync() {
         progressBar?.visibility = View.VISIBLE
         syncButtonArea?.visibility = View.INVISIBLE
+        transactionsFragmentCallback?.disableWarningButton()
 
         syncDisposable?.dispose()
         syncDisposable = syncFacade.synchronize(preferences.vendor.id.toInt())
@@ -184,12 +185,11 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NavigationView.OnNav
                 {
                     progressBar?.visibility = View.GONE
                     syncButtonArea?.visibility = View.VISIBLE
-                    if(unsynced_warning!= null) { unsynced_warning.visibility = View.GONE }
                     preferences.lastSynced = Date().time
                     vendorFragmentCallback?.notifyDataChanged()
                     productsFragmentCallback?.reloadProductsFromDb()
-                    invoicesFragmentCallback?.notifyDataChanged()
-                    transactionsFragmentCallback?.notifyDataChanged()
+                    invoicesFragmentCallback?.reloadInvoicesFromDb()
+                    transactionsFragmentCallback?.reloadTransactionsFromDb()
 
                     dot?.visibility = View.INVISIBLE
                     Toast.makeText(
@@ -199,7 +199,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NavigationView.OnNav
                     ).show()
                 },
                 { e ->
-                    if(unsynced_warning!= null) { warning_button.isEnabled = true } //todo poresit kdyz se purchasy odeslou ale neco se vysere potom, to chci at warning zmizi
+                    transactionsFragmentCallback?.setUpWarning()
                     progressBar?.visibility = View.GONE
                     syncButtonArea?.visibility = View.VISIBLE
                     Log.e(e)

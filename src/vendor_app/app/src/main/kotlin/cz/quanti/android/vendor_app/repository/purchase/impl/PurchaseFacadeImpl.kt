@@ -61,10 +61,6 @@ class PurchaseFacadeImpl(
         return purchaseRepo.getTransactions()
     }
 
-    override fun getTransactionPurchases(purchaseIds: List<Long>): Single<List<TransactionPurchase>> {
-        return purchaseRepo.getTransactionPurchasesById(purchaseIds)
-    }
-
     private fun preparePurchases(): Completable {
         return purchaseRepo.getAllPurchases().flatMapCompletable { purchases ->
             Observable.fromIterable(purchases.filter { it.products.isEmpty() })
@@ -161,12 +157,14 @@ class PurchaseFacadeImpl(
             if (isPositiveResponseHttpCode(responseCode)) {
                 deleteAllTransactions()
                 if  (transactionsList.isNotEmpty()) {
+                    var id: Long = 1
                     Observable.fromIterable(transactionsList).flatMapCompletable { transactions ->
                         purchaseRepo.retrieveTransactionsPurchasesById(transactions.purchaseIds).flatMapCompletable { response ->
                             val transactionPurchasesList = response.second
                             if (isPositiveResponseHttpCode(response.first)) {
                                 if (transactionPurchasesList.isNotEmpty()) {
-                                    Single.fromCallable { saveTransactionToDb(transactions) }.flatMapCompletable { transactionId ->
+                                    Single.fromCallable { saveTransactionToDb(transactions, id) }.flatMapCompletable { transactionId ->
+                                        id++
                                         actualizeTransactionPurchaseDatabase(transactionPurchasesList, transactionId)
                                     }
                                 } else {
@@ -211,16 +209,15 @@ class PurchaseFacadeImpl(
         return purchaseRepo.deleteTransactions()
     }
 
-    private fun saveTransactionToDb(transaction: TransactionApiEntity): Long {
-        return purchaseRepo.saveTransaction(transaction).blockingGet()
+    private fun saveTransactionToDb(transaction: TransactionApiEntity, transactionId: Long): Long {
+        //todo kouknout na blockingget jestli nedela binec
+        return purchaseRepo.saveTransaction(transaction, transactionId).blockingGet()
     }
 
     private fun actualizeTransactionPurchaseDatabase(transactionPurchases: List<TransactionPurchaseApiEntity>?, transactionId: Long): Completable {
-        return purchaseRepo.deleteTransactionPurchases().andThen(
-            Observable.fromIterable(transactionPurchases).flatMapCompletable { transactionPurchase ->
+        return Observable.fromIterable(transactionPurchases).flatMapCompletable { transactionPurchase ->
                 Completable.fromSingle( purchaseRepo.saveTransactionPurchase(transactionPurchase, transactionId) )
             }
-        )
     }
 
     companion object {

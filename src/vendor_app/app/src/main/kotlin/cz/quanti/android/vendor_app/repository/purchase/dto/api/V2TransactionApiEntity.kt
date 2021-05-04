@@ -6,8 +6,8 @@ data class V2TransactionsApiEntity (
 )
 
 data class TransactionApiEntity(
-    var projectId: Int = 0,
+    var projectId: Long = 0,
     var purchaseIds: List<Int> = listOf(),
-    var value: Long = 0,
+    var value: Double = 0.0,
     var currency: String = ""
 )

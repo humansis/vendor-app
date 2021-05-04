@@ -14,8 +14,4 @@ class TransactionsViewModel(
     fun getTransactions() : Single<List<Transaction>> {
         return purchaseFacade.getTransactions()
     }
-
-    fun getTransactionPurchases(purchaseIds: List<Long>) : Single<List<TransactionPurchase>> {
-        return purchaseFacade.getTransactionPurchases(purchaseIds)
-    }
 }

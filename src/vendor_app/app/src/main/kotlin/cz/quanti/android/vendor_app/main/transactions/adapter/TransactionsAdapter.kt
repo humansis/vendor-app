@@ -38,19 +38,25 @@ class TransactionsAdapter(
     private fun prepareTable(item: Transaction, holder: TransactionsViewHolder) {
         val inflater = (context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater)
 
-        item.purchases.forEach { tp ->
-            val row = inflater.inflate(R.layout.item_transaction_purchase, TableRow(context))
-            row.findViewById<TextView>(R.id.transaction_purchase_date).text = context.getString(
-                R.string.date,
-                convertStringToDate(context, tp.createdAt) ?: R.string.unknown
-            )
-            row.findViewById<TextView>(R.id.transaction_purchase_total).text = context.getString(
-                R.string.total_price,
-                tp.value, tp.currency
-            )
-            holder.purchasesTable.addView(row)
+        if (item.purchases.isEmpty()) {
+            val tv = TextView(context,null)
+            tv.text = context.getString(R.string.no_purchases)
+            holder.purchasesTable.addView(tv)
+        } else {
+            item.purchases.forEach { tp ->
+                val row = inflater.inflate(R.layout.item_transaction_purchase, TableRow(context))
+                row.findViewById<TextView>(R.id.transaction_purchase_date).text = context.getString(
+                    R.string.date,
+                    convertStringToDate(context, tp.createdAt) ?: R.string.unknown
+                )
+                row.findViewById<TextView>(R.id.transaction_purchase_total).text = context.getString(
+                    R.string.total_price,
+                    tp.value, tp.currency
+                )
+                holder.purchasesTable.addView(row)
+            }
         }
-        val line = inflater.inflate(R.layout.view_line, TableRow(context))
+        val line = inflater.inflate(R.layout.item_line, TableRow(context))
         holder.purchasesTable.addView(line)
 
         tableVisibilityToggle(holder)

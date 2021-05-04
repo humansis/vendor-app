@@ -41,6 +41,7 @@ class PurchaseFacadeImpl(
 
     override fun syncWithServer(vendorId: Int): Completable {
         return preparePurchases()
+            .andThen(sendPurchasesToServer())
             .andThen(deleteAllPurchases())
             .andThen(retrieveInvoices(vendorId))
             .andThen(retrieveTransactions(vendorId))
@@ -73,9 +74,6 @@ class PurchaseFacadeImpl(
                     )
                     purchaseRepo.deletePurchase(it)
                 }
-                .andThen(
-                    sendPurchasesToServer()
-                )
         }
     }
 
@@ -134,14 +132,7 @@ class PurchaseFacadeImpl(
             val responseCode = it.first
             val invoicesList = it.second
             if (isPositiveResponseHttpCode(responseCode)) {
-                if (invoicesList.isNotEmpty()) {
-                    actualizeInvoiceDatabase(invoicesList)
-                } else {
-                        //todo doresit aby exceptiony neprerusovaly sync
-                    throw VendorAppException("No invoices").apply {
-                        apiError = true
-                    }
-                }
+                actualizeInvoiceDatabase(invoicesList)
             } else {
                 //todo doresit aby exceptiony neprerusovaly sync
                 throw VendorAppException("Received code $responseCode when trying download invoices.").apply {
@@ -158,36 +149,22 @@ class PurchaseFacadeImpl(
             val transactionsList = it.second
             if (isPositiveResponseHttpCode(responseCode)) {
                 deleteAllTransactions()
-                if  (transactionsList.isNotEmpty()) {
-                    var id: Long = 1
-                    Observable.fromIterable(transactionsList).flatMapCompletable { transactions ->
-                        purchaseRepo.retrieveTransactionsPurchasesById(transactions.purchaseIds).flatMapCompletable { response ->
-                            val transactionPurchasesList = response.second
-                            if (isPositiveResponseHttpCode(response.first)) {
-                                if (transactionPurchasesList.isNotEmpty()) {
-                                    saveTransactionToDb(transactions, id).flatMapCompletable { transactionId ->
-                                        id++
-                                        actualizeTransactionPurchaseDatabase(transactionPurchasesList, transactionId)
-                                    }
-                                } else {
-                                    //todo doresit aby exceptiony neprerusovaly sync
-                                    throw VendorAppException("No purchases").apply {
-                                        apiError = true
-                                    }
-                                }
-                            } else {
-                                //todo doresit aby exceptiony neprerusovaly sync
-                                throw VendorAppException("Received code ${response.first} when trying download purchases.").apply {
-                                    apiError = true
-                                    apiResponseCode = responseCode
-                                }
+                var id: Long = 1
+                Observable.fromIterable(transactionsList).flatMapCompletable { transactions ->
+                    purchaseRepo.retrieveTransactionsPurchasesById(transactions.purchaseIds).flatMapCompletable { response ->
+                        val transactionPurchasesList = response.second
+                        if (isPositiveResponseHttpCode(response.first)) {
+                            saveTransactionToDb(transactions, id).flatMapCompletable { transactionId ->
+                                id++
+                                actualizeTransactionPurchaseDatabase(transactionPurchasesList, transactionId)
+                            }
+                        } else {
+                            //todo doresit aby exceptiony neprerusovaly sync
+                            throw VendorAppException("Received code ${response.first} when trying download purchases.").apply {
+                                apiError = true
+                                apiResponseCode = responseCode
                             }
                         }
-                    }
-                } else {
-                    //todo doresit aby exceptiony neprerusovaly sync
-                    throw VendorAppException("No transactions").apply {
-                        apiError = true
                     }
                 }
             } else {

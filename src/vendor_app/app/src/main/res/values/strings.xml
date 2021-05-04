@@ -82,6 +82,7 @@
     <string name="no_transactions_to_reimburse">No transactions to reimburse</string>
     <string name="reimbursed_invoices">Reimbursed invoices</string>
     <string name="no_reimbursed_invoices">No reimbursed invoices</string>
+    <string name="no_purchases">No purchases</string>
     <string name="unsynced_transactions">Synchronize to display all transactions. \n Unsynchronized: %1$d</string>
     <string name="humansis_invoice_number">Humansis Invoice No. %1$d</string>
     <string name="date">Date: %1$s</string>

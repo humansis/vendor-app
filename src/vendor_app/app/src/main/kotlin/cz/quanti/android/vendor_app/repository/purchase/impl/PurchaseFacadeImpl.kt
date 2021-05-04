@@ -3,13 +3,21 @@ package cz.quanti.android.vendor_app.repository.purchase.impl
 import cz.quanti.android.vendor_app.repository.card.CardRepository
 import cz.quanti.android.vendor_app.repository.purchase.PurchaseFacade
 import cz.quanti.android.vendor_app.repository.purchase.PurchaseRepository
+import cz.quanti.android.vendor_app.repository.purchase.dto.Invoice
 import cz.quanti.android.vendor_app.repository.purchase.dto.Purchase
+import cz.quanti.android.vendor_app.repository.purchase.dto.Transaction
+import cz.quanti.android.vendor_app.repository.purchase.dto.TransactionPurchase
+import cz.quanti.android.vendor_app.repository.purchase.dto.api.InvoiceApiEntity
+import cz.quanti.android.vendor_app.repository.purchase.dto.api.TransactionPurchaseApiEntity
+import cz.quanti.android.vendor_app.repository.purchase.dto.api.TransactionApiEntity
 import cz.quanti.android.vendor_app.utils.BlockedCardError
 import cz.quanti.android.vendor_app.utils.VendorAppException
 import cz.quanti.android.vendor_app.utils.isPositiveResponseHttpCode
 import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.Single
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
 import quanti.com.kotlinlog.Log
 
 class PurchaseFacadeImpl(
@@ -31,13 +39,29 @@ class PurchaseFacadeImpl(
         }
     }
 
-    override fun syncWithServer(): Completable {
+    override fun syncWithServer(vendorId: Int): Completable {
         return preparePurchases()
+            .andThen(sendPurchasesToServer())
             .andThen(deleteAllPurchases())
+            .andThen(retrieveInvoices(vendorId))
+            .andThen(retrieveTransactions(vendorId))
+
     }
 
     override fun isSyncNeeded(): Single<Boolean> {
         return purchaseRepo.getPurchasesCount().map { it > 0 }
+    }
+
+    override fun unsyncedPurchases(): Single<List<Purchase>> {
+        return purchaseRepo.getAllPurchases()
+    }
+
+    override fun getInvoices(): Single<List<Invoice>> {
+        return purchaseRepo.getInvoices()
+    }
+
+    override fun getTransactions(): Single<List<Transaction>> {
+        return purchaseRepo.getTransactions()
     }
 
     private fun preparePurchases(): Completable {
@@ -50,14 +74,12 @@ class PurchaseFacadeImpl(
                     )
                     purchaseRepo.deletePurchase(it)
                 }
-                .andThen(
-                    sendPurchasesToServer()
-                )
         }
     }
 
     private fun sendPurchasesToServer(): Completable {
         val invalidPurchases = mutableListOf<Purchase>()
+
         return purchaseRepo.getAllPurchases().flatMapCompletable { purchases ->
             if (purchases.isEmpty()) {
                 Completable.complete()
@@ -103,6 +125,77 @@ class PurchaseFacadeImpl(
 
     private fun deleteAllPurchases(): Completable {
         return purchaseRepo.deleteAllPurchases()
+    }
+
+    private fun retrieveInvoices(vendorId: Int): Completable {
+        return purchaseRepo.retrieveInvoices(vendorId).flatMapCompletable {
+            val responseCode = it.first
+            val invoicesList = it.second
+            if (isPositiveResponseHttpCode(responseCode)) {
+                actualizeInvoiceDatabase(invoicesList)
+            } else {
+                //todo doresit aby exceptiony neprerusovaly sync
+                throw VendorAppException("Received code $responseCode when trying download invoices.").apply {
+                    apiError = true
+                    apiResponseCode = responseCode
+                }
+            }
+        }
+    }
+
+    private fun retrieveTransactions(vendorId: Int): Completable {
+        return purchaseRepo.retrieveTransactions(vendorId).flatMapCompletable {
+            val responseCode = it.first
+            val transactionsList = it.second
+            if (isPositiveResponseHttpCode(responseCode)) {
+                deleteAllTransactions()
+                var id: Long = 1
+                Observable.fromIterable(transactionsList).flatMapCompletable { transactions ->
+                    purchaseRepo.retrieveTransactionsPurchasesById(transactions.purchaseIds).flatMapCompletable { response ->
+                        val transactionPurchasesList = response.second
+                        if (isPositiveResponseHttpCode(response.first)) {
+                            saveTransactionToDb(transactions, id).flatMapCompletable { transactionId ->
+                                id++
+                                actualizeTransactionPurchaseDatabase(transactionPurchasesList, transactionId)
+                            }
+                        } else {
+                            //todo doresit aby exceptiony neprerusovaly sync
+                            throw VendorAppException("Received code ${response.first} when trying download purchases.").apply {
+                                apiError = true
+                                apiResponseCode = responseCode
+                            }
+                        }
+                    }
+                }
+            } else {
+                //todo doresit aby exceptiony neprerusovaly sync
+                throw VendorAppException("Received code $responseCode when trying download transactions.").apply {
+                    apiError = true
+                    apiResponseCode = responseCode
+                }
+            }
+        }
+    }
+
+    private fun actualizeInvoiceDatabase(invoices: List<InvoiceApiEntity>?): Completable {
+        return purchaseRepo.deleteInvoices().andThen(
+            Observable.fromIterable(invoices).flatMapCompletable { invoice ->
+                Completable.fromSingle( purchaseRepo.saveInvoice(invoice) )
+            })
+    }
+
+    private fun deleteAllTransactions(): Completable {
+        return purchaseRepo.deleteTransactions()
+    }
+
+    private fun saveTransactionToDb(transaction: TransactionApiEntity, transactionId: Long): Single<Long> {
+        return purchaseRepo.saveTransaction(transaction, transactionId)
+    }
+
+    private fun actualizeTransactionPurchaseDatabase(transactionPurchases: List<TransactionPurchaseApiEntity>?, transactionId: Long): Completable {
+        return Observable.fromIterable(transactionPurchases).flatMapCompletable { transactionPurchase ->
+                Completable.fromSingle( purchaseRepo.saveTransactionPurchase(transactionPurchase, transactionId) )
+            }
     }
 
     companion object {

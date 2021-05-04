@@ -1,8 +1,11 @@
 package cz.quanti.android.vendor_app.utils
 
-import android.net.*
+import android.content.Context
+import android.text.format.DateFormat.getDateFormat
+import android.text.format.DateFormat.getTimeFormat
 import java.math.BigDecimal
 import java.math.RoundingMode
+import java.text.DateFormat
 import java.text.DecimalFormat
 import java.text.SimpleDateFormat
 import java.util.*
@@ -32,6 +35,16 @@ fun isPositiveResponseHttpCode(code: Int): Boolean {
 fun convertTimeForApiRequestBody(date: Date): String {
     return SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ", Locale.US)
         .format(date)
+}
+
+fun convertStringToDate(context: Context, date: String): String? {
+    val df = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ", Locale.US).parse(date)
+    return if (df != null){
+        "${getDateFormat(context).format(df)}  ${getTimeFormat(context).format(df)}"
+    } else {
+        null
+    }
+
 }
 
 fun getDefaultCurrency(country: String): String {

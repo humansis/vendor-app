@@ -6,10 +6,12 @@ import cz.quanti.android.vendor_app.repository.product.ProductFacade
 import cz.quanti.android.vendor_app.repository.product.dto.Product
 import cz.quanti.android.vendor_app.repository.purchase.dto.SelectedProduct
 import cz.quanti.android.vendor_app.repository.synchronization.SynchronizationFacade
+import cz.quanti.android.vendor_app.sync.SynchronizationManager
+import cz.quanti.android.vendor_app.sync.SynchronizationState
 import cz.quanti.android.vendor_app.utils.CurrentVendor
 import cz.quanti.android.vendor_app.utils.ShoppingHolder
 import cz.quanti.android.vendor_app.utils.getDefaultCurrency
-import io.reactivex.Completable
+import io.reactivex.Observable
 import io.reactivex.Single
 
 class VendorViewModel(
@@ -17,7 +19,8 @@ class VendorViewModel(
     private val productFacade: ProductFacade,
     private val syncFacade: SynchronizationFacade,
     private val preferences: AppPreferences,
-    private val currentVendor: CurrentVendor
+    private val currentVendor: CurrentVendor,
+    private val synchronizationManager: SynchronizationManager
 ) : ViewModel() {
 
     fun getLastCurrencySelection(): String {
@@ -27,16 +30,17 @@ class VendorViewModel(
         return shoppingHolder.lastCurrencySelection
     }
 
+    fun syncNeededObservable(): Observable<SynchronizationState> {
+        return synchronizationManager.syncStateObservable()
+            .filter { it == SynchronizationState.SUCCESS }
+    }
+
     fun setLastCurrencySelection(selected: String) {
         shoppingHolder.lastCurrencySelection = selected
     }
 
     fun getProducts(): Single<List<Product>> {
         return productFacade.getProducts()
-    }
-
-    fun synchronizeWithServer(): Completable {
-        return syncFacade.synchronize()
     }
 
     fun getFirstCurrencies(): List<String> {

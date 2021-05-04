@@ -25,8 +25,6 @@ class VendorFragment() : Fragment(), VendorFragmentCallback {
     }
 
     var product: Product = Product()
-    private val rightTimeToSyncAgain = 86400000 // one day //todo pouzit?
-    private var disposable: Disposable? = null
 
     private var state = VendorScreenState.STATE_ONLY_PRODUCTS_SHOWED
 
@@ -148,7 +146,6 @@ class VendorFragment() : Fragment(), VendorFragmentCallback {
     }
 
     override fun onStop() {
-        (activity as MainActivity).vendorFragmentCallback = null
         super.onStop()
     }
 
@@ -207,15 +204,6 @@ class VendorFragment() : Fragment(), VendorFragmentCallback {
 
     override fun getSelectedProduct(): Product {
         return product
-    }
-
-    override fun notifyDataChanged() {
-        showProducts()
-    }
-
-    override fun onDestroy() {
-        disposable?.dispose()
-        super.onDestroy()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {

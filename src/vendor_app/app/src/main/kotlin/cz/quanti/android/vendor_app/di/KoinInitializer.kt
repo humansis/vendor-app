@@ -35,6 +35,8 @@ import cz.quanti.android.vendor_app.repository.purchase.impl.PurchaseRepositoryI
 import cz.quanti.android.vendor_app.repository.synchronization.SynchronizationFacade
 import cz.quanti.android.vendor_app.repository.synchronization.impl.SynchronizationFacadeImpl
 import cz.quanti.android.vendor_app.repository.utils.interceptor.HostUrlInterceptor
+import cz.quanti.android.vendor_app.sync.SynchronizationManager
+import cz.quanti.android.vendor_app.sync.SynchronizationManagerImpl
 import cz.quanti.android.vendor_app.utils.CurrentVendor
 import cz.quanti.android.vendor_app.utils.LoginManager
 import cz.quanti.android.vendor_app.utils.NfcTagPublisher
@@ -80,7 +82,7 @@ object KoinInitializer {
             .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
             .client(createClient(loginManager, hostUrlInterceptor, currentVendor))
 
-        if(BuildConfig.DEBUG) {
+        if (BuildConfig.DEBUG) {
             builder.baseUrl("https://" + BuildConfig.STAGE_API_URL + "/api/wsse/vendor-app/")
         } else {
             builder.baseUrl("https://" + BuildConfig.RELEASE_API_URL + "/api/wsse/vendor-app/")
@@ -117,7 +119,8 @@ object KoinInitializer {
         val purchaseFacade: PurchaseFacade = PurchaseFacadeImpl(purchaseRepo, cardRepo)
         val syncFacade: SynchronizationFacade =
             SynchronizationFacadeImpl(bookletFacade, cardFacade, productFacade, purchaseFacade)
-
+        val synchronizationManager: SynchronizationManager =
+            SynchronizationManagerImpl(preferences, syncFacade)
         val nfcFacade: VendorFacade = PINFacade(
             BuildConfig.APP_VERSION,
             NfcUtil.hexStringToByteArray(BuildConfig.MASTER_KEY),
@@ -151,7 +154,8 @@ object KoinInitializer {
                     productFacade,
                     syncFacade,
                     preferences,
-                    currentVendor
+                    currentVendor,
+                    synchronizationManager
                 )
             }
             viewModel { ScannerViewModel(shoppingHolder, bookletFacade) }
@@ -165,8 +169,8 @@ object KoinInitializer {
                     nfcTagPublisher
                 )
             }
-            viewModel { InvoicesViewModel(purchaseFacade) }
-            viewModel { TransactionsViewModel(purchaseFacade) }
+            viewModel { InvoicesViewModel(purchaseFacade, synchronizationManager) }
+            viewModel { TransactionsViewModel(purchaseFacade, synchronizationManager, syncFacade) }
         }
     }
 

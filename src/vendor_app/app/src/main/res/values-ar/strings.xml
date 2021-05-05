@@ -80,5 +80,19 @@
     <string name="logs_dialog_title">شارك السجلات</string>
     <string name="logs_dialog_message">هل ترغب في مشاركة السجلات؟</string>
     <string name="logs_dialog_email_button">شارك</string>
+    <string name="empty_cart">سلة التسوق الخاصة بك فارغة</string>
+    <string name="transactions_to_reimburse">معاملات السداد</string>
+    <string name="no_transactions_to_reimburse">لا توجد معاملات لتسديدها</string>
+    <string name="reimbursed_invoices">الفواتير المسددة</string>
+    <string name="no_reimbursed_invoices">لايوجد فواتير مسددة</string>
+    <string name="no_purchases">لايوجد مشتريات</string>
+    <string name="unsynced_transactions">" تزامن لعرض جميع المعاملات. غير متزامن: %1$d"</string>
+    <string name="humansis_invoice_number">"%1$d رقم فاتورة Humansis  "</string>
+    <string name="read_balance">قراءة الرصيد</string>
+    <string name="home">الرئيسية</string>
+    <string name="nav_header_desc">رأس التنقل</string>
+    <string name="navigation_drawer_open">افتح لوحة التصفح</string>
+    <string name="navigation_drawer_close">أغلق لوحة التصفح</string>
+    <string name="utilities">خدمات</string>
 
 </resources>

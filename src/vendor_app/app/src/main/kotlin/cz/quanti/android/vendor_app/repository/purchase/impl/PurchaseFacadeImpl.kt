@@ -148,25 +148,28 @@ class PurchaseFacadeImpl(
             val responseCode = it.first
             val transactionsList = it.second
             if (isPositiveResponseHttpCode(responseCode)) {
-                deleteAllTransactions()
                 var id: Long = 1
-                Observable.fromIterable(transactionsList).flatMapCompletable { transactions ->
-                    purchaseRepo.retrieveTransactionsPurchasesById(transactions.purchaseIds).flatMapCompletable { response ->
-                        val transactionPurchasesList = response.second
-                        if (isPositiveResponseHttpCode(response.first)) {
-                            saveTransactionToDb(transactions, id).flatMapCompletable { transactionId ->
-                                id++
-                                actualizeTransactionPurchaseDatabase(transactionPurchasesList, transactionId)
-                            }
-                        } else {
-                            //todo doresit aby exceptiony neprerusovaly sync
-                            throw VendorAppException("Received code ${response.first} when trying download purchases.").apply {
-                                apiError = true
-                                apiResponseCode = responseCode
+                deleteAllTransactions().andThen(
+                    deleteAllTransactionPurchases().andThen(
+                        Observable.fromIterable(transactionsList).flatMapCompletable { transactions ->
+                            purchaseRepo.retrieveTransactionsPurchasesById(transactions.purchaseIds).flatMapCompletable { response ->
+                                val transactionPurchasesList = response.second
+                                if (isPositiveResponseHttpCode(response.first)) {
+                                    saveTransactionToDb(transactions, id).flatMapCompletable { transactionId ->
+                                        id++
+                                        actualizeTransactionPurchaseDatabase(transactionPurchasesList, transactionId)
+                                    }
+                                } else {
+                                    //todo doresit aby exceptiony neprerusovaly sync
+                                    throw VendorAppException("Received code ${response.first} when trying download purchases.").apply {
+                                        apiError = true
+                                        apiResponseCode = responseCode
+                                    }
+                                }
                             }
                         }
-                    }
-                }
+                    )
+                )
             } else {
                 //todo doresit aby exceptiony neprerusovaly sync
                 throw VendorAppException("Received code $responseCode when trying download transactions.").apply {
@@ -190,6 +193,10 @@ class PurchaseFacadeImpl(
 
     private fun saveTransactionToDb(transaction: TransactionApiEntity, transactionId: Long): Single<Long> {
         return purchaseRepo.saveTransaction(transaction, transactionId)
+    }
+
+    private fun deleteAllTransactionPurchases(): Completable {
+        return purchaseRepo.deleteTransactionPurchases()
     }
 
     private fun actualizeTransactionPurchaseDatabase(transactionPurchases: List<TransactionPurchaseApiEntity>?, transactionId: Long): Completable {

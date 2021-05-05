@@ -92,7 +92,7 @@ object KoinInitializer {
 
 
         val db = Room.databaseBuilder(app, VendorDb::class.java, VendorDb.DB_NAME)
-            .fallbackToDestructiveMigration()
+            .addMigrations(VendorDb.MIGRATION_2_3)
             .build()
 
         // Repository

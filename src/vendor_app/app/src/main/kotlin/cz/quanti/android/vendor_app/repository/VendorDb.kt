@@ -1,8 +1,12 @@
 package cz.quanti.android.vendor_app.repository
 
+import android.content.Context
 import androidx.room.Database
+import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
+import androidx.room.migration.Migration
+import androidx.sqlite.db.SupportSQLiteDatabase
 import cz.quanti.android.vendor_app.repository.booklet.dao.BookletDao
 import cz.quanti.android.vendor_app.repository.booklet.dto.db.BookletDbEntity
 import cz.quanti.android.vendor_app.repository.card.dao.BlockedCardDao
@@ -53,5 +57,13 @@ abstract class VendorDb : RoomDatabase() {
         const val TABLE_INVOICE = "invoice"
         const val TABLE_TRANSACTION_BATCH = "transaction_batch"
         const val TABLE_TRANSACTION_PURCHASE = "transaction_purchase"
+
+        val MIGRATION_2_3 = object : Migration(2,3) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL("CREATE TABLE 'invoice' ('id' INTEGER NOT NULL, 'date' TEXT NOT NULL, 'quantity' INTEGER NOT NULL, 'value' REAL NOT NULL, 'currency' TEXT NOT NULL, PRIMARY KEY('id'))")
+                database.execSQL("CREATE TABLE 'transaction_batch' ('dbId' INTEGER NOT NULL, 'projectId' INTEGER NOT NULL, 'value' REAL NOT NULL, 'currency' TEXT NOT NULL, PRIMARY KEY('dbId'))")
+                database.execSQL("CREATE TABLE 'transaction_purchase' ('dbId' INTEGER NOT NULL, 'value' REAL NOT NULL, 'currency' TEXT NOT NULL, 'beneficiaryId' INTEGER NOT NULL, 'createdAt' TEXT NOT NULL, 'transactionId' INTEGER NOT NULL, PRIMARY KEY('dbId'))")
+            }
+        }
     }
 }

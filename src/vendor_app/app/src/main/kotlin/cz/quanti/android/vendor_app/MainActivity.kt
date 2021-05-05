@@ -1,5 +1,6 @@
 package cz.quanti.android.vendor_app
 
+import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.content.Intent
 import android.content.pm.ActivityInfo
@@ -34,13 +35,10 @@ import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
-import kotlinx.android.synthetic.main.fragment_transactions.*
-import kotlinx.android.synthetic.main.item_warning.*
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import quanti.com.kotlinlog.Log
 import quanti.com.kotlinlog.file.SendLogDialogFragment
-import java.util.*
 
 class MainActivity : AppCompatActivity(), ActivityCallback,
     NavigationView.OnNavigationItemSelectedListener {
@@ -60,6 +58,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
     private lateinit var drawer: DrawerLayout
     private lateinit var toolbar: Toolbar
 
+    @SuppressLint("SourceLockedOrientationActivity")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -86,6 +85,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
         setUpToolbar()
         btn_logout.setOnClickListener {
             logout()
+            drawer.closeDrawer(GravityCompat.START)
         }
         nfcAdapter = NfcAdapter.getDefaultAdapter(this)
     }

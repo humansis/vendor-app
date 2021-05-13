@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">Humansis Vendor DEMO</string>
     <string name="login_screen_subtitle">HUMANSIS VENDOR DEMO</string>
+    <string name="nav_header_version">Humansis Vendor DEMO %1$s</string>
 </resources>

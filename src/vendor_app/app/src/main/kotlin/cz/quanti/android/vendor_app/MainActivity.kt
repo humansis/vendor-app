@@ -7,8 +7,10 @@ import android.content.pm.ActivityInfo
 import android.nfc.NfcAdapter
 import android.nfc.Tag
 import android.os.Bundle
+import android.util.DisplayMetrics
 import android.view.MenuItem
 import android.view.View
+import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.ActionBarDrawerToggle
@@ -39,6 +41,7 @@ import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import quanti.com.kotlinlog.Log
 import quanti.com.kotlinlog.file.SendLogDialogFragment
+
 
 class MainActivity : AppCompatActivity(), ActivityCallback,
     NavigationView.OnNavigationItemSelectedListener {
@@ -239,10 +242,8 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
     override fun onResume() {
         super.onResume()
 
-        val tvAppVersion = nav_view.getHeaderView(0).findViewById<TextView>(R.id.tv_app_version)
-        tvAppVersion.text = BuildConfig.VERSION_NAME
-
         loadNavHeader(loginVM.getCurrentVendorName())
+
         syncStateDisposable?.dispose()
         syncStateDisposable = synchronizationManager.syncStateObservable()
             .subscribeOn(Schedulers.io())
@@ -311,6 +312,32 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
     }
 
     override fun loadNavHeader(currentVendorName: String) {
+        val metrics: DisplayMetrics = resources.displayMetrics
+        val ratio = metrics.heightPixels.toFloat() / metrics.widthPixels.toFloat()
+        val ivAppIcon = nav_view.getHeaderView(0).findViewById<ImageView>(R.id.iv_app_icon)
+        ivAppIcon.layoutParams.height = if (ratio > 1.78) {
+            resources.getDimensionPixelSize(R.dimen.nav_header_image_height_tall)
+        } else {
+            resources.getDimensionPixelSize(R.dimen.nav_header_image_height_regular)
+        }
+
+        val tvAppVersion = nav_view.getHeaderView(0).findViewById<TextView>(R.id.tv_app_version)
+        tvAppVersion.text = (
+            getString(R.string.app_name)
+            + " "
+            + getString(R.string.version, BuildConfig.VERSION_NAME)
+        )
+
+        val tvEnvironment = nav_view.getHeaderView(0).findViewById<TextView>(R.id.tv_environment)
+        if(BuildConfig.DEBUG) {
+            tvEnvironment.text = getString(
+                R.string.environment,
+                preferences.url
+            )
+        } else {
+            tvEnvironment.visibility = View.GONE
+        }
+
         if (loginVM.isVendorLoggedIn()) {
             val tvUsername = nav_view.getHeaderView(0).findViewById<TextView>(R.id.tv_username)
             tvUsername.text = currentVendorName

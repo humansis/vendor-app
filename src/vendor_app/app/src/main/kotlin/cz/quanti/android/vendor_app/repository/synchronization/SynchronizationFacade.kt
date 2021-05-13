@@ -6,7 +6,7 @@ import io.reactivex.Single
 
 interface SynchronizationFacade {
 
-    fun synchronize(vendor: Int): Completable
+    fun synchronize(vendorId: Int): Completable
 
     fun isSyncNeeded(): Single<Boolean>
 

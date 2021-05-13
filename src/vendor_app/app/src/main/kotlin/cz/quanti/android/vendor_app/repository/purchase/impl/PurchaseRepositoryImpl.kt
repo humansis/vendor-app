@@ -10,7 +10,6 @@ import cz.quanti.android.vendor_app.repository.purchase.dto.db.*
 import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.Single
-import io.reactivex.SingleSource
 import quanti.com.kotlinlog.Log
 
 class PurchaseRepositoryImpl(
@@ -119,7 +118,9 @@ class PurchaseRepositoryImpl(
 
     override fun retrieveInvoices(vendorId: Int): Single<Pair<Int, List<InvoiceApiEntity>>> {
         return api.getInvoices(vendorId).map { response ->
-            response.body()?.let { Pair(response.code(), it.data) }
+            var invoices = listOf<InvoiceApiEntity>()
+            response.body()?.let { invoices = it.data }
+            Pair(response.code(), invoices)
         }
     }
 
@@ -195,7 +196,9 @@ class PurchaseRepositoryImpl(
 
     override fun retrieveTransactions(vendorId: Int): Single<Pair<Int, List<TransactionApiEntity>>> {
         return api.getTransactions(vendorId).map { response ->
-            response.body()?.let { Pair(response.code(), it.data) }
+            var transactions = listOf<TransactionApiEntity>()
+            response.body()?.let { transactions = it.data }
+            Pair(response.code(), transactions)
         }
     }
 
@@ -209,7 +212,9 @@ class PurchaseRepositoryImpl(
 
     override fun retrieveTransactionsPurchasesById(purchaseIds: List<Int>): Single<Pair<Int, List<TransactionPurchaseApiEntity>>> {
         return api.getTransactionsPurchasesById(purchaseIds).map { response ->
-            response.body()?.let { Pair(response.code(), it.data) }
+            var transactionPurchases = listOf<TransactionPurchaseApiEntity>()
+            response.body()?.let { transactionPurchases = it.data }
+            Pair(response.code(), transactionPurchases)
         }
     }
 

@@ -42,7 +42,6 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 import quanti.com.kotlinlog.Log
 import quanti.com.kotlinlog.file.SendLogDialogFragment
 
-
 class MainActivity : AppCompatActivity(), ActivityCallback,
     NavigationView.OnNavigationItemSelectedListener {
 

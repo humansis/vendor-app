@@ -29,8 +29,6 @@
         android:textColor="@color/darkGreyColor"
         android:textAlignment="center"
         android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-        android:visibility="visible"
-        android:foregroundTint="@color/black"
         tools:text="1.0.0" />
 
     <TextView
@@ -41,8 +39,6 @@
         android:textColor="@color/darkGreyColor"
         android:textAlignment="center"
         android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-        android:visibility="visible"
-        android:foregroundTint="@color/black"
         tools:text="Environment: DEV" />
 
     <TextView

@@ -119,9 +119,7 @@ class PurchaseRepositoryImpl(
     override fun retrieveInvoices(vendorId: Int): Single<Pair<Int, List<InvoiceApiEntity>>> {
         return api.getInvoices(vendorId).map { response ->
             var invoices = listOf<InvoiceApiEntity>()
-            if (response.body() != null) {
-                response.body()?.let { invoices = it.data }
-            }
+            response.body()?.let { invoices = it.data }
             Pair(response.code(), invoices)
         }
     }
@@ -199,9 +197,7 @@ class PurchaseRepositoryImpl(
     override fun retrieveTransactions(vendorId: Int): Single<Pair<Int, List<TransactionApiEntity>>> {
         return api.getTransactions(vendorId).map { response ->
             var transactions = listOf<TransactionApiEntity>()
-            if (response.body() != null) {
-                response.body()?.let { transactions = it.data }
-            }
+            response.body()?.let { transactions = it.data }
             Pair(response.code(), transactions)
         }
     }
@@ -217,9 +213,7 @@ class PurchaseRepositoryImpl(
     override fun retrieveTransactionsPurchasesById(purchaseIds: List<Int>): Single<Pair<Int, List<TransactionPurchaseApiEntity>>> {
         return api.getTransactionsPurchasesById(purchaseIds).map { response ->
             var transactionPurchases = listOf<TransactionPurchaseApiEntity>()
-            if (response.body() != null) {
-                response.body()?.let { transactionPurchases = it.data }
-            }
+            response.body()?.let { transactionPurchases = it.data }
             Pair(response.code(), transactionPurchases)
         }
     }

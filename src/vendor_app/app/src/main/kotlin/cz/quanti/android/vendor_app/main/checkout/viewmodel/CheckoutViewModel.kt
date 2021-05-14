@@ -6,6 +6,7 @@ import cz.quanti.android.nfc.VendorFacade
 import cz.quanti.android.nfc.dto.UserBalance
 import cz.quanti.android.nfc.exception.PINException
 import cz.quanti.android.nfc.exception.PINExceptionEnum
+import cz.quanti.android.nfc.logger.NfcLogger
 import cz.quanti.android.nfc_io_libray.types.NfcUtil
 import cz.quanti.android.vendor_app.repository.booklet.dto.Voucher
 import cz.quanti.android.vendor_app.repository.card.CardFacade
@@ -26,6 +27,7 @@ class CheckoutViewModel(
     private val currentVendor: CurrentVendor,
     private val nfcTagPublisher: NfcTagPublisher
 ) : ViewModel() {
+    private val TAG = this.javaClass.simpleName
     private var vouchers: MutableList<Voucher> = mutableListOf()
     private var pin: String? = null
 
@@ -114,7 +116,15 @@ class CheckoutViewModel(
                     if(it.contains(convertTagToString(tag))) {
                         throw PINException(PINExceptionEnum.CARD_LOCKED)
                     } else {
+                        NfcLogger.d(
+                            TAG,
+                            "subtractBalanceFromCard: value: $value, currencyCode: $currency"
+                        )
                         nfcFacade.subtractFromBalance(tag, pin, value, currency).map { userBalance ->
+                            NfcLogger.d(
+                                TAG,
+                                "subtractedBalanceFromCard: balance: ${userBalance.balance}, beneficiaryId: ${userBalance.userId}, currencyCode: ${userBalance.currencyCode}"
+                            )
                             Pair(tag, userBalance)
                         }
                     }

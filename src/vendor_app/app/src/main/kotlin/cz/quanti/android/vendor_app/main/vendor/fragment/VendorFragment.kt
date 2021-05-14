@@ -14,10 +14,8 @@ import cz.quanti.android.vendor_app.MainActivity
 import cz.quanti.android.vendor_app.R
 import cz.quanti.android.vendor_app.main.vendor.VendorScreenState
 import cz.quanti.android.vendor_app.main.vendor.callback.VendorFragmentCallback
-import cz.quanti.android.vendor_app.main.vendor.viewmodel.VendorViewModel
 import cz.quanti.android.vendor_app.repository.product.dto.Product
 import io.reactivex.disposables.Disposable
-import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class VendorFragment() : Fragment(), VendorFragmentCallback {
 
@@ -26,10 +24,7 @@ class VendorFragment() : Fragment(), VendorFragmentCallback {
         const val STATE = "state"
     }
 
-    private val vm: VendorViewModel by viewModel()
     var product: Product = Product()
-    private val rightTimeToSyncAgain = 86400000 // one day
-    private var disposable: Disposable? = null
 
     private var state = VendorScreenState.STATE_ONLY_PRODUCTS_SHOWED
 
@@ -39,6 +34,7 @@ class VendorFragment() : Fragment(), VendorFragmentCallback {
         savedInstanceState: Bundle?
     ): View? {
         (requireActivity() as ActivityCallback).setToolbarVisible(true)
+        (requireActivity() as ActivityCallback).setTitle(getString(R.string.app_name))
         requireActivity().findViewById<NavigationView>(R.id.nav_view).setCheckedItem(R.id.home_button)
         val callback: OnBackPressedCallback =
             object : OnBackPressedCallback(true /* enabled by default */) {
@@ -145,16 +141,9 @@ class VendorFragment() : Fragment(), VendorFragmentCallback {
                 replace(R.id.firstFragmentContainer, ProductsFragment())
                 replace(R.id.secondFragmentContainer, ShoppingCartFragment())
             }
-
         }
         transaction.commit()
     }
-
-    override fun onStop() {
-        (activity as MainActivity).vendorFragmentCallback = null
-        super.onStop()
-    }
-
 
     override fun chooseProduct(product: Product) {
         state = VendorScreenState.STATE_PRODUCT_DETAIL_SHOWED
@@ -210,15 +199,6 @@ class VendorFragment() : Fragment(), VendorFragmentCallback {
 
     override fun getSelectedProduct(): Product {
         return product
-    }
-
-    override fun notifyDataChanged() {
-        showProducts()
-    }
-
-    override fun onDestroy() {
-        disposable?.dispose()
-        super.onDestroy()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {

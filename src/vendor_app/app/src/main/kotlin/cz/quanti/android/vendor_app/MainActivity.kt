@@ -312,9 +312,8 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
 
     override fun loadNavHeader(currentVendorName: String) {
         val metrics: DisplayMetrics = resources.displayMetrics
-        val ratio = metrics.heightPixels.toFloat() / metrics.widthPixels.toFloat()
         val ivAppIcon = nav_view.getHeaderView(0).findViewById<ImageView>(R.id.iv_app_icon)
-        ivAppIcon.layoutParams.height = if (ratio > 1.78) {
+        ivAppIcon.layoutParams.height = if ((metrics.heightPixels/metrics.density) > 640 ) {
             resources.getDimensionPixelSize(R.dimen.nav_header_image_height_tall)
         } else {
             resources.getDimensionPixelSize(R.dimen.nav_header_image_height_regular)

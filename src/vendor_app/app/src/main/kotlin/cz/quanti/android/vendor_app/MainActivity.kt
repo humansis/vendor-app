@@ -313,18 +313,16 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
     override fun loadNavHeader(currentVendorName: String) {
         val metrics: DisplayMetrics = resources.displayMetrics
         val ivAppIcon = nav_view.getHeaderView(0).findViewById<ImageView>(R.id.iv_app_icon)
-        ivAppIcon.layoutParams.height = if ((metrics.heightPixels/metrics.density) > 640 ) {
+        ivAppIcon.layoutParams.height = if ((metrics.heightPixels/metrics.density) > 640) {
             resources.getDimensionPixelSize(R.dimen.nav_header_image_height_tall)
         } else {
             resources.getDimensionPixelSize(R.dimen.nav_header_image_height_regular)
         }
 
         val tvAppVersion = nav_view.getHeaderView(0).findViewById<TextView>(R.id.tv_app_version)
-        tvAppVersion.text = (
-            getString(R.string.app_name)
-            + " "
-            + getString(R.string.version, BuildConfig.VERSION_NAME)
-        )
+        var appVersion = (getString(R.string.app_name) + " " + getString(R.string.version, BuildConfig.VERSION_NAME))
+        if (BuildConfig.DEBUG) { appVersion += (" (" + BuildConfig.BUILD_NUMBER + ")") }
+        tvAppVersion.text = appVersion
 
         val tvEnvironment = nav_view.getHeaderView(0).findViewById<TextView>(R.id.tv_environment)
         if(BuildConfig.DEBUG) {

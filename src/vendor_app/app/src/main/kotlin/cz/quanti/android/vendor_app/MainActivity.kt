@@ -208,6 +208,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
                     cardResultDialog.show()
                 },
                     {
+                        Log.e(this.javaClass.simpleName, it)
                         Toast.makeText(
                             this,
                             getString(R.string.card_error),

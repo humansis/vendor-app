@@ -71,10 +71,10 @@ class ScanCardFragment : Fragment() {
         super.onPause()
     }
 
-    override fun onDestroy() {
+    override fun onStop() {
         paymentDisposable?.dispose()
         paymentDisposable = null
-        super.onDestroy()
+        super.onStop()
     }
 
     private fun init() {

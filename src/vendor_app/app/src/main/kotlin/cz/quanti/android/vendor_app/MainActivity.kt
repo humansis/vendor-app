@@ -18,6 +18,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.fragment.app.DialogFragment
 import androidx.navigation.findNavController
 import com.google.android.material.navigation.NavigationView
 import cz.quanti.android.nfc.VendorFacade
@@ -53,6 +54,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
     private val synchronizationManager: SynchronizationManager by inject()
     private var nfcAdapter: NfcAdapter? = null
     private val loginVM: LoginViewModel by viewModel()
+    private var displayedDialog: AlertDialog? = null
     private var disposable: Disposable? = null
     private var syncStateDisposable: Disposable? = null
     private var syncDisposable: Disposable? = null
@@ -122,11 +124,12 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
         }
     }
 
-    override fun onDestroy() {
+    override fun onStop() {
+        displayedDialog?.dismiss()
         disposable?.dispose()
         syncDisposable?.dispose()
         readBalanceDisposable?.dispose()
-        super.onDestroy()
+        super.onStop()
     }
 
     private fun setUpToolbar() {
@@ -186,6 +189,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
                 .create()
 
             scanCardDialog?.show()
+            displayedDialog = scanCardDialog
 
             readBalanceDisposable?.dispose()
             readBalanceDisposable = readBalance()
@@ -208,6 +212,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
                         }
                         .create()
                     cardResultDialog.show()
+                    displayedDialog = cardResultDialog
                 },
                     {
                         Log.e(this.javaClass.simpleName, it)
@@ -236,7 +241,6 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
             emailButtonText = getString(R.string.logs_dialog_email_button),
             dialogTheme = R.style.DialogTheme
         ).show(this.supportFragmentManager, "TAG")
-
     }
 
     override fun onResume() {

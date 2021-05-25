@@ -8,7 +8,8 @@
     android:id="@+id/drawer_layout"
     android:fitsSystemWindows="false"
     android:gravity="center"
-    tools:context=".MainActivity">
+    tools:context=".MainActivity"
+    tools:openDrawer="start">
 
     <include layout="@layout/app_bar_main"
         android:layout_width="match_parent"
@@ -31,7 +32,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
-            android:orientation="vertical">
+            android:background="@drawable/drawer_footer_background"
+            android:orientation="horizontal">
 
             <com.google.android.material.button.MaterialButton
                 style="@style/Widget.MaterialComponents.Button.OutlinedButton"
@@ -39,11 +41,12 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="4dp"
+                android:layout_marginTop="4dp"
+                android:layout_marginStart="12dp"
                 android:backgroundTint="@color/green"
                 android:drawablePadding="16dp"
                 android:paddingStart="16dp"
                 android:paddingEnd="16dp"
-                android:layout_marginStart="12dp"
                 android:text="@string/logout"
                 android:textAllCaps="false"
                 android:textColor="@color/white"

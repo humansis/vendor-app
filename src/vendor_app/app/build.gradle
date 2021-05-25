@@ -37,6 +37,7 @@ def VERSION_PATCH = 3
 
 String APK_NAME = "vendor-app"
 String VERSION_NAME = "${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}"
+String BUILD_NUMBER = "${gitVersionCode(true)}"
 String VERSION_FULL_NAME_FILE = "${APK_NAME}-${VERSION_NAME}.${gitVersionCode(true)}"
 
 
@@ -83,6 +84,7 @@ android {
 
         buildConfigField "String", "DEMO_ACCOUNT", "\"$DEMO_ACCOUNT\""
         buildConfigField "String", "RELEASE_API_URL", "\"$PROD_RELEASE_API_URL\""
+        buildConfigField "short", "BUILD_NUMBER", "$BUILD_NUMBER"
 
         firebaseAppDistribution {
             releaseNotes="Release notes"

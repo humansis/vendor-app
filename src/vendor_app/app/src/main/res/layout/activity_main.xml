@@ -40,13 +40,9 @@
                 android:id="@+id/btn_logout"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="4dp"
-                android:layout_marginTop="4dp"
+                android:layout_marginVertical="4dp"
                 android:layout_marginStart="12dp"
                 android:backgroundTint="@color/green"
-                android:drawablePadding="16dp"
-                android:paddingStart="16dp"
-                android:paddingEnd="16dp"
                 android:text="@string/logout"
                 android:textAllCaps="false"
                 android:textColor="@color/white"
@@ -54,6 +50,19 @@
                 app:icon="@drawable/exit_to_app"
                 app:iconTint="@color/white"
                 app:iconGravity="start"/>
+
+            <Spinner
+                style="@style/Widget.AppCompat.Spinner.DropDown"
+                android:id="@+id/priceUnitSpinner"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:layout_marginVertical="9dp"
+                android:layout_marginStart="12dp"
+                android:layout_marginEnd="12dp"
+                android:background="@drawable/spinner_currency_background"
+                android:popupBackground="@color/screenBackgroundColor"
+                android:dropDownWidth="128dp" />
 
         </LinearLayout>
 

@@ -10,20 +10,19 @@ import android.os.Bundle
 import android.util.DisplayMetrics
 import android.view.MenuItem
 import android.view.View
-import android.widget.ImageView
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
-import androidx.fragment.app.DialogFragment
 import androidx.navigation.findNavController
 import com.google.android.material.navigation.NavigationView
 import cz.quanti.android.nfc.VendorFacade
 import cz.quanti.android.nfc.dto.UserBalance
 import cz.quanti.android.vendor_app.main.authorization.viewmodel.LoginViewModel
+import cz.quanti.android.vendor_app.main.vendor.adapter.CurrencyAdapter
+import cz.quanti.android.vendor_app.main.vendor.viewmodel.VendorViewModel
 import cz.quanti.android.vendor_app.repository.AppPreferences
 import cz.quanti.android.vendor_app.repository.login.LoginFacade
 import cz.quanti.android.vendor_app.repository.synchronization.SynchronizationFacade
@@ -37,11 +36,13 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.activity_main.priceUnitSpinner
 import kotlinx.android.synthetic.main.app_bar_main.*
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import quanti.com.kotlinlog.Log
 import quanti.com.kotlinlog.file.SendLogDialogFragment
+
 
 class MainActivity : AppCompatActivity(), ActivityCallback,
     NavigationView.OnNavigationItemSelectedListener {
@@ -54,6 +55,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
     private val synchronizationManager: SynchronizationManager by inject()
     private var nfcAdapter: NfcAdapter? = null
     private val loginVM: LoginViewModel by viewModel()
+    private val vm: VendorViewModel by viewModel()
     private var displayedDialog: AlertDialog? = null
     private var disposable: Disposable? = null
     private var syncStateDisposable: Disposable? = null
@@ -87,6 +89,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
         drawer.addDrawerListener(toggle)
         toggle.syncState()
         setUpToolbar()
+        initPriceUnitSpinner()
         btn_logout.setOnClickListener {
             logout()
             drawer.closeDrawer(GravityCompat.START)
@@ -152,6 +155,10 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
         syncButton?.setOnClickListener {
             synchronizationManager.synchronizeWithServer()
         }
+    }
+
+    override fun setTitle(titleText: String) {
+        appbar_title.text = titleText
     }
 
     override fun onNewIntent(intent: Intent) {
@@ -345,7 +352,26 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
         }
     }
 
-    override fun setTitle(titleText: String) {
-        appbar_title.text = titleText
+    private fun initPriceUnitSpinner() {
+        val currencyAdapter = CurrencyAdapter(this)
+        currencyAdapter.init(vm.getFirstCurrencies())
+        currencyAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        priceUnitSpinner.adapter = currencyAdapter
+        priceUnitSpinner.setSelection(
+            currencyAdapter.getPosition(vm.getLastCurrencySelection()) //todo nacitat to ze shared preferences
+        )
+        priceUnitSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+            }
+
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                vm.setCurrency(priceUnitSpinner.selectedItem as String)
+                vm.setLastCurrencySelection(priceUnitSpinner.selectedItem as String)
+                //todo ulozit to do shared preferences
+                //todo refreshnout main fragment / basket pokud je zobrazen
+            }
+        }
+        // todo doresit jak nemit ten list pres celou obrazovku
+        // todo odebrat meny co nejsou podporovane
     }
 }

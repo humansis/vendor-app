@@ -27,9 +27,9 @@ class CurrencyAdapter(context: Context) : SpinnerAdapter, ArrayAdapter<String>(c
     }
 
     override fun getDropDownView(position: Int, convertView: View?, parent: ViewGroup): View {
-        var view = super.getDropDownView(position, convertView, parent)
+        val view = super.getDropDownView(position, convertView, parent)
 
-        (view as TextView)?.setTextColor(Color.BLACK)
+        (view as TextView).setTextColor(Color.BLACK)
         view.setBackgroundColor(Color.WHITE)
 
         return view

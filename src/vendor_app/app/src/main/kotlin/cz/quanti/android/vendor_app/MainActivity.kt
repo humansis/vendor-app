@@ -94,6 +94,25 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
         nfcAdapter = NfcAdapter.getDefaultAdapter(this)
     }
 
+    override fun onResume() {
+        super.onResume()
+        loadNavHeader(loginVM.getCurrentVendorName())
+        syncState()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        syncStateDisposable?.dispose()
+    }
+
+    override fun onStop() {
+        displayedDialog?.dismiss()
+        disposable?.dispose()
+        syncDisposable?.dispose()
+        readBalanceDisposable?.dispose()
+        super.onStop()
+    }
+
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.home_button -> {
@@ -124,14 +143,6 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
         }
     }
 
-    override fun onStop() {
-        displayedDialog?.dismiss()
-        disposable?.dispose()
-        syncDisposable?.dispose()
-        readBalanceDisposable?.dispose()
-        super.onStop()
-    }
-
     private fun setUpToolbar() {
         disposable?.dispose()
         disposable = syncFacade.isSyncNeeded()
@@ -150,7 +161,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
             )
 
         syncButton?.setOnClickListener {
-            synchronizationManager.synchronizeWithServer()
+            synchronize()
         }
     }
 
@@ -243,11 +254,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
         ).show(this.supportFragmentManager, "TAG")
     }
 
-    override fun onResume() {
-        super.onResume()
-
-        loadNavHeader(loginVM.getCurrentVendorName())
-
+    private fun syncState() {
         syncStateDisposable?.dispose()
         syncStateDisposable = synchronizationManager.syncStateObservable()
             .subscribeOn(Schedulers.io())
@@ -289,12 +296,10 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
             }, {
                 Log.e(it)
             })
-
     }
 
-    override fun onPause() {
-        super.onPause()
-        syncStateDisposable?.dispose()
+    override fun synchronize() {
+        synchronizationManager.synchronizeWithServer()
     }
 
     override fun showDot(boolean: Boolean) {

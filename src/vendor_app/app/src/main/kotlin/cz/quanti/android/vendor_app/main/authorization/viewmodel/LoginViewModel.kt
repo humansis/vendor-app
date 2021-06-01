@@ -39,5 +39,6 @@ class LoginViewModel(
 
     fun onLogin(activityCallback: ActivityCallback) {
         activityCallback.loadNavHeader(currentVendor.vendor.username)
+        activityCallback.synchronize()
     }
 }

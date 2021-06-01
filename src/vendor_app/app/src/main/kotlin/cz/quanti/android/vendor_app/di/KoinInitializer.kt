@@ -49,6 +49,7 @@ import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.core.context.startKoin
 import org.koin.core.module.Module
 import org.koin.dsl.module
+import quanti.com.kotlinlog.Log
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
@@ -181,9 +182,9 @@ object KoinInitializer {
         currentVendor: CurrentVendor
     ): OkHttpClient {
 
-        val logging = HttpLoggingInterceptor().apply {
-            HttpLoggingInterceptor.Level.BODY
-        }
+        val logging = HttpLoggingInterceptor { message -> Log.d("OkHttp", message) }
+
+        logging.level = HttpLoggingInterceptor.Level.BODY
 
         return OkHttpClient.Builder()
             .connectTimeout(5, TimeUnit.MINUTES)

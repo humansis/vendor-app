@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn="navigation_view">
+
+    <group android:checkableBehavior="single">
+
+        <item
+            android:id="@+id/home_button"
+            android:enabled="true"
+            android:icon="@drawable/ic_storefront"
+            android:title="@string/home"
+            android:visible="true"
+            app:showAsAction="never" />
+
+        <item
+            android:id="@+id/transactions_button"
+            android:enabled="true"
+            android:icon="@drawable/ic_receipt_long"
+            android:title="@string/transactions_to_reimburse"
+            android:visible="true"
+            app:showAsAction="never" />
+
+        <item
+            android:id="@+id/invoices_button"
+            android:enabled="true"
+            android:icon="@drawable/ic_price_check"
+            android:title="@string/reimbursed_invoices"
+            android:visible="true"
+            app:showAsAction="never" />
+
+    </group>
+
+    <item
+        android:title="@string/utilities">
+
+        <menu>
+
+            <item
+                android:id="@+id/read_balance_button"
+                android:enabled="true"
+                android:icon="@drawable/ic_money"
+                android:title="@string/read_balance"
+                android:visible="true"
+                app:showAsAction="never" />
+
+            <item
+                android:id="@+id/share_logs_button"
+                android:enabled="true"
+                android:icon="@drawable/ic_export"
+                android:title="@string/export_logs"
+                android:visible="true"
+                app:showAsAction="never" />
+
+        </menu>
+
+    </item>
+
+
+    <!--workaround so log out button does not overlap menu items,
+     remove when NavigationView footers are introduced-->
+    <item
+        android:title=""
+        android:id="@+id/dummy_item"
+        android:enabled="false"/>
+
+</menu>

@@ -10,7 +10,9 @@ import cz.quanti.android.vendor_app.App
 import cz.quanti.android.vendor_app.BuildConfig
 import cz.quanti.android.vendor_app.main.authorization.viewmodel.LoginViewModel
 import cz.quanti.android.vendor_app.main.checkout.viewmodel.CheckoutViewModel
+import cz.quanti.android.vendor_app.main.invoices.viewmodel.InvoicesViewModel
 import cz.quanti.android.vendor_app.main.scanner.viewmodel.ScannerViewModel
+import cz.quanti.android.vendor_app.main.transactions.viewmodel.TransactionsViewModel
 import cz.quanti.android.vendor_app.main.vendor.viewmodel.VendorViewModel
 import cz.quanti.android.vendor_app.repository.AppPreferences
 import cz.quanti.android.vendor_app.repository.VendorAPI
@@ -33,6 +35,8 @@ import cz.quanti.android.vendor_app.repository.purchase.impl.PurchaseRepositoryI
 import cz.quanti.android.vendor_app.repository.synchronization.SynchronizationFacade
 import cz.quanti.android.vendor_app.repository.synchronization.impl.SynchronizationFacadeImpl
 import cz.quanti.android.vendor_app.repository.utils.interceptor.HostUrlInterceptor
+import cz.quanti.android.vendor_app.sync.SynchronizationManager
+import cz.quanti.android.vendor_app.sync.SynchronizationManagerImpl
 import cz.quanti.android.vendor_app.utils.CurrentVendor
 import cz.quanti.android.vendor_app.utils.LoginManager
 import cz.quanti.android.vendor_app.utils.NfcTagPublisher
@@ -78,17 +82,17 @@ object KoinInitializer {
             .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
             .client(createClient(loginManager, hostUrlInterceptor, currentVendor))
 
-        if(BuildConfig.DEBUG) {
-            builder.baseUrl("https://" + BuildConfig.STAGE_API_URL + "/api/wsse/vendor-app/v1/")
+        if (BuildConfig.DEBUG) {
+            builder.baseUrl("https://" + BuildConfig.STAGE_API_URL + "/api/wsse/vendor-app/")
         } else {
-            builder.baseUrl("https://" + BuildConfig.RELEASE_API_URL + "/api/wsse/vendor-app/v1/")
+            builder.baseUrl("https://" + BuildConfig.RELEASE_API_URL + "/api/wsse/vendor-app/")
         }
 
         val api = builder.build().create(VendorAPI::class.java)
 
 
         val db = Room.databaseBuilder(app, VendorDb::class.java, VendorDb.DB_NAME)
-            .fallbackToDestructiveMigration()
+            .addMigrations(VendorDb.MIGRATION_2_3)
             .build()
 
         // Repository
@@ -101,6 +105,9 @@ object KoinInitializer {
             db.cardPurchaseDao(),
             db.voucherPurchaseDao(),
             db.selectedProductDao(),
+            db.invoiceDao(),
+            db.transactionDao(),
+            db.transactionPurchaseDao(),
             api
         )
 
@@ -112,9 +119,10 @@ object KoinInitializer {
         val purchaseFacade: PurchaseFacade = PurchaseFacadeImpl(purchaseRepo, cardRepo)
         val syncFacade: SynchronizationFacade =
             SynchronizationFacadeImpl(bookletFacade, cardFacade, productFacade, purchaseFacade)
-
+        val synchronizationManager: SynchronizationManager =
+            SynchronizationManagerImpl(preferences, syncFacade)
         val nfcFacade: VendorFacade = PINFacade(
-            BuildConfig.APP_VESION,
+            BuildConfig.APP_VERSION,
             NfcUtil.hexStringToByteArray(BuildConfig.MASTER_KEY),
             NfcUtil.hexStringToByteArray(BuildConfig.APP_ID)
         )
@@ -137,6 +145,7 @@ object KoinInitializer {
             single { syncFacade }
             single { nfcFacade }
             single { nfcTagPublisher }
+            single { synchronizationManager }
 
             // View model
             viewModel { LoginViewModel(loginFacade, hostUrlInterceptor, currentVendor) }
@@ -146,7 +155,8 @@ object KoinInitializer {
                     productFacade,
                     syncFacade,
                     preferences,
-                    currentVendor
+                    currentVendor,
+                    synchronizationManager
                 )
             }
             viewModel { ScannerViewModel(shoppingHolder, bookletFacade) }
@@ -160,6 +170,8 @@ object KoinInitializer {
                     nfcTagPublisher
                 )
             }
+            viewModel { InvoicesViewModel(purchaseFacade, synchronizationManager) }
+            viewModel { TransactionsViewModel(purchaseFacade, synchronizationManager, syncFacade) }
         }
     }
 

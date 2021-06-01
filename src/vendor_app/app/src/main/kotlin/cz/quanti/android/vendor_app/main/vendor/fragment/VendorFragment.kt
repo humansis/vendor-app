@@ -6,22 +6,16 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
-import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
+import com.google.android.material.navigation.NavigationView
+import cz.quanti.android.vendor_app.ActivityCallback
 import cz.quanti.android.vendor_app.MainActivity
 import cz.quanti.android.vendor_app.R
 import cz.quanti.android.vendor_app.main.vendor.VendorScreenState
 import cz.quanti.android.vendor_app.main.vendor.callback.VendorFragmentCallback
-import cz.quanti.android.vendor_app.main.vendor.viewmodel.VendorViewModel
 import cz.quanti.android.vendor_app.repository.product.dto.Product
-import extensions.isNetworkConnected
-import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
-import io.reactivex.schedulers.Schedulers
-import org.koin.androidx.viewmodel.ext.android.viewModel
-import quanti.com.kotlinlog.Log
-import java.util.*
 
 class VendorFragment() : Fragment(), VendorFragmentCallback {
 
@@ -30,10 +24,7 @@ class VendorFragment() : Fragment(), VendorFragmentCallback {
         const val STATE = "state"
     }
 
-    private val vm: VendorViewModel by viewModel()
     var product: Product = Product()
-    private val rightTimeToSyncAgain = 86400000 // one day
-    private var disposable: Disposable? = null
 
     private var state = VendorScreenState.STATE_ONLY_PRODUCTS_SHOWED
 
@@ -42,7 +33,9 @@ class VendorFragment() : Fragment(), VendorFragmentCallback {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        (activity as AppCompatActivity).supportActionBar?.show()
+        (requireActivity() as ActivityCallback).setToolbarVisible(true)
+        (requireActivity() as ActivityCallback).setTitle(getString(R.string.app_name))
+        requireActivity().findViewById<NavigationView>(R.id.nav_view).setCheckedItem(R.id.home_button)
         val callback: OnBackPressedCallback =
             object : OnBackPressedCallback(true /* enabled by default */) {
                 override fun handleOnBackPressed() { // Handle the back button event
@@ -148,16 +141,9 @@ class VendorFragment() : Fragment(), VendorFragmentCallback {
                 replace(R.id.firstFragmentContainer, ProductsFragment())
                 replace(R.id.secondFragmentContainer, ShoppingCartFragment())
             }
-
         }
         transaction.commit()
     }
-
-    override fun onStop() {
-        (activity as MainActivity).vendorFragmentCallback = null
-        super.onStop()
-    }
-
 
     override fun chooseProduct(product: Product) {
         state = VendorScreenState.STATE_PRODUCT_DETAIL_SHOWED
@@ -213,15 +199,6 @@ class VendorFragment() : Fragment(), VendorFragmentCallback {
 
     override fun getSelectedProduct(): Product {
         return product
-    }
-
-    override fun notifyDataChanged() {
-        showProducts()
-    }
-
-    override fun onDestroy() {
-        disposable?.dispose()
-        super.onDestroy()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {

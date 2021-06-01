@@ -26,4 +26,10 @@ interface VoucherPurchaseDao {
             + " WHERE purchaseId = :purchaseId"
     )
     fun getVouchersForPurchase(purchaseId: Long): Maybe<List<VoucherPurchaseDbEntity>>
+
+    @Query(
+        "DELETE FROM " + VendorDb.TABLE_VOUCHER_PURCHASE
+            + " WHERE purchaseId = :purchaseId"
+    )
+    fun deleteVoucherForPurchase(purchaseId: Long)
 }

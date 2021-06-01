@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import android.app.AlertDialog
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -16,6 +17,7 @@ import cz.quanti.android.vendor_app.main.vendor.callback.ShoppingCartFragmentCal
 import cz.quanti.android.vendor_app.main.vendor.callback.VendorFragmentCallback
 import cz.quanti.android.vendor_app.main.vendor.viewmodel.VendorViewModel
 import cz.quanti.android.vendor_app.utils.getStringFromDouble
+import cz.quanti.android.vendor_app.utils.round
 import kotlinx.android.synthetic.main.fragment_shopping_cart.*
 import kotlinx.android.synthetic.main.fragment_shopping_cart.shoppingCartFooter
 import kotlinx.android.synthetic.main.item_shopping_cart_footer.*
@@ -65,8 +67,7 @@ class ShoppingCartFragment : Fragment(), ShoppingCartFragmentCallback {
             0
         )
 
-        val totalText = "${getString(R.string.total)}: ${getStringFromDouble(getTotalPrice())} ${chosenCurrency}"
-        totalPriceTextView.text = totalText
+        updateTotal()
     }
 
     override fun removeItemFromCart(position: Int) {
@@ -76,8 +77,13 @@ class ShoppingCartFragment : Fragment(), ShoppingCartFragmentCallback {
             .setPositiveButton(
                 android.R.string.yes
             ) { _, _ ->
-                vm.removeFromCart(position)
-                shoppingCartAdapter.removeAt(position)
+                if (shoppingCartAdapter.itemCount == 1) {
+                    clearCart()
+                } else {
+                    vm.removeFromCart(position)
+                    shoppingCartAdapter.removeAt(position)
+                    updateTotal()
+                }
             }
             .setNegativeButton(android.R.string.no, null)
             .show()
@@ -88,7 +94,7 @@ class ShoppingCartFragment : Fragment(), ShoppingCartFragmentCallback {
     }
 
     private fun getTotalPrice(): Double {
-        return vm.getShoppingCart().map { it.price }.sum()
+        return round(vm.getShoppingCart().map { it.price }.sum(),3)
     }
 
     private fun initShoppingCartAdapter() {
@@ -103,9 +109,17 @@ class ShoppingCartFragment : Fragment(), ShoppingCartFragmentCallback {
 
     private fun initOnClickListeners() {
         checkoutButton.setOnClickListener {
-            findNavController().navigate(
-                VendorFragmentDirections.actionVendorFragmentToCheckoutFragment()
-            )
+            if (shoppingCartAdapter.itemCount > 0){
+                findNavController().navigate(
+                    VendorFragmentDirections.actionVendorFragmentToCheckoutFragment()
+                )
+            } else {
+                Toast.makeText(
+                    requireContext(),
+                    getString(R.string.empty_cart),
+                    Toast.LENGTH_LONG
+                ).show()
+            }
         }
 
         clearAllButton.setOnClickListener {
@@ -127,5 +141,10 @@ class ShoppingCartFragment : Fragment(), ShoppingCartFragmentCallback {
         shoppingCartAdapter.clearAll()
         noItemsSelectedView.visibility = View.VISIBLE
         shoppingCartFooter.visibility = View.INVISIBLE
+    }
+
+    private fun updateTotal() {
+        val totalText = "${getString(R.string.total)}: ${getStringFromDouble(getTotalPrice())} ${chosenCurrency}"
+        totalPriceTextView.text = totalText
     }
 }

@@ -49,7 +49,7 @@ class ScannerViewModel(
             RegexOption.IGNORE_CASE
         )
         var newRegex = Regex(
-            "^([A-Z$€£]+)(\\d+)\\*([a-zA-Z0-9]{2,3}_.+_[0-9]{1,2}-[0-9]{1,2}-[0-9]{2,4}_batch[0-9]+)-([\\d]+)-([\\dA-Z=+-/]+)$",
+            "^([A-Z$€£]+)(\\d+)\\*([a-zA-Z0-9]{2,3}_.+_[0-9]{1,2}-[0-9]{1,2}-[0-9]{2,4}_(booklet|batch)[0-9]+)-([\\d]+)-([\\dA-Z=+-/]+)$",
             RegexOption.IGNORE_CASE
         )
 
@@ -66,7 +66,7 @@ class ScannerViewModel(
                 RegexOption.IGNORE_CASE
             )
             newRegex = Regex(
-                "^([A-Z$€£]+)(\\d+)\\*([a-zA-Z0-9]{2,3}_.+_[0-9]{1,2}-[0-9]{1,2}-[0-9]{2,4}_batch[0-9]+)-([\\d]+)$",
+                "^([A-Z$€£]+)(\\d+)\\*([a-zA-Z0-9]{2,3}_.+_[0-9]{1,2}-[0-9]{1,2}-[0-9]{2,4}_(booklet|batch)[0-9]+)-([\\d]+)$",
                 RegexOption.IGNORE_CASE
             )
 
@@ -80,7 +80,7 @@ class ScannerViewModel(
             } else {
                 regex = Regex("^([\\d]+-[\\d]+-[\\d]+)$", RegexOption.IGNORE_CASE)
                 newRegex = Regex(
-                    "^([a-zA-Z0-9]{2,3}_.+_[0-9]{1,2}-[0-9]{1,2}-[0-9]{2,4}_batch[0-9]+)$",
+                    "^([a-zA-Z0-9]{2,3}_.+_[0-9]{1,2}-[0-9]{1,2}-[0-9]{2,4}_(booklet|batch)[0-9]+)$",
                     RegexOption.IGNORE_CASE
                 )
                 scannedCodeInfo = regex.matchEntire(scannedCode)
@@ -98,7 +98,7 @@ class ScannerViewModel(
         scannedCodeInfo.groups[1]?.value?.let { currency = it }
         scannedCodeInfo.groups[2]?.value?.let { value = it.toLong() }
         scannedCodeInfo.groups[3]?.value?.let { bookletCode = it }
-        scannedCodeInfo.groups[4]?.value?.let { id = it.toLong() }
+        scannedCodeInfo.groups[5]?.value?.let { id = it.toLong() }
 
 
         if (returnCode == ScannedVoucherReturnState.VOUCHER_WITH_PASSWORD) {

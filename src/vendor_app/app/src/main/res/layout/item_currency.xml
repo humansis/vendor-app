@@ -11,6 +11,6 @@
     android:gravity="center"
     android:textColor="@color/black"
     android:textSize="@dimen/fragment_text"
-    android:background="@color/lightGrey"
+    android:background="@color/screenBackgroundColor"
     android:drawableRight="@drawable/arrow_drop_down"
     />

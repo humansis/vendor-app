@@ -7,7 +7,7 @@
     <string name="vendor_title">حدد المنتج</string>
     <string name="app_name">\u200fHumansis \u200fبائع</string>
     <string name="login_screen_subtitle">\u200fHumansis \u200fبائع</string>
-    <string name="version">الإصدار \u200f1.1.8\u200f</string>
+    <string name="version">الإصدار \u200f%1$s\u200f</string>
     <string name="selected_items">عناصر مختارة</string>
     <string name="no_items_selected">لم يتم تحديد عناصر</string>
     <string name="price">السعر</string>
@@ -68,5 +68,31 @@
     <string name="synchronize">مزامنة</string>
     <string name="humansis">humansis</string>
     <string name="loading">تحميل</string>
+    <string name="unknown">غير معروف</string>
+    <string name="scanning_card_balance">%1$s:رصيد البطاقة</string>
+    <string name="status">الحالة</string>
+    <string name="close">اغلق</string>
+    <string name="project">مشروع</string>
+    <string name="quantity">السعر%1$d</string>
+    <string name="total_price">مجموع%1$.2f %2$s</string>
+    <string name="date">تاريخ%1$s</string>
+    <string name="export_logs">إرسال سجلات</string>
+    <string name="logs_dialog_title">شارك السجلات</string>
+    <string name="logs_dialog_message">هل ترغب في مشاركة السجلات؟</string>
+    <string name="logs_dialog_email_button">شارك</string>
+    <string name="empty_cart">سلة التسوق الخاصة بك فارغة</string>
+    <string name="transactions_to_reimburse">معاملات السداد</string>
+    <string name="no_transactions_to_reimburse">لا توجد معاملات لتسديدها</string>
+    <string name="reimbursed_invoices">الفواتير المسددة</string>
+    <string name="no_reimbursed_invoices">لايوجد فواتير مسددة</string>
+    <string name="no_purchases">لايوجد مشتريات</string>
+    <string name="unsynced_transactions">" تزامن لعرض جميع المعاملات. غير متزامن: %1$d"</string>
+    <string name="humansis_invoice_number">"%1$d رقم فاتورة Humansis  "</string>
+    <string name="read_balance">قراءة الرصيد</string>
+    <string name="home">الرئيسية</string>
+    <string name="nav_header_desc">رأس التنقل</string>
+    <string name="navigation_drawer_open">افتح لوحة التصفح</string>
+    <string name="navigation_drawer_close">أغلق لوحة التصفح</string>
+    <string name="utilities">خدمات</string>
 
 </resources>

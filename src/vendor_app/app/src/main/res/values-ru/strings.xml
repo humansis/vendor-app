@@ -5,7 +5,7 @@
     <string name="login">логин</string>
     <string name="app_name">Humansis - Приложение поставщика</string>
     <string name="login_screen_subtitle">Humansis - Приложение поставщика</string>
-    <string name="version">Версия 1.1.8</string>
+    <string name="version">Версия %1$s</string>
     <string name="vendor_title">Выберите продукт</string>
     <string name="selected_items">Выбранные продукты</string>
     <string name="no_items_selected">Нет выбранных продуктов</string>
@@ -68,4 +68,16 @@
     <string name="synchronize">синхронизировать</string>
     <string name="humansis">humansis</string>
     <string name="loading">загрузка</string>
+    <string name="unknown">Неизвестно</string>
+    <string name="scanning_card_balance">баланс по карте: %1$s</string>
+    <string name="status">Статус</string>
+    <string name="close">Закрыть</string>
+    <string name="project">Проект</string>
+    <string name="quantity">Количество %1$d</string>
+    <string name="total_price">Итого %1$.2f %2$s</string>
+    <string name="date">Дата %1$s</string>
+    <string name="export_logs">послать журналы учета</string>
+    <string name="logs_dialog_title">Поделиться журналами учета</string>
+    <string name="logs_dialog_message">Вы хотите поделиться журналами учета?</string>
+    <string name="logs_dialog_email_button">Поделиться</string>
 </resources>

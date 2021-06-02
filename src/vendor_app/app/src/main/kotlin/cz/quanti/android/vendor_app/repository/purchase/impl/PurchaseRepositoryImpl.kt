@@ -63,6 +63,10 @@ class PurchaseRepositoryImpl(
     override fun sendCardPurchaseToServer(purchase: Purchase): Single<Int> {
         return if (purchase.smartcard != null) {
             api.postCardPurchase(purchase.smartcard!!, convertToCardApi(purchase)).map { response ->
+                Log.d(
+                    TAG,
+                    "Received code ${response.code()} when trying to sync purchase ${purchase.dbId} by ${purchase.smartcard}"
+                )
                 response.code()
             }
         } else {
@@ -226,11 +230,8 @@ class PurchaseRepositoryImpl(
         return Single.fromCallable { transactionPurchaseDao.insert(convertToDb(transactionPurchase, transactionId)) }
     }
 
-    override fun deleteAllPurchases(): Completable {
+    override fun deleteSelectedProducts(): Completable {
         return Completable.fromCallable {
-            purchaseDao.deleteAll()
-            voucherPurchaseDao.deleteAll()
-            cardPurchaseDao.deleteAll()
             selectedProductDao.deleteAll()
         }
     }

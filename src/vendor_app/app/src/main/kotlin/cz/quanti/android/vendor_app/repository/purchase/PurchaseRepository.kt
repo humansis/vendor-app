@@ -20,7 +20,7 @@ interface PurchaseRepository {
 
     fun getAllPurchases(): Single<List<Purchase>>
 
-    fun deleteAllPurchases(): Completable
+    fun deleteSelectedProducts(): Completable
 
     fun deletePurchase(purchase: Purchase): Completable
 

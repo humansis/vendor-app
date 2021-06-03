@@ -9,6 +9,7 @@ import android.widget.Toast
 import android.app.AlertDialog
 import android.content.Context
 import android.view.inputmethod.InputMethodManager
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat.getColor
 import androidx.fragment.app.Fragment
@@ -21,6 +22,7 @@ import cz.quanti.android.vendor_app.main.checkout.adapter.ScannedVoucherAdapter
 import cz.quanti.android.vendor_app.main.checkout.adapter.SelectedProductsAdapter
 import cz.quanti.android.vendor_app.main.checkout.callback.CheckoutFragmentCallback
 import cz.quanti.android.vendor_app.main.checkout.viewmodel.CheckoutViewModel
+import cz.quanti.android.vendor_app.main.vendor.VendorScreenState
 import cz.quanti.android.vendor_app.utils.NfcInitializer
 import cz.quanti.android.vendor_app.utils.getStringFromDouble
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -28,6 +30,7 @@ import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.dialog_card_pin.view.*
 import kotlinx.android.synthetic.main.fragment_checkout.*
+import kotlinx.android.synthetic.main.item_checkout_vouchers_footer.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import quanti.com.kotlinlog.Log
 
@@ -45,19 +48,19 @@ class CheckoutFragment() : Fragment(), CheckoutFragmentCallback {
     ): View? {
         (activity as AppCompatActivity).supportActionBar?.show()
         activityCallback = activity as ActivityCallback
+        requireActivity().onBackPressedDispatcher.addCallback(
+            this,
+            object : OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() {
+                    cancel()
+                }
+            }
+        )
         return inflater.inflate(R.layout.fragment_checkout, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        if (!isLandscapeOriented()) {
-            val transaction = childFragmentManager.beginTransaction().apply {
-                replace(R.id.firstFragmentContainer, CheckoutProductsFragment())
-                replace(R.id.secondFragmentContainer, CheckoutPaymentFragment())
-            }
-            transaction.commit()
-        }
 
         vm.init()
         initOnClickListeners()
@@ -78,7 +81,7 @@ class CheckoutFragment() : Fragment(), CheckoutFragmentCallback {
     override fun onResume() {
         super.onResume()
         if(vm.getShoppingCart().isNotEmpty()) {
-            emptyCartTextView.visibility = View.GONE //todo vyresit zrusenim dvou fragmentu v portraitu
+            emptyCartTextView.visibility = View.GONE
         }
         if(vm.getVouchers().isNotEmpty() || vm.getTotal() <= 0) {
             proceedButton?.visibility = View.VISIBLE

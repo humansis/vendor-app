@@ -4,15 +4,13 @@
     android:id="@+id/checkoutFooter"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/screenBackgroundColor"
-    android:orientation="horizontal">
+    android:background="@color/screenBackgroundColor">
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/backButton"
-        android:layout_width="0dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:layout_marginStart="20dp"
+        android:layout_marginHorizontal="@dimen/dimen_32dp"
         android:backgroundTint="@color/colorPrimaryDark"
         android:text="@string/back_button"
         android:textColor="@color/white"
@@ -22,15 +20,23 @@
         app:iconTint="@color/white"
         app:iconGravity="start"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/center"
         app:elevation="0dp" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/center"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.5"/>
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/proceedButton"
-        android:layout_width="0dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:layout_marginEnd="20dp"
+        android:layout_marginHorizontal="@dimen/dimen_32dp"
         android:backgroundTint="@color/green"
         android:text="@string/proceed"
         android:textColor="@color/white"
@@ -41,7 +47,9 @@
         app:iconTint="@color/white"
         app:iconGravity="start"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@id/center"
         app:elevation="0dp" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

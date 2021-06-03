@@ -10,12 +10,10 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
 import com.google.android.material.navigation.NavigationView
 import cz.quanti.android.vendor_app.ActivityCallback
-import cz.quanti.android.vendor_app.MainActivity
 import cz.quanti.android.vendor_app.R
 import cz.quanti.android.vendor_app.main.vendor.VendorScreenState
 import cz.quanti.android.vendor_app.main.vendor.callback.VendorFragmentCallback
 import cz.quanti.android.vendor_app.repository.product.dto.Product
-import io.reactivex.disposables.Disposable
 
 class VendorFragment() : Fragment(), VendorFragmentCallback {
 

@@ -3,18 +3,26 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     android:background="@color/screenBackgroundColor">
 
-    <TextView
-        android:id="@+id/paymentTitleTextView"
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/center"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="5dp"
-        android:text="@string/payment"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.5"/>
+
+    <TextView
+        android:id="@+id/pleaseScanVoucherTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginVertical="@dimen/dimen_16dp"
+        android:layout_marginHorizontal="5dp"
+        android:text="@string/please_scan_voucher"
+        android:textAlignment="center"
         android:textColor="@color/black"
-        android:textSize="@dimen/fragment_title"
-        android:textStyle="bold"
+        android:textSize="@dimen/fragment_text"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -24,16 +32,16 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:maxWidth="150dp"
-        android:layout_marginEnd="10dp"
+        android:layout_margin="@dimen/dimen_16dp"
         android:text="@string/pay_by_voucher"
         android:textColor="@color/colorPrimaryDark"
         android:textSize="@dimen/button_text"
         app:icon="@drawable/photo_camera"
         app:iconTint="@color/colorPrimaryDark"
+        app:layout_constraintTop_toBottomOf="@+id/pleaseScanVoucherTextView"
         app:layout_constraintBottom_toTopOf="@+id/checkoutFooter"
         app:layout_constraintEnd_toStartOf="@id/center"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/paymentTitleTextView"
         app:strokeColor="@color/colorPrimaryDark"
         app:strokeWidth="1dp"
         style="@style/Widget.MaterialComponents.Button.OutlinedButton"
@@ -44,45 +52,20 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:maxWidth="150dp"
-        android:layout_marginEnd="10dp"
+        android:layout_margin="@dimen/dimen_16dp"
         android:text="@string/pay_by_card"
         android:textColor="@color/colorPrimaryDark"
         android:textSize="@dimen/button_text"
         app:icon="@drawable/credit_card"
         app:iconTint="@color/colorPrimaryDark"
+        app:layout_constraintTop_toBottomOf="@+id/pleaseScanVoucherTextView"
         app:layout_constraintBottom_toTopOf="@+id/checkoutFooter"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/center"
-        app:layout_constraintTop_toBottomOf="@+id/paymentTitleTextView"
         app:strokeColor="@color/colorPrimaryDark"
         app:strokeWidth="1dp"
         style="@style/Widget.MaterialComponents.Button.OutlinedButton"
         tools:background="@color/colorPrimary"/>
-
-    <LinearLayout
-        android:id="@+id/center"
-        android:layout_width="1dp"
-        android:layout_height="1dp"
-        android:orientation="vertical"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <TextView
-        android:id="@+id/pleaseScanVoucherTextView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="5dp"
-        android:layout_marginEnd="5dp"
-        android:text="@string/please_scan_voucher"
-        android:textAlignment="center"
-        android:textColor="@color/black"
-        android:textSize="@dimen/fragment_text"
-        app:layout_constraintBottom_toTopOf="@id/payByCardButton"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/paymentTitleTextView" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/scannedVouchersRecyclerView"
@@ -97,7 +80,7 @@
         app:layout_constraintBottom_toTopOf="@+id/checkoutFooter"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/center"
-        app:layout_constraintTop_toBottomOf="@+id/paymentTitleTextView"
+        app:layout_constraintTop_toBottomOf="@+id/pleaseScanVoucherTextView"
         app:layout_goneMarginStart="5dp" />
 
     <include

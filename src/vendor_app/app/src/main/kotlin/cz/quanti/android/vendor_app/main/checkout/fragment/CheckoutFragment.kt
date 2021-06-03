@@ -1,6 +1,5 @@
 package cz.quanti.android.vendor_app.main.checkout.fragment
 
-import android.content.res.ColorStateList
 import android.content.res.Configuration
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -28,7 +27,6 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.dialog_card_pin.view.*
-import kotlinx.android.synthetic.main.dialog_voucher_password.view.*
 import kotlinx.android.synthetic.main.fragment_checkout.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import quanti.com.kotlinlog.Log
@@ -79,6 +77,9 @@ class CheckoutFragment() : Fragment(), CheckoutFragmentCallback {
 
     override fun onResume() {
         super.onResume()
+        if(vm.getShoppingCart().isNotEmpty()) {
+            emptyCartTextView.visibility = View.GONE //todo vyresit zrusenim dvou fragmentu v portraitu
+        }
         if(vm.getVouchers().isNotEmpty() || vm.getTotal() <= 0) {
             proceedButton?.visibility = View.VISIBLE
             payByCardButton?.visibility = View.INVISIBLE
@@ -229,17 +230,21 @@ class CheckoutFragment() : Fragment(), CheckoutFragmentCallback {
 
     private fun actualizeTotal() {
         val total = vm.getTotal()
-        val totalText = "${getString(R.string.total)}: ${getStringFromDouble(total)} ${vm.getCurrency()}"
+        val totalText = "${getString(R.string.total)}:"
+        val totalPrice = "${getStringFromDouble(total)} ${vm.getCurrency()}"
         totalTextView?.text = totalText
+        totalPriceTextView?.text = totalPrice
 
-        if (total <= 0) {
-            val green = getColor(requireContext(), R.color.green)
-            moneyIconImageView?.imageTintList = ColorStateList.valueOf(green)
-            totalTextView?.setTextColor(green)
-        } else {
-            val red = getColor(requireContext(), R.color.red)
-            moneyIconImageView?.imageTintList = ColorStateList.valueOf(red)
-            totalTextView?.setTextColor(red)
+        if(vm.getVouchers().isNotEmpty()) {
+            if (total <= 0) {
+                val green = getColor(requireContext(), R.color.green)
+                totalTextView?.setTextColor(green)
+                totalPriceTextView?.setTextColor(green)
+            } else {
+                val red = getColor(requireContext(), R.color.red)
+                totalTextView?.setTextColor(red)
+                totalPriceTextView?.setTextColor(red)
+            }
         }
     }
 

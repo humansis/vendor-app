@@ -7,35 +7,29 @@
     android:background="@color/screenBackgroundColor">
 
     <TextView
-        android:id="@+id/productsTitleTextView"
+        android:id="@+id/emptyCartTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="5dp"
-        android:text="@string/products"
-        android:textColor="@color/black"
-        android:textSize="@dimen/fragment_title"
-        android:textStyle="bold"
+        android:layout_marginTop="32dp"
+        android:layout_marginHorizontal="5dp"
+        android:textColor="@color/darkGrey"
+        android:textSize="@dimen/fragment_bigger_text"
+        android:text="@string/empty_cart"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="@id/checkoutSelectedProductsRecyclerView" />
 
-    <LinearLayout
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/checkoutSelectedProductsRecyclerView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:orientation="vertical"
-        app:layout_constraintTop_toBottomOf="@+id/productsTitleTextView"
-        app:layout_constraintBottom_toTopOf="@+id/totalPriceFooter"
         android:layout_marginTop="5dp"
-        android:layout_marginBottom="5dp">
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/checkoutSelectedProductsRecyclerView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:overScrollMode="never"
-            android:scrollbars="none"
-            android:transcriptMode="alwaysScroll" />
-    </LinearLayout>
+        android:layout_marginBottom="5dp"
+        android:overScrollMode="never"
+        android:scrollbars="none"
+        android:transcriptMode="alwaysScroll"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/totalPriceFooter" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/totalPriceFooter"
@@ -43,29 +37,31 @@
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="parent">
 
-        <ImageView
-            android:id="@+id/moneyIconImageView"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:src="@drawable/attach_money"
-            android:tint="@color/red"
-            app:layout_constraintEnd_toStartOf="@+id/totalTextView"
-            app:layout_constraintTop_toTopOf="@+id/totalTextView"
-            app:layout_constraintBottom_toBottomOf="@+id/totalTextView"
-            android:contentDescription="@string/total" />
-
         <TextView
             android:id="@+id/totalTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="20dp"
-            android:textColor="@color/red"
+            android:layout_marginStart="32dp"
+            android:textColor="@color/black"
             android:textStyle="bold"
-            android:textSize="@dimen/fragment_bigger_text"
+            android:textSize="@dimen/fragment_subtitle"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            tools:text="Total:"/>
+
+        <TextView
+            android:id="@+id/totalPriceTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="32dp"
+            android:textColor="@color/black"
+            android:textStyle="bold"
+            android:textSize="@dimen/fragment_subtitle"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
-            tools:text="Total: 125 SYP"/>
+            tools:text="125 SYP"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

@@ -64,17 +64,21 @@ class CheckoutPaymentFragment : Fragment() {
 
     private fun actualizeTotal() {
         val total = vm.getTotal()
-        val totalText = "${getStringFromDouble(total)} ${vm.getCurrency()}"
+        val totalText = "${getString(R.string.total)}:"
+        val totalPrice = "${getStringFromDouble(total)} ${vm.getCurrency()}"
         totalTextView?.text = totalText
+        totalPriceTextView?.text = totalPrice
 
-        if (total <= 0) {
-            val green = ContextCompat.getColor(requireContext(), R.color.green)
-            moneyIconImageView?.imageTintList = ColorStateList.valueOf(green)
-            totalTextView?.setTextColor(green)
-        } else {
-            val red = ContextCompat.getColor(requireContext(), R.color.red)
-            moneyIconImageView?.imageTintList = ColorStateList.valueOf(red)
-            totalTextView?.setTextColor(red)
+        if(vm.getVouchers().isNotEmpty()) {
+            if (total <= 0) {
+                val green = ContextCompat.getColor(requireContext(), R.color.green)
+                totalTextView?.setTextColor(green)
+                totalPriceTextView?.setTextColor(green)
+            } else {
+                val red = ContextCompat.getColor(requireContext(), R.color.red)
+                totalTextView?.setTextColor(red)
+                totalPriceTextView?.setTextColor(red)
+            }
         }
     }
 

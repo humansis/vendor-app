@@ -5,4 +5,5 @@ interface CheckoutFragmentCallback {
     fun proceed()
     fun scanVoucher()
     fun payByCard()
+    fun removeItemFromCart(position: Int)
 }

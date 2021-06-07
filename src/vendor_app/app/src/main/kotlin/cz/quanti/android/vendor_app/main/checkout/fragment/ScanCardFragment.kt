@@ -130,7 +130,7 @@ class ScanCardFragment : Fragment() {
                              .show()
 
                          activityCallback?.showDot(true)
-                         vm.clearShoppingCart()
+                         vm.clearCart()
                          vm.clearVouchers()
                          vm.clearCurrency()
                          findNavController().navigate(

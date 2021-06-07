@@ -3,6 +3,7 @@
     <dimen name="dimen_8dp">8dp</dimen>
     <dimen name="dimen_16dp">16dp</dimen>
     <dimen name="dimen_32dp">32dp</dimen>
+    <dimen name="dimen_48dp">48dp</dimen>
     <bool name="isTablet">false</bool>
 
     <dimen name="border_padding">15dp</dimen>
@@ -25,4 +26,5 @@
     <dimen name="fragment_bigger_text">16sp</dimen>
     <dimen name="button_text">14sp</dimen>
     <dimen name="fragment_big_title">25sp</dimen>
+    <dimen name="dimen_4dp">4dp</dimen>
 </resources>

@@ -103,43 +103,39 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/scanButton"
-            android:layout_width="wrap_content"
+            android:layout_width="150dp"
             android:layout_height="wrap_content"
-            android:maxWidth="150dp"
             android:layout_margin="@dimen/dimen_16dp"
             android:text="@string/pay_by_voucher"
-            android:textColor="@color/colorPrimaryDark"
+            android:textColor="@color/payment_button_color"
             android:textSize="@dimen/button_text"
             app:icon="@drawable/photo_camera"
-            app:iconTint="@color/colorPrimaryDark"
+            app:iconTint="@color/payment_button_color"
             app:layout_constraintTop_toBottomOf="@+id/pleaseScanVoucherTextView"
             app:layout_constraintBottom_toTopOf="@+id/checkoutFooter"
             app:layout_constraintEnd_toStartOf="@id/center"
             app:layout_constraintStart_toStartOf="parent"
-            app:strokeColor="@color/colorPrimaryDark"
+            app:strokeColor="@color/payment_button_color"
             app:strokeWidth="1dp"
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-            tools:background="@color/colorPrimary" />
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"/>
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/payByCardButton"
-            android:layout_width="wrap_content"
+            android:layout_width="150dp"
             android:layout_height="wrap_content"
-            android:maxWidth="150dp"
             android:layout_margin="@dimen/dimen_16dp"
             android:text="@string/pay_by_card"
-            android:textColor="@color/colorPrimaryDark"
+            android:textColor="@color/payment_button_color"
             android:textSize="@dimen/button_text"
             app:icon="@drawable/credit_card"
-            app:iconTint="@color/colorPrimaryDark"
+            app:iconTint="@color/payment_button_color"
             app:layout_constraintTop_toBottomOf="@+id/pleaseScanVoucherTextView"
             app:layout_constraintBottom_toTopOf="@+id/checkoutFooter"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/center"
-            app:strokeColor="@color/colorPrimaryDark"
+            app:strokeColor="@color/payment_button_color"
             app:strokeWidth="1dp"
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-            tools:background="@color/colorPrimary"/>
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"/>
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/scannedVouchersRecyclerView"

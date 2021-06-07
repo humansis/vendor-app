@@ -1,6 +1,5 @@
 package cz.quanti.android.vendor_app.main.checkout.fragment
 
-import android.content.res.Configuration
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -22,7 +21,6 @@ import cz.quanti.android.vendor_app.main.checkout.adapter.ScannedVoucherAdapter
 import cz.quanti.android.vendor_app.main.checkout.adapter.SelectedProductsAdapter
 import cz.quanti.android.vendor_app.main.checkout.callback.CheckoutFragmentCallback
 import cz.quanti.android.vendor_app.main.checkout.viewmodel.CheckoutViewModel
-import cz.quanti.android.vendor_app.main.vendor.VendorScreenState
 import cz.quanti.android.vendor_app.utils.NfcInitializer
 import cz.quanti.android.vendor_app.utils.getStringFromDouble
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -30,13 +28,17 @@ import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.dialog_card_pin.view.*
 import kotlinx.android.synthetic.main.fragment_checkout.*
+import kotlinx.android.synthetic.main.fragment_checkout.totalPriceTextView
+import kotlinx.android.synthetic.main.fragment_shopping_cart.*
+import kotlinx.android.synthetic.main.fragment_shopping_cart.shoppingCartFooter
 import kotlinx.android.synthetic.main.item_checkout_vouchers_footer.*
+import kotlinx.android.synthetic.main.item_shopping_cart_footer.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import quanti.com.kotlinlog.Log
 
 class CheckoutFragment() : Fragment(), CheckoutFragmentCallback {
     private val vm: CheckoutViewModel by viewModel()
-    private val selectedProductsAdapter = SelectedProductsAdapter()
+    private lateinit var selectedProductsAdapter: SelectedProductsAdapter
     private val scannedVoucherAdapter = ScannedVoucherAdapter()
     private var disposable: Disposable? = null
     private var activityCallback: ActivityCallback? = null
@@ -62,10 +64,30 @@ class CheckoutFragment() : Fragment(), CheckoutFragmentCallback {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        selectedProductsAdapter = SelectedProductsAdapter(this)
+    }
+
+    override fun onStart() {
+        super.onStart()
+
         vm.init()
         initOnClickListeners()
         initSelectedProductsAdapter()
         initScannedVouchersAdapter()
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        isEmptyCart()
+        if(vm.getVouchers().isNotEmpty() || vm.getTotal() <= 0) {
+            proceedButton?.visibility = View.VISIBLE
+            payByCardButton?.visibility = View.INVISIBLE
+        } else {
+            proceedButton?.visibility = View.GONE
+        }
+
+        actualizeTotal()
     }
 
     override fun onStop() {
@@ -76,21 +98,6 @@ class CheckoutFragment() : Fragment(), CheckoutFragmentCallback {
     override fun onDestroy() {
         disposable?.dispose()
         super.onDestroy()
-    }
-
-    override fun onResume() {
-        super.onResume()
-        if(vm.getShoppingCart().isNotEmpty()) {
-            emptyCartTextView.visibility = View.GONE
-        }
-        if(vm.getVouchers().isNotEmpty() || vm.getTotal() <= 0) {
-            proceedButton?.visibility = View.VISIBLE
-            payByCardButton?.visibility = View.INVISIBLE
-        } else {
-            proceedButton?.visibility = View.GONE
-        }
-
-        actualizeTotal()
     }
 
     private fun initOnClickListeners() {
@@ -126,7 +133,7 @@ class CheckoutFragment() : Fragment(), CheckoutFragmentCallback {
                 .observeOn(AndroidSchedulers.mainThread()).subscribe(
                     {
                         activityCallback?.showDot(true)
-                        vm.clearShoppingCart()
+                        vm.clearCart()
                         vm.clearVouchers()
                         vm.clearCurrency()
                         findNavController().navigate(
@@ -164,6 +171,44 @@ class CheckoutFragment() : Fragment(), CheckoutFragmentCallback {
     override fun payByCard() {
         if (NfcInitializer.initNfc(requireActivity())) {
             showPinDialogAndPayByCard()
+        }
+    }
+
+    override fun removeItemFromCart(position: Int) {
+        AlertDialog.Builder(requireContext(), R.style.DialogTheme)
+            .setTitle(getString(R.string.are_you_sure_dialog_title))
+            .setMessage(getString(R.string.remove_product_from_cart_dialog_message))
+            .setPositiveButton(
+                android.R.string.yes
+            ) { _, _ ->
+                if (selectedProductsAdapter.itemCount == 1) {
+                    clearCart()
+                } else {
+                    vm.removeFromCart(position)
+                    selectedProductsAdapter.removeAt(position)
+                }
+                actualizeTotal()
+            }
+            .setNegativeButton(android.R.string.no, null)
+            .show()
+    }
+
+    private fun clearCart() {
+        vm.clearCart()
+        selectedProductsAdapter.clearAll()
+        isEmptyCart()
+    }
+
+    private fun isEmptyCart() {
+        if(vm.getShoppingCart().isNotEmpty()) {
+            emptyCartTextView.visibility = View.GONE
+            payByCardButton.isEnabled = true
+            scanButton.isEnabled = true
+
+        } else {
+            emptyCartTextView.visibility = View.VISIBLE
+            payByCardButton.isEnabled = false
+            scanButton.isEnabled = false
         }
     }
 
@@ -249,9 +294,5 @@ class CheckoutFragment() : Fragment(), CheckoutFragmentCallback {
                 totalPriceTextView?.setTextColor(red)
             }
         }
-    }
-
-    private fun isLandscapeOriented(): Boolean {
-        return requireActivity().resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
     }
 }

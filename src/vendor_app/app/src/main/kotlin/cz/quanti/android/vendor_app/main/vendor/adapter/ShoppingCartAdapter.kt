@@ -40,6 +40,7 @@ class ShoppingCartAdapter(private val shoppingCartFragmentCallback: ShoppingCart
         holder.remove.setOnClickListener {
             shoppingCartFragmentCallback.removeItemFromCart(position)
         }
+
     }
 
     fun removeAt(position: Int) {

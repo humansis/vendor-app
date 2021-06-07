@@ -8,9 +8,9 @@
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/backButton"
-        android:layout_width="wrap_content"
+        android:layout_width="150dp"
         android:layout_height="wrap_content"
-        android:layout_marginHorizontal="@dimen/dimen_32dp"
+        android:layout_margin="@dimen/dimen_16dp"
         android:backgroundTint="@color/colorPrimaryDark"
         android:text="@string/back_button"
         android:textColor="@color/white"
@@ -23,7 +23,8 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@id/center"
-        app:elevation="0dp" />
+        app:elevation="0dp"
+        style="@style/Widget.MaterialComponents.Button"/>
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/center"
@@ -34,9 +35,9 @@
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/proceedButton"
-        android:layout_width="wrap_content"
+        android:layout_width="150dp"
         android:layout_height="wrap_content"
-        android:layout_marginHorizontal="@dimen/dimen_32dp"
+        android:layout_margin="@dimen/dimen_16dp"
         android:backgroundTint="@color/green"
         android:text="@string/proceed"
         android:textColor="@color/white"

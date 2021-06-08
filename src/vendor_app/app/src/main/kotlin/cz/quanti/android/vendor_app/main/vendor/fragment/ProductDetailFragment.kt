@@ -67,7 +67,7 @@ class ProductDetailFragment : Fragment() {
         } else {
             priceUnitSpinner.visibility = View.INVISIBLE
             priceUnitTextView.visibility = View.VISIBLE
-            priceUnitTextView.text = vm.getCurrency()
+            priceUnitTextView.text = vm.getCurrency().value.toString()
         }
     }
 
@@ -128,7 +128,7 @@ class ProductDetailFragment : Fragment() {
             .apply {
                 this.product = product
                 this.price = unitPrice
-                this.currency = vm.getCurrency()
+                this.currency = vm.getCurrency().value.toString()
             }
         vm.addToShoppingCart(selected)
     }

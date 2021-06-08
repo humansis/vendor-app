@@ -1,6 +1,7 @@
 package cz.quanti.android.vendor_app.main.checkout.viewmodel
 
 import android.nfc.Tag
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import cz.quanti.android.nfc.VendorFacade
 import cz.quanti.android.nfc.dto.UserBalance
@@ -69,12 +70,12 @@ class CheckoutViewModel(
         shoppingHolder.cart.clear()
     }
 
-    fun getCurrency(): String {
+    fun getCurrency(): LiveData<String> {
         return shoppingHolder.chosenCurrency
     }
 
     fun clearCurrency() {
-        shoppingHolder.chosenCurrency = ""
+        shoppingHolder.chosenCurrency.postValue("")
     }
 
     fun getPin(): String? {

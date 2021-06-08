@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import cz.quanti.android.vendor_app.R
 import cz.quanti.android.vendor_app.main.vendor.adapter.ShopAdapter
@@ -39,6 +40,10 @@ class ProductsFragment : Fragment() {
         shopRecyclerView.setHasFixedSize(true)
         shopRecyclerView.layoutManager = viewManager
         shopRecyclerView.adapter = adapter
+
+        vm.getCurrency().observe(viewLifecycleOwner, Observer {
+            // todo updatnout layouty co obsahuji currency
+        })
     }
 
     override fun onStart() {

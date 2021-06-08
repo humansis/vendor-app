@@ -1,5 +1,6 @@
 package cz.quanti.android.vendor_app.main.vendor.viewmodel
 
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import cz.quanti.android.vendor_app.repository.AppPreferences
 import cz.quanti.android.vendor_app.repository.product.ProductFacade
@@ -63,11 +64,11 @@ class VendorViewModel(
         return shoppingHolder.cart
     }
 
-    fun getCurrency(): String {
+    fun getCurrency(): LiveData<String> {
         return shoppingHolder.chosenCurrency
     }
 
     fun setCurrency(currency: String) {
-        shoppingHolder.chosenCurrency = currency
+        shoppingHolder.chosenCurrency.postValue(currency)
     }
 }

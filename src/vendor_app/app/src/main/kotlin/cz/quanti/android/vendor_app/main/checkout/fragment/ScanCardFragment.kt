@@ -113,7 +113,7 @@ class ScanCardFragment : Fragment() {
          if (NfcInitializer.initNfc(requireActivity())) {
              paymentDisposable?.dispose()
              paymentDisposable =
-                 vm.payByCard(pin, vm.getTotal(), vm.getCurrency()).subscribeOn(Schedulers.io())
+                 vm.payByCard(pin, vm.getTotal(), vm.getCurrency().value.toString()).subscribeOn(Schedulers.io())
                      .observeOn(AndroidSchedulers.mainThread())
                      .subscribe({
                          val balance = it.second.balance

@@ -159,7 +159,7 @@ class ScannerViewModel(
         if (checkIfInvalidBooklet(voucher, booklet)) {
             return ScannedVoucherReturnState.WRONG_BOOKLET
         }
-        if (checkIfDifferentCurrency(voucher, shoppingHolder.chosenCurrency)) {
+        if (checkIfDifferentCurrency(voucher, shoppingHolder.chosenCurrency.value.toString())) {
             return ScannedVoucherReturnState.WRONG_CURRENCY
         }
         return returnCode

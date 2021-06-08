@@ -41,7 +41,7 @@ class ShoppingCartFragment : Fragment(), ShoppingCartFragmentCallback {
         super.onViewCreated(view, savedInstanceState)
 
         vendorFragmentCallback = parentFragment as VendorFragmentCallback
-        chosenCurrency = vm.getCurrency()
+        chosenCurrency = vm.getCurrency().value.toString()
         shoppingCartAdapter = ShoppingCartAdapter(this)
     }
 

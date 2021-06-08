@@ -12,6 +12,7 @@ import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat.getColor
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.textfield.TextInputEditText
@@ -63,6 +64,11 @@ class CheckoutFragment() : Fragment(), CheckoutFragmentCallback {
         super.onViewCreated(view, savedInstanceState)
 
         selectedProductsAdapter = SelectedProductsAdapter(this, requireContext())
+
+        vm.getCurrency().observe(viewLifecycleOwner, Observer {
+            initSelectedProductsAdapter()
+            actualizeTotal()
+        })
     }
 
     override fun onStart() {
@@ -265,7 +271,7 @@ class CheckoutFragment() : Fragment(), CheckoutFragmentCallback {
         checkoutSelectedProductsRecyclerView?.setHasFixedSize(true)
         checkoutSelectedProductsRecyclerView?.layoutManager = viewManager
         checkoutSelectedProductsRecyclerView?.adapter = selectedProductsAdapter
-        selectedProductsAdapter.chosenCurrency = vm.getCurrency()
+        selectedProductsAdapter.chosenCurrency = vm.getCurrency().value.toString()
 
         selectedProductsAdapter.setData(vm.getShoppingCart())
     }
@@ -292,7 +298,7 @@ class CheckoutFragment() : Fragment(), CheckoutFragmentCallback {
     private fun actualizeTotal() {
         val total = vm.getTotal()
         val totalText = "${getString(R.string.total)}:"
-        val totalPrice = "${getStringFromDouble(total)} ${vm.getCurrency()}"
+        val totalPrice = "${getStringFromDouble(total)} ${vm.getCurrency().value}"
         totalTextView?.text = totalText
         totalPriceTextView?.text = totalPrice
 

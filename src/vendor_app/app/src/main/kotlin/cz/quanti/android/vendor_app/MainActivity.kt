@@ -368,7 +368,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
                 vm.setCurrency(priceUnitSpinner.selectedItem as String)
                 vm.setLastCurrencySelection(priceUnitSpinner.selectedItem as String)
                 //todo ulozit to do shared preferences
-                //todo refreshnout main fragment / basket pokud je zobrazen
+                //todo refreshnout main fragment / basket pokud je zobrazen -> delam to pres observer v onviewcreated ve fragmentu
             }
         }
         // todo doresit jak nemit ten list pres celou obrazovku

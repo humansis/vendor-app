@@ -1,157 +1,34 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/itemShop"
     android:orientation="horizontal"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/screenBackgroundColor">
+    android:background="@color/screenBackgroundColor"
+    android:paddingHorizontal="4dp">
 
-    <RelativeLayout
-        android:id="@+id/firstProductLayout"
+    <include
+        android:id="@+id/firstProduct"
+        layout="@layout/item_product"
+        android:layout_height="match_parent"
         android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:background="@color/white"
-        android:layout_marginRight="5dp"
-        android:layout_marginLeft="5dp"
-        android:layout_marginTop="5dp"
-        app:layout_constraintDimensionRatio="W,1:1"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/secondProductLayout"
-        app:layout_constraintTop_toTopOf="parent"
-        >
-        <androidx.cardview.widget.CardView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            app:cardCornerRadius="5dp">
-            <LinearLayout
-                android:orientation="horizontal"
-                android:id="@+id/firstProductImage"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent" />
-        </androidx.cardview.widget.CardView>
+        android:layout_weight="1"
+        android:layout_margin="@dimen/dimen_4dp"/>
 
-        <androidx.cardview.widget.CardView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:layout_marginStart="5dp"
-            android:layout_gravity="top|start"
-            app:cardCornerRadius="10dp">
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:background="@color/colorPrimaryDark"
-                android:padding="5dp"
-                >
-                <TextView
-                    android:id="@+id/firstProductTitle"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="@color/white"
-                    android:textSize="@dimen/fragment_text"
-                    tools:text="Tinned Pulses"
-                    />
-            </LinearLayout>
-        </androidx.cardview.widget.CardView>
-    </RelativeLayout>
-
-    <RelativeLayout
-        android:id="@+id/secondProductLayout"
+    <include
+        android:id="@+id/secondProduct"
+        layout="@layout/item_product"
+        android:layout_margin="@dimen/dimen_4dp"
+        android:layout_height="match_parent"
         android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:background="@color/white"
-        android:layout_marginEnd="5dp"
-        android:layout_marginTop="5dp"
-        app:layout_constraintDimensionRatio="W,1:1"
-        app:layout_constraintStart_toEndOf="@id/firstProductLayout"
-        app:layout_constraintEnd_toStartOf="@id/thirdProductLayout"
-        app:layout_constraintTop_toTopOf="parent">
-        <androidx.cardview.widget.CardView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            app:cardCornerRadius="5dp">
-            <LinearLayout
-                android:orientation="horizontal"
-                android:id="@+id/secondProductImage"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent" />
-        </androidx.cardview.widget.CardView>
+        android:layout_weight="1"/>
 
-        <androidx.cardview.widget.CardView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:layout_marginStart="5dp"
-            android:layout_gravity="top|start"
-            app:cardCornerRadius="10dp">
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:background="@color/colorPrimaryDark"
-                android:padding="5dp"
-                >
-                <TextView
-                    android:id="@+id/secondProductTitle"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="@color/white"
-                    android:textSize="@dimen/fragment_text"
-                    tools:text="Tinned Pulses"
-                    />
-            </LinearLayout>
-        </androidx.cardview.widget.CardView>
-    </RelativeLayout>
-
-    <RelativeLayout
-        android:id="@+id/thirdProductLayout"
+    <include
+        android:id="@+id/thirdProduct"
+        layout="@layout/item_product"
+        android:layout_height="match_parent"
         android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:background="@color/white"
-        android:layout_marginTop="5dp"
-        android:layout_marginEnd="5dp"
-        app:layout_constraintDimensionRatio="W,1:1"
-        app:layout_constraintStart_toEndOf="@id/secondProductLayout"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-        <androidx.cardview.widget.CardView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            app:cardCornerRadius="5dp">
-            <LinearLayout
-                android:orientation="horizontal"
-                android:id="@+id/thirdProductImage"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent" />
-        </androidx.cardview.widget.CardView>
+        android:layout_weight="1"
+        android:layout_margin="@dimen/dimen_4dp"/>
 
-        <androidx.cardview.widget.CardView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:layout_marginStart="5dp"
-            android:layout_gravity="top|start"
-            app:cardCornerRadius="10dp">
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:background="@color/colorPrimaryDark"
-                android:padding="5dp"
-                >
-                <TextView
-                    android:id="@+id/thirdProductTitle"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="@color/white"
-                    android:textSize="@dimen/fragment_text"
-                    tools:text="Tinned Pulses"
-                    />
-            </LinearLayout>
-        </androidx.cardview.widget.CardView>
-    </RelativeLayout>
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+</LinearLayout>

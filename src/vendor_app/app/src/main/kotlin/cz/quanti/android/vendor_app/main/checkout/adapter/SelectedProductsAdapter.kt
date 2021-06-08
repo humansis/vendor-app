@@ -105,7 +105,7 @@ class SelectedProductsAdapter(
 
     private fun loadOptions(holder: SelectedProductsViewHolder, item: SelectedProduct) {
         holder.priceEditText.setText(item.price.toString())
-        holder.currency.text = chosenCurrency
+        holder.priceTextInputLayout.suffixText = chosenCurrency
         holder.confirm.text = context.getString(R.string.confirm)
     }
 

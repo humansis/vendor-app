@@ -8,7 +8,6 @@ import kotlinx.android.synthetic.main.item_shopping_cart.view.*
 import kotlinx.android.synthetic.main.item_shopping_cart.view.priceTextView
 import kotlinx.android.synthetic.main.item_shopping_cart.view.productImageView
 import kotlinx.android.synthetic.main.item_shopping_cart.view.productInfoTextView
-import kotlinx.android.synthetic.main.product_options.view.*
 
 class ShoppingCartViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
     var image: ImageView = itemView.productImageView

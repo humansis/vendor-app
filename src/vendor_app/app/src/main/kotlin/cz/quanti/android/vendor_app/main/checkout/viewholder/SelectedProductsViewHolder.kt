@@ -7,8 +7,9 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
+import com.google.android.material.textfield.TextInputLayout
+import kotlinx.android.synthetic.main.item_product_options.view.*
 import kotlinx.android.synthetic.main.item_shopping_cart.view.*
-import kotlinx.android.synthetic.main.product_options.view.*
 
 class SelectedProductsViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
     var image: ImageView = itemView.productImageView
@@ -17,7 +18,7 @@ class SelectedProductsViewHolder(itemView: View) : RecyclerView.ViewHolder(itemV
     var close: ImageView = itemView.closeButton
     var editProduct: FrameLayout = itemView.editProduct
     var priceEditText: TextInputEditText = itemView.priceEditText
-    var currency: TextView = itemView.currencyTextView
+    var priceTextInputLayout: TextInputLayout = itemView.priceTextInputLayout
     var remove: ImageView = itemView.deleteButton
     var confirm: MaterialButton = itemView.confirmButton
 }

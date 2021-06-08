@@ -1,5 +1,6 @@
 package cz.quanti.android.vendor_app.main.checkout.adapter
 
+import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,8 +11,12 @@ import cz.quanti.android.vendor_app.main.checkout.callback.CheckoutFragmentCallb
 import cz.quanti.android.vendor_app.main.checkout.viewholder.SelectedProductsViewHolder
 import cz.quanti.android.vendor_app.repository.purchase.dto.SelectedProduct
 import cz.quanti.android.vendor_app.utils.getStringFromDouble
+import cz.quanti.android.vendor_app.utils.round
 
-class SelectedProductsAdapter(private val checkoutFragmentCallback: CheckoutFragmentCallback) :
+class SelectedProductsAdapter(
+    private val checkoutFragmentCallback: CheckoutFragmentCallback,
+    private val context: Context
+    ) :
     RecyclerView.Adapter<SelectedProductsViewHolder>() {
 
     private val products: MutableList<SelectedProduct> = mutableListOf()
@@ -52,15 +57,34 @@ class SelectedProductsAdapter(private val checkoutFragmentCallback: CheckoutFrag
         }
 
         holder.confirm.setOnClickListener {
-            // TODO update cart, vzit udaje z holderu
+            updateProduct(position, item, holder)
+        }
+    }
+
+    private fun updateProduct(
+        position: Int,
+        item: SelectedProduct,
+        holder: SelectedProductsViewHolder
+    ) {
+        try {
+            val newPrice = holder.priceEditText.text.toString().toDouble()
+            if (newPrice <= 0.0) {
+                checkoutFragmentCallback.showInvalidPriceEnteredMessage()
+            } else {
+                checkoutFragmentCallback.updateItem(
+                    position,
+                    item,
+                    round(newPrice, 3)
+                )
+                closeCard(holder)
+            }
+        } catch(e: NumberFormatException) {
+            checkoutFragmentCallback.showInvalidPriceEnteredMessage()
         }
     }
 
     fun toggleCardViewExpanded(holder: SelectedProductsViewHolder, item: SelectedProduct) {
-        if (expandedCardHolder == holder) {
-            closeCard(holder)
-            // TODO testnout jestli tohle nedát pryč a nezavírat jen křížkem? třeba se to bude chovat lépe
-        } else {
+        if (expandedCardHolder != holder) {
             expandedCardHolder?.let { closeCard(it) }
             expandedCardHolder = holder
             holder.price.visibility = View.GONE
@@ -82,7 +106,7 @@ class SelectedProductsAdapter(private val checkoutFragmentCallback: CheckoutFrag
     private fun loadOptions(holder: SelectedProductsViewHolder, item: SelectedProduct) {
         holder.priceEditText.setText(item.price.toString())
         holder.currency.text = chosenCurrency
-        holder.confirm.text = "Confirm"
+        holder.confirm.text = context.getString(R.string.confirm)
     }
 
     fun setData(data: List<SelectedProduct>) {

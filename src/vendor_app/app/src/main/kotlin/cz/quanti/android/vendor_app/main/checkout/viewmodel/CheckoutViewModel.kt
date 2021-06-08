@@ -57,6 +57,10 @@ class CheckoutViewModel(
         vouchers.clear()
     }
 
+    fun updateProduct(position: Int, product: SelectedProduct) {
+        shoppingHolder.cart[position] = product
+    }
+
     fun removeFromCart(position: Int) {
         shoppingHolder.cart.removeAt(position)
     }

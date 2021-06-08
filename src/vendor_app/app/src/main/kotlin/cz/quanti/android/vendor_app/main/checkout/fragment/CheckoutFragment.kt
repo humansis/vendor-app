@@ -21,6 +21,7 @@ import cz.quanti.android.vendor_app.main.checkout.adapter.ScannedVoucherAdapter
 import cz.quanti.android.vendor_app.main.checkout.adapter.SelectedProductsAdapter
 import cz.quanti.android.vendor_app.main.checkout.callback.CheckoutFragmentCallback
 import cz.quanti.android.vendor_app.main.checkout.viewmodel.CheckoutViewModel
+import cz.quanti.android.vendor_app.repository.purchase.dto.SelectedProduct
 import cz.quanti.android.vendor_app.utils.NfcInitializer
 import cz.quanti.android.vendor_app.utils.getStringFromDouble
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -29,10 +30,7 @@ import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.dialog_card_pin.view.*
 import kotlinx.android.synthetic.main.fragment_checkout.*
 import kotlinx.android.synthetic.main.fragment_checkout.totalPriceTextView
-import kotlinx.android.synthetic.main.fragment_shopping_cart.*
-import kotlinx.android.synthetic.main.fragment_shopping_cart.shoppingCartFooter
 import kotlinx.android.synthetic.main.item_checkout_vouchers_footer.*
-import kotlinx.android.synthetic.main.item_shopping_cart_footer.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import quanti.com.kotlinlog.Log
 
@@ -64,7 +62,7 @@ class CheckoutFragment() : Fragment(), CheckoutFragmentCallback {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        selectedProductsAdapter = SelectedProductsAdapter(this)
+        selectedProductsAdapter = SelectedProductsAdapter(this, requireContext())
     }
 
     override fun onStart() {
@@ -174,6 +172,13 @@ class CheckoutFragment() : Fragment(), CheckoutFragmentCallback {
         }
     }
 
+    override fun updateItem(position: Int, item: SelectedProduct, newPrice: Double) {
+        item.price = newPrice
+        vm.updateProduct(position, item)
+        actualizeTotal()
+        selectedProductsAdapter.notifyDataSetChanged()
+    }
+
     override fun removeItemFromCart(position: Int) {
         AlertDialog.Builder(requireContext(), R.style.DialogTheme)
             .setTitle(getString(R.string.are_you_sure_dialog_title))
@@ -191,6 +196,14 @@ class CheckoutFragment() : Fragment(), CheckoutFragmentCallback {
             }
             .setNegativeButton(android.R.string.no, null)
             .show()
+    }
+
+    override fun showInvalidPriceEnteredMessage() {
+        Toast.makeText(
+            requireContext(),
+            getString(R.string.please_enter_price),
+            Toast.LENGTH_LONG
+        ).show()
     }
 
     private fun clearCart() {

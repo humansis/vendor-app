@@ -10,7 +10,7 @@
     <include
         android:id="@+id/firstProduct"
         layout="@layout/item_product"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:layout_width="0dp"
         android:layout_weight="1"
         android:layout_margin="@dimen/dimen_4dp"/>
@@ -19,14 +19,14 @@
         android:id="@+id/secondProduct"
         layout="@layout/item_product"
         android:layout_margin="@dimen/dimen_4dp"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:layout_width="0dp"
         android:layout_weight="1"/>
 
     <include
         android:id="@+id/thirdProduct"
         layout="@layout/item_product"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:layout_width="0dp"
         android:layout_weight="1"
         android:layout_margin="@dimen/dimen_4dp"/>

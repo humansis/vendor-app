@@ -31,7 +31,8 @@ import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.dialog_card_pin.view.*
 import kotlinx.android.synthetic.main.fragment_checkout.*
 import kotlinx.android.synthetic.main.fragment_checkout.totalPriceTextView
-import kotlinx.android.synthetic.main.item_checkout_vouchers_footer.*
+import kotlinx.android.synthetic.main.item_checkout_footer.*
+import kotlinx.android.synthetic.main.item_checkout_footer.clearAllButton
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import quanti.com.kotlinlog.Log
 
@@ -84,13 +85,7 @@ class CheckoutFragment() : Fragment(), CheckoutFragmentCallback {
         super.onResume()
 
         isEmptyCart()
-        if(vm.getVouchers().isNotEmpty() || vm.getTotal() <= 0) {
-            proceedButton?.visibility = View.VISIBLE
-            payByCardButton?.visibility = View.INVISIBLE
-        } else {
-            proceedButton?.visibility = View.GONE
-        }
-
+        isPaid()
         actualizeTotal()
     }
 
@@ -108,6 +103,19 @@ class CheckoutFragment() : Fragment(), CheckoutFragmentCallback {
 
         backButton?.setOnClickListener {
             cancel()
+        }
+
+        clearAllButton.setOnClickListener {
+            AlertDialog.Builder(requireContext(), R.style.DialogTheme)
+                .setTitle(getString(R.string.are_you_sure_dialog_title))
+                .setMessage(getString(R.string.clear_cart_dialog_message))
+                .setPositiveButton(
+                    android.R.string.yes
+                ) { _, _ ->
+                    clearCart()
+                }
+                .setNegativeButton(android.R.string.no, null)
+                .show()
         }
 
         proceedButton?.setOnClickListener {
@@ -216,6 +224,7 @@ class CheckoutFragment() : Fragment(), CheckoutFragmentCallback {
         vm.clearCart()
         selectedProductsAdapter.clearAll()
         isEmptyCart()
+        actualizeTotal()
     }
 
     private fun isEmptyCart() {
@@ -223,11 +232,31 @@ class CheckoutFragment() : Fragment(), CheckoutFragmentCallback {
             emptyCartTextView.visibility = View.GONE
             payByCardButton.isEnabled = true
             scanButton.isEnabled = true
-
+            clearAllButton.isEnabled = true
         } else {
             emptyCartTextView.visibility = View.VISIBLE
             payByCardButton.isEnabled = false
             scanButton.isEnabled = false
+            clearAllButton.isEnabled = false
+        }
+    }
+
+    private fun isPaid() {
+        if(vm.getVouchers().isNotEmpty()) {
+            if (vm.getTotal() <= 0) {
+                proceedButton?.visibility = View.VISIBLE
+                scanButton.isEnabled = false
+            } else {
+                proceedButton?.visibility = View.GONE
+                scanButton.isEnabled = true
+            }
+            payByCardButton?.visibility = View.INVISIBLE
+            clearAllButton?.visibility = View.GONE
+        } else {
+            proceedButton?.visibility = View.GONE
+            scanButton.isEnabled = true
+            payByCardButton?.visibility = View.VISIBLE
+            clearAllButton?.visibility = View.VISIBLE
         }
     }
 

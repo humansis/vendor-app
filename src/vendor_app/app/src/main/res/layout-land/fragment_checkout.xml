@@ -172,7 +172,7 @@
         </LinearLayout>
 
         <include
-            layout="@layout/item_checkout_vouchers_footer"
+            layout="@layout/item_checkout_footer"
             android:id="@+id/checkoutFooter"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

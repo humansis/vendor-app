@@ -34,6 +34,25 @@
         app:layout_constraintGuide_percent="0.5"/>
 
     <com.google.android.material.button.MaterialButton
+        android:id="@+id/clearAllButton"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/dimen_16dp"
+        android:backgroundTint="@color/red_button_color"
+        android:text="@string/clear_all"
+        android:textColor="@color/white"
+        android:textSize="@dimen/button_text"
+        android:stateListAnimator="@null"
+        app:icon="@drawable/clear"
+        app:iconTint="@color/white"
+        app:iconGravity="start"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@id/center"
+        app:elevation="0dp" />
+
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/proceedButton"
         android:layout_width="150dp"
         android:layout_height="wrap_content"

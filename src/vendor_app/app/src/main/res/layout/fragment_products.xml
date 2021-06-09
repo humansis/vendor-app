@@ -27,7 +27,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:tint="@color/white"
-        app:backgroundTint="@color/colorPrimary"/>
+        app:backgroundTint="@color/colorPrimaryDark"/>
 
     <TextView
         android:id="@+id/cartBadge"

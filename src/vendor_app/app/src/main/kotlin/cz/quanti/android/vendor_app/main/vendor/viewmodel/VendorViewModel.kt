@@ -24,7 +24,7 @@ class VendorViewModel(
     private val currentVendor: CurrentVendor,
     private val synchronizationManager: SynchronizationManager
 ) : ViewModel() {
-    val cartSizeLD: MutableLiveData<Int> = MutableLiveData(0)
+    val cartSizeLD: MutableLiveData<Int> = MutableLiveData(shoppingHolder.cart.size)
 
     fun getLastCurrencySelection(): String {
         if (shoppingHolder.lastCurrencySelection == "") {

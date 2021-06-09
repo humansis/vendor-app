@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import cz.quanti.android.vendor_app.R
 import cz.quanti.android.vendor_app.main.vendor.adapter.ShopAdapter
@@ -42,13 +43,14 @@ class ProductsFragment : Fragment() {
         shopRecyclerView.adapter = adapter
 
         vm.cartSizeLD.observe(viewLifecycleOwner, Observer {
-            when (vm.getShoppingCart().size) { //todo it misto shoppingcart.size... akorat to ted vraci 0 a observer nereaguje na clearcart
+            Log.d("xxx2",it.toString()) // TODO observer nereaguje na clearcart
+            when (it) {
                 0 -> {
                     cartBadge.visibility = View.GONE
                 }
                 else -> {
                     cartBadge.visibility = View.VISIBLE
-                    cartBadge.text = vm.getShoppingCart().size.toString()
+                    cartBadge.text = it.toString()
                 }
             }
         })
@@ -56,6 +58,12 @@ class ProductsFragment : Fragment() {
         vm.getCurrency().observe(viewLifecycleOwner, Observer {
             // todo updatnout layouty co obsahuji currency
         })
+
+        cartFAB.setOnClickListener {
+            findNavController().navigate(
+                VendorFragmentDirections.actionVendorFragmentToCheckoutFragment()
+            )
+        }
     }
 
     override fun onStart() {

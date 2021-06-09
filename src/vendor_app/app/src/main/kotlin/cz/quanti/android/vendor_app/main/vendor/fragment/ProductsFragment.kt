@@ -41,6 +41,18 @@ class ProductsFragment : Fragment() {
         shopRecyclerView.layoutManager = viewManager
         shopRecyclerView.adapter = adapter
 
+        vm.cartSizeLD.observe(viewLifecycleOwner, Observer {
+            when (vm.getShoppingCart().size) {
+                0 -> {
+                    cartBadge.visibility = View.GONE
+                }
+                else -> {
+                    cartBadge.visibility = View.VISIBLE
+                    cartBadge.text = vm.getShoppingCart().size.toString()
+                }
+            }
+        })
+
         vm.getCurrency().observe(viewLifecycleOwner, Observer {
             // todo updatnout layouty co obsahuji currency
         })

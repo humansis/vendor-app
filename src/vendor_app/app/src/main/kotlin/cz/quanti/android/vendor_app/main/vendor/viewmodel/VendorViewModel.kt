@@ -1,6 +1,7 @@
 package cz.quanti.android.vendor_app.main.vendor.viewmodel
 
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import cz.quanti.android.vendor_app.repository.AppPreferences
 import cz.quanti.android.vendor_app.repository.product.ProductFacade
@@ -23,6 +24,7 @@ class VendorViewModel(
     private val currentVendor: CurrentVendor,
     private val synchronizationManager: SynchronizationManager
 ) : ViewModel() {
+    val cartSizeLD: MutableLiveData<Int> = MutableLiveData(0)
 
     fun getLastCurrencySelection(): String {
         if (shoppingHolder.lastCurrencySelection == "") {
@@ -50,14 +52,17 @@ class VendorViewModel(
 
     fun removeFromCart(position: Int) {
         shoppingHolder.cart.removeAt(position)
+        cartSizeLD.value = shoppingHolder.cart.size
     }
 
     fun clearCart() {
         shoppingHolder.cart.clear()
+        cartSizeLD.value = shoppingHolder.cart.size
     }
 
     fun addToShoppingCart(product: SelectedProduct) {
         shoppingHolder.cart.add(product)
+        cartSizeLD.value = 1
     }
 
     fun getShoppingCart(): List<SelectedProduct> {

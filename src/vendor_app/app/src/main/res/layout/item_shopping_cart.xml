@@ -64,6 +64,7 @@
             android:textColor="@color/black"
             android:textDirection="locale"
             android:textSize="@dimen/fragment_bigger_text"
+            android:lines="1"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="@id/bottomGuide"
             app:layout_constraintEnd_toStartOf="@id/deleteButton"

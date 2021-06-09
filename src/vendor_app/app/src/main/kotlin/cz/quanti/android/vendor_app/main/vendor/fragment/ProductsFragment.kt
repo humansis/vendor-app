@@ -42,7 +42,7 @@ class ProductsFragment : Fragment() {
         shopRecyclerView.adapter = adapter
 
         vm.cartSizeLD.observe(viewLifecycleOwner, Observer {
-            when (vm.getShoppingCart().size) {
+            when (vm.getShoppingCart().size) { //todo it misto shoppingcart.size... akorat to ted vraci 0 a observer nereaguje na clearcart
                 0 -> {
                     cartBadge.visibility = View.GONE
                 }

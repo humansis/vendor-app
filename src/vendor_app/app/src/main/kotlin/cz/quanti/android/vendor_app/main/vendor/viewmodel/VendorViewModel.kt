@@ -62,7 +62,7 @@ class VendorViewModel(
 
     fun addToShoppingCart(product: SelectedProduct) {
         shoppingHolder.cart.add(product)
-        cartSizeLD.value = 1
+        cartSizeLD.value = shoppingHolder.cart.size
     }
 
     fun getShoppingCart(): List<SelectedProduct> {

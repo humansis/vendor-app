@@ -45,7 +45,7 @@ class SelectedProductsAdapter(
         holder.price.text = price
 
         holder.itemView.setOnClickListener {
-            toggleCardViewExpanded(holder, item)
+            expandCard(holder, item)
         }
 
         holder.close.setOnClickListener {
@@ -83,7 +83,7 @@ class SelectedProductsAdapter(
         }
     }
 
-    fun toggleCardViewExpanded(holder: SelectedProductsViewHolder, item: SelectedProduct) {
+    private fun expandCard(holder: SelectedProductsViewHolder, item: SelectedProduct) {
         if (expandedCardHolder != holder) {
             expandedCardHolder?.let { closeCard(it) }
             expandedCardHolder = holder

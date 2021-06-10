@@ -132,7 +132,6 @@ class ScanCardFragment : Fragment() {
                          activityCallback?.showDot(true)
                          vm.clearCart()
                          vm.clearVouchers()
-                         vm.clearCurrency()
                          findNavController().navigate(
                              ScanCardFragmentDirections.actionScanCardFragmentToVendorFragment()
                          )

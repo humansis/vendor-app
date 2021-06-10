@@ -160,7 +160,6 @@ class ScannerFragment() : Fragment() {
     }
 
     private fun processScannedCode(scannedCode: String) {
-        //val code = scannedCode.replace(" ", "+") // TODO zjistit proc tu byl tenhle radek
         if (vm.wasAlreadyScanned(scannedCode)) {
             AlertDialog.Builder(requireContext(), R.style.DialogTheme)
                 .setTitle(getString(R.string.already_scanned_dialog_title))

@@ -100,7 +100,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.home_button -> {
-                findNavController(R.id.nav_host_fragment).popBackStack(R.id.vendorFragment, false)
+                findNavController(R.id.nav_host_fragment).popBackStack(R.id.productFragment, false)
             }
             R.id.transactions_button -> {
                 findNavController(R.id.nav_host_fragment).navigate(R.id.transactionsFragment)
@@ -362,12 +362,13 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
         )
         priceUnitSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onNothingSelected(parent: AdapterView<*>?) {
+                // todo zadat nejakou default menu ???
             }
 
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                 vm.setCurrency(priceUnitSpinner.selectedItem as String)
                 vm.setLastCurrencySelection(priceUnitSpinner.selectedItem as String)
-                //todo ulozit to do shared preferences
+                //todo ulozit to do shared preferences a vyresit tak at je tam nejaka pocatecni hodnota
                 //todo refreshnout main fragment / basket pokud je zobrazen -> delam to pres observer v onviewcreated ve fragmentu
             }
         }

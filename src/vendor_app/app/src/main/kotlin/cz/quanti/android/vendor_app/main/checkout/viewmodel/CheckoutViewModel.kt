@@ -74,10 +74,6 @@ class CheckoutViewModel(
         return shoppingHolder.chosenCurrency
     }
 
-    fun clearCurrency() {
-        shoppingHolder.chosenCurrency.postValue("")
-    }
-
     fun getPin(): String? {
         return pin
     }

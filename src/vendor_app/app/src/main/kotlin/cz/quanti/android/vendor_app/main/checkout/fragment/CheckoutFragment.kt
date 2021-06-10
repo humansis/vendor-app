@@ -65,17 +65,13 @@ class CheckoutFragment() : Fragment(), CheckoutFragmentCallback {
         super.onViewCreated(view, savedInstanceState)
 
         selectedProductsAdapter = SelectedProductsAdapter(this, requireContext())
-
-        vm.getCurrency().observe(viewLifecycleOwner, Observer {
-            initSelectedProductsAdapter()
-            actualizeTotal()
-        })
     }
 
     override fun onStart() {
         super.onStart()
 
         vm.init()
+        initObservers()
         initOnClickListeners()
         initSelectedProductsAdapter()
         initScannedVouchersAdapter()
@@ -84,8 +80,8 @@ class CheckoutFragment() : Fragment(), CheckoutFragmentCallback {
     override fun onResume() {
         super.onResume()
 
-        isEmptyCart()
         isPaid()
+        isEmptyCart()
         actualizeTotal()
     }
 
@@ -97,6 +93,14 @@ class CheckoutFragment() : Fragment(), CheckoutFragmentCallback {
     override fun onDestroy() {
         disposable?.dispose()
         super.onDestroy()
+    }
+
+
+    private fun initObservers() {
+        vm.getCurrency().observe(viewLifecycleOwner, Observer {
+            initSelectedProductsAdapter()
+            actualizeTotal()
+        })
     }
 
     private fun initOnClickListeners() {
@@ -147,7 +151,6 @@ class CheckoutFragment() : Fragment(), CheckoutFragmentCallback {
                         activityCallback?.showDot(true)
                         vm.clearCart()
                         vm.clearVouchers()
-                        vm.clearCurrency()
                         findNavController().navigate(
                             CheckoutFragmentDirections.actionCheckoutFragmentToVendorFragment()
                         )

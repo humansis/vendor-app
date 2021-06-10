@@ -2,51 +2,118 @@
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/productLayout"
+    android:id="@+id/productCard"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:backgroundTint="@color/white"
+    android:animateLayoutChanges="true"
     app:cardCornerRadius="5dp">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:animateLayoutChanges="true">
 
-        <androidx.constraintlayout.widget.ConstraintLayout
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            app:layout_constraintDimensionRatio="4:5"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:animateLayoutChanges="true"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent">
+            app:layout_constraintEnd_toEndOf="parent">
 
-            <ImageView
-                android:id="@+id/productImage"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_margin="@dimen/dimen_16dp"
-                app:layout_constraintDimensionRatio="1:1"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                tools:src="@drawable/icon"/>
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/productPaddingLeft"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:visibility="gone"/>
 
-            <TextView
-                android:id="@+id/productName"
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/productLayout"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_width="wrap_content"
-                android:layout_margin="@dimen/dimen_16dp"
-                android:textAlignment="center"
-                android:textColor="@color/darkGrey"
-                android:textSize="@dimen/fragment_text"
-                android:lines="2"
-                app:layout_constraintTop_toBottomOf="@id/productImage"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"
-                tools:text="Tinned Pulses"/>
+                android:layout_weight="1"
+                android:clickable="true"
+                android:focusable="true">
 
-        </androidx.constraintlayout.widget.ConstraintLayout>
-    </androidx.constraintlayout.widget.ConstraintLayout>
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:duplicateParentState="true"
+                    app:layout_constraintDimensionRatio="4:5"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent">
+
+                    <ImageView
+                        android:id="@+id/productImage"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_margin="@dimen/dimen_16dp"
+                        android:duplicateParentState="true"
+                        app:layout_constraintDimensionRatio="1:1"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        tools:src="@drawable/icon"/>
+
+                    <TextView
+                        android:id="@+id/productName"
+                        android:layout_height="wrap_content"
+                        android:layout_width="wrap_content"
+                        android:layout_margin="@dimen/dimen_16dp"
+                        android:textAlignment="center"
+                        android:textColor="@color/darkGrey"
+                        android:textSize="@dimen/fragment_text"
+                        android:lines="2"
+                        android:duplicateParentState="true"
+                        app:layout_constraintTop_toBottomOf="@id/productImage"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        tools:text="Tinned Pulses"/>
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/productPaddingRight"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:visibility="gone">
+
+                <ImageView
+                    android:id="@+id/closeButton"
+                    android:layout_width="@dimen/dimen_32dp"
+                    android:layout_height="@dimen/dimen_32dp"
+                    android:layout_margin="@dimen/dimen_16dp"
+                    android:tint="@color/darkGrey"
+                    app:srcCompat="@drawable/clear"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"/>
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </LinearLayout>
+
+        <FrameLayout
+            android:id="@+id/editProduct"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/dimen_16dp"
+            android:layout_marginBottom="@dimen/dimen_16dp"
+            android:visibility="gone">
+
+            <include
+                layout="@layout/item_product_options"/>
+
+        </FrameLayout>
+
+    </LinearLayout>
 </androidx.cardview.widget.CardView>

@@ -82,4 +82,13 @@
         <item name="android:textColor">@color/material_button_color</item>
     </style>
 
+    <style name="SearchView" parent="Widget.AppCompat.SearchView">
+        <!-- Query Text Color -->
+        <item name="android:textColorPrimary">@color/colorPrimaryDark</item>
+        <!-- Icon Color -->
+        <item name="android:tint">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorPrimaryDark</item>
+    </style>
+
+
 </resources>

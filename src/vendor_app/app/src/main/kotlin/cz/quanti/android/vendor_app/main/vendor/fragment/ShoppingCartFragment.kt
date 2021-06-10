@@ -111,7 +111,7 @@ class ShoppingCartFragment : Fragment(), ShoppingCartFragmentCallback {
         checkoutButton.setOnClickListener {
             if (shoppingCartAdapter.itemCount > 0){
                 findNavController().navigate(
-                    VendorFragmentDirections.actionVendorFragmentToCheckoutFragment()
+                    ProductsFragmentDirections.actionProductsFragmentToCheckoutFragment()
                 )
             } else {
                 Toast.makeText(

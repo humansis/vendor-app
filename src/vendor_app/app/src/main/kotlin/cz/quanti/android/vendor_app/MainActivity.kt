@@ -17,6 +17,7 @@ import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.navigation.findNavController
+import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.navigation.NavigationView
 import cz.quanti.android.nfc.VendorFacade
 import cz.quanti.android.nfc.dto.UserBalance
@@ -63,6 +64,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
     private var readBalanceDisposable: Disposable? = null
     private lateinit var drawer: DrawerLayout
     private lateinit var toolbar: Toolbar
+    private lateinit var appBar: AppBarLayout
 
     @SuppressLint("SourceLockedOrientationActivity")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -75,6 +77,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
         setContentView(R.layout.activity_main)
 
         toolbar = findViewById(R.id.toolbar)
+        appBar = findViewById(R.id.appBarLayout)
         drawer = findViewById(R.id.drawer_layout)
         val navigationView = findViewById<NavigationView>(R.id.nav_view)
         navigationView.setNavigationItemSelectedListener(this)
@@ -314,11 +317,10 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
 
     override fun setToolbarVisible(boolean: Boolean) {
         if (boolean) {
-            toolbar.visibility = View.VISIBLE
+            appBar.visibility = View.VISIBLE
             drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
         } else {
-            // TODO schovat ten hnusnej bar s nazvem appky na login screenu
-            toolbar.visibility = View.GONE
+            appBar.visibility = View.GONE
             drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
         }
     }

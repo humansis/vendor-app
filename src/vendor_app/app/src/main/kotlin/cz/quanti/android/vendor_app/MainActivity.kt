@@ -18,7 +18,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
-import androidx.fragment.app.DialogFragment
 import androidx.navigation.findNavController
 import com.google.android.material.navigation.NavigationView
 import cz.quanti.android.nfc.VendorFacade
@@ -161,7 +160,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
             )
 
         syncButton?.setOnClickListener {
-            synchronize()
+            synchronizationManager.synchronizeWithServer()
         }
     }
 
@@ -296,10 +295,6 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
             }, {
                 Log.e(it)
             })
-    }
-
-    override fun synchronize() {
-        synchronizationManager.synchronizeWithServer()
     }
 
     override fun showDot(boolean: Boolean) {

@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import cz.quanti.android.vendor_app.ActivityCallback
 import cz.quanti.android.vendor_app.repository.login.LoginFacade
 import cz.quanti.android.vendor_app.repository.utils.interceptor.HostUrlInterceptor
+import cz.quanti.android.vendor_app.sync.SynchronizationManager
 import cz.quanti.android.vendor_app.utils.ApiEnvironments
 import cz.quanti.android.vendor_app.utils.CurrentVendor
 import io.reactivex.Completable
@@ -11,7 +12,8 @@ import io.reactivex.Completable
 class LoginViewModel(
     private val loginFacade: LoginFacade,
     private val hostUrlInterceptor: HostUrlInterceptor,
-    private val currentVendor: CurrentVendor
+    private val currentVendor: CurrentVendor,
+    private val synchronizationManager: SynchronizationManager
 ) : ViewModel() {
     fun login(username: String, password: String): Completable {
         return loginFacade.login(username, password)
@@ -39,6 +41,6 @@ class LoginViewModel(
 
     fun onLogin(activityCallback: ActivityCallback) {
         activityCallback.loadNavHeader(currentVendor.vendor.username)
-        activityCallback.synchronize()
+        synchronizationManager.synchronizeWithServer()
     }
 }

@@ -18,7 +18,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
-import androidx.fragment.app.DialogFragment
 import androidx.navigation.findNavController
 import com.google.android.material.navigation.NavigationView
 import cz.quanti.android.nfc.VendorFacade
@@ -94,6 +93,25 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
         nfcAdapter = NfcAdapter.getDefaultAdapter(this)
     }
 
+    override fun onResume() {
+        super.onResume()
+        loadNavHeader(loginVM.getCurrentVendorName())
+        syncState()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        syncStateDisposable?.dispose()
+    }
+
+    override fun onStop() {
+        displayedDialog?.dismiss()
+        disposable?.dispose()
+        syncDisposable?.dispose()
+        readBalanceDisposable?.dispose()
+        super.onStop()
+    }
+
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.home_button -> {
@@ -122,14 +140,6 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
         } else {
             super.onBackPressed()
         }
-    }
-
-    override fun onStop() {
-        displayedDialog?.dismiss()
-        disposable?.dispose()
-        syncDisposable?.dispose()
-        readBalanceDisposable?.dispose()
-        super.onStop()
     }
 
     private fun setUpToolbar() {
@@ -243,11 +253,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
         ).show(this.supportFragmentManager, "TAG")
     }
 
-    override fun onResume() {
-        super.onResume()
-
-        loadNavHeader(loginVM.getCurrentVendorName())
-
+    private fun syncState() {
         syncStateDisposable?.dispose()
         syncStateDisposable = synchronizationManager.syncStateObservable()
             .subscribeOn(Schedulers.io())
@@ -289,12 +295,6 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
             }, {
                 Log.e(it)
             })
-
-    }
-
-    override fun onPause() {
-        super.onPause()
-        syncStateDisposable?.dispose()
     }
 
     override fun showDot(boolean: Boolean) {

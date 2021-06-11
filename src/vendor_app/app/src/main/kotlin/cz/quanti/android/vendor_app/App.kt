@@ -10,7 +10,7 @@ import quanti.com.kotlinlog.android.AndroidLogger
 import quanti.com.kotlinlog.base.LogLevel
 import quanti.com.kotlinlog.base.LoggerBundle
 import quanti.com.kotlinlog.file.FileLogger
-import quanti.com.kotlinlog.file.bundle.DayLogBundle
+import quanti.com.kotlinlog.file.bundle.CircleLogBundle
 import wtf.qase.appskeleton.core.BaseApp
 
 class App : BaseApp() {
@@ -23,7 +23,7 @@ class App : BaseApp() {
         // Use custom logger
         Log.initialise(this)
         Log.addLogger(AndroidLogger(LoggerBundle(LogLevel.DEBUG)))
-        Log.addLogger(FileLogger(applicationContext, DayLogBundle(maxDaysSaved = 3)))
+        Log.addLogger(FileLogger(applicationContext, CircleLogBundle()))
         Log.useUncheckedErrorHandler()
         NfcLogger.registerListener(Logger())
 

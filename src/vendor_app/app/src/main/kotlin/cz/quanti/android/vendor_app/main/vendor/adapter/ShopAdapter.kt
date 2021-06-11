@@ -222,6 +222,7 @@ class ShopAdapter(
 
         holder.firstProductCloseButton?.setOnClickListener {
             closeCard(holder)
+            // todo zavrit po kliku klavesnici
         }
         holder.firstProductConfirmButton?.setOnClickListener {
             try {

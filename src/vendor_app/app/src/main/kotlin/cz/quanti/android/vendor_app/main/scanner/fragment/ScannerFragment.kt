@@ -48,7 +48,6 @@ class ScannerFragment() : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        (activity as AppCompatActivity).supportActionBar?.show()
         return inflater.inflate(R.layout.fragment_scanner, container, false)
     }
 

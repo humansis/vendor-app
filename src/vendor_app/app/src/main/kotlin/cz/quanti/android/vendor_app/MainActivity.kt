@@ -317,6 +317,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
             toolbar.visibility = View.VISIBLE
             drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
         } else {
+            // TODO schovat ten hnusnej bar s nazvem appky na login screenu
             toolbar.visibility = View.GONE
             drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
         }
@@ -362,7 +363,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
         )
         priceUnitSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onNothingSelected(parent: AdapterView<*>?) {
-                // todo zadat nejakou default menu ???
+                // todo zadat nejakou default menu ??? A nedeje se to uz?
             }
 
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {

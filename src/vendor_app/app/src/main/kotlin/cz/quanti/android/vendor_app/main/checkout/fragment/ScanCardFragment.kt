@@ -38,7 +38,6 @@ class ScanCardFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        (activity as AppCompatActivity).supportActionBar?.show()
         activityCallback = activity as ActivityCallback
         return inflater.inflate(R.layout.fragment_scan_card, container, false)
     }

@@ -124,6 +124,8 @@ class LoginFragment : Fragment() {
                                 {
                                     vm.onLogin(requireActivity() as (ActivityCallback))
                                     loadingImageView.animation.repeatCount = 0
+                                    usernameEditText.error = null
+                                    passwordEditText.error = null
                                     findNavController().navigate(
                                         LoginFragmentDirections.actionLoginFragmentToVendorFragment()
                                     )
@@ -138,6 +140,8 @@ class LoginFragment : Fragment() {
                                         usernameEditText.error = getString(R.string.wrong_password)
                                         passwordEditText.error = getString(R.string.wrong_password)
                                     } else {
+                                        usernameEditText.error = null
+                                        passwordEditText.error = null
                                         Toast.makeText(
                                             context,
                                             getString(R.string.no_internet_connection),

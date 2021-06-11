@@ -48,7 +48,6 @@ class CheckoutFragment() : Fragment(), CheckoutFragmentCallback {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        (activity as AppCompatActivity).supportActionBar?.show()
         activityCallback = activity as ActivityCallback
         requireActivity().onBackPressedDispatcher.addCallback(
             this,

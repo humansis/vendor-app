@@ -105,7 +105,7 @@ class ShopAdapter(
                         Log.e(e?.message ?: "")
                     }
                 })
-            holder.firstProductLayout?.setOnClickListener {
+            holder.firstProductLayout?.setOnClickListener {  // todo vyresit na co vlastne klikat... tady se kůlika na layout, u dalsich 2 produktu se klika na image
                 productsRow[0]?.let { product -> expandCard(
                     holder,
                     product,

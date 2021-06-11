@@ -266,7 +266,7 @@ class CheckoutFragment() : Fragment(), CheckoutFragmentCallback {
     private fun showPinDialogAndPayByCard() {
        if (NfcInitializer.initNfc(requireActivity())) {
            val dialogView: View = layoutInflater.inflate(R.layout.dialog_card_pin, null)
-           dialogView.pin_title.text = getString(R.string.total_price, vm.getTotal(), vm.getCurrency())
+           dialogView.pin_title.text = getString(R.string.total_price, vm.getTotal(), vm.getCurrency().value)
            AlertDialog.Builder(requireContext(), R.style.DialogTheme)
                 .setView(dialogView)
                 .setCancelable(false)

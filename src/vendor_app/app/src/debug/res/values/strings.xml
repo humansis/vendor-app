@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">Humansis Vendor DEMO</string>
     <string name="login_screen_subtitle">HUMANSIS VENDOR DEMO</string>
+    <string name="send_email_adress" translatable="false">mobilne-pin@quanti.cz</string>
 </resources>

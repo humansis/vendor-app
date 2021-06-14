@@ -37,9 +37,10 @@ class PurchaseFacadeImpl(
     }
 
     override fun syncWithServer(vendorId: Int): Completable {
+        Log.d(TAG, "Sync started" )
         return preparePurchases()
             .andThen(sendPurchasesToServer())
-            .andThen(deleteAllPurchases())
+            .andThen(deleteSelectedProducts())
             .andThen(retrieveInvoices(vendorId))
             .andThen(retrieveTransactions(vendorId))
 
@@ -85,7 +86,16 @@ class PurchaseFacadeImpl(
                 purchaseRepo.sendVoucherPurchasesToServer(voucherPurchases)
                     .flatMapCompletable { responseCode ->
                         if (isPositiveResponseHttpCode(responseCode)) {
-                            purchaseRepo.deleteAllVoucherPurchases()
+                            Log.d(
+                                TAG,
+                                "Voucher purchases sync finished successfully"
+                            )
+                            purchaseRepo.deleteAllVoucherPurchases().doOnComplete {
+                                Log.d(
+                                    TAG,
+                                    "All voucher purchases successfully removed from db"
+                                )
+                            }
                         } else {
                             invalidPurchases.addAll(voucherPurchases)
                             Completable.complete()
@@ -95,12 +105,13 @@ class PurchaseFacadeImpl(
                             .flatMapCompletable { purchase ->
                                 purchaseRepo.sendCardPurchaseToServer(purchase)
                                     .flatMapCompletable { responseCode ->
-                                        Log.d(
-                                            TAG,
-                                            "Received code $responseCode when trying to sync purchase ${purchase.dbId} by ${purchase.smartcard}"
-                                        )
                                         if (isPositiveResponseHttpCode(responseCode)) {
-                                            purchaseRepo.deleteCardPurchase(purchase)
+                                            purchaseRepo.deleteCardPurchase(purchase).doOnComplete {
+                                                Log.d(
+                                                    TAG,
+                                                    "Purchase ${purchase.dbId} by ${purchase.smartcard} successfully removed from db"
+                                                )
+                                            }
                                         } else {
                                             invalidPurchases.add(purchase)
                                             Completable.complete()
@@ -109,6 +120,10 @@ class PurchaseFacadeImpl(
                             }
                             //throw exception after all purchases has been iterated
                             .doOnComplete {
+                                Log.d(
+                                    TAG,
+                                    "Smartcard purchases sync finished successfully"
+                                )
                                 if (invalidPurchases.isNotEmpty()) {
                                     throw VendorAppException("Could not send purchases to the server.").apply {
                                         apiError = true
@@ -120,8 +135,8 @@ class PurchaseFacadeImpl(
         }
     }
 
-    private fun deleteAllPurchases(): Completable {
-        return purchaseRepo.deleteAllPurchases()
+    private fun deleteSelectedProducts(): Completable {
+        return purchaseRepo.deleteSelectedProducts()
     }
 
     private fun retrieveInvoices(vendorId: Int): Completable {

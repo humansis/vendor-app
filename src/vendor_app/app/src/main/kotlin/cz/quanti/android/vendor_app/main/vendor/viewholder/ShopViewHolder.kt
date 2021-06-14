@@ -7,7 +7,7 @@ import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.item_product.view.*
 
 class ShopViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-    var firstProductName: TextView? = itemView.productName
-    var firstProductImage: ImageView? = itemView.productImage
-    var firstProductLayout: ConstraintLayout? = itemView.productLayout
+    var productName: TextView = itemView.productName
+    var productImage: ImageView = itemView.productImage
+    var productLayout: ConstraintLayout = itemView.productLayout
 }

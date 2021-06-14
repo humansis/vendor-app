@@ -13,7 +13,6 @@ import androidx.recyclerview.widget.GridLayoutManager
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.navigation.NavigationView
 import com.google.android.material.textfield.TextInputLayout
-import com.squareup.picasso.Picasso
 import cz.quanti.android.vendor_app.ActivityCallback
 import cz.quanti.android.vendor_app.MainActivity
 import cz.quanti.android.vendor_app.MainActivity.OnTouchOutsideViewListener
@@ -36,8 +35,6 @@ class ProductsFragment : Fragment(), OnTouchOutsideViewListener {
     private var reloadProductsDisposable: Disposable? = null
 
     var chosenCurrency: String = ""
-
-    private val picasso = Picasso.get()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -163,18 +160,7 @@ class ProductsFragment : Fragment(), OnTouchOutsideViewListener {
     fun openProduct(product: Product) {
         val dialogView = layoutInflater.inflate(R.layout.dialog_product, null)
 
-        picasso.isLoggingEnabled = true
-        val img = ImageView(context)
-        picasso.load(product.image)
-            .into(img, object : com.squareup.picasso.Callback {
-                override fun onSuccess() {
-                    dialogView.findViewById<ImageView>(R.id.productImage)?.background = img.drawable
-                }
-
-                override fun onError(e: java.lang.Exception?) {
-                    Log.e(e?.message ?: "")
-                }
-            })
+        dialogView.findViewById<ImageView>(R.id.productImage).setImageDrawable(product.drawable)
 
         dialogView.findViewById<TextView>(R.id.productName).text = product.name
 

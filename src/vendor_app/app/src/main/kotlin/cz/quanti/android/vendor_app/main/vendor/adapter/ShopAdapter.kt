@@ -76,21 +76,30 @@ class ShopAdapter(
     }
 
     override fun onBindViewHolder(holder: ShopViewHolder, position: Int) {
-        holder.firstProductName?.text = products[position].name
-        picasso.isLoggingEnabled = true
-        val img = ImageView(context)
-        picasso.load(products[position].image)
-            .into(img, object : com.squareup.picasso.Callback {
-                override fun onSuccess() {
-                    holder.firstProductImage?.background = img.drawable
-                }
+        holder.productName.text = products[position].name
 
-                override fun onError(e: java.lang.Exception?) {
-                    Log.e(e?.message ?: "")
-                }
-            })
-        holder.firstProductLayout?.setOnClickListener {
+        if (products[position].drawable == null ) {
+            picasso.isLoggingEnabled = true
+            val img = ImageView(context)
+            picasso.load(products[position].image)
+                .into(img, object : com.squareup.picasso.Callback {
+                    override fun onSuccess() {
+                        products[position].drawable = img.drawable
+                        holder.productImage.setImageDrawable(img.drawable)
+                    }
+
+                    override fun onError(e: java.lang.Exception?) {
+                        Log.e(e?.message ?: "")
+                    }
+                })
+        } else {
+            holder.productImage.setImageDrawable(products[position].drawable)
+        }
+
+        holder.productLayout.setOnClickListener {
             productsFragment.openProduct(products[position])
         }
+
+
     }
 }

@@ -2,26 +2,22 @@ package cz.quanti.android.vendor_app.main.vendor.adapter
 
 import android.content.Context
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
-import android.widget.Filter
-import android.widget.Filterable
-import android.widget.ImageView
-import android.widget.Toast
+import android.widget.*
 import androidx.recyclerview.widget.RecyclerView
 import com.squareup.picasso.Picasso
 import cz.quanti.android.vendor_app.R
+import cz.quanti.android.vendor_app.main.vendor.fragment.ProductsFragment
 import cz.quanti.android.vendor_app.main.vendor.viewholder.ShopViewHolder
 import cz.quanti.android.vendor_app.main.vendor.viewmodel.VendorViewModel
 import cz.quanti.android.vendor_app.repository.product.dto.Product
-import cz.quanti.android.vendor_app.repository.purchase.dto.SelectedProduct
 import org.koin.core.KoinComponent
 import quanti.com.kotlinlog.Log
 import java.util.*
 import kotlin.collections.ArrayList
-import kotlin.math.ceil
 
 class ShopAdapter(
+    private val productsFragment: ProductsFragment,
     private val vm: VendorViewModel,
     private val context: Context
 ) :
@@ -31,15 +27,12 @@ class ShopAdapter(
     private val productsFull: MutableList<Product> = mutableListOf()
 
     var chosenCurrency: String = ""
-    private var expandedCardHolder: ShopViewHolder? = null
-    private var firstNeighbor: View? = null
-    private var secondNeighbor: View? = null
 
-    private val itemsInRow = 3
     private val picasso = Picasso.get()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ShopViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_shop, parent, false)
+        val view = LayoutInflater.from(parent.context)
+            .inflate(R.layout.item_product, parent, false)
         return ShopViewHolder(view)
     }
 
@@ -52,7 +45,7 @@ class ShopAdapter(
     }
 
     override fun getItemCount(): Int {
-        return ceil(products.size.toDouble() / itemsInRow).toInt()
+        return products.size
     }
 
     override fun getFilter(): Filter {
@@ -86,204 +79,21 @@ class ShopAdapter(
     }
 
     override fun onBindViewHolder(holder: ShopViewHolder, position: Int) {
-
-        val actualPosition = position * 3
-        val productsRow = getProductsRow(actualPosition)
-
-        if (productsRow[0] != null) {
-            holder.firstProductName?.text = productsRow[0]?.name
-            holder.firstProductImage?.isClickable = true
-            picasso.isLoggingEnabled = true
-            val img = ImageView(context)
-            picasso.load(productsRow[0]?.image)
-                .into(img, object : com.squareup.picasso.Callback {
-                    override fun onSuccess() {
-                        holder.firstProductImage?.background = img.drawable
-                    }
-
-                    override fun onError(e: java.lang.Exception?) {
-                        Log.e(e?.message ?: "")
-                    }
-                })
-            holder.firstProductLayout?.setOnClickListener {
-                productsRow[0]?.let { product -> expandCard(
-                    holder,
-                    product,
-                    0,
-                    holder.secondProduct,
-                    holder.thirdProduct
-                ) }
-            }
-            holder.firstProductImage?.setOnClickListener {
-                holder.firstProductLayout?.callOnClick()
-            }
-        } else {
-            holder.firstProductImage?.visibility = View.INVISIBLE
-            holder.firstProductName?.visibility = View.INVISIBLE
-            holder.firstProductLayout?.visibility = View.INVISIBLE
-        }
-
-        if (productsRow[1] != null) {
-            holder.secondProductName?.text = productsRow[1]?.name
-            holder.secondProductImage?.isClickable = true
-            val img = ImageView(context)
-            picasso.load(productsRow[1]?.image)
-                .into(img, object : com.squareup.picasso.Callback {
-                    override fun onSuccess() {
-                        holder.secondProductImage?.background = img.drawable
-                    }
-
-                    override fun onError(e: java.lang.Exception?) {
-                        Log.e(e?.message ?: "")
-                    }
-                })
-            holder.secondProductLayout?.setOnClickListener {
-                productsRow[1]?.let { product -> expandCard(
-                    holder,
-                    product,
-                    1,
-                    holder.firstProduct,
-                    holder.thirdProduct
-                ) }
-            }
-            holder.secondProductImage?.setOnClickListener {
-                holder.secondProductLayout?.callOnClick()
-            }
-        } else {
-            holder.secondProductImage?.visibility = View.INVISIBLE
-            holder.secondProductName?.visibility = View.INVISIBLE
-            holder.secondProductLayout?.visibility = View.INVISIBLE
-        }
-
-        if (productsRow[2] != null) {
-            holder.thirdProductName?.text = productsRow[2]?.name
-            holder.thirdProductImage?.isClickable = true
-            val img = ImageView(context)
-            picasso.load(productsRow[2]?.image)
-                .into(img, object : com.squareup.picasso.Callback {
-                    override fun onSuccess() {
-                        holder.thirdProductImage?.background = img.drawable
-                    }
-
-                    override fun onError(e: java.lang.Exception?) {
-                        Log.e(e?.message ?: "")
-                    }
-                })
-            holder.thirdProductLayout?.setOnClickListener {
-                productsRow[2]?.let { product -> expandCard(
-                    holder,
-                    product,
-                    2,
-                    holder.firstProduct,
-                    holder.secondProduct
-                ) }
-            }
-            holder.thirdProductImage?.setOnClickListener {
-                holder.thirdProductLayout?.callOnClick()
-            }
-        } else {
-            holder.thirdProductImage?.visibility = View.INVISIBLE
-            holder.thirdProductName?.visibility = View.INVISIBLE
-            holder.thirdProductLayout?.visibility = View.INVISIBLE
-        }
-    }
-
-    private fun getProductsRow(position: Int): Array<Product?> {
-        val productsRow = Array<Product?>(3) { null }
-
-        for (i in 0..2) {
-            if (products.size > position + i) {
-                productsRow[i] = products[position + i]
-            }
-        }
-
-        return productsRow
-    }
-
-    private fun expandCard(
-        holder: ShopViewHolder,
-        product: Product,
-        position: Int,
-        firstNeighbor: View?,
-        secondNeighbor: View?
-    ) {
-        if (expandedCardHolder != holder) {
-            closeExpandedCard()
-            expandedCardHolder = holder
-
-            this.firstNeighbor = firstNeighbor
-            this.secondNeighbor = secondNeighbor
-            firstNeighbor?.visibility = View.GONE
-            secondNeighbor?.visibility = View.GONE
-
-            holder.firstProductPaddingLeft?.visibility = View.VISIBLE
-            holder.firstProductPaddingRight?.visibility = View.VISIBLE
-            holder.firstProductOptions?.visibility = View.VISIBLE
-
-            loadOptions(holder, product)
-        }
-    }
-
-    private fun loadOptions(holder: ShopViewHolder, product: Product) {
-        holder.firstProductPriceEditText?.hint = context.getString(R.string.price)
-        holder.firstProductPriceTextInputLayout?.suffixText = chosenCurrency
-        holder.firstProductConfirmButton?.text = context.getString(R.string.add_to_cart)
-
-        holder.firstProductCloseButton?.setOnClickListener {
-            holder.firstProductPriceEditText?.clearFocus()
-            closeCard(holder)
-        }
-        holder.firstProductConfirmButton?.setOnClickListener {
-            try {
-                val price = holder.firstProductPriceEditText?.text.toString().toDouble()
-                if (price <= 0.0) {
-                    showInvalidPriceEnteredMessage()
-                } else {
-                    addProductToCart(
-                        product,
-                        price
-                    )
-                    closeCard(holder)
+        holder.firstProductName?.text = products[position].name
+        picasso.isLoggingEnabled = true
+        val img = ImageView(context)
+        picasso.load(products[position].image)
+            .into(img, object : com.squareup.picasso.Callback {
+                override fun onSuccess() {
+                    holder.firstProductImage?.background = img.drawable
                 }
-            } catch(e: NumberFormatException) {
-                showInvalidPriceEnteredMessage()
-            }
+
+                override fun onError(e: java.lang.Exception?) {
+                    Log.e(e?.message ?: "")
+                }
+            })
+        holder.firstProductLayout?.setOnClickListener {
+            productsFragment.openProduct(products[position])
         }
-    }
-
-    private fun closeCard(holder: ShopViewHolder) {
-        this.firstNeighbor?.visibility = View.VISIBLE
-        this.secondNeighbor?.visibility = View.VISIBLE
-        this.firstNeighbor = null
-        this.secondNeighbor = null
-        holder.firstProductPaddingLeft?.visibility = View.GONE
-        holder.firstProductPaddingRight?.visibility = View.GONE
-        holder.firstProductOptions?.visibility = View.GONE
-        expandedCardHolder = null
-    }
-
-    fun closeExpandedCard(): Boolean {
-        expandedCardHolder?.let {
-            closeCard(it)
-            return true
-        } ?: return false
-    }
-
-    private fun addProductToCart(product: Product, unitPrice: Double) {
-        val selected = SelectedProduct()
-            .apply {
-                this.product = product
-                this.price = unitPrice
-                this.currency = vm.getCurrency().value.toString()
-            }
-        vm.addToShoppingCart(selected)
-    }
-
-    private fun showInvalidPriceEnteredMessage() {
-        Toast.makeText(
-            context,
-            context.getString(R.string.please_enter_price),
-            Toast.LENGTH_LONG
-        ).show()
     }
 }

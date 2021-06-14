@@ -1,24 +1,33 @@
 package cz.quanti.android.vendor_app.main.vendor.fragment
 
+import android.app.AlertDialog
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
-import androidx.activity.OnBackPressedCallback
+import android.widget.EditText
+import android.widget.ImageView
+import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
-import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.GridLayoutManager
+import com.google.android.material.button.MaterialButton
 import com.google.android.material.navigation.NavigationView
+import com.google.android.material.textfield.TextInputLayout
+import com.squareup.picasso.Picasso
 import cz.quanti.android.vendor_app.ActivityCallback
 import cz.quanti.android.vendor_app.MainActivity
 import cz.quanti.android.vendor_app.MainActivity.OnTouchOutsideViewListener
 import cz.quanti.android.vendor_app.R
 import cz.quanti.android.vendor_app.main.vendor.adapter.ShopAdapter
 import cz.quanti.android.vendor_app.main.vendor.viewmodel.VendorViewModel
+import cz.quanti.android.vendor_app.repository.product.dto.Product
+import cz.quanti.android.vendor_app.repository.purchase.dto.SelectedProduct
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
@@ -32,6 +41,10 @@ class ProductsFragment : Fragment(), OnTouchOutsideViewListener {
     private lateinit var adapter: ShopAdapter
     private var reloadProductsDisposable: Disposable? = null
 
+    var chosenCurrency: String = ""
+
+    private val picasso = Picasso.get()
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -41,23 +54,13 @@ class ProductsFragment : Fragment(), OnTouchOutsideViewListener {
         (requireActivity() as ActivityCallback).setTitle(getString(R.string.app_name))
         requireActivity().findViewById<NavigationView>(R.id.nav_view).setCheckedItem(R.id.home_button)
 
-        val callback: OnBackPressedCallback =
-            object : OnBackPressedCallback(true /* enabled by default */) {
-                override fun handleOnBackPressed() {
-                    if (!adapter.closeExpandedCard()) {
-                        requireActivity().finish()
-                    }
-                }
-            }
-        requireActivity().onBackPressedDispatcher.addCallback(this, callback)
-
         return inflater.inflate(R.layout.fragment_products, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        adapter = ShopAdapter(vm, requireContext())
+        adapter = ShopAdapter(this, vm, requireContext())
     }
 
     override fun onStart() {
@@ -97,8 +100,8 @@ class ProductsFragment : Fragment(), OnTouchOutsideViewListener {
         }
     }
 
-    private fun initProductsAdapter() {
-        val viewManager = LinearLayoutManager(activity)
+    private fun initProductsAdapter() { //todo asi to volat v onresume? nebo v onresume v
+        val viewManager = GridLayoutManager(activity, gridColumns())
 
         productsRecyclerView.setHasFixedSize(true)
         productsRecyclerView.layoutManager = viewManager
@@ -106,8 +109,18 @@ class ProductsFragment : Fragment(), OnTouchOutsideViewListener {
         adapter.chosenCurrency = vm.getCurrency().value.toString()
     }
 
+    private fun gridColumns(): Int {
+        return when {
+            resources.getBoolean(R.bool.isPortrait) -> when {
+                resources.getBoolean(R.bool.isTablet) -> 4
+                else -> 3
+            }
+            else -> 6
+        }
+    }
+
     private fun initSearchBar() {
-        // todo vyresit proc se jakoby vyprazdnuje query pri otoceni obrazovky
+        // todo vyresit proc se jakoby vyprazdnuje query pri otoceni obrazovky a proc query obcas neni videt
         productsSearchBar.setOnClickListener {
             productsSearchBar.isIconified = false
         }
@@ -142,8 +155,8 @@ class ProductsFragment : Fragment(), OnTouchOutsideViewListener {
         })
 
         vm.getCurrency().observe(viewLifecycleOwner, Observer {
+            chosenCurrency = it
             adapter.chosenCurrency = it
-            adapter.closeExpandedCard()
         })
     }
 
@@ -153,5 +166,75 @@ class ProductsFragment : Fragment(), OnTouchOutsideViewListener {
                 ProductsFragmentDirections.actionProductsFragmentToCheckoutFragment()
             )
         }
+    }
+
+    fun openProduct(product: Product) {
+        val dialogView = layoutInflater.inflate(R.layout.dialog_product, null)
+
+        picasso.isLoggingEnabled = true
+        val img = ImageView(context)
+        picasso.load(product.image)
+            .into(img, object : com.squareup.picasso.Callback {
+                override fun onSuccess() {
+                    dialogView.findViewById<ImageView>(R.id.productImage)?.background = img.drawable
+                }
+
+                override fun onError(e: java.lang.Exception?) {
+                    Log.e(e?.message ?: "")
+                }
+            })
+
+        dialogView.findViewById<TextView>(R.id.productName).text = product.name
+
+        val dialog = AlertDialog.Builder(activity)
+            .setView(dialogView)
+            .show()
+        loadOptions(dialog, dialogView, product)
+    }
+
+    private fun loadOptions(dialog: AlertDialog, dialogView: View, product: Product) {
+        val priceEditText = dialogView.findViewById<EditText>(R.id.priceEditText)
+        priceEditText.hint = requireContext().getString(R.string.price)
+        dialogView.findViewById<TextInputLayout>(R.id.priceTextInputLayout).suffixText = chosenCurrency
+
+        dialogView.findViewById<ImageView>(R.id.closeButton).setOnClickListener {
+            dialog.dismiss()
+        }
+
+        dialogView.findViewById<MaterialButton>(R.id.confirmButton).text = requireContext().getString(R.string.add_to_cart)
+        dialogView.findViewById<MaterialButton>(R.id.confirmButton).setOnClickListener {
+            try {
+                val price = priceEditText.text.toString().toDouble()
+                if (price <= 0.0) {
+                    showInvalidPriceEnteredMessage()
+                } else {
+                    addProductToCart(
+                        product,
+                        price
+                    )
+                    dialog.dismiss()
+                }
+            } catch(e: NumberFormatException) {
+                showInvalidPriceEnteredMessage()
+            }
+        }
+    }
+
+    private fun addProductToCart(product: Product, unitPrice: Double) {
+        val selected = SelectedProduct()
+            .apply {
+                this.product = product
+                this.price = unitPrice
+                this.currency = vm.getCurrency().value.toString()
+            }
+        vm.addToShoppingCart(selected)
+    }
+
+    private fun showInvalidPriceEnteredMessage() {
+        Toast.makeText(
+            requireContext(),
+            requireContext().getString(R.string.please_enter_price),
+            Toast.LENGTH_LONG
+        ).show()
     }
 }

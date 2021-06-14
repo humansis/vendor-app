@@ -2,15 +2,9 @@ package cz.quanti.android.vendor_app.main.vendor.fragment
 
 import android.app.AlertDialog
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.MotionEvent
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.view.inputmethod.EditorInfo
-import android.widget.EditText
-import android.widget.ImageView
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
 import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
@@ -100,13 +94,12 @@ class ProductsFragment : Fragment(), OnTouchOutsideViewListener {
         }
     }
 
-    private fun initProductsAdapter() { //todo asi to volat v onresume? nebo v onresume v
+    private fun initProductsAdapter() {
         val viewManager = GridLayoutManager(activity, gridColumns())
 
         productsRecyclerView.setHasFixedSize(true)
         productsRecyclerView.layoutManager = viewManager
         productsRecyclerView.adapter = adapter
-        adapter.chosenCurrency = vm.getCurrency().value.toString()
     }
 
     private fun gridColumns(): Int {
@@ -156,7 +149,6 @@ class ProductsFragment : Fragment(), OnTouchOutsideViewListener {
 
         vm.getCurrency().observe(viewLifecycleOwner, Observer {
             chosenCurrency = it
-            adapter.chosenCurrency = it
         })
     }
 
@@ -189,6 +181,12 @@ class ProductsFragment : Fragment(), OnTouchOutsideViewListener {
         val dialog = AlertDialog.Builder(activity)
             .setView(dialogView)
             .show()
+        if ( !resources.getBoolean(R.bool.isTablet) ) {
+            dialog.window?.setLayout(
+                resources.displayMetrics.widthPixels,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            )
+        }
         loadOptions(dialog, dialogView, product)
     }
 

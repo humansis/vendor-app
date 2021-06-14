@@ -24,8 +24,6 @@ class ShopAdapter(
     private val products: MutableList<Product> = mutableListOf()
     private val productsFull: MutableList<Product> = mutableListOf()
 
-    var chosenCurrency: String = ""
-
     private val picasso = Picasso.get()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ShopViewHolder {
@@ -69,9 +67,10 @@ class ShopAdapter(
             return results
         }
 
+        @Suppress("UNCHECKED_CAST")
         override fun publishResults(constraint: CharSequence, results: FilterResults) {
             products.clear()
-            products.addAll(results.values as List<Product>) // todo vyresit
+            products.addAll(results.values as List<Product>)
             notifyDataSetChanged()
         }
     }

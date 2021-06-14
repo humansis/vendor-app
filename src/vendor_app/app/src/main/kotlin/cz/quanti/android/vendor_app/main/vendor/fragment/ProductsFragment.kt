@@ -60,7 +60,7 @@ class ProductsFragment : Fragment(), OnTouchOutsideViewListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        adapter = ShopAdapter(this, vm, requireContext())
+        adapter = ShopAdapter(this, requireContext())
     }
 
     override fun onStart() {

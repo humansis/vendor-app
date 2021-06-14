@@ -13,16 +13,7 @@ import cz.quanti.android.vendor_app.utils.Constants
 class CurrencyAdapter(context: Context) : SpinnerAdapter, ArrayAdapter<String>(context, R.layout.item_currency) {
 
     fun init(firstCurrencies: List<String>) {
-        val currencies: MutableList<String> = Constants.SUPPORTED_CURRENCIES.filter {
-            it.currencyCode != null
-        }.map {
-            it.currencyCode
-        }.toMutableList()
-
-        currencies.sort()
-
         addAll(firstCurrencies)
-        addAll(currencies)
         notifyDataSetChanged()
     }
 

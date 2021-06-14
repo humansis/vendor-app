@@ -9,7 +9,6 @@ import com.squareup.picasso.Picasso
 import cz.quanti.android.vendor_app.R
 import cz.quanti.android.vendor_app.main.vendor.fragment.ProductsFragment
 import cz.quanti.android.vendor_app.main.vendor.viewholder.ShopViewHolder
-import cz.quanti.android.vendor_app.main.vendor.viewmodel.VendorViewModel
 import cz.quanti.android.vendor_app.repository.product.dto.Product
 import org.koin.core.KoinComponent
 import quanti.com.kotlinlog.Log
@@ -18,7 +17,6 @@ import kotlin.collections.ArrayList
 
 class ShopAdapter(
     private val productsFragment: ProductsFragment,
-    private val vm: VendorViewModel,
     private val context: Context
 ) :
     RecyclerView.Adapter<ShopViewHolder>(), Filterable, KoinComponent {

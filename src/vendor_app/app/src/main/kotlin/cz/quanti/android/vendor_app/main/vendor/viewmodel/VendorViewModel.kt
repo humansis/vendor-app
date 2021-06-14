@@ -47,7 +47,7 @@ class VendorViewModel(
     }
 
     fun getFirstCurrencies(): List<String> {
-        return listOf("USD", "EUR", "SYP", "KHR", "UAH", "AMD", "MNT", "ETB")
+        return listOf("USD", "EUR", "SYP", "KHR", "UAH", "AMD", "MNT", "ETB", "ZMW")
     }
 
     fun removeFromCart(position: Int) {

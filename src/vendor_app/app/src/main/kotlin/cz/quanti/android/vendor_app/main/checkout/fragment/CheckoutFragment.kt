@@ -281,17 +281,6 @@ class CheckoutFragment() : Fragment(), CheckoutFragmentCallback {
                 .setNegativeButton(android.R.string.cancel) { dialog, _ ->
                     dialog?.cancel()
                 }
-                .setOnDismissListener {
-                    view?.postDelayed(
-                        {
-                            (requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager).hideSoftInputFromWindow(
-                                requireActivity().currentFocus?.windowToken,
-                                0
-                            )
-                        },
-                        50
-                    )
-                }
                 .show()
         }
     }

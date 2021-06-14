@@ -6,7 +6,6 @@
     android:id="@+id/productCard"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:animateLayoutChanges="true"
     android:elevation="@dimen/cardview_default_elevation"
     android:background="@drawable/background_cardviewlike">
 
@@ -24,9 +23,7 @@
             android:id="@+id/productLayout"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="1"
-            android:clickable="true"
-            android:focusable="true">
+            android:layout_weight="1">
 
             <ImageView
                 android:id="@+id/productImage"

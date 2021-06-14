@@ -5,7 +5,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.squareup.picasso.Picasso
 import cz.quanti.android.vendor_app.R
 import cz.quanti.android.vendor_app.main.checkout.callback.CheckoutFragmentCallback
 import cz.quanti.android.vendor_app.main.checkout.viewholder.SelectedProductsViewHolder
@@ -37,8 +36,7 @@ class SelectedProductsAdapter(
     override fun onBindViewHolder(holder: SelectedProductsViewHolder, position: Int) {
         val item = products[position]
 
-        Picasso.get().load(item.product.image)
-            .into(holder.image)
+        holder.image.setImageDrawable(item.product.drawable)
 
         holder.productName.text = item.product.name
         val price = "${getStringFromDouble(item.price)} $chosenCurrency"

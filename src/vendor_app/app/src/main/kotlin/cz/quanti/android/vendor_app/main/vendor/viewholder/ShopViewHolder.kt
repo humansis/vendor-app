@@ -1,10 +1,7 @@
 package cz.quanti.android.vendor_app.main.vendor.viewholder
 
 import android.view.View
-import android.widget.EditText
-import android.widget.FrameLayout
-import android.widget.ImageView
-import android.widget.TextView
+import android.widget.*
 import androidx.cardview.widget.CardView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.RecyclerView
@@ -30,9 +27,9 @@ class ShopViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
     var secondProduct: View? = itemView.secondProduct
     var secondProductName: TextView? = itemView.secondProduct.productName
     var secondProductImage: ImageView? = itemView.secondProduct.productImage
-    var secondProductLayout: CardView? = itemView.secondProduct.productCard
+    var secondProductLayout: ConstraintLayout? = itemView.secondProduct.productLayout
     var thirdProduct: View? = itemView.thirdProduct
     var thirdProductName: TextView? = itemView.thirdProduct.productName
     var thirdProductImage: ImageView? = itemView.thirdProduct.productImage
-    var thirdProductLayout: CardView? = itemView.thirdProduct.productCard
+    var thirdProductLayout: ConstraintLayout? = itemView.thirdProduct.productLayout
 }

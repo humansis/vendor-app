@@ -4,11 +4,13 @@ import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.content.Intent
 import android.content.pm.ActivityInfo
+import android.graphics.Rect
 import android.nfc.NfcAdapter
 import android.nfc.Tag
 import android.os.Bundle
 import android.util.DisplayMetrics
 import android.view.MenuItem
+import android.view.MotionEvent
 import android.view.View
 import android.widget.*
 import androidx.appcompat.app.ActionBarDrawerToggle
@@ -37,7 +39,6 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.activity_main.priceUnitSpinner
 import kotlinx.android.synthetic.main.app_bar_main.*
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -378,5 +379,62 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
         }
         // todo doresit jak nemit ten list pres celou obrazovku
         // todo odebrat meny co nejsou podporovane
+    }
+
+    //====OnTouchOutsideListener====
+
+    private var mTouchOutsideView: View? = null
+
+    private var mOnTouchOutsideViewListener: OnTouchOutsideViewListener? = null
+
+    /**
+     * Sets a listener that is being notified when the user has tapped outside a given view. To remove the listener,
+     * call [.removeOnTouchOutsideViewListener].
+     *
+     *
+     * This is useful in scenarios where a view is in edit mode and when the user taps outside the edit mode shall be
+     * stopped.
+     *
+     * @param view
+     * @param onTouchOutsideViewListener
+     */
+    fun setOnTouchOutsideViewListener(
+        view: View?,
+        onTouchOutsideViewListener: OnTouchOutsideViewListener?
+    ) {
+        mTouchOutsideView = view
+        mOnTouchOutsideViewListener = onTouchOutsideViewListener
+    }
+
+    fun getOnTouchOutsideViewListener(): OnTouchOutsideViewListener? {
+        return mOnTouchOutsideViewListener
+    }
+
+    override fun dispatchTouchEvent(ev: MotionEvent): Boolean {
+        if (ev.action == MotionEvent.ACTION_DOWN) {
+            // Notify touch outside listener if user tapped outside a given view
+            if (mOnTouchOutsideViewListener != null && mTouchOutsideView != null && mTouchOutsideView!!.visibility == View.VISIBLE) {
+                val viewRect = Rect()
+                mTouchOutsideView!!.getGlobalVisibleRect(viewRect)
+                if (!viewRect.contains(ev.rawX.toInt(), ev.rawY.toInt())) {
+                    mOnTouchOutsideViewListener!!.onTouchOutside(mTouchOutsideView, ev)
+                }
+            }
+        }
+        return super.dispatchTouchEvent(ev)
+    }
+
+    /**
+     * Interface definition for a callback to be invoked when a touch event has occurred outside a formerly specified
+     * view. See [.setOnTouchOutsideViewListener]
+     */
+    interface OnTouchOutsideViewListener {
+        /**
+         * Called when a touch event has occurred outside a given view.
+         *
+         * @param view  The view that has not been touched.
+         * @param event The MotionEvent object containing full information about the event.
+         */
+        fun onTouchOutside(view: View?, event: MotionEvent?)
     }
 }

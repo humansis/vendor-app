@@ -2,6 +2,7 @@ package cz.quanti.android.vendor_app.main.vendor.fragment
 
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
@@ -13,6 +14,8 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.navigation.NavigationView
 import cz.quanti.android.vendor_app.ActivityCallback
+import cz.quanti.android.vendor_app.MainActivity
+import cz.quanti.android.vendor_app.MainActivity.OnTouchOutsideViewListener
 import cz.quanti.android.vendor_app.R
 import cz.quanti.android.vendor_app.main.vendor.adapter.ShopAdapter
 import cz.quanti.android.vendor_app.main.vendor.viewmodel.VendorViewModel
@@ -23,7 +26,7 @@ import kotlinx.android.synthetic.main.fragment_products.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import quanti.com.kotlinlog.Log
 
-class ProductsFragment : Fragment() {
+class ProductsFragment : Fragment(), OnTouchOutsideViewListener {
 
     private val vm: VendorViewModel by viewModel()
     private lateinit var adapter: ShopAdapter
@@ -84,6 +87,16 @@ class ProductsFragment : Fragment() {
         super.onStop()
     }
 
+    override fun onTouchOutside(view: View?, event: MotionEvent?) {
+        if (view == productsSearchBar) {
+            if (productsSearchBar.query.isBlank()) {
+                productsSearchBar.isIconified = true
+            } else {
+                productsSearchBar.clearFocus()
+            }
+        }
+    }
+
     private fun initProductsAdapter() {
         val viewManager = LinearLayoutManager(activity)
 
@@ -94,14 +107,9 @@ class ProductsFragment : Fragment() {
     }
 
     private fun initSearchBar() {
-        // TODO pridat searchbar nad recycler i do landscape
-        // todo udelat klikatelny po cele delce
-        // todo zrusit focus po kliku jinam
-        productsSearchBar.setOnFocusChangeListener { _, _ ->
-            if (!productsSearchBar.hasFocus()) {
-                Log.d("xxx","search focus lost")
-                productsSearchBar.isIconified = true
-            }
+        // todo vyresit proc se jakoby vyprazdnuje query pri otoceni obrazovky
+        productsSearchBar.setOnClickListener {
+            productsSearchBar.isIconified = false
         }
         productsSearchBar.imeOptions = EditorInfo.IME_ACTION_DONE
         productsSearchBar.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
@@ -114,6 +122,10 @@ class ProductsFragment : Fragment() {
                 return false
             }
         })
+        (activity as MainActivity).setOnTouchOutsideViewListener(
+            productsSearchBar,
+            this
+        )
     }
 
     private fun initObservers() {

@@ -7,14 +7,26 @@
     android:layout_height="match_parent"
     android:background="@color/screenBackgroundColor">
 
+    <androidx.appcompat.widget.SearchView
+        android:id="@+id/productsSearchBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/dimen_8dp"
+        android:layout_marginBottom="@dimen/dimen_8dp"
+        android:background="@drawable/background_cardviewlike"
+        android:elevation="@dimen/cardview_default_elevation"
+        app:theme="@style/SearchView"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/productsRecyclerView" />
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/productsRecyclerView"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
         android:overScrollMode="never"
         android:scrollbars="none"
         android:transcriptMode="alwaysScroll"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/productsSearchBar"
         app:layout_constraintBottom_toBottomOf="parent" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton

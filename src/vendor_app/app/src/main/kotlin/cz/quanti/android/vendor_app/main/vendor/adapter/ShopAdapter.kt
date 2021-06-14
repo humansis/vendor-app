@@ -105,7 +105,7 @@ class ShopAdapter(
                         Log.e(e?.message ?: "")
                     }
                 })
-            holder.firstProductLayout?.setOnClickListener {  // todo vyresit na co vlastne klikat... tady se kůlika na layout, u dalsich 2 produktu se klika na image
+            holder.firstProductLayout?.setOnClickListener {
                 productsRow[0]?.let { product -> expandCard(
                     holder,
                     product,
@@ -113,6 +113,9 @@ class ShopAdapter(
                     holder.secondProduct,
                     holder.thirdProduct
                 ) }
+            }
+            holder.firstProductImage?.setOnClickListener {
+                holder.firstProductLayout?.callOnClick()
             }
         } else {
             holder.firstProductImage?.visibility = View.INVISIBLE
@@ -134,7 +137,7 @@ class ShopAdapter(
                         Log.e(e?.message ?: "")
                     }
                 })
-            holder.secondProductImage?.setOnClickListener {
+            holder.secondProductLayout?.setOnClickListener {
                 productsRow[1]?.let { product -> expandCard(
                     holder,
                     product,
@@ -142,6 +145,9 @@ class ShopAdapter(
                     holder.firstProduct,
                     holder.thirdProduct
                 ) }
+            }
+            holder.secondProductImage?.setOnClickListener {
+                holder.secondProductLayout?.callOnClick()
             }
         } else {
             holder.secondProductImage?.visibility = View.INVISIBLE
@@ -163,7 +169,7 @@ class ShopAdapter(
                         Log.e(e?.message ?: "")
                     }
                 })
-            holder.thirdProductImage?.setOnClickListener {
+            holder.thirdProductLayout?.setOnClickListener {
                 productsRow[2]?.let { product -> expandCard(
                     holder,
                     product,
@@ -171,6 +177,9 @@ class ShopAdapter(
                     holder.firstProduct,
                     holder.secondProduct
                 ) }
+            }
+            holder.thirdProductImage?.setOnClickListener {
+                holder.thirdProductLayout?.callOnClick()
             }
         } else {
             holder.thirdProductImage?.visibility = View.INVISIBLE
@@ -221,8 +230,8 @@ class ShopAdapter(
         holder.firstProductConfirmButton?.text = context.getString(R.string.add_to_cart)
 
         holder.firstProductCloseButton?.setOnClickListener {
+            holder.firstProductPriceEditText?.clearFocus()
             closeCard(holder)
-            // todo zavrit po kliku klavesnici
         }
         holder.firstProductConfirmButton?.setOnClickListener {
             try {

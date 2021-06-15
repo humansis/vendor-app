@@ -184,7 +184,7 @@ object KoinInitializer {
 
         val logging = HttpLoggingInterceptor { message -> Log.d("OkHttp", message) }
 
-        logging.level = HttpLoggingInterceptor.Level.BODY
+        logging.level = HttpLoggingInterceptor.Level.BASIC
 
         return OkHttpClient.Builder()
             .connectTimeout(5, TimeUnit.MINUTES)

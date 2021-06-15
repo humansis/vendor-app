@@ -48,7 +48,7 @@
     <string name="no_internet_connection">يرجى التأكد من اتصالك بالإنترنت</string>
     <string name="could_not_synchronize_data_with_server">تعذر مزامنة البيانات مع الخادم</string>
     <string name="data_were_successfully_synchronized">تمت مزامنة البيانات بنجاح مع الخادم</string>
-    <string name="add_to_cart">اضف الى السلة</string>
+    <string name="add_to_cart">اضف الى\nالسلة</string>
     <string name="please_enter_price">الرجاء إدخال السعر.</string>
     <string name="pin">رقم التعريف الشخصي</string>
     <string name="please_enter_pin">الرجاء إدخال رقم التعريف الشخصي لبطاقتك</string>

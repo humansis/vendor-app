@@ -3,6 +3,7 @@ package cz.quanti.android.vendor_app.main.vendor.viewmodel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import cz.quanti.android.vendor_app.main.vendor.adapter.ShopAdapter
 import cz.quanti.android.vendor_app.repository.AppPreferences
 import cz.quanti.android.vendor_app.repository.product.ProductFacade
 import cz.quanti.android.vendor_app.repository.product.dto.Product

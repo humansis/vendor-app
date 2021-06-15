@@ -363,22 +363,17 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
         currencyAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         priceUnitSpinner.adapter = currencyAdapter
         priceUnitSpinner.setSelection(
-            currencyAdapter.getPosition(vm.getLastCurrencySelection()) //todo nacitat to ze shared preferences
+            currencyAdapter.getPosition(vm.getLastCurrencySelection())
         )
         priceUnitSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onNothingSelected(parent: AdapterView<*>?) {
-                // todo zadat nejakou default menu ??? A nedeje se to uz?
             }
 
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                 vm.setCurrency(priceUnitSpinner.selectedItem as String)
                 vm.setLastCurrencySelection(priceUnitSpinner.selectedItem as String)
-                //todo ulozit to do shared preferences a vyresit tak at je tam nejaka pocatecni hodnota
-                //todo refreshnout main fragment / basket pokud je zobrazen -> delam to pres observer v onviewcreated ve fragmentu
             }
         }
-        // todo doresit jak nemit ten list pres celou obrazovku
-        // todo odebrat meny co nejsou podporovane
     }
 
     //====OnTouchOutsideListener====

@@ -48,7 +48,7 @@
     <string name="no_internet_connection">Убедитесь, что есть связь с интернетом.</string>
     <string name="could_not_synchronize_data_with_server">Не удалось синхронизировать данные с сервером.</string>
     <string name="data_were_successfully_synchronized">Данные были успешно синхронизированы с сервером.</string>
-    <string name="add_to_cart">Добавить в корзину</string>
+    <string name="add_to_cart">Добавить\nв корзину</string>
     <string name="please_enter_price">Пожалуйста, введите стоимость.</string>
     <string name="pin">ПИН-код</string>
     <string name="please_enter_pin">Пожалуйста, введите ПИН-код к Вашей карте.</string>

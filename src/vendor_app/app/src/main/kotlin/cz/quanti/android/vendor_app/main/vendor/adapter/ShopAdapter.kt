@@ -33,8 +33,10 @@ class ShopAdapter(
     }
 
     fun setData(data: List<Product>) {
+        Log.d("xxx Setdata", data.toString())
         products.clear()
         products.addAll(data)
+        generateDrawables()
         productsFull.clear()
         productsFull.addAll(data)
         notifyDataSetChanged()
@@ -56,14 +58,18 @@ class ShopAdapter(
             } else {
                 val filterPattern =
                     constraint.toString().toLowerCase(Locale.getDefault()).trim { it <= ' ' }
+                Log.d("xxx filter pattern", filterPattern)
+                Log.d("xxx productsFull", productsFull.toString())
                 productsFull.forEach { product ->
                     if (product.name.toLowerCase(Locale.getDefault()).contains(filterPattern)) {
                         filteredList.add(product)
                     }
                 }
             }
+            Log.d("xxx filtered list", filteredList.toString())
             val results = FilterResults()
             results.values = filteredList
+            Log.d("xxx results", results.values.toString())
             return results
         }
 
@@ -99,7 +105,24 @@ class ShopAdapter(
         holder.productLayout.setOnClickListener {
             productsFragment.openProduct(products[position])
         }
+    }
 
+    private fun generateDrawables() {
+        products.forEach {
+            if (it.drawable == null ) {
+                picasso.isLoggingEnabled = true
+                val img = ImageView(context)
+                picasso.load(it.image)
+                    .into(img, object : com.squareup.picasso.Callback {
+                        override fun onSuccess() {
+                            it.drawable = img.drawable
+                        }
 
+                        override fun onError(e: java.lang.Exception?) {
+                            Log.e(e?.message ?: "")
+                        }
+                    })
+            }
+        }
     }
 }

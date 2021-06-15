@@ -35,7 +35,7 @@ class LoginFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        (requireActivity() as (ActivityCallback)).setToolbarVisible(false) // TODO podivat se proc je ten toolbar pouze mensi a osklivy
+        (requireActivity() as (ActivityCallback)).setToolbarVisible(false)
         return inflater.inflate(R.layout.fragment_login, container, false)
     }
 

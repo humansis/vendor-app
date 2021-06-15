@@ -1,6 +1,7 @@
 package cz.quanti.android.vendor_app.main.vendor.fragment
 
 import android.app.AlertDialog
+import android.content.res.Configuration
 import android.os.Bundle
 import android.view.*
 import android.view.inputmethod.EditorInfo
@@ -48,19 +49,10 @@ class ProductsFragment : Fragment(), OnTouchOutsideViewListener {
         return inflater.inflate(R.layout.fragment_products, container, false)
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
-        adapter = ShopAdapter(this, requireContext())
-    }
-
     override fun onStart() {
         super.onStart()
 
-        initProductsAdapter()
-        initSearchBar()
-        initObservers()
-        initOnClickListeners()
+        adapter = ShopAdapter(this, requireContext())
 
         reloadProductsDisposable?.dispose()
         reloadProductsDisposable =
@@ -71,20 +63,27 @@ class ProductsFragment : Fragment(), OnTouchOutsideViewListener {
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({ products ->
                     adapter.setData(products)
+                    initProductsAdapter()
+                    initSearchBar()
+                    initObservers()
+                    initOnClickListeners()
                 }, {
                     Log.e(it)
                 })
     }
 
     override fun onStop() {
+        // colapse searchbar after eventual screen rotation
+        productsSearchBar.onActionViewCollapsed()
         reloadProductsDisposable?.dispose()
         super.onStop()
     }
 
     override fun onTouchOutside(view: View?, event: MotionEvent?) {
         if (view == productsSearchBar) {
+            productsSearchBar.clearFocus()
             if (productsSearchBar.query.isBlank()) {
-                productsSearchBar.isIconified = true
+                productsSearchBar.onActionViewCollapsed()
             } else {
                 productsSearchBar.clearFocus()
             }
@@ -110,7 +109,6 @@ class ProductsFragment : Fragment(), OnTouchOutsideViewListener {
     }
 
     private fun initSearchBar() {
-        // todo vyresit proc se jakoby vyprazdnuje query pri otoceni obrazovky a proc query obcas neni videt
         productsSearchBar.setOnClickListener {
             productsSearchBar.isIconified = false
         }
@@ -178,6 +176,7 @@ class ProductsFragment : Fragment(), OnTouchOutsideViewListener {
 
     private fun loadOptions(dialog: AlertDialog, dialogView: View, product: Product) {
         val priceEditText = dialogView.findViewById<EditText>(R.id.priceEditText)
+        val confirmButton = dialogView.findViewById<MaterialButton>(R.id.confirmButton)
         priceEditText.hint = requireContext().getString(R.string.price)
         dialogView.findViewById<TextInputLayout>(R.id.priceTextInputLayout).suffixText = chosenCurrency
 
@@ -185,8 +184,8 @@ class ProductsFragment : Fragment(), OnTouchOutsideViewListener {
             dialog.dismiss()
         }
 
-        dialogView.findViewById<MaterialButton>(R.id.confirmButton).text = requireContext().getString(R.string.add_to_cart)
-        dialogView.findViewById<MaterialButton>(R.id.confirmButton).setOnClickListener {
+        confirmButton.text = requireContext().getString(R.string.add_to_cart)
+        confirmButton.setOnClickListener {
             try {
                 val price = priceEditText.text.toString().toDouble()
                 if (price <= 0.0) {

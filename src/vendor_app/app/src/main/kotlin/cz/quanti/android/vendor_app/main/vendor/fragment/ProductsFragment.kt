@@ -1,7 +1,6 @@
 package cz.quanti.android.vendor_app.main.vendor.fragment
 
 import android.app.AlertDialog
-import android.content.res.Configuration
 import android.os.Bundle
 import android.view.*
 import android.view.inputmethod.EditorInfo
@@ -81,7 +80,6 @@ class ProductsFragment : Fragment(), OnTouchOutsideViewListener {
 
     override fun onTouchOutside(view: View?, event: MotionEvent?) {
         if (view == productsSearchBar) {
-            productsSearchBar.clearFocus()
             if (productsSearchBar.query.isBlank()) {
                 productsSearchBar.onActionViewCollapsed()
             } else {

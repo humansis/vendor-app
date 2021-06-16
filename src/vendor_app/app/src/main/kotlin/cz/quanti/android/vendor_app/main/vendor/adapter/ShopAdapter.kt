@@ -33,10 +33,9 @@ class ShopAdapter(
     }
 
     fun setData(data: List<Product>) {
-        Log.d("xxx Setdata", data.toString())
         products.clear()
         products.addAll(data)
-        generateDrawables()
+        generateDrawables() // TODO vyresit at products full uz maji taky vygenerovany drawables
         productsFull.clear()
         productsFull.addAll(data)
         notifyDataSetChanged()
@@ -58,18 +57,14 @@ class ShopAdapter(
             } else {
                 val filterPattern =
                     constraint.toString().toLowerCase(Locale.getDefault()).trim { it <= ' ' }
-                Log.d("xxx filter pattern", filterPattern)
-                Log.d("xxx productsFull", productsFull.toString())
                 productsFull.forEach { product ->
                     if (product.name.toLowerCase(Locale.getDefault()).contains(filterPattern)) {
                         filteredList.add(product)
                     }
                 }
             }
-            Log.d("xxx filtered list", filteredList.toString())
             val results = FilterResults()
             results.values = filteredList
-            Log.d("xxx results", results.values.toString())
             return results
         }
 

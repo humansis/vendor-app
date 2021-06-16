@@ -149,7 +149,14 @@ object KoinInitializer {
             single { synchronizationManager }
 
             // View model
-            viewModel { LoginViewModel(loginFacade, hostUrlInterceptor, currentVendor) }
+            viewModel {
+                LoginViewModel(
+                    loginFacade,
+                    hostUrlInterceptor,
+                    currentVendor,
+                    synchronizationManager
+                )
+            }
             viewModel {
                 VendorViewModel(
                     shoppingHolder,

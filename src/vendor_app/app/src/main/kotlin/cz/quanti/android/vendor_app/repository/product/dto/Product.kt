@@ -14,11 +14,4 @@ data class Product(
         return (id == 0.toLong() && name == "")
     }
 
-    override fun equals(other: Any?): Boolean {
-        return if (other is Product) {
-            id == other.id && name == other.name && image == other.image && unit == other.unit
-        } else {
-            false
-        }
-    }
 }

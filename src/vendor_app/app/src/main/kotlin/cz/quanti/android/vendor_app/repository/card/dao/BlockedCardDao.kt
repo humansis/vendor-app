@@ -6,7 +6,6 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import cz.quanti.android.vendor_app.repository.VendorDb
 import cz.quanti.android.vendor_app.repository.card.dto.db.BlockedCardDbEntity
-import io.reactivex.Maybe
 import io.reactivex.Single
 
 @Dao

@@ -20,8 +20,8 @@ class CardRepositoryImpl(
     }
 
     override fun getBlockedCards(): Single<List<String>> {
-        return blockedCardDao.getAll().map {
-            it.map { it.id.toUpperCase(Locale.US) }
+        return blockedCardDao.getAll().map { list ->
+            list.map { it.id.toUpperCase(Locale.US) }
         }
     }
 

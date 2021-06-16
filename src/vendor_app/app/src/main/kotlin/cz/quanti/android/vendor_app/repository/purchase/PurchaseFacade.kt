@@ -3,7 +3,6 @@ package cz.quanti.android.vendor_app.repository.purchase
 import cz.quanti.android.vendor_app.repository.purchase.dto.Invoice
 import cz.quanti.android.vendor_app.repository.purchase.dto.Purchase
 import cz.quanti.android.vendor_app.repository.purchase.dto.Transaction
-import cz.quanti.android.vendor_app.repository.purchase.dto.TransactionPurchase
 import io.reactivex.Completable
 import io.reactivex.Single
 

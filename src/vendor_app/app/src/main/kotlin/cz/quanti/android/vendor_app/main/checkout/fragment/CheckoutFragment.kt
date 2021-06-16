@@ -1,15 +1,12 @@
 package cz.quanti.android.vendor_app.main.checkout.fragment
 
+import android.app.AlertDialog
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import android.app.AlertDialog
-import android.content.Context
-import android.view.inputmethod.InputMethodManager
 import androidx.activity.OnBackPressedCallback
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat.getColor
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
@@ -30,13 +27,11 @@ import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.dialog_card_pin.view.*
 import kotlinx.android.synthetic.main.fragment_checkout.*
-import kotlinx.android.synthetic.main.fragment_checkout.totalPriceTextView
 import kotlinx.android.synthetic.main.item_checkout_footer.*
-import kotlinx.android.synthetic.main.item_checkout_footer.clearAllButton
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import quanti.com.kotlinlog.Log
 
-class CheckoutFragment() : Fragment(), CheckoutFragmentCallback {
+class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
     private val vm: CheckoutViewModel by viewModel()
     private lateinit var selectedProductsAdapter: SelectedProductsAdapter
     private val scannedVoucherAdapter = ScannedVoucherAdapter()

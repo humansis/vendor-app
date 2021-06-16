@@ -265,6 +265,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
         ).show(this.supportFragmentManager, "TAG")
     }
 
+    @Suppress("WHEN_ENUM_CAN_BE_NULL_IN_JAVA")
     private fun syncState() {
         syncStateDisposable?.dispose()
         syncStateDisposable = synchronizationManager.syncStateObservable()

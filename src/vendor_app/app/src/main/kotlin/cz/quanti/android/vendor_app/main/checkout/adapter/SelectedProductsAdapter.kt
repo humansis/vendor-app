@@ -20,7 +20,7 @@ class SelectedProductsAdapter(
 
     private val products: MutableList<SelectedProduct> = mutableListOf()
     var chosenCurrency: String = ""
-    var expandedCardHolder: SelectedProductsViewHolder? = null
+    private var expandedCardHolder: SelectedProductsViewHolder? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SelectedProductsViewHolder {
         val view = LayoutInflater.from(parent.context)

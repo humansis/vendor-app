@@ -1,2 +1,1 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="wtf.qase.appskeleton.core"/>
+<manifest package="wtf.qase.appskeleton.core" />

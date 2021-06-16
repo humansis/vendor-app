@@ -7,7 +7,7 @@ class LoginManager(private val currentVendor: CurrentVendor) {
         currentVendor.vendor.saltedPassword = saltedPassword
     }
 
-    fun getAuthHeader(): String? {
+    fun getAuthHeader(): String {
         return generateXWSSEHeader(
             currentVendor.vendor.username, currentVendor.vendor.saltedPassword, true
         )

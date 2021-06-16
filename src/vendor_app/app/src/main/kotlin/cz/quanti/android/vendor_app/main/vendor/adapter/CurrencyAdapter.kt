@@ -8,7 +8,6 @@ import android.widget.ArrayAdapter
 import android.widget.SpinnerAdapter
 import android.widget.TextView
 import cz.quanti.android.vendor_app.R
-import cz.quanti.android.vendor_app.utils.Constants
 
 class CurrencyAdapter(context: Context) : SpinnerAdapter, ArrayAdapter<String>(context, R.layout.item_currency) {
 

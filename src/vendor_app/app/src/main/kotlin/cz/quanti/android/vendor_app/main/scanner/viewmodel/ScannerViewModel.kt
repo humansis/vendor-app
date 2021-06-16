@@ -41,7 +41,7 @@ class ScannerViewModel(
         var currency = ""
         var id: Long = 0
         var value: Long = 0
-        var returnCode: ScannedVoucherReturnState
+        val returnCode: ScannedVoucherReturnState
         val booklet = getBooklet()
 
         var regex = Regex(

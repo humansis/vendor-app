@@ -5,7 +5,6 @@ import android.text.format.DateFormat.getDateFormat
 import android.text.format.DateFormat.getTimeFormat
 import java.math.BigDecimal
 import java.math.RoundingMode
-import java.text.DateFormat
 import java.text.DecimalFormat
 import java.text.SimpleDateFormat
 import java.util.*

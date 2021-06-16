@@ -129,7 +129,7 @@ class ProductsFragment : Fragment(), OnTouchOutsideViewListener {
     }
 
     private fun initObservers() {
-        vm.cartSizeLD.observe(viewLifecycleOwner, Observer {
+        vm.cartSizeLD.observe(viewLifecycleOwner, {
             when (it) {
                 0 -> {
                     cartBadge.visibility = View.GONE
@@ -141,7 +141,7 @@ class ProductsFragment : Fragment(), OnTouchOutsideViewListener {
             }
         })
 
-        vm.getCurrency().observe(viewLifecycleOwner, Observer {
+        vm.getCurrency().observe(viewLifecycleOwner, {
             chosenCurrency = it
         })
     }

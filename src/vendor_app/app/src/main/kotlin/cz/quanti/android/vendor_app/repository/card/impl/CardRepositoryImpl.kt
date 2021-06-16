@@ -21,7 +21,7 @@ class CardRepositoryImpl(
 
     override fun getBlockedCards(): Single<List<String>> {
         return blockedCardDao.getAll().map { list ->
-            list.map { it.id.toUpperCase(Locale.US) }
+            list.map { it.id.uppercase(Locale.US) }
         }
     }
 
@@ -33,7 +33,7 @@ class CardRepositoryImpl(
 
     override fun saveBlockedCard(cardId: String): Completable {
         return Completable.fromCallable {
-            blockedCardDao.insert(BlockedCardDbEntity(cardId.toUpperCase(Locale.US)))
+            blockedCardDao.insert(BlockedCardDbEntity(cardId.uppercase(Locale.US)))
         }
     }
 

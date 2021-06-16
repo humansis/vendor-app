@@ -96,7 +96,7 @@ class CheckoutViewModel(
     }
 
     private fun convertTagToString(tag: Tag): String {
-        return NfcUtil.toHexString(tag.id).toUpperCase(Locale.US)
+        return NfcUtil.toHexString(tag.id).uppercase(Locale.US)
     }
 
     private fun createVoucherPurchase(): Purchase {

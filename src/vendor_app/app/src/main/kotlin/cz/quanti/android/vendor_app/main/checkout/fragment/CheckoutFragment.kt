@@ -91,7 +91,7 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
 
 
     private fun initObservers() {
-        vm.getCurrency().observe(viewLifecycleOwner, Observer {
+        vm.getCurrency().observe(viewLifecycleOwner, {
             initSelectedProductsAdapter()
             actualizeTotal()
         })

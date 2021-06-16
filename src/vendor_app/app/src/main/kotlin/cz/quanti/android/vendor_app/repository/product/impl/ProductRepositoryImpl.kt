@@ -1,9 +1,5 @@
 package cz.quanti.android.vendor_app.repository.product.impl
 
-import android.content.Context
-import android.graphics.drawable.Drawable
-import android.widget.ImageView
-import com.squareup.picasso.Picasso
 import cz.quanti.android.vendor_app.repository.VendorAPI
 import cz.quanti.android.vendor_app.repository.product.ProductRepository
 import cz.quanti.android.vendor_app.repository.product.dao.ProductDao
@@ -12,12 +8,10 @@ import cz.quanti.android.vendor_app.repository.product.dto.api.ProductApiEntity
 import cz.quanti.android.vendor_app.repository.product.dto.db.ProductDbEntity
 import io.reactivex.Completable
 import io.reactivex.Single
-import quanti.com.kotlinlog.Log
 
 class ProductRepositoryImpl(
     private val productDao: ProductDao,
-    private val api: VendorAPI,
-    private val context: Context
+    private val api: VendorAPI
 ) :
     ProductRepository {
 

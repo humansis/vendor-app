@@ -98,7 +98,7 @@ object KoinInitializer {
 
         // Repository
         val loginRepo = LoginRepositoryImpl(api)
-        val productRepo = ProductRepositoryImpl(db.productDao(), api, app.applicationContext)
+        val productRepo = ProductRepositoryImpl(db.productDao(), api)
         val bookletRepo = BookletRepositoryImpl(db.bookletDao(), api)
         val cardRepo = CardRepositoryImpl(db.blockedCardDao(), api)
         val purchaseRepo = PurchaseRepositoryImpl(
@@ -200,7 +200,7 @@ object KoinInitializer {
             .addInterceptor { chain ->
                 val oldRequest = chain.request()
                 val headersBuilder = oldRequest.headers().newBuilder()
-                loginManager.getAuthHeader()?.let {
+                loginManager.getAuthHeader().let {
                     headersBuilder.add("x-wsse", it)
                 }
                 headersBuilder.add("country", getCountry(currentVendor))

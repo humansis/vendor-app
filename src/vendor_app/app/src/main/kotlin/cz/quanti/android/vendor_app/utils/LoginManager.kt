@@ -9,7 +9,7 @@ class LoginManager(private val currentVendor: CurrentVendor) {
 
     fun getAuthHeader(): String {
         return generateXWSSEHeader(
-            currentVendor.vendor.username, currentVendor.vendor.saltedPassword, true
+            currentVendor.vendor.username, currentVendor.vendor.saltedPassword
         )
     }
 }

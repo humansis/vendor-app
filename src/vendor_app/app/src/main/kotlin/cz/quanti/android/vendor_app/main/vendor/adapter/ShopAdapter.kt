@@ -56,9 +56,9 @@ class ShopAdapter(
                 filteredList.addAll(productsFull)
             } else {
                 val filterPattern =
-                    constraint.toString().toLowerCase(Locale.getDefault()).trim { it <= ' ' }
+                    constraint.toString().lowercase(Locale.getDefault()).trim { it <= ' ' }
                 productsFull.forEach { product ->
-                    if (product.name.toLowerCase(Locale.getDefault()).contains(filterPattern)) {
+                    if (product.name.lowercase(Locale.getDefault()).contains(filterPattern)) {
                         filteredList.add(product)
                     }
                 }

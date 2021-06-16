@@ -20,7 +20,7 @@ fun hashAndSaltPassword(salt: String, password: String): String {
 }
 
 @SuppressLint("SimpleDateFormat")
-fun generateXWSSEHeader(username: String, saltedPassword: String, test: Boolean): String {
+fun generateXWSSEHeader(username: String, saltedPassword: String): String {
 
     var nonce = generateNonce()
     while (nonce == LastNonce.nonce) {

@@ -40,6 +40,7 @@
             android:textAlignment="center"
             android:textColor="@color/darkGrey"
             android:textSize="@dimen/fragment_text"
+            android:maxLines="3"
             android:duplicateParentState="true"
             app:layout_constraintTop_toBottomOf="@id/productImage"
             app:layout_constraintStart_toStartOf="parent"

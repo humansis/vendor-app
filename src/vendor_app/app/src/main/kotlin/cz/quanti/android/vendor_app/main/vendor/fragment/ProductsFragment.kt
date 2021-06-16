@@ -53,6 +53,11 @@ class ProductsFragment : Fragment(), OnTouchOutsideViewListener {
 
         adapter = ShopAdapter(this, requireContext())
 
+        initProductsAdapter()
+        initSearchBar()
+        initObservers()
+        initOnClickListeners()
+
         reloadProductsDisposable?.dispose()
         reloadProductsDisposable =
             vm.syncNeededObservable().flatMapSingle {
@@ -62,10 +67,6 @@ class ProductsFragment : Fragment(), OnTouchOutsideViewListener {
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({ products ->
                     adapter.setData(products)
-                    initProductsAdapter()
-                    initSearchBar()
-                    initObservers()
-                    initOnClickListeners()
                 }, {
                     Log.e(it)
                 })

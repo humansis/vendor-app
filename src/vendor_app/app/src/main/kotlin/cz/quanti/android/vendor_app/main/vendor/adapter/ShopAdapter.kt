@@ -35,7 +35,7 @@ class ShopAdapter(
     fun setData(data: List<Product>) {
         products.clear()
         products.addAll(data)
-        generateDrawables() // TODO vyresit at products full uz maji taky vygenerovany drawables
+        generateDrawables() // todo brat to z viewmodelu uz s vygenerovanymi drawables?
         productsFull.clear()
         productsFull.addAll(data)
         notifyDataSetChanged()

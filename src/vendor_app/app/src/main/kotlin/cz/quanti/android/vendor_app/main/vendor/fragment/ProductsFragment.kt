@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.*
 import android.view.inputmethod.EditorInfo
 import android.widget.*
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.toLiveData
@@ -40,6 +41,15 @@ class ProductsFragment : Fragment(), OnTouchOutsideViewListener {
         (requireActivity() as ActivityCallback).setToolbarVisible(true)
         (requireActivity() as ActivityCallback).setTitle(getString(R.string.app_name))
         requireActivity().findViewById<NavigationView>(R.id.nav_view).setCheckedItem(R.id.home_button)
+
+        requireActivity().onBackPressedDispatcher.addCallback(
+            this,
+            object : OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() {
+                    requireActivity().finish()
+                }
+            }
+        )
 
         return inflater.inflate(R.layout.fragment_products, container, false)
     }

@@ -22,11 +22,8 @@ import cz.quanti.android.vendor_app.main.vendor.viewmodel.VendorViewModel
 import cz.quanti.android.vendor_app.repository.product.dto.Product
 import cz.quanti.android.vendor_app.repository.purchase.dto.SelectedProduct
 import io.reactivex.BackpressureStrategy
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.fragment_products.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
-import quanti.com.kotlinlog.Log
 
 class ProductsFragment : Fragment(), OnTouchOutsideViewListener {
 
@@ -113,7 +110,7 @@ class ProductsFragment : Fragment(), OnTouchOutsideViewListener {
     }
 
     private fun initObservers() {
-        vm.getProducts().toFlowable(BackpressureStrategy.BUFFER)
+        vm.getProducts().toFlowable(BackpressureStrategy.LATEST)
             .toLiveData()
             .observe(viewLifecycleOwner, {
                 adapter.setData(it)

@@ -35,7 +35,6 @@ class ShopAdapter(
     fun setData(data: List<Product>) {
         products.clear()
         products.addAll(data)
-        generateDrawables() // todo brat to z viewmodelu uz s vygenerovanymi drawables?
         productsFull.clear()
         productsFull.addAll(data)
         notifyDataSetChanged()
@@ -99,25 +98,6 @@ class ShopAdapter(
 
         holder.productLayout.setOnClickListener {
             productsFragment.openProduct(products[position])
-        }
-    }
-
-    private fun generateDrawables() {
-        products.forEach {
-            if (it.drawable == null ) {
-                picasso.isLoggingEnabled = true
-                val img = ImageView(context)
-                picasso.load(it.image)
-                    .into(img, object : com.squareup.picasso.Callback {
-                        override fun onSuccess() {
-                            it.drawable = img.drawable
-                        }
-
-                        override fun onError(e: java.lang.Exception?) {
-                            Log.e(e?.message ?: "")
-                        }
-                    })
-            }
         }
     }
 }

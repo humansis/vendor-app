@@ -7,7 +7,7 @@ import android.view.inputmethod.EditorInfo
 import android.widget.*
 import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
+import androidx.lifecycle.toLiveData
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import com.google.android.material.button.MaterialButton
@@ -21,8 +21,8 @@ import cz.quanti.android.vendor_app.main.vendor.adapter.ShopAdapter
 import cz.quanti.android.vendor_app.main.vendor.viewmodel.VendorViewModel
 import cz.quanti.android.vendor_app.repository.product.dto.Product
 import cz.quanti.android.vendor_app.repository.purchase.dto.SelectedProduct
+import io.reactivex.BackpressureStrategy
 import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.fragment_products.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -32,7 +32,6 @@ class ProductsFragment : Fragment(), OnTouchOutsideViewListener {
 
     private val vm: VendorViewModel by viewModel()
     private lateinit var adapter: ShopAdapter
-    private var reloadProductsDisposable: Disposable? = null
 
     var chosenCurrency: String = ""
 
@@ -48,34 +47,17 @@ class ProductsFragment : Fragment(), OnTouchOutsideViewListener {
         return inflater.inflate(R.layout.fragment_products, container, false)
     }
 
-    override fun onStart() {
-        super.onStart()
-
-        adapter = ShopAdapter(this, requireContext())
-
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         initProductsAdapter()
-        initSearchBar()
         initObservers()
+        initSearchBar()
         initOnClickListeners()
-
-        reloadProductsDisposable?.dispose()
-        reloadProductsDisposable =
-            vm.syncNeededObservable().flatMapSingle {
-                vm.getProducts()
-            }.startWith(vm.getProducts().toObservable())
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe({ products ->
-                    adapter.setData(products)
-                }, {
-                    Log.e(it)
-                })
     }
 
     override fun onStop() {
         // colapse searchbar after eventual screen rotation
         productsSearchBar.onActionViewCollapsed()
-        reloadProductsDisposable?.dispose()
         super.onStop()
     }
 
@@ -90,6 +72,8 @@ class ProductsFragment : Fragment(), OnTouchOutsideViewListener {
     }
 
     private fun initProductsAdapter() {
+        adapter = ShopAdapter(this, requireContext())
+
         val viewManager = GridLayoutManager(activity, gridColumns())
 
         productsRecyclerView.setHasFixedSize(true)
@@ -129,6 +113,12 @@ class ProductsFragment : Fragment(), OnTouchOutsideViewListener {
     }
 
     private fun initObservers() {
+        vm.getProducts().toFlowable(BackpressureStrategy.BUFFER)
+            .toLiveData()
+            .observe(viewLifecycleOwner, {
+                adapter.setData(it)
+            })
+
         vm.cartSizeLD.observe(viewLifecycleOwner, {
             when (it) {
                 0 -> {

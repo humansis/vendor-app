@@ -1,8 +1,6 @@
 package cz.quanti.android.vendor_app.main.vendor.viewmodel
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.*
 import cz.quanti.android.vendor_app.repository.AppPreferences
 import cz.quanti.android.vendor_app.repository.product.ProductFacade
 import cz.quanti.android.vendor_app.repository.product.dto.Product
@@ -14,7 +12,6 @@ import cz.quanti.android.vendor_app.utils.CurrentVendor
 import cz.quanti.android.vendor_app.utils.ShoppingHolder
 import cz.quanti.android.vendor_app.utils.getDefaultCurrency
 import io.reactivex.Observable
-import io.reactivex.Single
 
 class VendorViewModel(
     private val shoppingHolder: ShoppingHolder,
@@ -42,7 +39,7 @@ class VendorViewModel(
         shoppingHolder.lastCurrencySelection = selected
     }
 
-    fun getProducts(): Single<List<Product>> {
+    fun getProducts(): Observable<List<Product>> {
         return productFacade.getProducts()
     }
 

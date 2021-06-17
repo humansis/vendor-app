@@ -14,7 +14,7 @@ class ProductFacadeImpl(
     private val productRepo: ProductRepository
 ) : ProductFacade {
 
-    override fun getProducts(): Single<List<Product>> {
+    override fun getProducts(): Observable<List<Product>> {
         return productRepo.getProducts()
     }
 

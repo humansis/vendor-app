@@ -114,6 +114,7 @@ class SelectedProductsAdapter(
     }
 
     fun removeAt(position: Int) {
+        expandedCardHolder?.let { closeCard(it) }
         products.removeAt(position)
         notifyDataSetChanged()
     }

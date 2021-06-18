@@ -106,7 +106,7 @@ class PurchaseFacadeImpl(
                                 purchaseRepo.sendCardPurchaseToServer(purchase)
                                     .flatMapCompletable { responseCode ->
                                         if (isPositiveResponseHttpCode(responseCode)) {
-                                            purchaseRepo.deleteCardPurchase(purchase).doOnComplete {
+                                            purchaseRepo.deletePurchase(purchase).doOnComplete {
                                                 Log.d(
                                                     TAG,
                                                     "Purchase ${purchase.dbId} by ${purchase.smartcard} successfully removed from db"

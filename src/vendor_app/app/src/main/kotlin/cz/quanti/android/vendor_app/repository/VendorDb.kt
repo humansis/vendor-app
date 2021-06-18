@@ -1,8 +1,6 @@
 package cz.quanti.android.vendor_app.repository
 
-import android.content.Context
 import androidx.room.Database
-import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import androidx.room.migration.Migration
@@ -14,7 +12,6 @@ import cz.quanti.android.vendor_app.repository.card.dto.db.BlockedCardDbEntity
 import cz.quanti.android.vendor_app.repository.product.dao.ProductDao
 import cz.quanti.android.vendor_app.repository.product.dto.db.ProductDbEntity
 import cz.quanti.android.vendor_app.repository.purchase.dao.*
-import cz.quanti.android.vendor_app.repository.purchase.dto.api.TransactionPurchaseApiEntity
 import cz.quanti.android.vendor_app.repository.purchase.dto.db.*
 import cz.quanti.android.vendor_app.repository.utils.typeconverter.DateTypeConverter
 
@@ -30,7 +27,7 @@ import cz.quanti.android.vendor_app.repository.utils.typeconverter.DateTypeConve
         InvoiceDbEntity::class,
         TransactionDbEntity::class,
         TransactionPurchaseDbEntity::class
-    ], version = 3, exportSchema = false
+    ], version = 4, exportSchema = false
 )
 @TypeConverters(DateTypeConverter::class)
 abstract class VendorDb : RoomDatabase() {
@@ -63,6 +60,20 @@ abstract class VendorDb : RoomDatabase() {
                 database.execSQL("CREATE TABLE 'invoice' ('id' INTEGER NOT NULL, 'date' TEXT NOT NULL, 'quantity' INTEGER NOT NULL, 'value' REAL NOT NULL, 'currency' TEXT NOT NULL, PRIMARY KEY('id'))")
                 database.execSQL("CREATE TABLE 'transaction_batch' ('dbId' INTEGER NOT NULL, 'projectId' INTEGER NOT NULL, 'value' REAL NOT NULL, 'currency' TEXT NOT NULL, PRIMARY KEY('dbId'))")
                 database.execSQL("CREATE TABLE 'transaction_purchase' ('dbId' INTEGER NOT NULL, 'value' REAL NOT NULL, 'currency' TEXT NOT NULL, 'beneficiaryId' INTEGER NOT NULL, 'createdAt' TEXT NOT NULL, 'transactionId' INTEGER NOT NULL, PRIMARY KEY('dbId'))")
+            }
+        }
+
+        val MIGRATION_3_4= object : Migration(3,4) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL("CREATE TABLE 'card_purchase_new' ('dbId' INTEGER NOT NULL, 'card' TEXT, 'purchaseId' INTEGER NOT NULL, PRIMARY KEY('dbId'), FOREIGN KEY('purchaseId') REFERENCES 'purchase'('dbId') ON DELETE CASCADE)")
+                database.execSQL("INSERT INTO card_purchase_new (dbId, card, purchaseId) SELECT dbId, card, purchaseId FROM card_purchase")
+                database.execSQL("DROP TABLE card_purchase")
+                database.execSQL("ALTER TABLE card_purchase_new RENAME TO card_purchase")
+
+                database.execSQL("CREATE TABLE 'voucher_purchase_new' ('dbId' INTEGER NOT NULL, 'voucher' INTEGER NOT NULL, 'purchaseId' INTEGER NOT NULL, PRIMARY KEY('dbId'), FOREIGN KEY('purchaseId') REFERENCES 'purchase'('dbId') ON DELETE CASCADE)")
+                database.execSQL("INSERT INTO voucher_purchase_new (dbId, voucher, purchaseId) SELECT dbId, voucher, purchaseId FROM voucher_purchase")
+                database.execSQL("DROP TABLE voucher_purchase")
+                database.execSQL("ALTER TABLE voucher_purchase_new RENAME TO voucher_purchase")
             }
         }
     }

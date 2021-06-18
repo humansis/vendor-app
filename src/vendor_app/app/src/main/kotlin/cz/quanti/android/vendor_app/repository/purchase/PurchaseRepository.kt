@@ -24,10 +24,6 @@ interface PurchaseRepository {
 
     fun deletePurchase(purchase: Purchase): Completable
 
-    fun deleteCardPurchase(purchase: Purchase): Completable
-
-    fun deleteVoucherPurchase(purchase: Purchase): Completable
-
     fun deleteAllVoucherPurchases(): Completable
 
     fun getPurchasesCount(): Single<Int>

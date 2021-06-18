@@ -237,25 +237,7 @@ class PurchaseRepositoryImpl(
     }
 
     override fun deletePurchase(purchase: Purchase): Completable {
-        return if (purchase.vouchers.isNotEmpty()) {
-            deleteVoucherPurchase(purchase)
-        } else {
-            deleteCardPurchase(purchase)
-        }
-    }
-
-    override fun deleteCardPurchase(purchase: Purchase): Completable {
         return Completable.fromCallable { purchaseDao.delete(convertToDb(purchase)) }
-            .andThen( Completable.fromCallable {
-                cardPurchaseDao.deleteCardForPurchase(purchase.dbId)
-            })
-    }
-
-    override fun deleteVoucherPurchase(purchase: Purchase): Completable {
-        return Completable.fromCallable { purchaseDao.delete(convertToDb(purchase)) }
-            .andThen( Completable.fromCallable {
-                voucherPurchaseDao.deleteVoucherForPurchase(purchase.dbId)
-            })
     }
 
     override fun deleteAllVoucherPurchases(): Completable {
@@ -266,7 +248,7 @@ class PurchaseRepositoryImpl(
                         purchaseDao.delete(convertToDb(it))
                     }
                 }
-        }.doOnComplete { (voucherPurchaseDao.deleteAll()) }
+        }
     }
 
     override fun getPurchasesCount(): Single<Int> {

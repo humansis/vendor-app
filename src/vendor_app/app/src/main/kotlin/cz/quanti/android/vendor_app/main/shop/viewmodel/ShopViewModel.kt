@@ -58,7 +58,6 @@ class ShopViewModel(
 
     fun getCurrency(): LiveData<String> {
         if(shoppingHolder.chosenCurrency.value == "") {
-            Log.d("xxx",currentVendor.vendor.country + getDefaultCurrency(currentVendor.vendor.country))
             setCurrency(getDefaultCurrency(currentVendor.vendor.country))
         }
         return shoppingHolder.chosenCurrency

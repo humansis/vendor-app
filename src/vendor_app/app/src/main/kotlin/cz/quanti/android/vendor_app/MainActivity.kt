@@ -311,6 +311,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
     }
 
     override fun showDot(boolean: Boolean) {
+        // todo reagovat na livedata getAllPurchases()
         if (boolean) {
             dot?.visibility = View.VISIBLE
         } else {

@@ -64,11 +64,11 @@ class PurchaseFacadeImpl(
 
     private fun preparePurchases(): Completable {
         return purchaseRepo.getAllPurchases().flatMapCompletable { purchases ->
-            Observable.fromIterable(purchases.filter { it.products.isEmpty() })
+            Observable.fromIterable(purchases.filter { it.products.isEmpty() || (it.vouchers.isEmpty() && it.smartcard.isNullOrBlank()) })
                 .flatMapCompletable {
                     Log.d(
                         TAG,
-                        "Purchase ${it.dbId} created at ${it.createdAt} has no products"
+                        "Purchase ${it.dbId} created at ${it.createdAt} has no products or payment methods"
                     )
                     purchaseRepo.deletePurchase(it)
                 }

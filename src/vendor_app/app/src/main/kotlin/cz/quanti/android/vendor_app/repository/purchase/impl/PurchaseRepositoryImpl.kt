@@ -245,15 +245,28 @@ class PurchaseRepositoryImpl(
     }
 
     override fun deleteCardPurchase(purchase: Purchase): Completable {
-        return Completable.fromCallable { cardPurchaseDao.deleteCardForPurchase(purchase.dbId) }
+        return Completable.fromCallable { purchaseDao.delete(convertToDb(purchase)) }
+            .andThen( Completable.fromCallable {
+                cardPurchaseDao.deleteCardForPurchase(purchase.dbId)
+            })
     }
 
     override fun deleteVoucherPurchase(purchase: Purchase): Completable {
-        return Completable.fromCallable { voucherPurchaseDao.deleteVoucherForPurchase(purchase.dbId) }
+        return Completable.fromCallable { purchaseDao.delete(convertToDb(purchase)) }
+            .andThen( Completable.fromCallable {
+                voucherPurchaseDao.deleteVoucherForPurchase(purchase.dbId)
+            })
     }
 
     override fun deleteAllVoucherPurchases(): Completable {
-        return Completable.fromCallable{ voucherPurchaseDao.deleteAll() }
+        return getAllPurchases().flatMapCompletable { purchases ->
+            Observable.fromIterable(purchases.filter { it.vouchers.isNotEmpty()})
+                .flatMapCompletable {
+                    Completable.fromCallable {
+                        purchaseDao.delete(convertToDb(it))
+                    }
+                }
+        }.doOnComplete { (voucherPurchaseDao.deleteAll()) }
     }
 
     override fun getPurchasesCount(): Single<Int> {

@@ -94,6 +94,7 @@ object KoinInitializer {
 
         val db = Room.databaseBuilder(app, VendorDb::class.java, VendorDb.DB_NAME)
             .addMigrations(VendorDb.MIGRATION_2_3)
+            .addMigrations(VendorDb.MIGRATION_3_4)
             .build()
 
         // Repository
@@ -191,7 +192,7 @@ object KoinInitializer {
 
         val logging = HttpLoggingInterceptor { message -> Log.d("OkHttp", message) }
 
-        logging.level = HttpLoggingInterceptor.Level.BODY
+        logging.level = HttpLoggingInterceptor.Level.BASIC
 
         return OkHttpClient.Builder()
             .connectTimeout(5, TimeUnit.MINUTES)

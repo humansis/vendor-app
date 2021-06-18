@@ -1,4 +1,4 @@
-package cz.quanti.android.vendor_app.main.vendor.adapter
+package cz.quanti.android.vendor_app.main.shop.adapter
 
 import android.content.Context
 import android.view.LayoutInflater
@@ -7,8 +7,8 @@ import android.widget.*
 import androidx.recyclerview.widget.RecyclerView
 import com.squareup.picasso.Picasso
 import cz.quanti.android.vendor_app.R
-import cz.quanti.android.vendor_app.main.vendor.fragment.ProductsFragment
-import cz.quanti.android.vendor_app.main.vendor.viewholder.ShopViewHolder
+import cz.quanti.android.vendor_app.main.shop.fragment.ProductsFragment
+import cz.quanti.android.vendor_app.main.shop.viewholder.ShopViewHolder
 import cz.quanti.android.vendor_app.repository.product.dto.Product
 import org.koin.core.KoinComponent
 import quanti.com.kotlinlog.Log

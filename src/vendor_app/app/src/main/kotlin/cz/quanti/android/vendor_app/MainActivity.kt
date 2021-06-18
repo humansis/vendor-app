@@ -24,8 +24,8 @@ import com.google.android.material.navigation.NavigationView
 import cz.quanti.android.nfc.VendorFacade
 import cz.quanti.android.nfc.dto.UserBalance
 import cz.quanti.android.vendor_app.main.authorization.viewmodel.LoginViewModel
-import cz.quanti.android.vendor_app.main.vendor.adapter.CurrencyAdapter
-import cz.quanti.android.vendor_app.main.vendor.viewmodel.VendorViewModel
+import cz.quanti.android.vendor_app.main.shop.adapter.CurrencyAdapter
+import cz.quanti.android.vendor_app.main.shop.viewmodel.ShopViewModel
 import cz.quanti.android.vendor_app.repository.AppPreferences
 import cz.quanti.android.vendor_app.repository.login.LoginFacade
 import cz.quanti.android.vendor_app.repository.synchronization.SynchronizationFacade
@@ -57,7 +57,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
     private val synchronizationManager: SynchronizationManager by inject()
     private var nfcAdapter: NfcAdapter? = null
     private val loginVM: LoginViewModel by viewModel()
-    private val vm: VendorViewModel by viewModel()
+    private val vm: ShopViewModel by viewModel()
     private var displayedDialog: AlertDialog? = null
     private var disposable: Disposable? = null
     private var syncStateDisposable: Disposable? = null
@@ -360,19 +360,20 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
 
     private fun initPriceUnitSpinner() {
         val currencyAdapter = CurrencyAdapter(this)
-        currencyAdapter.init(vm.getFirstCurrencies())
+        currencyAdapter.init(vm.getCurrencies())
         currencyAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         priceUnitSpinner.adapter = currencyAdapter
-        priceUnitSpinner.setSelection(
-            currencyAdapter.getPosition(vm.getLastCurrencySelection())
-        )
+        vm.getCurrency().observe(this, {
+            priceUnitSpinner.setSelection(
+                currencyAdapter.getPosition(it)
+            )
+        })
         priceUnitSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onNothingSelected(parent: AdapterView<*>?) {
             }
 
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                 vm.setCurrency(priceUnitSpinner.selectedItem as String)
-                vm.setLastCurrencySelection(priceUnitSpinner.selectedItem as String)
             }
         }
     }

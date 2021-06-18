@@ -1,5 +1,6 @@
-package cz.quanti.android.vendor_app.main.vendor.viewmodel
+package cz.quanti.android.vendor_app.main.shop.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.*
 import cz.quanti.android.vendor_app.repository.AppPreferences
 import cz.quanti.android.vendor_app.repository.product.ProductFacade
@@ -13,7 +14,7 @@ import cz.quanti.android.vendor_app.utils.ShoppingHolder
 import cz.quanti.android.vendor_app.utils.getDefaultCurrency
 import io.reactivex.Observable
 
-class VendorViewModel(
+class ShopViewModel(
     private val shoppingHolder: ShoppingHolder,
     private val productFacade: ProductFacade,
     private val syncFacade: SynchronizationFacade,
@@ -23,28 +24,22 @@ class VendorViewModel(
 ) : ViewModel() {
     val cartSizeLD: MutableLiveData<Int> = MutableLiveData(shoppingHolder.cart.size)
 
-    fun getLastCurrencySelection(): String {
-        if (shoppingHolder.lastCurrencySelection == "") {
-            shoppingHolder.lastCurrencySelection = getDefaultCurrency(currentVendor.vendor.country)
-        }
-        return shoppingHolder.lastCurrencySelection
-    }
-
     fun syncNeededObservable(): Observable<SynchronizationState> {
         return synchronizationManager.syncStateObservable()
             .filter { it == SynchronizationState.SUCCESS }
-    }
-
-    fun setLastCurrencySelection(selected: String) {
-        shoppingHolder.lastCurrencySelection = selected
     }
 
     fun getProducts(): Observable<List<Product>> {
         return productFacade.getProducts()
     }
 
-    fun getFirstCurrencies(): List<String> {
-        return listOf("USD", "EUR", "SYP", "KHR", "UAH", "AMD", "MNT", "ETB", "ZMW")
+    fun getShoppingCart(): List<SelectedProduct> {
+        return shoppingHolder.cart
+    }
+
+    fun addToShoppingCart(product: SelectedProduct) {
+        shoppingHolder.cart.add(product)
+        cartSizeLD.value = shoppingHolder.cart.size
     }
 
     fun removeFromCart(position: Int) {
@@ -57,16 +52,15 @@ class VendorViewModel(
         cartSizeLD.value = shoppingHolder.cart.size
     }
 
-    fun addToShoppingCart(product: SelectedProduct) {
-        shoppingHolder.cart.add(product)
-        cartSizeLD.value = shoppingHolder.cart.size
-    }
-
-    fun getShoppingCart(): List<SelectedProduct> {
-        return shoppingHolder.cart
+    fun getCurrencies(): List<String> {
+        return listOf("USD", "EUR", "SYP", "KHR", "UAH", "AMD", "MNT", "ETB", "ZMW")
     }
 
     fun getCurrency(): LiveData<String> {
+        if(shoppingHolder.chosenCurrency.value == "") {
+            Log.d("xxx",currentVendor.vendor.country + getDefaultCurrency(currentVendor.vendor.country))
+            setCurrency(getDefaultCurrency(currentVendor.vendor.country))
+        }
         return shoppingHolder.chosenCurrency
     }
 

@@ -19,7 +19,7 @@
 
     <fragment
         android:id="@+id/productFragment"
-        android:name="cz.quanti.android.vendor_app.main.vendor.fragment.ProductsFragment"
+        android:name="cz.quanti.android.vendor_app.main.shop.fragment.ProductsFragment"
         android:label="fragment_products"
         tools:layout="@layout/fragment_products">
         <action

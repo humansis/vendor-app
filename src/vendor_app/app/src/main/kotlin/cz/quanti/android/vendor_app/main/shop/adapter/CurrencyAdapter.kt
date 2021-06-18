@@ -1,4 +1,4 @@
-package cz.quanti.android.vendor_app.main.vendor.adapter
+package cz.quanti.android.vendor_app.main.shop.adapter
 
 import android.content.Context
 import android.graphics.Color

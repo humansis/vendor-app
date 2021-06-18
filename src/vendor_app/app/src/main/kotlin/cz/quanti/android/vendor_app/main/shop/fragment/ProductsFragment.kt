@@ -1,4 +1,4 @@
-package cz.quanti.android.vendor_app.main.vendor.fragment
+package cz.quanti.android.vendor_app.main.shop.fragment
 
 import android.app.AlertDialog
 import android.os.Bundle
@@ -18,8 +18,8 @@ import cz.quanti.android.vendor_app.ActivityCallback
 import cz.quanti.android.vendor_app.MainActivity
 import cz.quanti.android.vendor_app.MainActivity.OnTouchOutsideViewListener
 import cz.quanti.android.vendor_app.R
-import cz.quanti.android.vendor_app.main.vendor.adapter.ShopAdapter
-import cz.quanti.android.vendor_app.main.vendor.viewmodel.VendorViewModel
+import cz.quanti.android.vendor_app.main.shop.adapter.ShopAdapter
+import cz.quanti.android.vendor_app.main.shop.viewmodel.ShopViewModel
 import cz.quanti.android.vendor_app.repository.product.dto.Product
 import cz.quanti.android.vendor_app.repository.purchase.dto.SelectedProduct
 import io.reactivex.BackpressureStrategy
@@ -28,7 +28,7 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class ProductsFragment : Fragment(), OnTouchOutsideViewListener {
 
-    private val vm: VendorViewModel by viewModel()
+    private val vm: ShopViewModel by viewModel()
     private lateinit var adapter: ShopAdapter
 
     var chosenCurrency: String = ""

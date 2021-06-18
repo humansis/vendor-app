@@ -1,4 +1,4 @@
-package cz.quanti.android.vendor_app.main.vendor.viewholder
+package cz.quanti.android.vendor_app.main.shop.viewholder
 
 import android.view.View
 import android.widget.*

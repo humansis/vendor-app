@@ -46,12 +46,12 @@ class PurchaseFacadeImpl(
 
     }
 
-    override fun isSyncNeeded(): Single<Boolean> {
-        return purchaseRepo.getPurchasesCount().map { it > 0 }
-    }
-
     override fun unsyncedPurchases(): Single<List<Purchase>> {
         return purchaseRepo.getAllPurchases()
+    }
+
+    override fun getPurchasesCountLD(): Observable<Long> {
+        return purchaseRepo.getPurchasesCountLD()
     }
 
     override fun getInvoices(): Single<List<Invoice>> {

@@ -124,8 +124,6 @@ class ScanCardFragment : Fragment() {
                              )
                              .setPositiveButton(android.R.string.ok, null)
                              .show()
-
-                         activityCallback?.showDot(true)
                          vm.clearCart()
                          vm.clearVouchers()
                          findNavController().navigate(

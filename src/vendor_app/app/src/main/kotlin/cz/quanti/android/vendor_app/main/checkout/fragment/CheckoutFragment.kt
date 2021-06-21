@@ -142,7 +142,6 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
             disposable = vm.proceed().subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread()).subscribe(
                     {
-                        activityCallback?.showDot(true)
                         vm.clearCart()
                         vm.clearVouchers()
                         findNavController().navigate(

@@ -18,6 +18,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.lifecycle.toLiveData
 import androidx.navigation.findNavController
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.navigation.NavigationView
@@ -34,6 +35,7 @@ import cz.quanti.android.vendor_app.sync.SynchronizationState
 import cz.quanti.android.vendor_app.utils.NfcInitializer
 import cz.quanti.android.vendor_app.utils.NfcTagPublisher
 import extensions.isNetworkConnected
+import io.reactivex.BackpressureStrategy
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
@@ -151,21 +153,22 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
     }
 
     private fun setUpToolbar() {
-        disposable?.dispose()
-        disposable = syncFacade.isSyncNeeded()
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(
-                {
-                    if (it) {
-                        dot?.visibility = View.VISIBLE
-                    } else {
-                        dot?.visibility = View.INVISIBLE
-                    }
-                },
-                {
-                }
-            )
+        syncFacade.getPurchasesCountLD()
+            .toFlowable(BackpressureStrategy.LATEST)
+            .toLiveData()
+            .observe(this, { purchasesCount ->
+                disposable?.dispose()
+                disposable = syncFacade.isSyncNeeded(purchasesCount)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(
+                        {
+                            showDot(it)
+                        },
+                        {
+                        }
+                    )
+            })
 
         syncButton?.setOnClickListener {
             synchronizationManager.synchronizeWithServer()
@@ -280,7 +283,6 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
                     SynchronizationState.SUCCESS -> {
                         progressBar?.visibility = View.GONE
                         syncButtonArea?.visibility = View.VISIBLE
-                        dot?.visibility = View.INVISIBLE
                         Toast.makeText(
                             this,
                             getString(R.string.data_were_successfully_synchronized),
@@ -311,7 +313,6 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
     }
 
     override fun showDot(boolean: Boolean) {
-        // todo reagovat na livedata getAllPurchases()
         if (boolean) {
             dot?.visibility = View.VISIBLE
         } else {

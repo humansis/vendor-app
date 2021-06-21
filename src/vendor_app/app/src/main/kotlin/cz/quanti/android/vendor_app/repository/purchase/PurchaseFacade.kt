@@ -4,6 +4,7 @@ import cz.quanti.android.vendor_app.repository.purchase.dto.Invoice
 import cz.quanti.android.vendor_app.repository.purchase.dto.Purchase
 import cz.quanti.android.vendor_app.repository.purchase.dto.Transaction
 import io.reactivex.Completable
+import io.reactivex.Observable
 import io.reactivex.Single
 
 interface PurchaseFacade {
@@ -12,9 +13,9 @@ interface PurchaseFacade {
 
     fun syncWithServer(vendorId: Int): Completable
 
-    fun isSyncNeeded(): Single<Boolean>
-
     fun unsyncedPurchases(): Single<List<Purchase>>
+
+    fun getPurchasesCountLD(): Observable<Long>
 
     fun getInvoices(): Single<List<Invoice>>
 

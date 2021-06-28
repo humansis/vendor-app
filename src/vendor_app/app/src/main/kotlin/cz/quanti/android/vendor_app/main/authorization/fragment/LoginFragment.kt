@@ -135,7 +135,7 @@ class LoginFragment : Fragment() {
                                     loadingImageView.visibility = View.INVISIBLE
                                     loginButton.visibility = View.VISIBLE
                                     loginButton.isEnabled = true
-                                    Log.e(it)
+                                    Log.e(TAG, it)
                                     if (requireContext().isNetworkConnected()) {
                                         usernameEditText.error = getString(R.string.wrong_password)
                                         passwordEditText.error = getString(R.string.wrong_password)
@@ -158,5 +158,9 @@ class LoginFragment : Fragment() {
     override fun onDestroy() {
         disposable?.dispose()
         super.onDestroy()
+    }
+
+    companion object {
+        private val TAG = LoginFragment::class.java.simpleName
     }
 }

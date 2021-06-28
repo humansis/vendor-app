@@ -9,7 +9,6 @@ import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.core.content.ContextCompat.getColor
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.textfield.TextInputEditText
@@ -74,8 +73,8 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
     override fun onResume() {
         super.onResume()
 
-        isPaid()
-        isEmptyCart()
+        showIfPurchasePaid()
+        showIfCartEmpty()
         actualizeTotal()
     }
 
@@ -219,11 +218,11 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
     private fun clearCart() {
         vm.clearCart()
         selectedProductsAdapter.clearAll()
-        isEmptyCart()
+        showIfCartEmpty()
         actualizeTotal()
     }
 
-    private fun isEmptyCart() {
+    private fun showIfCartEmpty() {
         if(vm.getShoppingCart().isNotEmpty()) {
             emptyCartTextView.visibility = View.GONE
             payByCardButton.isEnabled = true
@@ -237,7 +236,7 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
         }
     }
 
-    private fun isPaid() {
+    private fun showIfPurchasePaid() {
         if(vm.getVouchers().isNotEmpty()) {
             if (vm.getTotal() <= 0) {
                 proceedButton?.visibility = View.VISIBLE

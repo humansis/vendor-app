@@ -22,5 +22,5 @@ interface PurchaseDao {
     fun getAll(): Single<List<PurchaseDbEntity>>
 
     @Query("SELECT count(*) FROM " + VendorDb.TABLE_PURCHASE)
-    fun getCountLD(): Observable<Long>
+    fun getCount(): Observable<Long>
 }

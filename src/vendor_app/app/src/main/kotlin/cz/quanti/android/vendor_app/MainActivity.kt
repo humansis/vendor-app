@@ -153,7 +153,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
     }
 
     private fun setUpToolbar() {
-        syncFacade.getPurchasesCountLD()
+        syncFacade.getPurchasesCount()
             .toFlowable(BackpressureStrategy.LATEST)
             .toLiveData()
             .observe(this, { purchasesCount ->

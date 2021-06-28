@@ -251,8 +251,8 @@ class PurchaseRepositoryImpl(
         }
     }
 
-    override fun getPurchasesCountLD(): Observable<Long> {
-        return purchaseDao.getCountLD()
+    override fun getPurchasesCount(): Observable<Long> {
+        return purchaseDao.getCount()
     }
 
     private fun saveSelectedProducts(

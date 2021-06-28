@@ -13,5 +13,5 @@ interface SynchronizationFacade {
 
     fun unsyncedPurchases(): Single<List<Purchase>>
 
-    fun getPurchasesCountLD(): Observable<Long>
+    fun getPurchasesCount(): Observable<Long>
 }

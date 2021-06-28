@@ -26,7 +26,7 @@ interface PurchaseRepository {
 
     fun deleteAllVoucherPurchases(): Completable
 
-    fun getPurchasesCountLD(): Observable<Long>
+    fun getPurchasesCount(): Observable<Long>
 
     fun retrieveInvoices(vendorId: Int): Single<Pair<Int, List<InvoiceApiEntity>>>
 

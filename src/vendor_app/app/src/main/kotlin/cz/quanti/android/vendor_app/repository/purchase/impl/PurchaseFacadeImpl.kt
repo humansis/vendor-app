@@ -50,8 +50,8 @@ class PurchaseFacadeImpl(
         return purchaseRepo.getAllPurchases()
     }
 
-    override fun getPurchasesCountLD(): Observable<Long> {
-        return purchaseRepo.getPurchasesCountLD()
+    override fun getPurchasesCount(): Observable<Long> {
+        return purchaseRepo.getPurchasesCount()
     }
 
     override fun getInvoices(): Single<List<Invoice>> {

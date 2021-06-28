@@ -36,7 +36,7 @@ class SynchronizationFacadeImpl(
         return purchaseFacade.unsyncedPurchases()
     }
 
-    override fun getPurchasesCountLD(): Observable<Long> {
-        return purchaseFacade.getPurchasesCountLD()
+    override fun getPurchasesCount(): Observable<Long> {
+        return purchaseFacade.getPurchasesCount()
     }
 }

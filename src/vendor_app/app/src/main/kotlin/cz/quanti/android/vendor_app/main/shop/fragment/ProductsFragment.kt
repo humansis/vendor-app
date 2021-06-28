@@ -91,10 +91,10 @@ class ProductsFragment : Fragment(), OnTouchOutsideViewListener {
     private fun gridColumns(): Int {
         return when {
             resources.getBoolean(R.bool.isPortrait) -> when {
-                resources.getBoolean(R.bool.isTablet) -> 4
-                else -> 3
+                resources.getBoolean(R.bool.isTablet) -> PORTRAIT_TABLET_COLUMNS
+                else -> PORTRAIT_PHONE_COLUMNS
             }
-            else -> 6
+            else -> LANDSCAPE_TABLET_COLUMNS
         }
     }
 
@@ -128,7 +128,7 @@ class ProductsFragment : Fragment(), OnTouchOutsideViewListener {
 
         vm.cartSizeLD.observe(viewLifecycleOwner, {
             when (it) {
-                0 -> {
+                EMPTY_CART_SIZE -> {
                     cartBadge.visibility = View.GONE
                 }
                 else -> {
@@ -184,7 +184,7 @@ class ProductsFragment : Fragment(), OnTouchOutsideViewListener {
         confirmButton.setOnClickListener {
             try {
                 val price = priceEditText.text.toString().toDouble()
-                if (price <= 0.0) {
+                if (price <= INVALID_PRICE_VALUE) {
                     showInvalidPriceEnteredMessage()
                 } else {
                     addProductToCart(
@@ -215,5 +215,13 @@ class ProductsFragment : Fragment(), OnTouchOutsideViewListener {
             requireContext().getString(R.string.please_enter_price),
             Toast.LENGTH_LONG
         ).show()
+    }
+
+    companion object {
+        const val EMPTY_CART_SIZE = 0
+        const val INVALID_PRICE_VALUE = 0.0
+        const val PORTRAIT_PHONE_COLUMNS = 3
+        const val PORTRAIT_TABLET_COLUMNS = 4
+        const val LANDSCAPE_TABLET_COLUMNS = 6
     }
 }

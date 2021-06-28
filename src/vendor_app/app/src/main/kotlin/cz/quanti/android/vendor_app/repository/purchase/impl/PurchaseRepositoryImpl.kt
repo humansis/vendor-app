@@ -214,8 +214,12 @@ class PurchaseRepositoryImpl(
         return Single.fromCallable { transactionDao.insert(convertToDb(transaction, transactionId)) }
     }
 
-    override fun retrieveTransactionsPurchasesById(purchaseIds: List<Int>): Single<Pair<Int, List<TransactionPurchaseApiEntity>>> {
-        return api.getTransactionsPurchasesById(purchaseIds).map { response ->
+    override fun retrieveTransactionsPurchases(
+        vendorId: Int,
+        projectId: Long,
+        currency: String
+    ): Single<Pair<Int, List<TransactionPurchaseApiEntity>>> {
+        return api.getTransactionsPurchases(vendorId, projectId, currency).map { response ->
             var transactionPurchases = listOf<TransactionPurchaseApiEntity>()
             response.body()?.let { transactionPurchases = it.data }
             Pair(response.code(), transactionPurchases)

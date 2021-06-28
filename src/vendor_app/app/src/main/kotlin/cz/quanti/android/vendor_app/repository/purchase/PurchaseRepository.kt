@@ -3,7 +3,6 @@ package cz.quanti.android.vendor_app.repository.purchase
 import cz.quanti.android.vendor_app.repository.purchase.dto.Invoice
 import cz.quanti.android.vendor_app.repository.purchase.dto.Purchase
 import cz.quanti.android.vendor_app.repository.purchase.dto.Transaction
-import cz.quanti.android.vendor_app.repository.purchase.dto.TransactionPurchase
 import cz.quanti.android.vendor_app.repository.purchase.dto.api.InvoiceApiEntity
 import cz.quanti.android.vendor_app.repository.purchase.dto.api.TransactionPurchaseApiEntity
 import cz.quanti.android.vendor_app.repository.purchase.dto.api.TransactionApiEntity
@@ -44,7 +43,7 @@ interface PurchaseRepository {
 
     fun getTransactions(): Single<List<Transaction>>
 
-    fun retrieveTransactionsPurchasesById(purchaseIds: List<Int>): Single<Pair<Int, List<TransactionPurchaseApiEntity>>>
+    fun retrieveTransactionsPurchases(vendorId: Int, projectId: Long, currency: String): Single<Pair<Int, List<TransactionPurchaseApiEntity>>>
 
     fun deleteTransactionPurchases(): Completable
 

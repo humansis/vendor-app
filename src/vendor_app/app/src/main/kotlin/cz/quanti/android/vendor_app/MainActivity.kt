@@ -412,11 +412,11 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
     override fun dispatchTouchEvent(ev: MotionEvent): Boolean {
         if (ev.action == MotionEvent.ACTION_DOWN) {
             // Notify touch outside listener if user tapped outside a given view
-            if (mOnTouchOutsideViewListener != null && mTouchOutsideView != null && mTouchOutsideView!!.visibility == View.VISIBLE) {
+            if (mOnTouchOutsideViewListener != null && mTouchOutsideView != null && mTouchOutsideView?.visibility == View.VISIBLE) {
                 val viewRect = Rect()
-                mTouchOutsideView!!.getGlobalVisibleRect(viewRect)
+                mTouchOutsideView?.getGlobalVisibleRect(viewRect)
                 if (!viewRect.contains(ev.rawX.toInt(), ev.rawY.toInt())) {
-                    mOnTouchOutsideViewListener!!.onTouchOutside(mTouchOutsideView, ev)
+                    mOnTouchOutsideViewListener?.onTouchOutside(mTouchOutsideView, ev)
                 }
             }
         }

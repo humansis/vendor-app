@@ -70,6 +70,6 @@ class AppPreferences(context: Context) : BasePreferences(context, VERSION, MIGRA
         }
 
     var url: String
-        get() = settings.getString(API_URL, "")!!
+        get() = settings.getString(API_URL, "").toString()
         set(url) = settings.edit().putString(API_URL, url).apply()
 }

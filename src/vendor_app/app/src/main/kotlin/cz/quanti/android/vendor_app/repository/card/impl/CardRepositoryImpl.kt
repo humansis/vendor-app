@@ -25,9 +25,11 @@ class CardRepositoryImpl(
         }
     }
 
-    override fun isBlockedCard(id: String): Single<Boolean> {
+    override fun isBlockedCard(id: String?): Single<Boolean> {
         return Single.fromCallable{
-            blockedCardDao.isBlockedCard(id)
+            if (id != null) {
+                blockedCardDao.isBlockedCard(id)
+            } else false
         }
     }
 

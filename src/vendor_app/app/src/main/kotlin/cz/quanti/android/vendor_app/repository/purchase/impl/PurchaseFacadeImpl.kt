@@ -23,16 +23,12 @@ class PurchaseFacadeImpl(
 ) : PurchaseFacade {
 
     override fun savePurchase(purchase: Purchase): Completable {
-        return if (purchase.smartcard != null) {
-            cardRepo.isBlockedCard(purchase.smartcard!!).flatMapCompletable { itsBlocked ->
-                if(itsBlocked) {
-                    throw BlockedCardError("This card is tagged as blocked on the server")
-                } else {
-                    purchaseRepo.savePurchase(purchase)
-                }
+        return cardRepo.isBlockedCard(purchase.smartcard).flatMapCompletable { itsBlocked ->
+            if(itsBlocked) {
+                throw BlockedCardError("This card is tagged as blocked on the server")
+            } else {
+                purchaseRepo.savePurchase(purchase)
             }
-        } else {
-            purchaseRepo.savePurchase(purchase)
         }
     }
 

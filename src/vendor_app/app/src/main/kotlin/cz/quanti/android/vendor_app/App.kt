@@ -7,6 +7,7 @@ import cz.quanti.android.vendor_app.repository.AppPreferences
 import org.koin.android.ext.android.inject
 import quanti.com.kotlinlog.Log
 import quanti.com.kotlinlog.android.AndroidLogger
+import quanti.com.kotlinlog.android.MetadataLogger
 import quanti.com.kotlinlog.base.LogLevel
 import quanti.com.kotlinlog.base.LoggerBundle
 import quanti.com.kotlinlog.file.FileLogger
@@ -20,18 +21,30 @@ class App : BaseApp() {
     override fun onCreate() {
         super.onCreate()
 
-        // Use custom logger
-        Log.initialise(this)
-        Log.addLogger(AndroidLogger(LoggerBundle(LogLevel.DEBUG)))
-        Log.addLogger(FileLogger(applicationContext, CircleLogBundle()))
-        Log.useUncheckedErrorHandler()
-        NfcLogger.registerListener(Logger())
+        initLogger()
 
         KoinInitializer.init(this)
 
         preferences.init()
 
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true)
+    }
+
+    private fun initLogger() {
+        Log.initialise(this)
+        Log.addLogger(AndroidLogger(LoggerBundle(LogLevel.DEBUG)))
+        Log.addLogger(FileLogger(applicationContext, CircleLogBundle()))
+        Log.useUncheckedErrorHandler()
+        NfcLogger.registerListener(Logger())
+        MetadataLogger.customMetadataLambda = {
+            val metadata: MutableList<Pair<String, String>> = mutableListOf()
+            metadata.add(Pair("VERSION:", getString(R.string.version, BuildConfig.VERSION_NAME)))
+            metadata.add(Pair("BUILD_NUMBER:", BuildConfig.BUILD_NUMBER.toString()))
+            metadata.add(Pair("VENDOR_ID:", preferences.vendor.id.toString()))
+            metadata.add(Pair("VENDOR_USERNAME:", preferences.vendor.username))
+            metadata.add(Pair("VENDOR_COUNTRY:", preferences.vendor.country))
+            metadata
+        }
     }
 
     private class Logger : NfcLogger.Listener {

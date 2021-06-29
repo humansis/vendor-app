@@ -51,13 +51,15 @@ interface VendorAPI {
         @Path("id") vendorId: Int
     ): Single<Response<V2InvoiceApiEntity>>
 
-    @GET("v2/vendors/{id}/smartcard-redemption-candidates")
+    @GET("v3/vendors/{id}/smartcard-redemption-candidates")
     fun getTransactions(
         @Path("id") vendorId: Int
-    ): Single<Response<V2TransactionsApiEntity>>
+    ): Single<Response<List<TransactionApiEntity>>>
 
-    @GET("v2/smartcard-purchases")
-    fun getTransactionsPurchasesById(
-        @Query("filter[id][]") purchaseIds: List<Int>
-    ): Single<Response<V2TransactionPurchaseApiEntity>>
+    @GET("v1/vendors/{vendorId}/projects/{projectId}/currencies/{curr}/smartcard-purchases")
+    fun getTransactionsPurchases(
+        @Path("vendorId") vendorId: Int,
+        @Path("projectId") projectId: Long,
+        @Path("curr") currency: String
+    ): Single<Response<List<TransactionPurchaseApiEntity>>>
 }

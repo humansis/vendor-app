@@ -164,7 +164,7 @@ class PurchaseFacadeImpl(
                 deleteAllTransactions().andThen(
                     deleteAllTransactionPurchases().andThen(
                         Observable.fromIterable(transactionsList).flatMapCompletable { transactions ->
-                            purchaseRepo.retrieveTransactionsPurchasesById(transactions.purchaseIds).flatMapCompletable { response ->
+                            purchaseRepo.retrieveTransactionsPurchases(vendorId, transactions.projectId, transactions.currency).flatMapCompletable { response ->
                                 val transactionPurchasesList = response.second
                                 if (isPositiveResponseHttpCode(response.first)) {
                                     saveTransactionToDb(transactions, id).flatMapCompletable { transactionId ->

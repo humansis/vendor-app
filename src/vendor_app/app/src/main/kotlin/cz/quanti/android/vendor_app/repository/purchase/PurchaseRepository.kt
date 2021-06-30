@@ -44,7 +44,7 @@ interface PurchaseRepository {
 
     fun getTransactions(): Single<List<Transaction>>
 
-    fun retrieveTransactionsPurchasesById(purchaseIds: List<Int>): Single<Pair<Int, List<TransactionPurchaseApiEntity>>>
+    fun retrieveTransactionsPurchases(vendorId: Int, projectId: Long, currency: String): Single<Pair<Int, List<TransactionPurchaseApiEntity>>>
 
     fun deleteTransactionPurchases(): Completable
 

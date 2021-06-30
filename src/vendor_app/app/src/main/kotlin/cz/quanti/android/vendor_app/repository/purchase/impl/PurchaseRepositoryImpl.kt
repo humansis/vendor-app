@@ -202,7 +202,7 @@ class PurchaseRepositoryImpl(
     override fun retrieveTransactions(vendorId: Int): Single<Pair<Int, List<TransactionApiEntity>>> {
         return api.getTransactions(vendorId).map { response ->
             var transactions = listOf<TransactionApiEntity>()
-            response.body()?.let { transactions = it.data }
+            response.body()?.let { transactions = it }
             Pair(response.code(), transactions)
         }
     }
@@ -215,10 +215,14 @@ class PurchaseRepositoryImpl(
         return Single.fromCallable { transactionDao.insert(convertToDb(transaction, transactionId)) }
     }
 
-    override fun retrieveTransactionsPurchasesById(purchaseIds: List<Int>): Single<Pair<Int, List<TransactionPurchaseApiEntity>>> {
-        return api.getTransactionsPurchasesById(purchaseIds).map { response ->
+    override fun retrieveTransactionsPurchases(
+        vendorId: Int,
+        projectId: Long,
+        currency: String
+    ): Single<Pair<Int, List<TransactionPurchaseApiEntity>>> {
+        return api.getTransactionsPurchases(vendorId, projectId, currency).map { response ->
             var transactionPurchases = listOf<TransactionPurchaseApiEntity>()
-            response.body()?.let { transactionPurchases = it.data }
+            response.body()?.let { transactionPurchases = it }
             Pair(response.code(), transactionPurchases)
         }
     }

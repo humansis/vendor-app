@@ -1,5 +1,6 @@
 package cz.quanti.android.vendor_app.repository.product.impl
 
+import android.content.Context
 import com.bumptech.glide.Glide
 import cz.quanti.android.vendor_app.repository.product.ProductFacade
 import cz.quanti.android.vendor_app.repository.product.ProductRepository
@@ -10,7 +11,8 @@ import io.reactivex.Completable
 import io.reactivex.Observable
 
 class ProductFacadeImpl(
-    private val productRepo: ProductRepository
+    private val productRepo: ProductRepository,
+    private val context: Context
 ) : ProductFacade {
 
     override fun getProducts(): Observable<List<Product>> {
@@ -46,6 +48,9 @@ class ProductFacadeImpl(
             productRepo.deleteProducts().andThen(
                 Observable.fromIterable(products).flatMapCompletable { product ->
                     productRepo.saveProduct(product)
+                        .andThen(Completable.fromCallable {
+                            Glide.with(context).load(product.image)
+                        })
                 })
         }
     }

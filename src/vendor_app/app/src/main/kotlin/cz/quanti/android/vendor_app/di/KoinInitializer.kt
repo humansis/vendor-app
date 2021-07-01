@@ -115,7 +115,7 @@ object KoinInitializer {
 
         // Facade
         val loginFacade: LoginFacade = LoginFacadeImpl(loginRepo, loginManager, currentVendor)
-        val productFacade: ProductFacade = ProductFacadeImpl(productRepo)
+        val productFacade: ProductFacade = ProductFacadeImpl(productRepo, app.applicationContext)
         val bookletFacade: BookletFacade = BookletFacadeImpl(bookletRepo)
         val cardFacade: CardFacade = CardFacadeImpl(cardRepo)
         val purchaseFacade: PurchaseFacade = PurchaseFacadeImpl(purchaseRepo, cardRepo)

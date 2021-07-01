@@ -136,7 +136,7 @@ dependencies {
 
     implementation fileTree(dir: 'libs', include: ['*.jar', '*.aar'])
 
-    //ktlint
+    // ktlint
     ktlint "com.pinterest:ktlint:0.35.0"
 
     //analytics
@@ -168,7 +168,7 @@ dependencies {
     implementation "io.reactivex.rxjava2:rxandroid:$rxandroid_version"
     implementation "io.reactivex.rxjava2:rxjava:$rxjava_version"
 
-    //retrofit
+    // retrofit
     implementation 'com.squareup.retrofit2:retrofit:2.6.0'
     implementation 'com.squareup.retrofit2:converter-gson:2.6.0'
     implementation 'com.jakewharton.retrofit:retrofit2-rxjava2-adapter:1.0.0'
@@ -179,11 +179,12 @@ dependencies {
     implementation "org.koin:koin-android:$koin_version"
     implementation "org.koin:koin-androidx-viewmodel:$koin_version"
 
-    //Scanner
+    // Scanner
     implementation 'com.budiyev.android:code-scanner:2.1.0'
 
-    //Picasso
-    implementation 'com.squareup.picasso:picasso:2.71828'
+    // Glide
+    implementation 'com.github.bumptech.glide:glide:4.12.0'
+    annotationProcessor 'com.github.bumptech.glide:compiler:4.12.0'
 
     // Architecture Components - Room
     api 'androidx.room:room-runtime:2.2.4'

@@ -11,6 +11,8 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.toLiveData
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.navigation.NavigationView
 import com.google.android.material.textfield.TextInputLayout
@@ -154,7 +156,11 @@ class ProductsFragment : Fragment(), OnTouchOutsideViewListener {
     fun openProduct(product: Product) {
         val dialogView = layoutInflater.inflate(R.layout.dialog_product, null)
 
-        dialogView.findViewById<ImageView>(R.id.productImage).setImageDrawable(product.drawable)
+        Glide
+            .with(requireContext())
+            .load(product.image)
+            .transition(DrawableTransitionOptions.withCrossFade())
+            .into(dialogView.findViewById<ImageView>(R.id.productImage))
 
         dialogView.findViewById<TextView>(R.id.productName).text = product.name
 

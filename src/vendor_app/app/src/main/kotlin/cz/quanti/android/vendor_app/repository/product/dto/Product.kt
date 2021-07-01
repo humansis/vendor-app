@@ -6,7 +6,6 @@ data class Product(
     var id: Long = 0,
     var name: String = "",
     var image: String = "",
-    var drawable: Drawable? = null,
     var unit: String = ""
 ) {
 

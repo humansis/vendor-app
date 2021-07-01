@@ -5,13 +5,13 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.*
 import androidx.recyclerview.widget.RecyclerView
-import com.squareup.picasso.Picasso
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import cz.quanti.android.vendor_app.R
 import cz.quanti.android.vendor_app.main.shop.fragment.ProductsFragment
 import cz.quanti.android.vendor_app.main.shop.viewholder.ShopViewHolder
 import cz.quanti.android.vendor_app.repository.product.dto.Product
 import org.koin.core.KoinComponent
-import quanti.com.kotlinlog.Log
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -23,8 +23,6 @@ class ShopAdapter(
 
     private val products: MutableList<Product> = mutableListOf()
     private val productsFull: MutableList<Product> = mutableListOf()
-
-    private val picasso = Picasso.get()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ShopViewHolder {
         val view = LayoutInflater.from(parent.context)
@@ -78,23 +76,11 @@ class ShopAdapter(
     override fun onBindViewHolder(holder: ShopViewHolder, position: Int) {
         holder.productName.text = products[position].name
 
-        if (products[position].drawable == null ) {
-            picasso.isLoggingEnabled = true
-            val img = ImageView(context)
-            picasso.load(products[position].image)
-                .into(img, object : com.squareup.picasso.Callback {
-                    override fun onSuccess() {
-                        products[position].drawable = img.drawable
-                        holder.productImage.setImageDrawable(img.drawable)
-                    }
-
-                    override fun onError(e: java.lang.Exception?) {
-                        Log.e(e?.message ?: "")
-                    }
-                })
-        } else {
-            holder.productImage.setImageDrawable(products[position].drawable)
-        }
+        Glide
+            .with(context)
+            .load(products[position].image)
+            .transition(DrawableTransitionOptions.withCrossFade())
+            .into(holder.productImage)
 
         holder.productLayout.setOnClickListener {
             productsFragment.openProduct(products[position])

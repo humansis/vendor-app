@@ -94,4 +94,5 @@
     <string name="navigation_drawer_open">افتح لوحة التصفح</string>
     <string name="navigation_drawer_close">أغلق لوحة التصفح</string>
     <string name="utilities">خدمات</string>
+    <string name="confirm">ترتيب</string>
 </resources>

@@ -41,7 +41,6 @@ class SelectedProductsAdapter(
         Glide
             .with(context)
             .load(item.product.image)
-            .transition(DrawableTransitionOptions.withCrossFade())
             .into(holder.image)
 
         holder.productName.text = item.product.name

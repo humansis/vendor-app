@@ -159,8 +159,7 @@ class ProductsFragment : Fragment(), OnTouchOutsideViewListener {
         Glide
             .with(requireContext())
             .load(product.image)
-            .transition(DrawableTransitionOptions.withCrossFade())
-            .into(dialogView.findViewById<ImageView>(R.id.productImage))
+            .into(dialogView.findViewById(R.id.productImage))
 
         dialogView.findViewById<TextView>(R.id.productName).text = product.name
 

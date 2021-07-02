@@ -15,6 +15,7 @@ import com.budiyev.android.codescanner.CodeScanner
 import com.budiyev.android.codescanner.DecodeCallback
 import com.budiyev.android.codescanner.ScanMode
 import com.google.android.material.textfield.TextInputEditText
+import cz.quanti.android.vendor_app.ActivityCallback
 import cz.quanti.android.vendor_app.MainActivity
 import cz.quanti.android.vendor_app.R
 import cz.quanti.android.vendor_app.main.scanner.ScannedVoucherReturnState
@@ -47,6 +48,7 @@ class ScannerFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        (activity as ActivityCallback).setToolbarVisible(false)
         return inflater.inflate(R.layout.fragment_scanner, container, false)
     }
 

@@ -9,6 +9,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
+import cz.quanti.android.vendor_app.ActivityCallback
 import cz.quanti.android.vendor_app.R
 import cz.quanti.android.vendor_app.main.checkout.adapter.ScannedVoucherAdapter
 import cz.quanti.android.vendor_app.main.checkout.callback.CheckoutFragmentCallback
@@ -30,7 +31,7 @@ class CheckoutPaymentFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        (activity as AppCompatActivity).supportActionBar?.show()
+        (activity as ActivityCallback).setToolbarVisible(true)
         return inflater.inflate(R.layout.fragment_checkout_payment, container, false)
     }
 

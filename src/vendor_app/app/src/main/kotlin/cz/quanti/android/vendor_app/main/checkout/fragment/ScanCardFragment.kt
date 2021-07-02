@@ -36,6 +36,7 @@ class ScanCardFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         activityCallback = activity as ActivityCallback
+        activityCallback?.setToolbarVisible(false)
         return inflater.inflate(R.layout.fragment_scan_card, container, false)
     }
 

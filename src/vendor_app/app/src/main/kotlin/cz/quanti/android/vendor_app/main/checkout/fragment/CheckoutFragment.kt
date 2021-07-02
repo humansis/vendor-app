@@ -43,6 +43,7 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
         savedInstanceState: Bundle?
     ): View? {
         activityCallback = activity as ActivityCallback
+        activityCallback?.setToolbarVisible(true)
         requireActivity().onBackPressedDispatcher.addCallback(
             this,
             object : OnBackPressedCallback(true) {

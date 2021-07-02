@@ -45,8 +45,8 @@ class CheckoutFragment() : Fragment(), CheckoutFragmentCallback {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        (activity as AppCompatActivity).supportActionBar?.show()
         activityCallback = activity as ActivityCallback
+        activityCallback?.setToolbarVisible(true)
         return inflater.inflate(R.layout.fragment_checkout, container, false)
     }
 

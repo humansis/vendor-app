@@ -16,6 +16,7 @@ import android.widget.*
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.toLiveData
@@ -159,6 +160,11 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
     }
 
     private fun setUpToolbar() {
+        syncButton?.setImageDrawable(ContextCompat.getDrawable(
+            this,
+            if (isNetworkConnected()) R.drawable.ic_cloud else R.drawable.ic_cloud_offline)
+        )
+
         syncFacade.getPurchasesCount()
             .toFlowable(BackpressureStrategy.LATEST)
             .toLiveData()

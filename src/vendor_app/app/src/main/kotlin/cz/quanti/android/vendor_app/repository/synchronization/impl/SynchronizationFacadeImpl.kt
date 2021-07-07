@@ -7,6 +7,7 @@ import cz.quanti.android.vendor_app.repository.purchase.PurchaseFacade
 import cz.quanti.android.vendor_app.repository.purchase.dto.Purchase
 import cz.quanti.android.vendor_app.repository.synchronization.SynchronizationFacade
 import io.reactivex.Completable
+import io.reactivex.Observable
 import io.reactivex.Single
 
 class SynchronizationFacadeImpl(
@@ -23,17 +24,19 @@ class SynchronizationFacadeImpl(
             .andThen(productFacade.syncWithServer())
     }
 
-    override fun isSyncNeeded(): Single<Boolean> {
-        return purchaseFacade.isSyncNeeded().flatMap {
-            if(it) {
-                Single.just(true)
-            } else {
-                bookletFacade.isSyncNeeded()
-            }
+    override fun isSyncNeeded(purchasesCount: Long): Single<Boolean> {
+        return if(purchasesCount > 0) {
+            Single.just(true)
+        } else {
+            bookletFacade.isSyncNeeded()
         }
     }
 
     override fun unsyncedPurchases(): Single<List<Purchase>> {
         return purchaseFacade.unsyncedPurchases()
+    }
+
+    override fun getPurchasesCount(): Observable<Long> {
+        return purchaseFacade.getPurchasesCount()
     }
 }

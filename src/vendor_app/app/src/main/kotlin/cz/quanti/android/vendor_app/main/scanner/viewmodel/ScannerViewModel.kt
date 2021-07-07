@@ -41,7 +41,7 @@ class ScannerViewModel(
         var currency = ""
         var id: Long = 0
         var value: Long = 0
-        var returnCode: ScannedVoucherReturnState
+        val returnCode: ScannedVoucherReturnState
         val booklet = getBooklet()
 
         var regex = Regex(
@@ -159,7 +159,7 @@ class ScannerViewModel(
         if (checkIfInvalidBooklet(voucher, booklet)) {
             return ScannedVoucherReturnState.WRONG_BOOKLET
         }
-        if (checkIfDifferentCurrency(voucher, shoppingHolder.chosenCurrency)) {
+        if (checkIfDifferentCurrency(voucher, shoppingHolder.chosenCurrency.value.toString())) {
             return ScannedVoucherReturnState.WRONG_CURRENCY
         }
         return returnCode

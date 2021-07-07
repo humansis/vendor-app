@@ -3,7 +3,7 @@ package cz.quanti.android.vendor_app.repository.product.dao
 import androidx.room.*
 import cz.quanti.android.vendor_app.repository.VendorDb
 import cz.quanti.android.vendor_app.repository.product.dto.db.ProductDbEntity
-import io.reactivex.Single
+import io.reactivex.Observable
 
 @Dao
 interface ProductDao {
@@ -18,5 +18,5 @@ interface ProductDao {
     fun deleteAll()
 
     @Query("SELECT * FROM " + VendorDb.TABLE_PRODUCT)
-    fun getAll(): Single<List<ProductDbEntity>>
+    fun getAll(): Observable<List<ProductDbEntity>>
 }

@@ -4,13 +4,10 @@
     android:id="@+id/currencyText"
     android:singleLine="true"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:paddingBottom="3dip"
-    android:paddingTop="3dip"
+    android:layout_height="match_parent"
     android:textAlignment="inherit"
     android:gravity="center"
     android:textColor="@color/black"
     android:textSize="@dimen/fragment_text"
-    android:background="@color/screenBackgroundColor"
-    android:drawableRight="@drawable/arrow_drop_down"
-    />
+    android:drawableStart="@drawable/monetization_on"
+    android:drawableEnd="@drawable/arrow_drop_down"/>

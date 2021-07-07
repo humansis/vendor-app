@@ -2,6 +2,7 @@ package extensions
 
 import android.content.Context
 import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 import android.os.Build
 
 fun Context.isNetworkConnected(): Boolean {
@@ -11,6 +12,13 @@ fun Context.isNetworkConnected(): Boolean {
         connectivityManager.getNetworkCapabilities(network) ?: return false
         return true
     } else {
-        return connectivityManager.activeNetworkInfo?.isConnected ?: false
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            val capabilities = connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork)
+            val cellular = capabilities?.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) ?: false
+            val wifi = capabilities?.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) ?: false
+            (cellular || wifi)
+        } else {
+            connectivityManager.activeNetworkInfo?.isConnected ?: false
+        }
     }
 }

@@ -7,7 +7,6 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import cz.quanti.android.vendor_app.ActivityCallback
-import cz.quanti.android.vendor_app.MainActivity
 import cz.quanti.android.vendor_app.R
 import cz.quanti.android.vendor_app.main.invoices.adapter.InvoicesAdapter
 import cz.quanti.android.vendor_app.main.invoices.viewmodel.InvoicesViewModel

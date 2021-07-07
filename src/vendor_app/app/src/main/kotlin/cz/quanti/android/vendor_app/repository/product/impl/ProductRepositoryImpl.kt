@@ -7,9 +7,13 @@ import cz.quanti.android.vendor_app.repository.product.dto.Product
 import cz.quanti.android.vendor_app.repository.product.dto.api.ProductApiEntity
 import cz.quanti.android.vendor_app.repository.product.dto.db.ProductDbEntity
 import io.reactivex.Completable
+import io.reactivex.Observable
 import io.reactivex.Single
 
-class ProductRepositoryImpl(private val productDao: ProductDao, private val api: VendorAPI) :
+class ProductRepositoryImpl(
+    private val productDao: ProductDao,
+    private val api: VendorAPI
+) :
     ProductRepository {
 
     override fun getProductsFromServer(): Single<Pair<Int, List<Product>>> {
@@ -24,7 +28,7 @@ class ProductRepositoryImpl(private val productDao: ProductDao, private val api:
         }
     }
 
-    override fun getProducts(): Single<List<Product>> {
+    override fun getProducts(): Observable<List<Product>> {
         return productDao.getAll().map { products ->
             products.map {
                 convert(it)

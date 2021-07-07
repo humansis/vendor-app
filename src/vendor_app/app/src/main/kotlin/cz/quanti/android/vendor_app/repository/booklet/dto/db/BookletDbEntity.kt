@@ -12,6 +12,4 @@ data class BookletDbEntity(
     var code: String = "",
     var password: String = "",
     var state: Int = Booklet.STATE_NORMAL
-) {
-
-}
+)

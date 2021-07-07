@@ -38,7 +38,7 @@
     <string name="the_voucher_is_of_wrong_currency">This voucher is of different currency</string>
     <string name="tries_exceeded_booklet_deactivated">You have exceeded your tries at password, your booklet will be deactivated</string>
     <string name="booklet_deactivated">Booklet deactivated</string>
-    <string name="wrong_voucher_password">You didn\'t type the right password. You have only %1$d tries left.</string>
+    <string name="wrong_voucher_password">You didn\'t type the right password. You have only %1$d try left.</string>
     <string name="wrong_voucher_password_plural">You didn\'t type the right password. You have only %1$d tries left.</string>
     <string name="go_to_cart">Show basket</string>
     <string name="back_button">back</string>
@@ -48,7 +48,7 @@
     <string name="no_internet_connection">Please make sure you are connected to the internet</string>
     <string name="could_not_synchronize_data_with_server">Could not synchronize data with the server</string>
     <string name="data_were_successfully_synchronized">Data were successfully synchronized with the server</string>
-    <string name="add_to_cart">Add to basket</string>
+    <string name="add_to_cart">Add to\nbasket</string>
     <string name="please_enter_price">Please enter price.</string>
     <string name="pin">PIN</string>
     <string name="please_enter_pin">Please enter PIN for your card</string>
@@ -96,4 +96,5 @@
     <string name="logs_dialog_message">Would you like to share logs?</string>
     <string name="logs_dialog_email_button">Share</string>
     <string name="environment">Environment: %1$s</string>
+    <string name="confirm">Confirm</string>
 </resources>

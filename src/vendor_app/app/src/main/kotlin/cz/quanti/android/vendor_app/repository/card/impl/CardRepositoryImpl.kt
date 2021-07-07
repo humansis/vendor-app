@@ -20,20 +20,22 @@ class CardRepositoryImpl(
     }
 
     override fun getBlockedCards(): Single<List<String>> {
-        return blockedCardDao.getAll().map {
-            it.map { it.id.toUpperCase(Locale.US) }
+        return blockedCardDao.getAll().map { list ->
+            list.map { it.id.uppercase(Locale.US) }
         }
     }
 
-    override fun isBlockedCard(id: String): Single<Boolean> {
+    override fun isBlockedCard(id: String?): Single<Boolean> {
         return Single.fromCallable{
-            blockedCardDao.isBlockedCard(id)
+            if (id != null) {
+                blockedCardDao.isBlockedCard(id)
+            } else false
         }
     }
 
     override fun saveBlockedCard(cardId: String): Completable {
         return Completable.fromCallable {
-            blockedCardDao.insert(BlockedCardDbEntity(cardId.toUpperCase(Locale.US)))
+            blockedCardDao.insert(BlockedCardDbEntity(cardId.uppercase(Locale.US)))
         }
     }
 

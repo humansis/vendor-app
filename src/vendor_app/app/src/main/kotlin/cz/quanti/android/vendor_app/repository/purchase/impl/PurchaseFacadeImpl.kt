@@ -23,16 +23,12 @@ class PurchaseFacadeImpl(
 ) : PurchaseFacade {
 
     override fun savePurchase(purchase: Purchase): Completable {
-        return if (purchase.smartcard != null) {
-            cardRepo.isBlockedCard(purchase.smartcard!!).flatMapCompletable { itsBlocked ->
-                if(itsBlocked) {
-                    throw BlockedCardError("This card is tagged as blocked on the server")
-                } else {
-                    purchaseRepo.savePurchase(purchase)
-                }
+        return cardRepo.isBlockedCard(purchase.smartcard).flatMapCompletable { itsBlocked ->
+            if(itsBlocked) {
+                throw BlockedCardError("This card is tagged as blocked on the server")
+            } else {
+                purchaseRepo.savePurchase(purchase)
             }
-        } else {
-            purchaseRepo.savePurchase(purchase)
         }
     }
 
@@ -46,12 +42,12 @@ class PurchaseFacadeImpl(
 
     }
 
-    override fun isSyncNeeded(): Single<Boolean> {
-        return purchaseRepo.getPurchasesCount().map { it > 0 }
-    }
-
     override fun unsyncedPurchases(): Single<List<Purchase>> {
         return purchaseRepo.getAllPurchases()
+    }
+
+    override fun getPurchasesCount(): Observable<Long> {
+        return purchaseRepo.getPurchasesCount()
     }
 
     override fun getInvoices(): Single<List<Invoice>> {

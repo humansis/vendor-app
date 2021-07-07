@@ -13,7 +13,7 @@ import cz.quanti.android.vendor_app.main.checkout.viewmodel.CheckoutViewModel
 import cz.quanti.android.vendor_app.main.invoices.viewmodel.InvoicesViewModel
 import cz.quanti.android.vendor_app.main.scanner.viewmodel.ScannerViewModel
 import cz.quanti.android.vendor_app.main.transactions.viewmodel.TransactionsViewModel
-import cz.quanti.android.vendor_app.main.vendor.viewmodel.VendorViewModel
+import cz.quanti.android.vendor_app.main.shop.viewmodel.ShopViewModel
 import cz.quanti.android.vendor_app.repository.AppPreferences
 import cz.quanti.android.vendor_app.repository.VendorAPI
 import cz.quanti.android.vendor_app.repository.VendorDb
@@ -115,7 +115,7 @@ object KoinInitializer {
 
         // Facade
         val loginFacade: LoginFacade = LoginFacadeImpl(loginRepo, loginManager, currentVendor)
-        val productFacade: ProductFacade = ProductFacadeImpl(productRepo)
+        val productFacade: ProductFacade = ProductFacadeImpl(productRepo, app.applicationContext)
         val bookletFacade: BookletFacade = BookletFacadeImpl(bookletRepo)
         val cardFacade: CardFacade = CardFacadeImpl(cardRepo)
         val purchaseFacade: PurchaseFacade = PurchaseFacadeImpl(purchaseRepo, cardRepo)
@@ -159,7 +159,7 @@ object KoinInitializer {
                 )
             }
             viewModel {
-                VendorViewModel(
+                ShopViewModel(
                     shoppingHolder,
                     productFacade,
                     syncFacade,
@@ -201,7 +201,7 @@ object KoinInitializer {
             .addInterceptor { chain ->
                 val oldRequest = chain.request()
                 val headersBuilder = oldRequest.headers().newBuilder()
-                loginManager.getAuthHeader()?.let {
+                loginManager.getAuthHeader().let {
                     headersBuilder.add("x-wsse", it)
                 }
                 headersBuilder.add("country", getCountry(currentVendor))

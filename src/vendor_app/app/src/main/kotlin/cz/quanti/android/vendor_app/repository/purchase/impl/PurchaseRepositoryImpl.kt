@@ -41,7 +41,7 @@ class PurchaseRepositoryImpl(
                 cardPurchaseDao.insert(
                     CardPurchaseDbEntity(
                         purchaseId = id,
-                        card = purchase.smartcard!!
+                        card = purchase.smartcard
                     )
                 )
             }
@@ -61,8 +61,9 @@ class PurchaseRepositoryImpl(
     }
 
     override fun sendCardPurchaseToServer(purchase: Purchase): Single<Int> {
-        return if (purchase.smartcard != null) {
-            api.postCardPurchase(purchase.smartcard!!, convertToCardApi(purchase)).map { response ->
+        val cardId = purchase.smartcard
+        return if (cardId != null) {
+            api.postCardPurchase(cardId, convertToCardApi(purchase)).map { response ->
                 Log.d(
                     TAG,
                     "Received code ${response.code()} when trying to sync purchase ${purchase.dbId} by ${purchase.smartcard}"
@@ -255,7 +256,7 @@ class PurchaseRepositoryImpl(
         }
     }
 
-    override fun getPurchasesCount(): Single<Int> {
+    override fun getPurchasesCount(): Observable<Long> {
         return purchaseDao.getCount()
     }
 

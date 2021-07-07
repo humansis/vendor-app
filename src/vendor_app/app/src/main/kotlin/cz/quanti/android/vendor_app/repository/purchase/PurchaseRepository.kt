@@ -4,9 +4,10 @@ import cz.quanti.android.vendor_app.repository.purchase.dto.Invoice
 import cz.quanti.android.vendor_app.repository.purchase.dto.Purchase
 import cz.quanti.android.vendor_app.repository.purchase.dto.Transaction
 import cz.quanti.android.vendor_app.repository.purchase.dto.api.InvoiceApiEntity
-import cz.quanti.android.vendor_app.repository.purchase.dto.api.TransactionPurchaseApiEntity
 import cz.quanti.android.vendor_app.repository.purchase.dto.api.TransactionApiEntity
+import cz.quanti.android.vendor_app.repository.purchase.dto.api.TransactionPurchaseApiEntity
 import io.reactivex.Completable
+import io.reactivex.Observable
 import io.reactivex.Single
 
 interface PurchaseRepository {
@@ -25,7 +26,7 @@ interface PurchaseRepository {
 
     fun deleteAllVoucherPurchases(): Completable
 
-    fun getPurchasesCount(): Single<Int>
+    fun getPurchasesCount(): Observable<Long>
 
     fun retrieveInvoices(vendorId: Int): Single<Pair<Int, List<InvoiceApiEntity>>>
 

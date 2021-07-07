@@ -4,25 +4,29 @@ import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.content.Intent
 import android.content.pm.ActivityInfo
+import android.graphics.Rect
 import android.nfc.NfcAdapter
 import android.nfc.Tag
 import android.os.Bundle
 import android.util.DisplayMetrics
 import android.view.MenuItem
+import android.view.MotionEvent
 import android.view.View
-import android.widget.ImageView
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.lifecycle.toLiveData
 import androidx.navigation.findNavController
+import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.navigation.NavigationView
 import cz.quanti.android.nfc.VendorFacade
 import cz.quanti.android.nfc.dto.UserBalance
 import cz.quanti.android.vendor_app.main.authorization.viewmodel.LoginViewModel
+import cz.quanti.android.vendor_app.main.shop.adapter.CurrencyAdapter
+import cz.quanti.android.vendor_app.main.shop.viewmodel.ShopViewModel
 import cz.quanti.android.vendor_app.repository.AppPreferences
 import cz.quanti.android.vendor_app.repository.login.LoginFacade
 import cz.quanti.android.vendor_app.repository.synchronization.SynchronizationFacade
@@ -31,6 +35,7 @@ import cz.quanti.android.vendor_app.sync.SynchronizationState
 import cz.quanti.android.vendor_app.utils.NfcInitializer
 import cz.quanti.android.vendor_app.utils.NfcTagPublisher
 import extensions.isNetworkConnected
+import io.reactivex.BackpressureStrategy
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
@@ -41,6 +46,7 @@ import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import quanti.com.kotlinlog.Log
 import quanti.com.kotlinlog.file.SendLogDialogFragment
+
 
 class MainActivity : AppCompatActivity(), ActivityCallback,
     NavigationView.OnNavigationItemSelectedListener {
@@ -53,6 +59,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
     private val synchronizationManager: SynchronizationManager by inject()
     private var nfcAdapter: NfcAdapter? = null
     private val loginVM: LoginViewModel by viewModel()
+    private val vm: ShopViewModel by viewModel()
     private var displayedDialog: AlertDialog? = null
     private var disposable: Disposable? = null
     private var syncStateDisposable: Disposable? = null
@@ -60,6 +67,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
     private var readBalanceDisposable: Disposable? = null
     private lateinit var drawer: DrawerLayout
     private lateinit var toolbar: Toolbar
+    private lateinit var appBar: AppBarLayout
 
     @SuppressLint("SourceLockedOrientationActivity")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -72,6 +80,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
         setContentView(R.layout.activity_main)
 
         toolbar = findViewById(R.id.toolbar)
+        appBar = findViewById(R.id.appBarLayout)
         drawer = findViewById(R.id.drawer_layout)
         val navigationView = findViewById<NavigationView>(R.id.nav_view)
         navigationView.setNavigationItemSelectedListener(this)
@@ -86,6 +95,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
         drawer.addDrawerListener(toggle)
         toggle.syncState()
         setUpToolbar()
+        initPriceUnitSpinner()
         btn_logout.setOnClickListener {
             logout()
             drawer.closeDrawer(GravityCompat.START)
@@ -115,7 +125,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.home_button -> {
-                findNavController(R.id.nav_host_fragment).popBackStack(R.id.vendorFragment, false)
+                findNavController(R.id.nav_host_fragment).popBackStack(R.id.productFragment, false)
             }
             R.id.transactions_button -> {
                 findNavController(R.id.nav_host_fragment).navigate(R.id.transactionsFragment)
@@ -143,25 +153,30 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
     }
 
     private fun setUpToolbar() {
-        disposable?.dispose()
-        disposable = syncFacade.isSyncNeeded()
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(
-                {
-                    if (it) {
-                        dot?.visibility = View.VISIBLE
-                    } else {
-                        dot?.visibility = View.INVISIBLE
-                    }
-                },
-                {
-                }
-            )
+        syncFacade.getPurchasesCount()
+            .toFlowable(BackpressureStrategy.LATEST)
+            .toLiveData()
+            .observe(this, { purchasesCount ->
+                disposable?.dispose()
+                disposable = syncFacade.isSyncNeeded(purchasesCount)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(
+                        {
+                            showDot(it)
+                        },
+                        {
+                        }
+                    )
+            })
 
         syncButton?.setOnClickListener {
             synchronizationManager.synchronizeWithServer()
         }
+    }
+
+    override fun setTitle(titleText: String) {
+        appbar_title.text = titleText
     }
 
     override fun onNewIntent(intent: Intent) {
@@ -253,6 +268,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
         ).show(this.supportFragmentManager, "TAG")
     }
 
+    @Suppress("WHEN_ENUM_CAN_BE_NULL_IN_JAVA")
     private fun syncState() {
         syncStateDisposable?.dispose()
         syncStateDisposable = synchronizationManager.syncStateObservable()
@@ -267,7 +283,6 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
                     SynchronizationState.SUCCESS -> {
                         progressBar?.visibility = View.GONE
                         syncButtonArea?.visibility = View.VISIBLE
-                        dot?.visibility = View.INVISIBLE
                         Toast.makeText(
                             this,
                             getString(R.string.data_were_successfully_synchronized),
@@ -307,10 +322,10 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
 
     override fun setToolbarVisible(boolean: Boolean) {
         if (boolean) {
-            toolbar.visibility = View.VISIBLE
+            appBar.visibility = View.VISIBLE
             drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
         } else {
-            toolbar.visibility = View.GONE
+            appBar.visibility = View.GONE
             drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
         }
     }
@@ -345,7 +360,80 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
         }
     }
 
-    override fun setTitle(titleText: String) {
-        appbar_title.text = titleText
+    private fun initPriceUnitSpinner() {
+        val currencyAdapter = CurrencyAdapter(this)
+        currencyAdapter.init(vm.getCurrencies())
+        currencyAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        priceUnitSpinner.adapter = currencyAdapter
+        vm.getCurrency().observe(this, {
+            priceUnitSpinner.setSelection(
+                currencyAdapter.getPosition(it)
+            )
+        })
+        priceUnitSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+            }
+
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                vm.setCurrency(priceUnitSpinner.selectedItem as String)
+            }
+        }
+    }
+
+    //====OnTouchOutsideListener====
+
+    private var mTouchOutsideView: View? = null
+
+    private var mOnTouchOutsideViewListener: OnTouchOutsideViewListener? = null
+
+    /**
+     * Sets a listener that is being notified when the user has tapped outside a given view. To remove the listener,
+     * call [.removeOnTouchOutsideViewListener].
+     *
+     *
+     * This is useful in scenarios where a view is in edit mode and when the user taps outside the edit mode shall be
+     * stopped.
+     *
+     * @param view
+     * @param onTouchOutsideViewListener
+     */
+    fun setOnTouchOutsideViewListener(
+        view: View?,
+        onTouchOutsideViewListener: OnTouchOutsideViewListener?
+    ) {
+        mTouchOutsideView = view
+        mOnTouchOutsideViewListener = onTouchOutsideViewListener
+    }
+
+    fun getOnTouchOutsideViewListener(): OnTouchOutsideViewListener? {
+        return mOnTouchOutsideViewListener
+    }
+
+    override fun dispatchTouchEvent(ev: MotionEvent): Boolean {
+        if (ev.action == MotionEvent.ACTION_DOWN) {
+            // Notify touch outside listener if user tapped outside a given view
+            if (mOnTouchOutsideViewListener != null && mTouchOutsideView != null && mTouchOutsideView?.visibility == View.VISIBLE) {
+                val viewRect = Rect()
+                mTouchOutsideView?.getGlobalVisibleRect(viewRect)
+                if (!viewRect.contains(ev.rawX.toInt(), ev.rawY.toInt())) {
+                    mOnTouchOutsideViewListener?.onTouchOutside(mTouchOutsideView, ev)
+                }
+            }
+        }
+        return super.dispatchTouchEvent(ev)
+    }
+
+    /**
+     * Interface definition for a callback to be invoked when a touch event has occurred outside a formerly specified
+     * view. See [.setOnTouchOutsideViewListener]
+     */
+    interface OnTouchOutsideViewListener {
+        /**
+         * Called when a touch event has occurred outside a given view.
+         *
+         * @param view  The view that has not been touched.
+         * @param event The MotionEvent object containing full information about the event.
+         */
+        fun onTouchOutside(view: View?, event: MotionEvent?)
     }
 }

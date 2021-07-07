@@ -14,17 +14,17 @@ class LoginFacadeImpl(
 
     override fun login(username: String, password: String): Completable {
         return loginRepo.getSalt(username).flatMapCompletable { saltResponse ->
-            val responseCode = saltResponse.responseCode
+            val responseCodeSalt = saltResponse.responseCode
             val salt = saltResponse.salt
-            if (!isPositiveResponseHttpCode(responseCode)) {
+            if (!isPositiveResponseHttpCode(responseCodeSalt)) {
                 Completable.error(
                     VendorAppException("Could not obtain salt for the user.")
                         .apply {
                             apiError = true
-                            apiResponseCode = responseCode
+                            apiResponseCode = responseCodeSalt
                         })
             } else {
-                var saltedPassword = hashAndSaltPassword(salt.salt, password)
+                val saltedPassword = hashAndSaltPassword(salt.salt, password)
                 val vendor = Vendor()
                     .apply {
                         this.saltedPassword = saltedPassword
@@ -34,9 +34,9 @@ class LoginFacadeImpl(
                     }
                 loginManager.login(username, saltedPassword)
                 loginRepo.login(vendor).flatMapCompletable { response ->
-                    val responseCode = response.responseCode
+                    val responseCodeLogin = response.responseCode
                     val loggedVendor = response.vendor
-                    if (isPositiveResponseHttpCode(responseCode)) {
+                    if (isPositiveResponseHttpCode(responseCodeLogin)) {
                         loggedVendor.loggedIn = true
                         loggedVendor.username = vendor.username
                         loggedVendor.saltedPassword = vendor.saltedPassword
@@ -45,7 +45,7 @@ class LoginFacadeImpl(
                     } else {
                         Completable.error(VendorAppException("Cannot login").apply {
                             this.apiError = true
-                            this.apiResponseCode = responseCode
+                            this.apiResponseCode = responseCodeLogin
                         })
                     }
                 }

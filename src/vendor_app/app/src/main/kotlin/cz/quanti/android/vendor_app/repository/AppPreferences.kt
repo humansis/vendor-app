@@ -41,7 +41,7 @@ class AppPreferences(context: Context) : BasePreferences(context, VERSION, MIGRA
 
     var vendor: Vendor
         get() {
-            var vendor = Vendor()
+            val vendor = Vendor()
             try {
                 vendor.apply {
                     this.id = settings.getLong(VENDOR_ID, 0)
@@ -54,7 +54,7 @@ class AppPreferences(context: Context) : BasePreferences(context, VERSION, MIGRA
                     this.loggedIn = settings.getBoolean(VENDOR_LOGGED_IN, false)
                 }
             } catch (e: ClassCastException) {
-                settings.edit().remove(VENDOR_ID)
+                settings.edit().remove(VENDOR_ID).apply()
             }
             return vendor
         }
@@ -70,6 +70,6 @@ class AppPreferences(context: Context) : BasePreferences(context, VERSION, MIGRA
         }
 
     var url: String
-        get() = settings.getString(API_URL, "")!!
+        get() = settings.getString(API_URL, "").toString()
         set(url) = settings.edit().putString(API_URL, url).apply()
 }

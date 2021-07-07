@@ -29,6 +29,7 @@ class ScannedVoucherAdapter : RecyclerView.Adapter<ScannedVouchersViewHolder>() 
 
     override fun onBindViewHolder(holder: ScannedVouchersViewHolder, position: Int) {
         val item = vouchers[position]
-        holder.text.text = "${item.value} ${item.currency}"
+        val text = "${item.value} ${item.currency}"
+        holder.text.text = text
     }
 }

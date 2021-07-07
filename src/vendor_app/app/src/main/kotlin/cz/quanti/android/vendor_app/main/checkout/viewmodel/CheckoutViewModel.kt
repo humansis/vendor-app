@@ -1,6 +1,7 @@
 package cz.quanti.android.vendor_app.main.checkout.viewmodel
 
 import android.nfc.Tag
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import cz.quanti.android.nfc.VendorFacade
 import cz.quanti.android.nfc.dto.UserBalance
@@ -57,16 +58,20 @@ class CheckoutViewModel(
         vouchers.clear()
     }
 
-    fun clearShoppingCart() {
+    fun updateProduct(position: Int, product: SelectedProduct) {
+        shoppingHolder.cart[position] = product
+    }
+
+    fun removeFromCart(position: Int) {
+        shoppingHolder.cart.removeAt(position)
+    }
+
+    fun clearCart() {
         shoppingHolder.cart.clear()
     }
 
-    fun getCurrency(): String {
+    fun getCurrency(): LiveData<String> {
         return shoppingHolder.chosenCurrency
-    }
-
-    fun clearCurrency() {
-        shoppingHolder.chosenCurrency = ""
     }
 
     fun getPin(): String? {
@@ -91,7 +96,7 @@ class CheckoutViewModel(
     }
 
     private fun convertTagToString(tag: Tag): String {
-        return NfcUtil.toHexString(tag.id).toUpperCase(Locale.US)
+        return NfcUtil.toHexString(tag.id).uppercase(Locale.US)
     }
 
     private fun createVoucherPurchase(): Purchase {

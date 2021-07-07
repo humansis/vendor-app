@@ -4,7 +4,6 @@ import android.app.Activity
 import android.app.AlertDialog
 import android.app.PendingIntent
 import android.content.Intent
-import android.content.res.Resources
 import android.nfc.NfcAdapter
 import android.provider.Settings
 import android.widget.Toast
@@ -51,7 +50,7 @@ object NfcInitializer {
             }
             .setNegativeButton(activity.getString(R.string.cancel), null)
             .create()
-            .show();
+            .show()
     }
 
     fun disableForegroundDispatch(activity: Activity) {

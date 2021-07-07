@@ -1,14 +1,11 @@
 package cz.quanti.android.vendor_app.main.checkout.fragment
 
 import android.app.AlertDialog
-import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.textfield.TextInputEditText
@@ -113,7 +110,7 @@ class ScanCardFragment : Fragment() {
          if (NfcInitializer.initNfc(requireActivity())) {
              paymentDisposable?.dispose()
              paymentDisposable =
-                 vm.payByCard(pin, vm.getTotal(), vm.getCurrency()).subscribeOn(Schedulers.io())
+                 vm.payByCard(pin, vm.getTotal(), vm.getCurrency().value.toString()).subscribeOn(Schedulers.io())
                      .observeOn(AndroidSchedulers.mainThread())
                      .subscribe({
                          val balance = it.second.balance
@@ -128,11 +125,8 @@ class ScanCardFragment : Fragment() {
                              )
                              .setPositiveButton(android.R.string.ok, null)
                              .show()
-
-                         activityCallback?.showDot(true)
-                         vm.clearShoppingCart()
+                         vm.clearCart()
                          vm.clearVouchers()
-                         vm.clearCurrency()
                          findNavController().navigate(
                              ScanCardFragmentDirections.actionScanCardFragmentToVendorFragment()
                          )

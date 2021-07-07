@@ -8,7 +8,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import android.app.AlertDialog
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
@@ -34,7 +33,7 @@ import quanti.com.kotlinlog.Log
 import java.util.*
 import kotlin.concurrent.timerTask
 
-class ScannerFragment() : Fragment() {
+class ScannerFragment : Fragment() {
 
     private val vm: ScannerViewModel by viewModel()
     private var codeScanner: CodeScanner? = null
@@ -85,7 +84,7 @@ class ScannerFragment() : Fragment() {
 
         if (requestCode == Constants.CAMERA_PERMISSION_REQUEST_CODE) {
             for (i in permissions.indices) {
-                if (permissions[i].equals(Manifest.permission.CAMERA)) {
+                if (permissions[i] == Manifest.permission.CAMERA) {
                     if (grantResults[i] == PackageManager.PERMISSION_GRANTED) {
                         runScanner()
                     } else {
@@ -161,8 +160,7 @@ class ScannerFragment() : Fragment() {
     }
 
     private fun processScannedCode(scannedCode: String) {
-        val code = scannedCode.replace(" ", "+")
-        if (vm.wasAlreadyScanned(code)) {
+        if (vm.wasAlreadyScanned(scannedCode)) {
             AlertDialog.Builder(requireContext(), R.style.DialogTheme)
                 .setTitle(getString(R.string.already_scanned_dialog_title))
                 .setMessage(getString(R.string.already_scanned_dialog_message))
@@ -233,7 +231,7 @@ class ScannerFragment() : Fragment() {
                 .setPositiveButton(android.R.string.ok) { _, _ ->
                     val passwordEditTextView =
                         dialogView.findViewById<TextInputEditText>(R.id.passwordEditText)
-                    var password = hashSHA1(passwordEditTextView.text.toString())
+                    val password = hashSHA1(passwordEditTextView.text.toString())
                     if (password in voucher.passwords) {
                         vm.addVoucher(voucher)
                         findNavController().navigate(
@@ -248,8 +246,9 @@ class ScannerFragment() : Fragment() {
         }
     }
 
+    @Suppress("NON_EXHAUSTIVE_WHEN")
     private fun getDialogMessageForResultCode(code: ScannedVoucherReturnState): Pair<String, String> {
-        var title = getString(R.string.wrong_code_title)
+        val title = getString(R.string.wrong_code_title)
         var message = ""
 
         when (code) {

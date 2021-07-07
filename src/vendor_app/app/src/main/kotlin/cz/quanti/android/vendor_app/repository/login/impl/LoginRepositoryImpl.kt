@@ -64,29 +64,29 @@ class LoginRepositoryImpl(private val api: VendorAPI) :
     }
 
     private fun getCountryFromLocation(location: VendorLocationApiEntity?): String {
-        location?.adm1?.let {
-            return it.country_i_s_o3
+        location?.adm1?.let { locationAdm1 ->
+            return locationAdm1.country_i_s_o3
         }
 
-        location?.adm2?.let {
-            it.adm1?.let {
-                return it.country_i_s_o3
+        location?.adm2?.let { locationAdm2 ->
+            locationAdm2.adm1?.let { locationAdm1 ->
+                return locationAdm1.country_i_s_o3
             }
         }
 
-        location?.adm3?.let {
-            it.adm2?.let {
-                it.adm1?.let {
-                    return it.country_i_s_o3
+        location?.adm3?.let { locationAdm3 ->
+            locationAdm3.adm2?.let { locationAdm2 ->
+                locationAdm2.adm1?.let { locationAdm1 ->
+                    return locationAdm1.country_i_s_o3
                 }
             }
         }
 
-        location?.adm4?.let {
-            it.adm3?.let {
-                it.adm2?.let {
-                    it.adm1?.let {
-                        return it.country_i_s_o3
+        location?.adm4?.let { locationAdm4 ->
+            locationAdm4.adm3?.let { locationAdm3 ->
+                locationAdm3.adm2?.let { locationAdm2 ->
+                    locationAdm2.adm1?.let { locationAdm1 ->
+                        return locationAdm1.country_i_s_o3
                     }
                 }
             }

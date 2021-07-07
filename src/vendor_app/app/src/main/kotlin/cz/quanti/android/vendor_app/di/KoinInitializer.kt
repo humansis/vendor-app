@@ -95,6 +95,7 @@ object KoinInitializer {
         val db = Room.databaseBuilder(app, VendorDb::class.java, VendorDb.DB_NAME)
             .addMigrations(VendorDb.MIGRATION_2_3)
             .addMigrations(VendorDb.MIGRATION_3_4)
+            .addMigrations(VendorDb.MIGRATION_4_5)
             .build()
 
         // Repository

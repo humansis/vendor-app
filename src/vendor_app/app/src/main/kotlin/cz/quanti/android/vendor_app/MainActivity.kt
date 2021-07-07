@@ -32,8 +32,11 @@ import cz.quanti.android.vendor_app.repository.login.LoginFacade
 import cz.quanti.android.vendor_app.repository.synchronization.SynchronizationFacade
 import cz.quanti.android.vendor_app.sync.SynchronizationManager
 import cz.quanti.android.vendor_app.sync.SynchronizationState
+import cz.quanti.android.vendor_app.utils.Constants
 import cz.quanti.android.vendor_app.utils.NfcInitializer
 import cz.quanti.android.vendor_app.utils.NfcTagPublisher
+import cz.quanti.android.vendor_app.utils.SingleLiveEvent
+import cz.quanti.android.vendor_app.utils.preferences.PermissionRequestResult
 import extensions.isNetworkConnected
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Single
@@ -65,6 +68,9 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
     private var syncStateDisposable: Disposable? = null
     private var syncDisposable: Disposable? = null
     private var readBalanceDisposable: Disposable? = null
+
+    val permissionsGrantedSLE = SingleLiveEvent<PermissionRequestResult>()
+
     private lateinit var drawer: DrawerLayout
     private lateinit var toolbar: Toolbar
     private lateinit var appBar: AppBarLayout
@@ -192,12 +198,12 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
             .setTitle(getString(R.string.are_you_sure_dialog_title))
             .setMessage(getString(R.string.logout_dialog_message))
             .setPositiveButton(
-                android.R.string.yes
+                android.R.string.ok
             ) { _, _ ->
                 loginFacade.logout()
                 findNavController(R.id.nav_host_fragment).popBackStack(R.id.loginFragment, false)
             }
-            .setNegativeButton(android.R.string.no, null)
+            .setNegativeButton(android.R.string.cancel, null)
             .show()
     }
 
@@ -378,6 +384,21 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
                 vm.setCurrency(priceUnitSpinner.selectedItem as String)
             }
         }
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        if (requestCode == Constants.CAMERA_PERMISSION_REQUEST_CODE) {
+            permissionsGrantedSLE.value = PermissionRequestResult(
+                requestCode,
+                permissions,
+                grantResults
+            )
+        }
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }
 
     //====OnTouchOutsideListener====

@@ -45,7 +45,7 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
         activityCallback = activity as ActivityCallback
         activityCallback?.setToolbarVisible(true)
         requireActivity().onBackPressedDispatcher.addCallback(
-            this,
+            viewLifecycleOwner,
             object : OnBackPressedCallback(true) {
                 override fun handleOnBackPressed() {
                     cancel()
@@ -108,11 +108,11 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
                 .setTitle(getString(R.string.are_you_sure_dialog_title))
                 .setMessage(getString(R.string.clear_cart_dialog_message))
                 .setPositiveButton(
-                    android.R.string.yes
+                    android.R.string.ok
                 ) { _, _ ->
                     clearCart()
                 }
-                .setNegativeButton(android.R.string.no, null)
+                .setNegativeButton(android.R.string.cancel, null)
                 .show()
         }
 
@@ -165,7 +165,7 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
             AlertDialog.Builder(requireContext(), R.style.DialogTheme)
                 .setTitle(getString(R.string.cannot_proceed_with_purchase_dialog_title))
                 .setMessage(getString(R.string.cannot_proceed_with_purchase_dialog_message))
-                .setPositiveButton(android.R.string.yes, null)
+                .setPositiveButton(android.R.string.ok, null)
                 .show()
         }
     }
@@ -194,7 +194,7 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
             .setTitle(getString(R.string.are_you_sure_dialog_title))
             .setMessage(getString(R.string.remove_product_from_cart_dialog_message))
             .setPositiveButton(
-                android.R.string.yes
+                android.R.string.ok
             ) { _, _ ->
                 if (selectedProductsAdapter.itemCount == 1) {
                     clearCart()
@@ -204,7 +204,7 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
                 }
                 actualizeTotal()
             }
-            .setNegativeButton(android.R.string.no, null)
+            .setNegativeButton(android.R.string.cancel, null)
             .show()
     }
 

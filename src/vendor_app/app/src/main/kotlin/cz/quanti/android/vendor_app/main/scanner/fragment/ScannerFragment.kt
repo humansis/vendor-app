@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import android.app.AlertDialog
+import android.os.Build
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
@@ -61,14 +62,7 @@ class ScannerFragment : Fragment() {
                     deactivated = it.first
                     protected = it.second
 
-                    if (!cameraPermissionGranted()) {
-                        requestPermissions(
-                            arrayOf(Manifest.permission.CAMERA),
-                            Constants.CAMERA_PERMISSION_REQUEST_CODE
-                        )
-                    } else {
-                        runScanner()
-                    }
+                    startScanner()
                 },
                 {
                     Log.e(it)
@@ -81,20 +75,23 @@ class ScannerFragment : Fragment() {
         permissions: Array<out String>,
         grantResults: IntArray
     ) {
-
         if (requestCode == Constants.CAMERA_PERMISSION_REQUEST_CODE) {
-            for (i in permissions.indices) {
-                if (permissions[i] == Manifest.permission.CAMERA) {
-                    if (grantResults[i] == PackageManager.PERMISSION_GRANTED) {
-                        runScanner()
-                    } else {
-                        Log.d("Permission not granted")
-                    }
-                    break
-                }
-            }
+            onCameraPermissionsResult(permissions, grantResults)
         }
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+    }
+
+    private fun onCameraPermissionsResult(permissions: Array<out String>, grantResults: IntArray) {
+        for (i in permissions.indices) {
+            if (permissions[i] == Manifest.permission.CAMERA) {
+                if (grantResults[i] == PackageManager.PERMISSION_GRANTED) {
+                    runScanner()
+                } else {
+                    Log.d("Permission not granted")
+                }
+                break
+            }
+        }
     }
 
     /*
@@ -109,6 +106,29 @@ class ScannerFragment : Fragment() {
             return false
         }
         return true
+    }
+
+    private fun startScanner() {
+        if (!cameraPermissionGranted()) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                (activity as MainActivity).permissionsGrantedSLE.observe(viewLifecycleOwner, { permissionResult ->
+                    if (permissionResult.requestCode == Constants.CAMERA_PERMISSION_REQUEST_CODE) {
+                        onCameraPermissionsResult(permissionResult.permissions, permissionResult.grantResults)
+                    }
+                })
+                requireActivity().requestPermissions(
+                    arrayOf(Manifest.permission.CAMERA),
+                    Constants.CAMERA_PERMISSION_REQUEST_CODE
+                )
+            } else {
+                requestPermissions(
+                    arrayOf(Manifest.permission.CAMERA),
+                    Constants.CAMERA_PERMISSION_REQUEST_CODE
+                )
+            }
+        } else {
+            runScanner()
+        }
     }
 
     private fun runScanner() {

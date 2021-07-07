@@ -2,12 +2,13 @@ package cz.quanti.android.vendor_app.repository
 
 import android.content.Context
 import cz.quanti.android.vendor_app.repository.login.dto.Vendor
-import org.koin.core.KoinComponent
+import org.koin.core.component.KoinComponent
 import wtf.qase.appskeleton.core.BasePreferences
 import wtf.qase.appskeleton.core.BasePreferencesMigration
 import java.util.*
 
-class AppPreferences(context: Context) : BasePreferences(context, VERSION, MIGRATIONS), KoinComponent {
+class AppPreferences(context: Context) : BasePreferences(context, VERSION, MIGRATIONS),
+    KoinComponent {
 
     companion object {
         const val VERSION = 1

@@ -3,8 +3,8 @@ package cz.quanti.android.vendor_app.utils.preferences
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.SharedPreferences
-import org.koin.core.KoinComponent
-import org.koin.core.inject
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 
 object SharedPreferencesManager : ISharedPreferencesManager, KoinComponent {
 

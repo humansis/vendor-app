@@ -43,27 +43,29 @@ abstract class BaseForegroundService : Service() {
             notificationManager.createNotificationChannel(channel)
         }
 
-        val builder = NotificationCompat.Builder(this, channelId)
-            .setSmallIcon(iconResId)
-            .setContentTitle(title)
-            .setContentText(desc)
-            .setContentIntent(PendingIntent.getActivity(
-                this,
-                0,
-                Intent(this, activityClass),
-                PendingIntent.FLAG_UPDATE_CURRENT
-            ))
+        val builder = channelId?.let {
+            NotificationCompat.Builder(this, it)
+                .setSmallIcon(iconResId)
+                .setContentTitle(title)
+                .setContentText(desc)
+                .setContentIntent(PendingIntent.getActivity(
+                    this,
+                    0,
+                    Intent(this, activityClass),
+                    PendingIntent.FLAG_UPDATE_CURRENT
+                ))
+        }
 
         // Ignore NPE on older OS versions. See
         // https://stackoverflow.com/questions/43123466/java-lang-nullpointerexception-attempt-to-invoke-interface-method-java-util-it
         val notification = if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
             try {
-                builder.build()
+                builder?.build()
             } catch (e: NullPointerException) {
                 return START_STICKY
             }
         } else {
-            builder.build()
+            builder?.build()
         }
 
         startForeground(notificationId, notification)

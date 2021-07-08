@@ -29,7 +29,7 @@
     </style>
 
     <style name="DialogButton" parent="@style/Widget.MaterialComponents.Button.TextButton">
-        <item name="android:textColor">@color/colorPrimary</item>
+        <item name="android:textColor">@color/dialog_button_color</item>
     </style>
 
     <style name="DialogTheme" parent="Theme.AppCompat.Light.Dialog.Alert">

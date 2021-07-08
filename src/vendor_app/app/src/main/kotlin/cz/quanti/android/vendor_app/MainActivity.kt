@@ -36,7 +36,7 @@ import cz.quanti.android.vendor_app.utils.Constants
 import cz.quanti.android.vendor_app.utils.NfcInitializer
 import cz.quanti.android.vendor_app.utils.NfcTagPublisher
 import cz.quanti.android.vendor_app.utils.SingleLiveEvent
-import cz.quanti.android.vendor_app.utils.preferences.PermissionRequestResult
+import cz.quanti.android.vendor_app.utils.PermissionRequestResult
 import extensions.isNetworkConnected
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Single

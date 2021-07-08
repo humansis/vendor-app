@@ -1,4 +1,4 @@
-package cz.quanti.android.vendor_app.utils.preferences
+package cz.quanti.android.vendor_app.utils
 
 class PermissionRequestResult(
     var requestCode: Int,

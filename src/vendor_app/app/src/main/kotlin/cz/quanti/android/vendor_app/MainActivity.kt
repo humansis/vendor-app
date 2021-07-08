@@ -32,10 +32,8 @@ import cz.quanti.android.vendor_app.repository.login.LoginFacade
 import cz.quanti.android.vendor_app.repository.synchronization.SynchronizationFacade
 import cz.quanti.android.vendor_app.sync.SynchronizationManager
 import cz.quanti.android.vendor_app.sync.SynchronizationState
-import cz.quanti.android.vendor_app.utils.Constants
 import cz.quanti.android.vendor_app.utils.NfcInitializer
 import cz.quanti.android.vendor_app.utils.NfcTagPublisher
-import cz.quanti.android.vendor_app.utils.SingleLiveEvent
 import cz.quanti.android.vendor_app.utils.PermissionRequestResult
 import extensions.isNetworkConnected
 import io.reactivex.BackpressureStrategy
@@ -61,15 +59,14 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
     private val nfcFacade: VendorFacade by inject()
     private val synchronizationManager: SynchronizationManager by inject()
     private var nfcAdapter: NfcAdapter? = null
+    private val mainVM: MainViewModel by viewModel()
     private val loginVM: LoginViewModel by viewModel()
-    private val vm: ShopViewModel by viewModel()
+    private val shopVM: ShopViewModel by viewModel()
     private var displayedDialog: AlertDialog? = null
     private var disposable: Disposable? = null
     private var syncStateDisposable: Disposable? = null
     private var syncDisposable: Disposable? = null
     private var readBalanceDisposable: Disposable? = null
-
-    val permissionsGrantedSLE = SingleLiveEvent<PermissionRequestResult>()
 
     private lateinit var drawer: DrawerLayout
     private lateinit var toolbar: Toolbar
@@ -368,10 +365,10 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
 
     private fun initPriceUnitSpinner() {
         val currencyAdapter = CurrencyAdapter(this)
-        currencyAdapter.init(vm.getCurrencies())
+        currencyAdapter.init(shopVM.getCurrencies())
         currencyAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         priceUnitSpinner.adapter = currencyAdapter
-        vm.getCurrency().observe(this, {
+        shopVM.getCurrency().observe(this, {
             priceUnitSpinner.setSelection(
                 currencyAdapter.getPosition(it)
             )
@@ -381,7 +378,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
             }
 
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                vm.setCurrency(priceUnitSpinner.selectedItem as String)
+                shopVM.setCurrency(priceUnitSpinner.selectedItem as String)
             }
         }
     }
@@ -391,13 +388,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
         permissions: Array<out String>,
         grantResults: IntArray
     ) {
-        if (requestCode == Constants.CAMERA_PERMISSION_REQUEST_CODE) {
-            permissionsGrantedSLE.value = PermissionRequestResult(
-                requestCode,
-                permissions,
-                grantResults
-            )
-        }
+        mainVM.grantPermission(PermissionRequestResult(requestCode, permissions, grantResults))
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }
 

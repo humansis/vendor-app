@@ -42,7 +42,8 @@ String VERSION_FULL_NAME_FILE = "${APK_NAME}-${VERSION_NAME}.${gitVersionCode(tr
 
 
 repositories {
-    jcenter()
+    mavenCentral()
+    jcenter() // stays here because of com.budiyev.android:code-scanner:2.1.0.
     maven { url 'https://jitpack.io' }
     flatDir {
         dirs 'libs'
@@ -105,6 +106,10 @@ android {
             storePassword DEBUG_STORE_PASSWORD
             keyPassword DEBUG_STORE_KEY_PASSWORD
         }
+    }
+
+    buildFeatures {
+        viewBinding true
     }
 
     buildTypes {
@@ -176,8 +181,7 @@ dependencies {
 
 
     // Koin
-    implementation "org.koin:koin-android:$koin_version"
-    implementation "org.koin:koin-androidx-viewmodel:$koin_version"
+    implementation "io.insert-koin:koin-android:$koin_version"
 
     // Scanner
     implementation 'com.budiyev.android:code-scanner:2.1.0'
@@ -187,9 +191,9 @@ dependencies {
     annotationProcessor 'com.github.bumptech.glide:compiler:4.12.0'
 
     // Architecture Components - Room
-    api 'androidx.room:room-runtime:2.2.4'
-    api 'androidx.room:room-rxjava2:2.2.4'
-    kapt 'androidx.room:room-compiler:2.2.4'
+    api 'androidx.room:room-runtime:2.3.0'
+    api 'androidx.room:room-rxjava2:2.3.0'
+    kapt 'androidx.room:room-compiler:2.3.0'
 
     // Test
     testImplementation "androidx.test.espresso:espresso-core:$espresso_version"

@@ -27,7 +27,7 @@ import cz.quanti.android.vendor_app.repository.utils.typeconverter.DateTypeConve
         InvoiceDbEntity::class,
         TransactionDbEntity::class,
         TransactionPurchaseDbEntity::class
-    ], version = 4, exportSchema = false
+    ], version = 5, exportSchema = false
 )
 @TypeConverters(DateTypeConverter::class)
 abstract class VendorDb : RoomDatabase() {
@@ -63,7 +63,7 @@ abstract class VendorDb : RoomDatabase() {
             }
         }
 
-        val MIGRATION_3_4= object : Migration(3,4) {
+        val MIGRATION_3_4 = object : Migration(3,4) {
             override fun migrate(database: SupportSQLiteDatabase) {
                 database.execSQL("CREATE TABLE 'card_purchase_new' ('dbId' INTEGER NOT NULL, 'card' TEXT, 'purchaseId' INTEGER NOT NULL, PRIMARY KEY('dbId'), FOREIGN KEY('purchaseId') REFERENCES 'purchase'('dbId') ON DELETE CASCADE)")
                 database.execSQL("INSERT INTO card_purchase_new (dbId, card, purchaseId) SELECT dbId, card, purchaseId FROM card_purchase")
@@ -74,6 +74,13 @@ abstract class VendorDb : RoomDatabase() {
                 database.execSQL("INSERT INTO voucher_purchase_new (dbId, voucher, purchaseId) SELECT dbId, voucher, purchaseId FROM voucher_purchase")
                 database.execSQL("DROP TABLE voucher_purchase")
                 database.execSQL("ALTER TABLE voucher_purchase_new RENAME TO voucher_purchase")
+            }
+        }
+
+        val MIGRATION_4_5 = object : Migration(4,5) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL("CREATE INDEX index_card_purchase_purchaseId ON card_purchase(purchaseId)")
+                database.execSQL("CREATE INDEX index_voucher_purchase_purchaseId ON voucher_purchase(purchaseId)")
             }
         }
     }

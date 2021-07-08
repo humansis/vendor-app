@@ -11,7 +11,7 @@ import cz.quanti.android.vendor_app.R
 import cz.quanti.android.vendor_app.main.shop.fragment.ProductsFragment
 import cz.quanti.android.vendor_app.main.shop.viewholder.ShopViewHolder
 import cz.quanti.android.vendor_app.repository.product.dto.Product
-import org.koin.core.KoinComponent
+import org.koin.core.component.KoinComponent
 import java.util.*
 import kotlin.collections.ArrayList
 

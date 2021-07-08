@@ -33,10 +33,7 @@ import cz.quanti.android.vendor_app.repository.login.LoginFacade
 import cz.quanti.android.vendor_app.repository.synchronization.SynchronizationFacade
 import cz.quanti.android.vendor_app.sync.SynchronizationManager
 import cz.quanti.android.vendor_app.sync.SynchronizationState
-import cz.quanti.android.vendor_app.utils.Constants
-import cz.quanti.android.vendor_app.utils.NfcInitializer
-import cz.quanti.android.vendor_app.utils.NfcTagPublisher
-import cz.quanti.android.vendor_app.utils.SingleLiveEvent
+import cz.quanti.android.vendor_app.utils.*
 import cz.quanti.android.vendor_app.utils.preferences.PermissionRequestResult
 import extensions.isNetworkConnected
 import io.reactivex.BackpressureStrategy
@@ -113,6 +110,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
     override fun onResume() {
         super.onResume()
         loadNavHeader(loginVM.getCurrentVendorName())
+        checkConnection()
         syncState()
     }
 
@@ -160,10 +158,12 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
     }
 
     private fun setUpToolbar() {
-        syncButton?.setImageDrawable(ContextCompat.getDrawable(
-            this,
-            if (isNetworkConnected()) R.drawable.ic_cloud else R.drawable.ic_cloud_offline)
-        )
+        ConnectionLiveData(this).observe(this, {
+            val drawable = if (it) R.drawable.ic_cloud else R.drawable.ic_cloud_offline
+            syncButton?.setImageDrawable(
+                ContextCompat.getDrawable(this, drawable)
+            )
+        })
 
         syncFacade.getPurchasesCount()
             .toFlowable(BackpressureStrategy.LATEST)
@@ -322,6 +322,13 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
             }, {
                 Log.e(it)
             })
+    }
+
+    private fun checkConnection() {
+        syncButton?.setImageDrawable(ContextCompat.getDrawable(
+            this,
+            if (isNetworkConnected()) R.drawable.ic_cloud else R.drawable.ic_cloud_offline)
+        )
     }
 
     override fun showDot(boolean: Boolean) {

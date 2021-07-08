@@ -8,6 +8,7 @@ import cz.quanti.android.nfc.VendorFacade
 import cz.quanti.android.nfc_io_libray.types.NfcUtil
 import cz.quanti.android.vendor_app.App
 import cz.quanti.android.vendor_app.BuildConfig
+import cz.quanti.android.vendor_app.MainViewModel
 import cz.quanti.android.vendor_app.main.authorization.viewmodel.LoginViewModel
 import cz.quanti.android.vendor_app.main.checkout.viewmodel.CheckoutViewModel
 import cz.quanti.android.vendor_app.main.invoices.viewmodel.InvoicesViewModel
@@ -151,6 +152,9 @@ object KoinInitializer {
             single { synchronizationManager }
 
             // View model
+            viewModel {
+                MainViewModel()
+            }
             viewModel {
                 LoginViewModel(
                     loginFacade,

@@ -18,6 +18,7 @@ import com.budiyev.android.codescanner.ScanMode
 import com.google.android.material.textfield.TextInputEditText
 import cz.quanti.android.vendor_app.ActivityCallback
 import cz.quanti.android.vendor_app.MainActivity
+import cz.quanti.android.vendor_app.MainViewModel
 import cz.quanti.android.vendor_app.R
 import cz.quanti.android.vendor_app.main.scanner.ScannedVoucherReturnState
 import cz.quanti.android.vendor_app.main.scanner.viewmodel.ScannerViewModel
@@ -29,6 +30,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.fragment_scanner.*
+import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import quanti.com.kotlinlog.Log
 import java.util.*
@@ -36,7 +38,8 @@ import kotlin.concurrent.timerTask
 
 class ScannerFragment : Fragment() {
 
-    private val vm: ScannerViewModel by viewModel()
+    private val mainVM: MainViewModel by sharedViewModel()
+    private val scannerVM: ScannerViewModel by viewModel()
     private var codeScanner: CodeScanner? = null
     private var lastScanned: String = ""
     private var clearCachedTimer: Timer = Timer()
@@ -56,7 +59,7 @@ class ScannerFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        disposables.add(vm.getDeactivatedAndProtectedBooklets().subscribeOn(Schedulers.io())
+        disposables.add(scannerVM.getDeactivatedAndProtectedBooklets().subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread()).subscribe(
                 {
                     deactivated = it.first
@@ -82,15 +85,13 @@ class ScannerFragment : Fragment() {
     }
 
     private fun onCameraPermissionsResult(permissions: Array<out String>, grantResults: IntArray) {
-        for (i in permissions.indices) {
-            if (permissions[i] == Manifest.permission.CAMERA) {
-                if (grantResults[i] == PackageManager.PERMISSION_GRANTED) {
+        permissions.firstOrNull { it == Manifest.permission.CAMERA }?.let {
+            val index = permissions.indexOf(it)
+            if (grantResults[index] == PackageManager.PERMISSION_GRANTED) {
                     runScanner()
                 } else {
                     Log.d("Permission not granted")
                 }
-                break
-            }
         }
     }
 
@@ -111,10 +112,8 @@ class ScannerFragment : Fragment() {
     private fun startScanner() {
         if (!cameraPermissionGranted()) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                (activity as MainActivity).permissionsGrantedSLE.observe(viewLifecycleOwner, { permissionResult ->
-                    if (permissionResult.requestCode == Constants.CAMERA_PERMISSION_REQUEST_CODE) {
-                        onCameraPermissionsResult(permissionResult.permissions, permissionResult.grantResults)
-                    }
+                mainVM.cameraPermissionsGrantedSLE.observe(viewLifecycleOwner, { permissionResult ->
+                    onCameraPermissionsResult(permissionResult.permissions, permissionResult.grantResults)
                 })
                 requireActivity().requestPermissions(
                     arrayOf(Manifest.permission.CAMERA),
@@ -180,7 +179,7 @@ class ScannerFragment : Fragment() {
     }
 
     private fun processScannedCode(scannedCode: String) {
-        if (vm.wasAlreadyScanned(scannedCode)) {
+        if (scannerVM.wasAlreadyScanned(scannedCode)) {
             AlertDialog.Builder(requireContext(), R.style.DialogTheme)
                 .setTitle(getString(R.string.already_scanned_dialog_title))
                 .setMessage(getString(R.string.already_scanned_dialog_message))
@@ -188,7 +187,7 @@ class ScannerFragment : Fragment() {
                 .show()
         } else {
             val result =
-                vm.getVoucherFromScannedCode(scannedCode, deactivated, protected)
+                scannerVM.getVoucherFromScannedCode(scannedCode, deactivated, protected)
             val voucher = result.first
             val resultCode = result.second
             if (voucher != null &&
@@ -199,7 +198,7 @@ class ScannerFragment : Fragment() {
                     showPasswordDialog(3, voucher)
 
                 } else {
-                    vm.addVoucher(voucher)
+                    scannerVM.addVoucher(voucher)
                     findNavController().navigate(
                         ScannerFragmentDirections.actionScannerFragmentToCheckoutFragment()
                     )
@@ -217,7 +216,7 @@ class ScannerFragment : Fragment() {
 
     private fun showPasswordDialog(tries: Int, voucher: Voucher) {
         if (tries < 1) {
-            disposables.add(vm.deactivate(voucher).subscribeOn(Schedulers.io())
+            disposables.add(scannerVM.deactivate(voucher).subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread()).subscribe(
                 {
                     AlertDialog.Builder(requireContext(), R.style.DialogTheme)
@@ -253,7 +252,7 @@ class ScannerFragment : Fragment() {
                         dialogView.findViewById<TextInputEditText>(R.id.passwordEditText)
                     val password = hashSHA1(passwordEditTextView.text.toString())
                     if (password in voucher.passwords) {
-                        vm.addVoucher(voucher)
+                        scannerVM.addVoucher(voucher)
                         findNavController().navigate(
                             ScannerFragmentDirections.actionScannerFragmentToCheckoutFragment()
                         )

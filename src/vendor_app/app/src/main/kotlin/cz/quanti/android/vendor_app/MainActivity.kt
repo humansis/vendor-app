@@ -16,9 +16,9 @@ import android.widget.*
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
-import androidx.lifecycle.toLiveData
 import androidx.navigation.findNavController
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.navigation.NavigationView
@@ -29,14 +29,12 @@ import cz.quanti.android.vendor_app.main.shop.adapter.CurrencyAdapter
 import cz.quanti.android.vendor_app.main.shop.viewmodel.ShopViewModel
 import cz.quanti.android.vendor_app.repository.AppPreferences
 import cz.quanti.android.vendor_app.repository.login.LoginFacade
-import cz.quanti.android.vendor_app.repository.synchronization.SynchronizationFacade
 import cz.quanti.android.vendor_app.sync.SynchronizationManager
 import cz.quanti.android.vendor_app.sync.SynchronizationState
+import cz.quanti.android.vendor_app.utils.ConnectionObserver
 import cz.quanti.android.vendor_app.utils.NfcInitializer
 import cz.quanti.android.vendor_app.utils.NfcTagPublisher
 import cz.quanti.android.vendor_app.utils.PermissionRequestResult
-import extensions.isNetworkConnected
-import io.reactivex.BackpressureStrategy
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
@@ -48,25 +46,25 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 import quanti.com.kotlinlog.Log
 import quanti.com.kotlinlog.file.SendLogDialogFragment
 
-
 class MainActivity : AppCompatActivity(), ActivityCallback,
     NavigationView.OnNavigationItemSelectedListener {
 
     private val loginFacade: LoginFacade by inject()
-    private val syncFacade: SynchronizationFacade by inject()
-    private val preferences: AppPreferences by inject()
-    private val nfcTagPublisher: NfcTagPublisher by inject()
     private val nfcFacade: VendorFacade by inject()
+    private val nfcTagPublisher: NfcTagPublisher by inject()
     private val synchronizationManager: SynchronizationManager by inject()
-    private var nfcAdapter: NfcAdapter? = null
+    private val preferences: AppPreferences by inject()
     private val mainVM: MainViewModel by viewModel()
     private val loginVM: LoginViewModel by viewModel()
     private val shopVM: ShopViewModel by viewModel()
     private var displayedDialog: AlertDialog? = null
     private var disposable: Disposable? = null
+    private var connectionDisposable: Disposable? = null
     private var syncStateDisposable: Disposable? = null
     private var syncDisposable: Disposable? = null
     private var readBalanceDisposable: Disposable? = null
+
+    private lateinit var connectionObserver: ConnectionObserver
 
     private lateinit var drawer: DrawerLayout
     private lateinit var toolbar: Toolbar
@@ -81,6 +79,9 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
         }
 
         setContentView(R.layout.activity_main)
+
+        connectionObserver = ConnectionObserver(this)
+        connectionObserver.registerCallback()
 
         toolbar = findViewById(R.id.toolbar)
         appBar = findViewById(R.id.appBarLayout)
@@ -103,12 +104,12 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
             logout()
             drawer.closeDrawer(GravityCompat.START)
         }
-        nfcAdapter = NfcAdapter.getDefaultAdapter(this)
     }
 
     override fun onResume() {
         super.onResume()
         loadNavHeader(loginVM.getCurrentVendorName())
+        checkConnection()
         syncState()
     }
 
@@ -123,6 +124,11 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
         syncDisposable?.dispose()
         readBalanceDisposable?.dispose()
         super.onStop()
+    }
+
+    override fun onDestroy() {
+        connectionObserver.unregisterCallback()
+        super.onDestroy()
     }
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
@@ -156,22 +162,20 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
     }
 
     private fun setUpToolbar() {
-        syncFacade.getPurchasesCount()
-            .toFlowable(BackpressureStrategy.LATEST)
-            .toLiveData()
-            .observe(this, { purchasesCount ->
-                disposable?.dispose()
-                disposable = syncFacade.isSyncNeeded(purchasesCount)
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(
-                        {
-                            showDot(it)
-                        },
-                        {
-                        }
-                    )
-            })
+        mainVM.showDot().observe(this, {
+            if (it) {
+                dot?.visibility = View.VISIBLE
+            } else {
+                dot?.visibility = View.INVISIBLE
+            }
+        })
+
+        loginVM.isNetworkConnected().observe(this, { available ->
+            val drawable = if (available) R.drawable.ic_cloud else R.drawable.ic_cloud_offline
+            syncButton?.setImageDrawable(
+                ContextCompat.getDrawable(this, drawable)
+            )
+        })
 
         syncButton?.setOnClickListener {
             synchronizationManager.synchronizeWithServer()
@@ -295,7 +299,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
                     SynchronizationState.ERROR -> {
                         progressBar?.visibility = View.GONE
                         syncButtonArea?.visibility = View.VISIBLE
-                        if (!isNetworkConnected()) {
+                        if (loginVM.isNetworkConnected().value != true) {
                             Toast.makeText(
                                 this,
                                 getString(R.string.no_internet_connection),
@@ -315,12 +319,18 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
             })
     }
 
-    override fun showDot(boolean: Boolean) {
-        if (boolean) {
-            dot?.visibility = View.VISIBLE
-        } else {
-            dot?.visibility = View.INVISIBLE
-        }
+    private fun checkConnection() {
+        connectionDisposable?.dispose()
+        connectionDisposable = connectionObserver.getNetworkAvailability()
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(
+                { available ->
+                    loginVM.isNetworkConnected(available)
+                },
+                {
+                }
+            )
     }
 
     override fun setToolbarVisible(boolean: Boolean) {

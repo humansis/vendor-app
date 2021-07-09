@@ -1,5 +1,6 @@
 package cz.quanti.android.vendor_app.main.authorization.viewmodel
 
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import cz.quanti.android.vendor_app.ActivityCallback
 import cz.quanti.android.vendor_app.repository.login.LoginFacade
@@ -16,7 +17,7 @@ class LoginViewModel(
     private val synchronizationManager: SynchronizationManager
 ) : ViewModel() {
 
-    var isNetworkConnected: Boolean = false
+    val isNetworkConnected = MutableLiveData<Boolean>()
 
     fun login(username: String, password: String): Completable {
         return loginFacade.login(username, password)

@@ -63,6 +63,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
     private val shopVM: ShopViewModel by viewModel()
     private var displayedDialog: AlertDialog? = null
     private var disposable: Disposable? = null
+    private var connectionDisposable: Disposable? = null
     private var syncStateDisposable: Disposable? = null
     private var syncDisposable: Disposable? = null
     private var readBalanceDisposable: Disposable? = null
@@ -82,6 +83,8 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
         }
 
         setContentView(R.layout.activity_main)
+
+        connectionObserver = ConnectionObserver(this)
 
         toolbar = findViewById(R.id.toolbar)
         appBar = findViewById(R.id.appBarLayout)
@@ -104,16 +107,11 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
             logout()
             drawer.closeDrawer(GravityCompat.START)
         }
-        connectionObserver = ConnectionObserver(this)
-    }
-
-    override fun onStart() {
-        super.onStart()
-        connectionObserver.registerCallback()
     }
 
     override fun onResume() {
         super.onResume()
+        connectionObserver.registerCallback()
         loadNavHeader(loginVM.getCurrentVendorName())
         checkConnection()
         syncState()
@@ -121,11 +119,11 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
 
     override fun onPause() {
         super.onPause()
+        connectionObserver.unregisterCallback()
         syncStateDisposable?.dispose()
     }
 
     override fun onStop() {
-        connectionObserver.unregisterCallback()
         displayedDialog?.dismiss()
         disposable?.dispose()
         syncDisposable?.dispose()
@@ -180,6 +178,13 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
                         }
                     )
             })
+
+        loginVM.isNetworkConnected.observe(this, { available ->
+            val drawable = if (available) R.drawable.ic_cloud else R.drawable.ic_cloud_offline
+            syncButton?.setImageDrawable(
+                ContextCompat.getDrawable(this, drawable)
+            )
+        })
 
         syncButton?.setOnClickListener {
             synchronizationManager.synchronizeWithServer()
@@ -303,7 +308,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
                     SynchronizationState.ERROR -> {
                         progressBar?.visibility = View.GONE
                         syncButtonArea?.visibility = View.VISIBLE
-                        if (!loginVM.isNetworkConnected) {
+                        if (loginVM.isNetworkConnected.value != true) {
                             Toast.makeText(
                                 this,
                                 getString(R.string.no_internet_connection),
@@ -324,17 +329,17 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
     }
 
     private fun checkConnection() {
-        connectionObserver.getNetworkAvailability()
-            .toFlowable(BackpressureStrategy.LATEST)
-            .toLiveData()
-            .observe(this, { available ->
-                loginVM.isNetworkConnected = available
-                val drawable =
-                    if (available) R.drawable.ic_cloud else R.drawable.ic_cloud_offline
-                syncButton?.setImageDrawable(
-                    ContextCompat.getDrawable(this, drawable)
-                )
-            })
+        connectionDisposable?.dispose()
+        connectionDisposable = connectionObserver.getNetworkAvailability()
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(
+                { available ->
+                    loginVM.isNetworkConnected.value = available
+                },
+                {
+                }
+            )
     }
 
     override fun showDot(boolean: Boolean) {

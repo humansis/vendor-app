@@ -135,7 +135,7 @@ class LoginFragment : Fragment() {
                                     loginButton.visibility = View.VISIBLE
                                     loginButton.isEnabled = true
                                     Log.e(TAG, it)
-                                    if (vm.isNetworkConnected) {
+                                    if (vm.isNetworkConnected.value == true) {
                                         usernameEditText.error = getString(R.string.wrong_password)
                                         passwordEditText.error = getString(R.string.wrong_password)
                                     } else {

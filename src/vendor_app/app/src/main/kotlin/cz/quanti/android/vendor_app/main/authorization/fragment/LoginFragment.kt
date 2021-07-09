@@ -17,7 +17,6 @@ import cz.quanti.android.vendor_app.R
 import cz.quanti.android.vendor_app.main.authorization.viewmodel.LoginViewModel
 import cz.quanti.android.vendor_app.utils.ApiEnvironments
 import cz.quanti.android.vendor_app.utils.Constants
-import extensions.isNetworkConnected
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
@@ -136,7 +135,7 @@ class LoginFragment : Fragment() {
                                     loginButton.visibility = View.VISIBLE
                                     loginButton.isEnabled = true
                                     Log.e(TAG, it)
-                                    if (requireContext().isNetworkConnected()) {
+                                    if (vm.isNetworkConnected) {
                                         usernameEditText.error = getString(R.string.wrong_password)
                                         passwordEditText.error = getString(R.string.wrong_password)
                                     } else {

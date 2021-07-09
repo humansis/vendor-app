@@ -6,12 +6,13 @@ import android.net.ConnectivityManager
 import android.net.Network
 import android.net.NetworkCapabilities.NET_CAPABILITY_INTERNET
 import android.net.NetworkRequest
-import android.util.Log
-import androidx.lifecycle.LiveData
+import io.reactivex.Observable
+import io.reactivex.subjects.BehaviorSubject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import quanti.com.kotlinlog.Log
 import java.io.IOException
 import java.net.InetSocketAddress
 import javax.net.SocketFactory
@@ -24,17 +25,18 @@ import javax.net.SocketFactory
  * Inspired by:
  * https://github.com/AlexSheva-mason/Rick-Morty-Database/blob/master/app/src/main/java/com/shevaalex/android/rickmortydatabase/utils/networking/ConnectionLiveData.kt
  */
-class ConnectionLiveData(context: Context) : LiveData<Boolean>() {
+class ConnectionObserver(context: Context) {
 
     private lateinit var networkCallback: ConnectivityManager.NetworkCallback
     private val cm = context.getSystemService(CONNECTIVITY_SERVICE) as ConnectivityManager
     private val validNetworks: MutableSet<Network> = HashSet()
+    private val isNetworkAvailable: BehaviorSubject<Boolean> = BehaviorSubject.create()
 
-    private fun checkValidNetworks() {
-        postValue(validNetworks.size > 0)
+    fun getNetworkAvailability(): Observable<Boolean> {
+        return isNetworkAvailable
     }
 
-    override fun onActive() {
+    fun registerCallback() {
         networkCallback = createNetworkCallback()
         val networkRequest = NetworkRequest.Builder()
             .addCapability(NET_CAPABILITY_INTERNET)
@@ -42,8 +44,12 @@ class ConnectionLiveData(context: Context) : LiveData<Boolean>() {
         cm.registerNetworkCallback(networkRequest, networkCallback)
     }
 
-    override fun onInactive() {
+    fun unregisterCallback() {
         cm.unregisterNetworkCallback(networkCallback)
+    }
+
+    private fun checkValidNetworks() {
+        isNetworkAvailable.onNext(validNetworks.size > 0)
     }
 
     private fun createNetworkCallback() = object : ConnectivityManager.NetworkCallback() {
@@ -61,8 +67,8 @@ class ConnectionLiveData(context: Context) : LiveData<Boolean>() {
                 // check if this network actually has internet
                 CoroutineScope(Dispatchers.IO).launch {
                     val hasInternet = doesNetworkHaveInternet(network.socketFactory)
-                    if(hasInternet){
-                        withContext(Dispatchers.Main){
+                    if (hasInternet) {
+                        withContext(Dispatchers.Main) {
                             Log.d(TAG, "onAvailable: adding network. $network")
                             validNetworks.add(network)
                             checkValidNetworks()
@@ -85,20 +91,20 @@ class ConnectionLiveData(context: Context) : LiveData<Boolean>() {
     }
 
     private fun doesNetworkHaveInternet(socketFactory: SocketFactory): Boolean {
-        return try{
+        return try {
             Log.d(TAG, "PINGING google.")
             val socket = socketFactory.createSocket() ?: throw IOException("Socket is null.")
             socket.connect(InetSocketAddress("8.8.8.8", 53), 1500)
             socket.close()
             Log.d(TAG, "PING success.")
             true
-        }catch (e: IOException){
+        } catch (e: IOException) {
             Log.e(TAG, "No internet connection. $e")
             false
         }
     }
 
     companion object {
-        private val TAG = ConnectionLiveData::class.java.simpleName
+        private val TAG = ConnectionObserver::class.java.simpleName
     }
 }

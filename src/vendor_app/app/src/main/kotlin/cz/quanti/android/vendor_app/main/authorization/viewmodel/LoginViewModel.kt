@@ -15,6 +15,9 @@ class LoginViewModel(
     private val currentVendor: CurrentVendor,
     private val synchronizationManager: SynchronizationManager
 ) : ViewModel() {
+
+    var isNetworkConnected: Boolean = false
+
     fun login(username: String, password: String): Completable {
         return loginFacade.login(username, password)
     }

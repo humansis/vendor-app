@@ -33,11 +33,10 @@ import cz.quanti.android.vendor_app.repository.login.LoginFacade
 import cz.quanti.android.vendor_app.repository.synchronization.SynchronizationFacade
 import cz.quanti.android.vendor_app.sync.SynchronizationManager
 import cz.quanti.android.vendor_app.sync.SynchronizationState
-import cz.quanti.android.vendor_app.utils.ConnectionLiveData
+import cz.quanti.android.vendor_app.utils.ConnectionObserver
 import cz.quanti.android.vendor_app.utils.NfcInitializer
 import cz.quanti.android.vendor_app.utils.NfcTagPublisher
 import cz.quanti.android.vendor_app.utils.PermissionRequestResult
-import extensions.isNetworkConnected
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -50,7 +49,6 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 import quanti.com.kotlinlog.Log
 import quanti.com.kotlinlog.file.SendLogDialogFragment
 
-
 class MainActivity : AppCompatActivity(), ActivityCallback,
     NavigationView.OnNavigationItemSelectedListener {
 
@@ -60,6 +58,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
     private val nfcTagPublisher: NfcTagPublisher by inject()
     private val nfcFacade: VendorFacade by inject()
     private val synchronizationManager: SynchronizationManager by inject()
+    private var connectionObserver: ConnectionObserver? = null
     private var nfcAdapter: NfcAdapter? = null
     private val mainVM: MainViewModel by viewModel()
     private val loginVM: LoginViewModel by viewModel()
@@ -106,6 +105,12 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
             drawer.closeDrawer(GravityCompat.START)
         }
         nfcAdapter = NfcAdapter.getDefaultAdapter(this)
+        connectionObserver = ConnectionObserver(this)
+    }
+
+    override fun onStart() {
+        super.onStart()
+        connectionObserver?.registerCallback()
     }
 
     override fun onResume() {
@@ -121,6 +126,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
     }
 
     override fun onStop() {
+        connectionObserver?.unregisterCallback()
         displayedDialog?.dismiss()
         disposable?.dispose()
         syncDisposable?.dispose()
@@ -159,13 +165,6 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
     }
 
     private fun setUpToolbar() {
-        ConnectionLiveData(this).observe(this, {
-            val drawable = if (it) R.drawable.ic_cloud else R.drawable.ic_cloud_offline
-            syncButton?.setImageDrawable(
-                ContextCompat.getDrawable(this, drawable)
-            )
-        })
-
         syncFacade.getPurchasesCount()
             .toFlowable(BackpressureStrategy.LATEST)
             .toLiveData()
@@ -305,7 +304,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
                     SynchronizationState.ERROR -> {
                         progressBar?.visibility = View.GONE
                         syncButtonArea?.visibility = View.VISIBLE
-                        if (!isNetworkConnected()) {
+                        if (!loginVM.isNetworkConnected) {
                             Toast.makeText(
                                 this,
                                 getString(R.string.no_internet_connection),
@@ -326,10 +325,19 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
     }
 
     private fun checkConnection() {
-        syncButton?.setImageDrawable(ContextCompat.getDrawable(
-            this,
-            if (isNetworkConnected()) R.drawable.ic_cloud else R.drawable.ic_cloud_offline)
-        )
+        connectionObserver?.let {
+            it.getNetworkAvailability()
+                .toFlowable(BackpressureStrategy.LATEST)
+                .toLiveData()
+                .observe(this, { available ->
+                    loginVM.isNetworkConnected = available
+                    val drawable =
+                        if (available) R.drawable.ic_cloud else R.drawable.ic_cloud_offline
+                    syncButton?.setImageDrawable(
+                        ContextCompat.getDrawable(this, drawable)
+                    )
+                })
+        }
     }
 
     override fun showDot(boolean: Boolean) {

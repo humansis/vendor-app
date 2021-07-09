@@ -153,7 +153,9 @@ object KoinInitializer {
 
             // View model
             viewModel {
-                MainViewModel()
+                MainViewModel(
+                    syncFacade
+                )
             }
             viewModel {
                 LoginViewModel(

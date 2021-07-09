@@ -42,6 +42,7 @@ class ConnectionObserver(context: Context) {
             .addCapability(NET_CAPABILITY_INTERNET)
             .build()
         cm.registerNetworkCallback(networkRequest, networkCallback)
+        checkValidNetworks()
     }
 
     fun unregisterCallback() {

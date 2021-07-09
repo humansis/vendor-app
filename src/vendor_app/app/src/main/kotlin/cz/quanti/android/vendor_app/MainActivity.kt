@@ -85,6 +85,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
         setContentView(R.layout.activity_main)
 
         connectionObserver = ConnectionObserver(this)
+        connectionObserver.registerCallback()
 
         toolbar = findViewById(R.id.toolbar)
         appBar = findViewById(R.id.appBarLayout)
@@ -111,7 +112,6 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
 
     override fun onResume() {
         super.onResume()
-        connectionObserver.registerCallback()
         loadNavHeader(loginVM.getCurrentVendorName())
         checkConnection()
         syncState()
@@ -119,7 +119,6 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
 
     override fun onPause() {
         super.onPause()
-        connectionObserver.unregisterCallback()
         syncStateDisposable?.dispose()
     }
 
@@ -129,6 +128,11 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
         syncDisposable?.dispose()
         readBalanceDisposable?.dispose()
         super.onStop()
+    }
+
+    override fun onDestroy() {
+        connectionObserver.unregisterCallback()
+        super.onDestroy()
     }
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
@@ -179,7 +183,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
                     )
             })
 
-        loginVM.isNetworkConnected.observe(this, { available ->
+        loginVM.isNetworkConnected().observe(this, { available ->
             val drawable = if (available) R.drawable.ic_cloud else R.drawable.ic_cloud_offline
             syncButton?.setImageDrawable(
                 ContextCompat.getDrawable(this, drawable)
@@ -308,7 +312,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
                     SynchronizationState.ERROR -> {
                         progressBar?.visibility = View.GONE
                         syncButtonArea?.visibility = View.VISIBLE
-                        if (loginVM.isNetworkConnected.value != true) {
+                        if (loginVM.isNetworkConnected().value != true) {
                             Toast.makeText(
                                 this,
                                 getString(R.string.no_internet_connection),
@@ -335,7 +339,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(
                 { available ->
-                    loginVM.isNetworkConnected.value = available
+                    loginVM.isNetworkConnected(available)
                 },
                 {
                 }

@@ -58,8 +58,6 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
     private val nfcTagPublisher: NfcTagPublisher by inject()
     private val nfcFacade: VendorFacade by inject()
     private val synchronizationManager: SynchronizationManager by inject()
-    private var connectionObserver: ConnectionObserver? = null
-    private var nfcAdapter: NfcAdapter? = null
     private val mainVM: MainViewModel by viewModel()
     private val loginVM: LoginViewModel by viewModel()
     private val shopVM: ShopViewModel by viewModel()
@@ -68,6 +66,8 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
     private var syncStateDisposable: Disposable? = null
     private var syncDisposable: Disposable? = null
     private var readBalanceDisposable: Disposable? = null
+
+    private lateinit var connectionObserver: ConnectionObserver
 
     private lateinit var drawer: DrawerLayout
     private lateinit var toolbar: Toolbar
@@ -104,13 +104,12 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
             logout()
             drawer.closeDrawer(GravityCompat.START)
         }
-        nfcAdapter = NfcAdapter.getDefaultAdapter(this)
         connectionObserver = ConnectionObserver(this)
     }
 
     override fun onStart() {
         super.onStart()
-        connectionObserver?.registerCallback()
+        connectionObserver.registerCallback()
     }
 
     override fun onResume() {
@@ -126,7 +125,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
     }
 
     override fun onStop() {
-        connectionObserver?.unregisterCallback()
+        connectionObserver.unregisterCallback()
         displayedDialog?.dismiss()
         disposable?.dispose()
         syncDisposable?.dispose()
@@ -325,19 +324,17 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
     }
 
     private fun checkConnection() {
-        connectionObserver?.let {
-            it.getNetworkAvailability()
-                .toFlowable(BackpressureStrategy.LATEST)
-                .toLiveData()
-                .observe(this, { available ->
-                    loginVM.isNetworkConnected = available
-                    val drawable =
-                        if (available) R.drawable.ic_cloud else R.drawable.ic_cloud_offline
-                    syncButton?.setImageDrawable(
-                        ContextCompat.getDrawable(this, drawable)
-                    )
-                })
-        }
+        connectionObserver.getNetworkAvailability()
+            .toFlowable(BackpressureStrategy.LATEST)
+            .toLiveData()
+            .observe(this, { available ->
+                loginVM.isNetworkConnected = available
+                val drawable =
+                    if (available) R.drawable.ic_cloud else R.drawable.ic_cloud_offline
+                syncButton?.setImageDrawable(
+                    ContextCompat.getDrawable(this, drawable)
+                )
+            })
     }
 
     override fun showDot(boolean: Boolean) {

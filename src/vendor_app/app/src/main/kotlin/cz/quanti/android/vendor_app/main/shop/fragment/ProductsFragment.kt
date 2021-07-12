@@ -12,7 +12,6 @@ import androidx.lifecycle.toLiveData
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import com.bumptech.glide.Glide
-import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.navigation.NavigationView
 import com.google.android.material.textfield.TextInputLayout
@@ -45,9 +44,10 @@ class ProductsFragment : Fragment(), OnTouchOutsideViewListener {
         requireActivity().findViewById<NavigationView>(R.id.nav_view).setCheckedItem(R.id.home_button)
 
         requireActivity().onBackPressedDispatcher.addCallback(
-            this,
+            viewLifecycleOwner,
             object : OnBackPressedCallback(true) {
                 override fun handleOnBackPressed() {
+                    // TODO update after product categories are introduced
                     requireActivity().finish()
                 }
             }
@@ -64,6 +64,11 @@ class ProductsFragment : Fragment(), OnTouchOutsideViewListener {
         initOnClickListeners()
     }
 
+    override fun onPause() {
+        (activity as MainActivity).setOnTouchOutsideViewListener(null, null)
+        super.onPause()
+    }
+
     override fun onStop() {
         // colapse searchbar after eventual screen rotation
         productsSearchBar.onActionViewCollapsed()
@@ -71,8 +76,8 @@ class ProductsFragment : Fragment(), OnTouchOutsideViewListener {
     }
 
     override fun onTouchOutside(view: View?, event: MotionEvent?) {
-        if (view == productsSearchBar) {
-            if (productsSearchBar.query.isBlank()) {
+        if (!productsSearchBar.isIconified) {
+            if (productsSearchBar.query.isNotEmpty()) {
                 productsSearchBar.onActionViewCollapsed()
             } else {
                 productsSearchBar.clearFocus()
@@ -115,10 +120,8 @@ class ProductsFragment : Fragment(), OnTouchOutsideViewListener {
                 return false
             }
         })
-        (activity as MainActivity).setOnTouchOutsideViewListener(
-            productsSearchBar,
-            this
-        )
+
+        (activity as MainActivity).setOnTouchOutsideViewListener(productsSearchBar, this)
     }
 
     private fun initObservers() {

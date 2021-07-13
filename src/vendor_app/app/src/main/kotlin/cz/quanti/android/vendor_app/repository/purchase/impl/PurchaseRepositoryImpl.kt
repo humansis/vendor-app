@@ -16,6 +16,7 @@ class PurchaseRepositoryImpl(
     private val purchaseDao: PurchaseDao,
     private val cardPurchaseDao: CardPurchaseDao,
     private val voucherPurchaseDao: VoucherPurchaseDao,
+    private val purchasedProductDao: PurchasedProductDao,
     private val selectedProductDao: SelectedProductDao,
     private val invoiceDao: InvoiceDao,
     private val transactionDao: TransactionDao,
@@ -26,7 +27,7 @@ class PurchaseRepositoryImpl(
     override fun savePurchase(purchase: Purchase): Completable {
         return Single.fromCallable { purchaseDao.insert(convertToDb(purchase)) }
             .flatMapCompletable { purchaseId ->
-                saveSelectedProducts(purchaseId, purchase.products).andThen(
+                savePurchasedProducts(purchaseId, purchase.products).andThen(
                     saveToDb(
                         purchase,
                         purchaseId
@@ -96,7 +97,7 @@ class PurchaseRepositoryImpl(
         return purchaseDao.getAll().flatMap { purchasesDb ->
             Observable.fromIterable(purchasesDb)
                 .flatMapSingle { purchaseDb ->
-                    selectedProductDao.getProductsForPurchase(purchaseDb.dbId)
+                    purchasedProductDao.getProductsForPurchase(purchaseDb.dbId)
                         .flatMap { productsDb ->
                             cardPurchaseDao.getCardForPurchase(purchaseDb.dbId)
                                 .defaultIfEmpty(CardPurchaseDbEntity(card = null))
@@ -235,9 +236,9 @@ class PurchaseRepositoryImpl(
         return Single.fromCallable { transactionPurchaseDao.insert(convertToDb(transactionPurchase, transactionId)) }
     }
 
-    override fun deleteSelectedProducts(): Completable {
+    override fun deletePurchasedProducts(): Completable {
         return Completable.fromCallable {
-            selectedProductDao.deleteAll()
+            purchasedProductDao.deleteAll()
         }
     }
 
@@ -260,39 +261,39 @@ class PurchaseRepositoryImpl(
         return purchaseDao.getCount()
     }
 
-    private fun saveSelectedProducts(
+    private fun savePurchasedProducts(
         purchaseId: Long,
         products: List<SelectedProduct>
     ): Completable {
-        return Observable.fromIterable(products).flatMapCompletable { selectedProduct ->
+        return Observable.fromIterable(products).flatMapCompletable { purchasedProduct ->
             Completable.fromCallable {
-                selectedProductDao.insert(convertToDb(selectedProduct, purchaseId))
+                purchasedProductDao.insert(convertToDb(purchasedProduct, purchaseId))
             }
         }
     }
 
     private fun convertToDb(
-        selectedProduct: SelectedProduct,
+        purchasedProduct: SelectedProduct,
         purchaseId: Long
-    ): SelectedProductDbEntity {
-        return SelectedProductDbEntity(
-            productId = selectedProduct.product.id,
-            value = selectedProduct.price,
+    ): PurchasedProductDbEntity {
+        return PurchasedProductDbEntity(
+            productId = purchasedProduct.product.id,
+            value = purchasedProduct.price,
             purchaseId = purchaseId
         )
     }
 
-    private fun convert(selectedProductDbEntity: SelectedProductDbEntity): SelectedProduct {
+    private fun convert(purchasedProductDbEntity: PurchasedProductDbEntity): SelectedProduct {
         return SelectedProduct(
-            price = selectedProductDbEntity.value,
-            product = Product(id = selectedProductDbEntity.productId)
+            price = purchasedProductDbEntity.value,
+            product = Product(id = purchasedProductDbEntity.productId)
         )
     }
 
-    private fun convertToApi(selectedProduct: SelectedProduct): SelectedProductApiEntity {
-        return SelectedProductApiEntity(
-            id = selectedProduct.product.id,
-            value = selectedProduct.price
+    private fun convertToApi(purchasedProduct: SelectedProduct): PurchasedProductApiEntity {
+        return PurchasedProductApiEntity(
+            id = purchasedProduct.product.id,
+            value = purchasedProduct.price
         )
     }
 

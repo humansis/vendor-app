@@ -1,6 +1,5 @@
 package cz.quanti.android.vendor_app.main.shop.viewmodel
 
-import android.util.Log
 import androidx.lifecycle.*
 import cz.quanti.android.vendor_app.repository.AppPreferences
 import cz.quanti.android.vendor_app.repository.product.ProductFacade

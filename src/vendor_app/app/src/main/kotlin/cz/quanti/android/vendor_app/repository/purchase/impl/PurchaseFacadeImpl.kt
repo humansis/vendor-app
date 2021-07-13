@@ -36,7 +36,7 @@ class PurchaseFacadeImpl(
         Log.d(TAG, "Sync started" )
         return preparePurchases()
             .andThen(sendPurchasesToServer())
-            .andThen(deleteSelectedProducts())
+            .andThen(deletePurchasedProducts())
             .andThen(retrieveInvoices(vendorId))
             .andThen(retrieveTransactions(vendorId))
 
@@ -131,8 +131,8 @@ class PurchaseFacadeImpl(
         }
     }
 
-    private fun deleteSelectedProducts(): Completable {
-        return purchaseRepo.deleteSelectedProducts()
+    private fun deletePurchasedProducts(): Completable {
+        return purchaseRepo.deletePurchasedProducts()
     }
 
     private fun retrieveInvoices(vendorId: Int): Completable {

@@ -20,6 +20,7 @@ import cz.quanti.android.vendor_app.repository.utils.typeconverter.DateTypeConve
         BookletDbEntity::class,
         ProductDbEntity::class,
         SelectedProductDbEntity::class,
+        PurchasedProductDbEntity::class,
         PurchaseDbEntity::class,
         VoucherPurchaseDbEntity::class,
         CardPurchaseDbEntity::class,
@@ -27,13 +28,14 @@ import cz.quanti.android.vendor_app.repository.utils.typeconverter.DateTypeConve
         InvoiceDbEntity::class,
         TransactionDbEntity::class,
         TransactionPurchaseDbEntity::class
-    ], version = 5, exportSchema = false
+    ], version = 6, exportSchema = false
 )
 @TypeConverters(DateTypeConverter::class)
 abstract class VendorDb : RoomDatabase() {
     abstract fun bookletDao(): BookletDao
     abstract fun productDao(): ProductDao
     abstract fun selectedProductDao(): SelectedProductDao
+    abstract fun purchasedProductDao(): PurchasedProductDao
     abstract fun purchaseDao(): PurchaseDao
     abstract fun voucherPurchaseDao(): VoucherPurchaseDao
     abstract fun cardPurchaseDao(): CardPurchaseDao
@@ -47,6 +49,7 @@ abstract class VendorDb : RoomDatabase() {
         const val TABLE_BOOKLET = "booklet"
         const val TABLE_PRODUCT = "product"
         const val TABLE_SELECTED_PRODUCT = "selected_product"
+        const val TABLE_PURCHASED_PRODUCT = "purchased_product"
         const val TABLE_PURCHASE = "purchase"
         const val TABLE_VOUCHER_PURCHASE = "voucher_purchase"
         const val TABLE_CARD_PURCHASE = "card_purchase"
@@ -55,7 +58,7 @@ abstract class VendorDb : RoomDatabase() {
         const val TABLE_TRANSACTION_BATCH = "transaction_batch"
         const val TABLE_TRANSACTION_PURCHASE = "transaction_purchase"
 
-        val MIGRATION_2_3 = object : Migration(2,3) {
+        val MIGRATION_2_3 = object : Migration(2, 3) {
             override fun migrate(database: SupportSQLiteDatabase) {
                 database.execSQL("CREATE TABLE 'invoice' ('id' INTEGER NOT NULL, 'date' TEXT NOT NULL, 'quantity' INTEGER NOT NULL, 'value' REAL NOT NULL, 'currency' TEXT NOT NULL, PRIMARY KEY('id'))")
                 database.execSQL("CREATE TABLE 'transaction_batch' ('dbId' INTEGER NOT NULL, 'projectId' INTEGER NOT NULL, 'value' REAL NOT NULL, 'currency' TEXT NOT NULL, PRIMARY KEY('dbId'))")
@@ -63,7 +66,7 @@ abstract class VendorDb : RoomDatabase() {
             }
         }
 
-        val MIGRATION_3_4 = object : Migration(3,4) {
+        val MIGRATION_3_4 = object : Migration(3, 4) {
             override fun migrate(database: SupportSQLiteDatabase) {
                 database.execSQL("CREATE TABLE 'card_purchase_new' ('dbId' INTEGER NOT NULL, 'card' TEXT, 'purchaseId' INTEGER NOT NULL, PRIMARY KEY('dbId'), FOREIGN KEY('purchaseId') REFERENCES 'purchase'('dbId') ON DELETE CASCADE)")
                 database.execSQL("INSERT INTO card_purchase_new (dbId, card, purchaseId) SELECT dbId, card, purchaseId FROM card_purchase")
@@ -77,10 +80,20 @@ abstract class VendorDb : RoomDatabase() {
             }
         }
 
-        val MIGRATION_4_5 = object : Migration(4,5) {
+        val MIGRATION_4_5 = object : Migration(4, 5) {
             override fun migrate(database: SupportSQLiteDatabase) {
                 database.execSQL("CREATE INDEX index_card_purchase_purchaseId ON card_purchase(purchaseId)")
                 database.execSQL("CREATE INDEX index_voucher_purchase_purchaseId ON voucher_purchase(purchaseId)")
+            }
+        }
+
+        val MIGRATION_5_6 = object : Migration(5, 6) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL("CREATE TABLE 'purchased_product' ('dbId' INTEGER NOT NULL, 'productId' INTEGER NOT NULL, 'value' REAL NOT NULL, 'purchaseId' INTEGER NOT NULL, PRIMARY KEY('dbId'), FOREIGN KEY('purchaseId') REFERENCES 'purchase'('dbId') ON DELETE CASCADE)")
+                database.execSQL("INSERT INTO purchased_product (dbId, productId, value, purchaseId) SELECT dbId, productId, value, purchaseId FROM selected_product")
+                database.execSQL("DROP TABLE selected_product")
+                database.execSQL("CREATE INDEX index_purchased_product_purchaseId ON purchased_product(purchaseId)")
+                database.execSQL("CREATE TABLE 'selected_product' ('dbId' INTEGER NOT NULL, 'productId' INTEGER NOT NULL, 'value' REAL NOT NULL, 'purchaseId' INTEGER NOT NULL, PRIMARY KEY('dbId'))")
             }
         }
     }

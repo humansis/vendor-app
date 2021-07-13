@@ -1,12 +1,23 @@
 package cz.quanti.android.vendor_app.repository.purchase.impl
 
 import cz.quanti.android.vendor_app.repository.VendorAPI
+import cz.quanti.android.vendor_app.repository.invoice.dto.Invoice
+import cz.quanti.android.vendor_app.repository.invoice.dao.InvoiceDao
+import cz.quanti.android.vendor_app.repository.invoice.dto.db.InvoiceDbEntity
 import cz.quanti.android.vendor_app.repository.product.dto.Product
 import cz.quanti.android.vendor_app.repository.purchase.PurchaseRepository
 import cz.quanti.android.vendor_app.repository.purchase.dao.*
 import cz.quanti.android.vendor_app.repository.purchase.dto.*
 import cz.quanti.android.vendor_app.repository.purchase.dto.api.*
 import cz.quanti.android.vendor_app.repository.purchase.dto.db.*
+import cz.quanti.android.vendor_app.repository.transaction.dto.Transaction
+import cz.quanti.android.vendor_app.repository.transaction.dto.TransactionPurchase
+import cz.quanti.android.vendor_app.repository.transaction.dao.TransactionDao
+import cz.quanti.android.vendor_app.repository.transaction.dao.TransactionPurchaseDao
+import cz.quanti.android.vendor_app.repository.transaction.dto.api.TransactionApiEntity
+import cz.quanti.android.vendor_app.repository.transaction.dto.api.TransactionPurchaseApiEntity
+import cz.quanti.android.vendor_app.repository.transaction.dto.db.TransactionDbEntity
+import cz.quanti.android.vendor_app.repository.transaction.dto.db.TransactionPurchaseDbEntity
 import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.Single

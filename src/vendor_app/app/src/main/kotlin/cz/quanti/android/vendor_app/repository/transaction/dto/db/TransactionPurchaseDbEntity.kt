@@ -1,4 +1,4 @@
-package cz.quanti.android.vendor_app.repository.purchase.dto.db
+package cz.quanti.android.vendor_app.repository.transaction.dto.db
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey

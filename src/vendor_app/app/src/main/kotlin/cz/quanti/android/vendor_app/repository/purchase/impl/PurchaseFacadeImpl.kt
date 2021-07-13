@@ -3,12 +3,12 @@ package cz.quanti.android.vendor_app.repository.purchase.impl
 import cz.quanti.android.vendor_app.repository.card.CardRepository
 import cz.quanti.android.vendor_app.repository.purchase.PurchaseFacade
 import cz.quanti.android.vendor_app.repository.purchase.PurchaseRepository
-import cz.quanti.android.vendor_app.repository.purchase.dto.Invoice
+import cz.quanti.android.vendor_app.repository.invoice.dto.Invoice
 import cz.quanti.android.vendor_app.repository.purchase.dto.Purchase
-import cz.quanti.android.vendor_app.repository.purchase.dto.Transaction
+import cz.quanti.android.vendor_app.repository.transaction.dto.Transaction
 import cz.quanti.android.vendor_app.repository.purchase.dto.api.InvoiceApiEntity
-import cz.quanti.android.vendor_app.repository.purchase.dto.api.TransactionPurchaseApiEntity
-import cz.quanti.android.vendor_app.repository.purchase.dto.api.TransactionApiEntity
+import cz.quanti.android.vendor_app.repository.transaction.dto.api.TransactionPurchaseApiEntity
+import cz.quanti.android.vendor_app.repository.transaction.dto.api.TransactionApiEntity
 import cz.quanti.android.vendor_app.utils.BlockedCardError
 import cz.quanti.android.vendor_app.utils.VendorAppException
 import cz.quanti.android.vendor_app.utils.isPositiveResponseHttpCode

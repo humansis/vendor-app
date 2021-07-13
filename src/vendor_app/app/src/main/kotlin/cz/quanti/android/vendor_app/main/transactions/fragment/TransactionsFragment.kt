@@ -10,7 +10,7 @@ import cz.quanti.android.vendor_app.ActivityCallback
 import cz.quanti.android.vendor_app.R
 import cz.quanti.android.vendor_app.main.transactions.adapter.TransactionsAdapter
 import cz.quanti.android.vendor_app.main.transactions.viewmodel.TransactionsViewModel
-import cz.quanti.android.vendor_app.repository.purchase.dto.Transaction
+import cz.quanti.android.vendor_app.repository.transaction.dto.Transaction
 import cz.quanti.android.vendor_app.sync.SynchronizationState
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable

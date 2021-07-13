@@ -1,8 +1,8 @@
-package cz.quanti.android.vendor_app.repository.purchase.dao
+package cz.quanti.android.vendor_app.repository.transaction.dao
 
 import androidx.room.*
 import cz.quanti.android.vendor_app.repository.VendorDb
-import cz.quanti.android.vendor_app.repository.purchase.dto.db.TransactionDbEntity
+import cz.quanti.android.vendor_app.repository.transaction.dto.db.TransactionDbEntity
 import io.reactivex.Single
 
 @Dao

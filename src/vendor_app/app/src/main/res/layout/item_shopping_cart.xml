@@ -78,24 +78,24 @@
             android:layout_width="@dimen/dimen_32dp"
             android:layout_height="@dimen/dimen_32dp"
             android:padding="@dimen/dimen_4dp"
-            android:tint="@color/red"
             android:visibility="gone"
             app:srcCompat="@drawable/delete"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="@id/bottomGuide"
-            app:layout_constraintEnd_toStartOf="@id/closeButton"/>
+            app:layout_constraintEnd_toStartOf="@id/closeButton"
+            app:tint="@color/red" />
 
         <ImageView
             android:id="@+id/closeButton"
             android:layout_width="@dimen/dimen_32dp"
             android:layout_height="@dimen/dimen_32dp"
             android:padding="@dimen/dimen_4dp"
-            android:tint="@color/darkGrey"
             android:visibility="gone"
             app:srcCompat="@drawable/clear"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="@id/bottomGuide"
-            app:layout_constraintEnd_toEndOf="parent"/>
+            app:layout_constraintEnd_toEndOf="parent"
+            app:tint="@color/darkGrey" />
 
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/bottomGuide"

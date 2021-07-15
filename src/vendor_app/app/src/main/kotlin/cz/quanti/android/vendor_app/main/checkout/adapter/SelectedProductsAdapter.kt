@@ -85,7 +85,7 @@ class SelectedProductsAdapter(
 
     private fun expandCard(holder: SelectedProductsViewHolder, item: SelectedProduct) {
         if (expandedCardHolder != holder) {
-            expandedCardHolder?.let { closeCard(it) }
+            closeExpandedCard()
             expandedCardHolder = holder
             holder.price.visibility = View.GONE
             holder.remove.visibility = View.VISIBLE
@@ -117,16 +117,5 @@ class SelectedProductsAdapter(
 
     fun closeExpandedCard() {
         expandedCardHolder?.let { closeCard(it) }
-    }
-
-    fun removeAt(position: Int) {
-        expandedCardHolder?.let { closeCard(it) }
-        products.removeAt(position)
-        notifyDataSetChanged()
-    }
-
-    fun clearAll() {
-        products.clear()
-        notifyDataSetChanged()
     }
 }

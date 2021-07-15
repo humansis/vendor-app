@@ -6,5 +6,6 @@ data class Purchase(
     var smartcard: String? = null,
     var createdAt: String = "",
     var vendorId: Long = 0,
-    var dbId: Long = 0
+    var dbId: Long = 0,
+    var currency: String = ""
 )

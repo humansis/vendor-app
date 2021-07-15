@@ -3,6 +3,8 @@ package cz.quanti.android.vendor_app.repository.purchase
 import cz.quanti.android.vendor_app.repository.invoice.dto.Invoice
 import cz.quanti.android.vendor_app.repository.purchase.dto.Purchase
 import cz.quanti.android.vendor_app.repository.transaction.dto.Transaction
+import cz.quanti.android.vendor_app.repository.purchase.dto.SelectedProduct
+import cz.quanti.android.vendor_app.repository.purchase.dto.Transaction
 import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.Single
@@ -20,4 +22,14 @@ interface PurchaseFacade {
     fun getInvoices(): Single<List<Invoice>>
 
     fun getTransactions(): Single<List<Transaction>>
+
+    fun addProductToCart(product: SelectedProduct)
+
+    fun getProductsFromCart(): Observable<List<SelectedProduct>>
+
+    fun updateProductInCart(product: SelectedProduct)
+
+    fun removeProductFromCartAt(product: SelectedProduct)
+
+    fun deleteAllProductsInCart()
 }

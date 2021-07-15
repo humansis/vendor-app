@@ -12,7 +12,6 @@ import androidx.lifecycle.toLiveData
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import com.bumptech.glide.Glide
-import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.navigation.NavigationView
 import com.google.android.material.textfield.TextInputLayout
@@ -45,7 +44,7 @@ class ProductsFragment : Fragment(), OnTouchOutsideViewListener {
         requireActivity().findViewById<NavigationView>(R.id.nav_view).setCheckedItem(R.id.home_button)
 
         requireActivity().onBackPressedDispatcher.addCallback(
-            this,
+            viewLifecycleOwner,
             object : OnBackPressedCallback(true) {
                 override fun handleOnBackPressed() {
                     requireActivity().finish()
@@ -128,14 +127,14 @@ class ProductsFragment : Fragment(), OnTouchOutsideViewListener {
                 adapter.setData(it)
             })
 
-        vm.cartSizeLD.observe(viewLifecycleOwner, {
-            when (it) {
+        vm.getSelectedProducts().observe(viewLifecycleOwner, {
+            when (it.size) {
                 EMPTY_CART_SIZE -> {
                     cartBadge.visibility = View.GONE
                 }
                 else -> {
                     cartBadge.visibility = View.VISIBLE
-                    cartBadge.text = it.toString()
+                    cartBadge.text = it.size.toString()
                 }
             }
         })
@@ -209,7 +208,6 @@ class ProductsFragment : Fragment(), OnTouchOutsideViewListener {
             .apply {
                 this.product = product
                 this.price = unitPrice
-                this.currency = vm.getCurrency().value.toString()
             }
         vm.addToShoppingCart(selected)
     }

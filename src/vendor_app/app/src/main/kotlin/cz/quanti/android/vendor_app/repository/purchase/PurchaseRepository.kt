@@ -2,6 +2,8 @@ package cz.quanti.android.vendor_app.repository.purchase
 
 import cz.quanti.android.vendor_app.repository.invoice.dto.Invoice
 import cz.quanti.android.vendor_app.repository.purchase.dto.Purchase
+import cz.quanti.android.vendor_app.repository.purchase.dto.SelectedProduct
+import cz.quanti.android.vendor_app.repository.purchase.dto.Transaction
 import cz.quanti.android.vendor_app.repository.transaction.dto.Transaction
 import cz.quanti.android.vendor_app.repository.purchase.dto.api.InvoiceApiEntity
 import cz.quanti.android.vendor_app.repository.transaction.dto.api.TransactionApiEntity
@@ -20,7 +22,7 @@ interface PurchaseRepository {
 
     fun getAllPurchases(): Single<List<Purchase>>
 
-    fun deleteSelectedProducts(): Completable
+    fun deletePurchasedProducts(): Completable
 
     fun deletePurchase(purchase: Purchase): Completable
 
@@ -52,4 +54,14 @@ interface PurchaseRepository {
         transactionPurchase: TransactionPurchaseApiEntity,
         transactionId: Long
     ): Single<Long>
+
+    fun addProductToCart(product: SelectedProduct)
+
+    fun getProductsFromCart(): Observable<List<SelectedProduct>>
+
+    fun updateProductInCart(product: SelectedProduct)
+
+    fun removeProductFromCartAt(product: SelectedProduct)
+
+    fun deleteAllProductsInCart()
 }

@@ -91,9 +91,10 @@ abstract class VendorDb : RoomDatabase() {
             override fun migrate(database: SupportSQLiteDatabase) {
                 database.execSQL("CREATE TABLE 'purchased_product' ('dbId' INTEGER NOT NULL, 'productId' INTEGER NOT NULL, 'value' REAL NOT NULL, 'purchaseId' INTEGER NOT NULL, PRIMARY KEY('dbId'), FOREIGN KEY('purchaseId') REFERENCES 'purchase'('dbId') ON DELETE CASCADE)")
                 database.execSQL("INSERT INTO purchased_product (dbId, productId, value, purchaseId) SELECT dbId, productId, value, purchaseId FROM selected_product")
-                database.execSQL("DROP TABLE selected_product")
                 database.execSQL("CREATE INDEX index_purchased_product_purchaseId ON purchased_product(purchaseId)")
-                database.execSQL("CREATE TABLE 'selected_product' ('dbId' INTEGER NOT NULL, 'productId' INTEGER NOT NULL, 'value' REAL NOT NULL, 'purchaseId' INTEGER NOT NULL, PRIMARY KEY('dbId'))")
+                database.execSQL("DROP TABLE selected_product")
+                database.execSQL("CREATE TABLE 'selected_product' ('dbId' INTEGER NOT NULL, 'productId' INTEGER NOT NULL, 'value' REAL NOT NULL, PRIMARY KEY('dbId'))")
+                database.execSQL("ALTER TABLE 'purchase' ADD 'currency' TEXT NOT NULL DEFAULT ''")
             }
         }
     }

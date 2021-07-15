@@ -55,16 +55,15 @@ class SelectedProductsAdapter(
         }
 
         holder.remove.setOnClickListener {
-            checkoutFragmentCallback.removeItemFromCart(position)
+            checkoutFragmentCallback.removeItemFromCart(item)
         }
 
         holder.confirm.setOnClickListener {
-            updateProduct(position, item, holder)
+            updateProduct(item, holder)
         }
     }
 
     private fun updateProduct(
-        position: Int,
         item: SelectedProduct,
         holder: SelectedProductsViewHolder
     ) {
@@ -74,7 +73,6 @@ class SelectedProductsAdapter(
                 checkoutFragmentCallback.showInvalidPriceEnteredMessage()
             } else {
                 checkoutFragmentCallback.updateItem(
-                    position,
                     item,
                     round(newPrice, 3)
                 )
@@ -115,6 +113,10 @@ class SelectedProductsAdapter(
         products.clear()
         products.addAll(data)
         notifyDataSetChanged()
+    }
+
+    fun closeExpandedCard() {
+        expandedCardHolder?.let { closeCard(it) }
     }
 
     fun removeAt(position: Int) {

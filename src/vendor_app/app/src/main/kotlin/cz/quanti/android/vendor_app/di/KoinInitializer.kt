@@ -111,6 +111,7 @@ object KoinInitializer {
             db.purchaseDao(),
             db.cardPurchaseDao(),
             db.voucherPurchaseDao(),
+            db.productDao(),
             db.purchasedProductDao(),
             db.selectedProductDao(),
             db.invoiceDao(),
@@ -173,8 +174,6 @@ object KoinInitializer {
                 ShopViewModel(
                     shoppingHolder,
                     productFacade,
-                    syncFacade,
-                    preferences,
                     currentVendor,
                     synchronizationManager
                 )

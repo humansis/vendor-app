@@ -5,6 +5,7 @@ import cz.quanti.android.vendor_app.repository.purchase.PurchaseFacade
 import cz.quanti.android.vendor_app.repository.purchase.PurchaseRepository
 import cz.quanti.android.vendor_app.repository.purchase.dto.Invoice
 import cz.quanti.android.vendor_app.repository.purchase.dto.Purchase
+import cz.quanti.android.vendor_app.repository.purchase.dto.SelectedProduct
 import cz.quanti.android.vendor_app.repository.purchase.dto.Transaction
 import cz.quanti.android.vendor_app.repository.purchase.dto.api.InvoiceApiEntity
 import cz.quanti.android.vendor_app.repository.purchase.dto.api.TransactionPurchaseApiEntity
@@ -56,6 +57,26 @@ class PurchaseFacadeImpl(
 
     override fun getTransactions(): Single<List<Transaction>> {
         return purchaseRepo.getTransactions()
+    }
+
+    override fun addProductToCart(product: SelectedProduct) {
+        purchaseRepo.addProductToCart(product)
+    }
+
+    override fun getProductsFromCart(): Observable<List<SelectedProduct>> {
+        return purchaseRepo.getProductsFromCart()
+    }
+
+    override fun updateProductInCart(product: SelectedProduct) {
+        purchaseRepo.updateProductInCart(product)
+    }
+
+    override fun removeProductFromCartAt(product: SelectedProduct) {
+        purchaseRepo.removeProductFromCartAt(product)
+    }
+
+    override fun deleteAllProductsInCart() {
+        return purchaseRepo.deleteAllProductsInCart()
     }
 
     private fun preparePurchases(): Completable {

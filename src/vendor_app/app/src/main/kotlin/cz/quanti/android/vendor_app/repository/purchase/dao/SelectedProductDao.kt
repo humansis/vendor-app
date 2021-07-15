@@ -2,9 +2,8 @@ package cz.quanti.android.vendor_app.repository.purchase.dao
 
 import androidx.room.*
 import cz.quanti.android.vendor_app.repository.VendorDb
-import cz.quanti.android.vendor_app.repository.purchase.dto.db.PurchasedProductDbEntity
 import cz.quanti.android.vendor_app.repository.purchase.dto.db.SelectedProductDbEntity
-import io.reactivex.Single
+import io.reactivex.Observable
 
 @Dao
 interface SelectedProductDao {
@@ -17,12 +16,9 @@ interface SelectedProductDao {
     @Query("DELETE FROM " + VendorDb.TABLE_SELECTED_PRODUCT)
     fun deleteAll()
 
-    @Query("SELECT * FROM " + VendorDb.TABLE_SELECTED_PRODUCT)
-    fun getAll(): Single<List<SelectedProductDbEntity>>
+    @Query("UPDATE " + VendorDb.TABLE_SELECTED_PRODUCT + " SET value = :value WHERE dbId = :dbId")
+    fun update(dbId: Long?, value: Double)
 
-    @Query(
-        "SELECT * FROM " + VendorDb.TABLE_SELECTED_PRODUCT
-            + " WHERE purchaseId = :purchaseId"
-    )
-    fun getProductsForPurchase(purchaseId: Long): Single<List<SelectedProductDbEntity>>
+    @Query("SELECT * FROM " + VendorDb.TABLE_SELECTED_PRODUCT)
+    fun getAll(): Observable<List<SelectedProductDbEntity>>
 }

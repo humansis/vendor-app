@@ -13,14 +13,14 @@ interface PurchasedProductDao {
     @Delete
     fun delete(product: PurchasedProductDbEntity)
 
-    @Query("DELETE FROM " + VendorDb.TABLE_SELECTED_PRODUCT)
+    @Query("DELETE FROM " + VendorDb.TABLE_PURCHASED_PRODUCT)
     fun deleteAll()
 
-    @Query("SELECT * FROM " + VendorDb.TABLE_SELECTED_PRODUCT)
+    @Query("SELECT * FROM " + VendorDb.TABLE_PURCHASED_PRODUCT)
     fun getAll(): Single<List<PurchasedProductDbEntity>>
 
     @Query(
-        "SELECT * FROM " + VendorDb.TABLE_SELECTED_PRODUCT
+        "SELECT * FROM " + VendorDb.TABLE_PURCHASED_PRODUCT
             + " WHERE purchaseId = :purchaseId"
     )
     fun getProductsForPurchase(purchaseId: Long): Single<List<PurchasedProductDbEntity>>

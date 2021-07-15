@@ -9,5 +9,6 @@ data class PurchaseDbEntity(
     @PrimaryKey(autoGenerate = true)
     var dbId: Long = 0,
     var createdAt: String = "",
-    var vendorId: Long = 0
+    var vendorId: Long = 0,
+    var currency: String = ""
 )

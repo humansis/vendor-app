@@ -6,7 +6,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import cz.quanti.android.vendor_app.R
 import cz.quanti.android.vendor_app.main.checkout.callback.CheckoutFragmentCallback
 import cz.quanti.android.vendor_app.main.checkout.viewholder.SelectedProductsViewHolder
@@ -56,16 +55,15 @@ class SelectedProductsAdapter(
         }
 
         holder.remove.setOnClickListener {
-            checkoutFragmentCallback.removeItemFromCart(position)
+            checkoutFragmentCallback.removeItemFromCart(item)
         }
 
         holder.confirm.setOnClickListener {
-            updateProduct(position, item, holder)
+            updateProduct(item, holder)
         }
     }
 
     private fun updateProduct(
-        position: Int,
         item: SelectedProduct,
         holder: SelectedProductsViewHolder
     ) {
@@ -75,7 +73,6 @@ class SelectedProductsAdapter(
                 checkoutFragmentCallback.showInvalidPriceEnteredMessage()
             } else {
                 checkoutFragmentCallback.updateItem(
-                    position,
                     item,
                     round(newPrice, 3)
                 )
@@ -88,7 +85,7 @@ class SelectedProductsAdapter(
 
     private fun expandCard(holder: SelectedProductsViewHolder, item: SelectedProduct) {
         if (expandedCardHolder != holder) {
-            expandedCardHolder?.let { closeCard(it) }
+            closeExpandedCard()
             expandedCardHolder = holder
             holder.price.visibility = View.GONE
             holder.remove.visibility = View.VISIBLE
@@ -118,14 +115,7 @@ class SelectedProductsAdapter(
         notifyDataSetChanged()
     }
 
-    fun removeAt(position: Int) {
+    fun closeExpandedCard() {
         expandedCardHolder?.let { closeCard(it) }
-        products.removeAt(position)
-        notifyDataSetChanged()
-    }
-
-    fun clearAll() {
-        products.clear()
-        notifyDataSetChanged()
     }
 }

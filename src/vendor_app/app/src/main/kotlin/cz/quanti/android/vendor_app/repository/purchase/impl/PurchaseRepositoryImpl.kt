@@ -1,7 +1,9 @@
 package cz.quanti.android.vendor_app.repository.purchase.impl
 
 import cz.quanti.android.vendor_app.repository.VendorAPI
+import cz.quanti.android.vendor_app.repository.product.dao.ProductDao
 import cz.quanti.android.vendor_app.repository.product.dto.Product
+import cz.quanti.android.vendor_app.repository.product.dto.db.ProductDbEntity
 import cz.quanti.android.vendor_app.repository.purchase.PurchaseRepository
 import cz.quanti.android.vendor_app.repository.purchase.dao.*
 import cz.quanti.android.vendor_app.repository.purchase.dto.*
@@ -16,6 +18,8 @@ class PurchaseRepositoryImpl(
     private val purchaseDao: PurchaseDao,
     private val cardPurchaseDao: CardPurchaseDao,
     private val voucherPurchaseDao: VoucherPurchaseDao,
+    private val productDao: ProductDao,
+    private val purchasedProductDao: PurchasedProductDao,
     private val selectedProductDao: SelectedProductDao,
     private val invoiceDao: InvoiceDao,
     private val transactionDao: TransactionDao,
@@ -26,7 +30,7 @@ class PurchaseRepositoryImpl(
     override fun savePurchase(purchase: Purchase): Completable {
         return Single.fromCallable { purchaseDao.insert(convertToDb(purchase)) }
             .flatMapCompletable { purchaseId ->
-                saveSelectedProducts(purchaseId, purchase.products).andThen(
+                savePurchasedProducts(purchaseId, purchase.products).andThen(
                     saveToDb(
                         purchase,
                         purchaseId
@@ -96,7 +100,7 @@ class PurchaseRepositoryImpl(
         return purchaseDao.getAll().flatMap { purchasesDb ->
             Observable.fromIterable(purchasesDb)
                 .flatMapSingle { purchaseDb ->
-                    selectedProductDao.getProductsForPurchase(purchaseDb.dbId)
+                    purchasedProductDao.getProductsForPurchase(purchaseDb.dbId)
                         .flatMap { productsDb ->
                             cardPurchaseDao.getCardForPurchase(purchaseDb.dbId)
                                 .defaultIfEmpty(CardPurchaseDbEntity(card = null))
@@ -113,6 +117,7 @@ class PurchaseRepositoryImpl(
                                             purchase.products.addAll(productsDb.map { convert(it) })
                                             purchase.vouchers.addAll(voucherPurchasesDb.map { it.voucher })
                                             purchase.vendorId = purchaseDb.vendorId
+                                            purchase.currency = purchaseDb.currency
                                             Single.just(purchase)
                                         }
                                 }
@@ -235,9 +240,33 @@ class PurchaseRepositoryImpl(
         return Single.fromCallable { transactionPurchaseDao.insert(convertToDb(transactionPurchase, transactionId)) }
     }
 
-    override fun deleteSelectedProducts(): Completable {
+    override fun addProductToCart(product: SelectedProduct) {
+        selectedProductDao.insert(convertToDb(product))
+    }
+
+    override fun getProductsFromCart(): Observable<List<SelectedProduct>> {
+        return selectedProductDao.getAll().map { products ->
+            products.map {
+                convert(it)
+            }
+        }
+    }
+
+    override fun updateProductInCart(product: SelectedProduct) {
+        selectedProductDao.update(product.dbId, product.price)
+    }
+
+    override fun removeProductFromCartAt(product: SelectedProduct) {
+        selectedProductDao.delete(convertToDb(product))
+    }
+
+    override fun deleteAllProductsInCart() {
+        selectedProductDao.deleteAll()
+    }
+
+    override fun deletePurchasedProducts(): Completable {
         return Completable.fromCallable {
-            selectedProductDao.deleteAll()
+            purchasedProductDao.deleteAll()
         }
     }
 
@@ -260,39 +289,62 @@ class PurchaseRepositoryImpl(
         return purchaseDao.getCount()
     }
 
-    private fun saveSelectedProducts(
+    private fun savePurchasedProducts(
         purchaseId: Long,
         products: List<SelectedProduct>
     ): Completable {
-        return Observable.fromIterable(products).flatMapCompletable { selectedProduct ->
+        return Observable.fromIterable(products).flatMapCompletable { purchasedProduct ->
             Completable.fromCallable {
-                selectedProductDao.insert(convertToDb(selectedProduct, purchaseId))
+                purchasedProductDao.insert(convertToDb(purchasedProduct, purchaseId))
             }
         }
     }
 
-    private fun convertToDb(
-        selectedProduct: SelectedProduct,
-        purchaseId: Long
-    ): SelectedProductDbEntity {
+    private fun convert(dbEntity: SelectedProductDbEntity): SelectedProduct {
+        return SelectedProduct(
+            dbId = dbEntity.dbId,
+            product = convert(productDao.getProductById(dbEntity.productId)),
+            price = dbEntity.value
+        )
+    }
+
+    private fun convert(dbEntity: ProductDbEntity): Product {
+        return Product().apply {
+            this.id = dbEntity.id
+            this.name = dbEntity.name
+            this.image = dbEntity.image
+            this.unit = dbEntity.unit
+        }
+    }
+
+    private fun convert(purchasedProductDbEntity: PurchasedProductDbEntity): SelectedProduct {
+        return SelectedProduct(
+            price = purchasedProductDbEntity.value,
+            product = Product(id = purchasedProductDbEntity.productId)
+        )
+    }
+
+    private fun convertToApi(selectedProduct: SelectedProduct): PurchasedProductApiEntity {
+        return PurchasedProductApiEntity(
+            id = selectedProduct.product.id,
+            value = selectedProduct.price
+        )
+    }
+
+    private fun convertToDb(purchasedProduct: SelectedProduct): SelectedProductDbEntity {
         return SelectedProductDbEntity(
+                productId = purchasedProduct.product.id,
+                value = purchasedProduct.price,
+            ).apply {
+                purchasedProduct.dbId?.let { this.dbId = it }
+            }
+    }
+
+    private fun convertToDb(selectedProduct: SelectedProduct, purchaseId: Long): PurchasedProductDbEntity {
+        return PurchasedProductDbEntity(
             productId = selectedProduct.product.id,
             value = selectedProduct.price,
             purchaseId = purchaseId
-        )
-    }
-
-    private fun convert(selectedProductDbEntity: SelectedProductDbEntity): SelectedProduct {
-        return SelectedProduct(
-            price = selectedProductDbEntity.value,
-            product = Product(id = selectedProductDbEntity.productId)
-        )
-    }
-
-    private fun convertToApi(selectedProduct: SelectedProduct): SelectedProductApiEntity {
-        return SelectedProductApiEntity(
-            id = selectedProduct.product.id,
-            value = selectedProduct.price
         )
     }
 
@@ -328,9 +380,10 @@ class PurchaseRepositoryImpl(
 
     private fun convertToDb(purchase: Purchase): PurchaseDbEntity {
         return PurchaseDbEntity(
+            dbId = purchase.dbId,
             createdAt = purchase.createdAt,
             vendorId = purchase.vendorId,
-            dbId = purchase.dbId
+            currency = purchase.currency
         )
     }
 

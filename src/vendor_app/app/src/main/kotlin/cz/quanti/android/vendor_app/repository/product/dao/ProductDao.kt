@@ -19,4 +19,7 @@ interface ProductDao {
 
     @Query("SELECT * FROM " + VendorDb.TABLE_PRODUCT)
     fun getAll(): Observable<List<ProductDbEntity>>
+
+    @Query("SELECT * FROM " + VendorDb.TABLE_PRODUCT + " WHERE id = :productId")
+    fun getProductById(productId: Long): ProductDbEntity
 }

@@ -37,7 +37,7 @@ class CheckoutViewModel(
     }
 
     fun proceed(): Completable {
-        return purchaseFacade.savePurchase(createVoucherPurchase())
+        return saveVoucherPurchaseToDb()
     }
 
     fun getTotal(): Double {
@@ -50,24 +50,29 @@ class CheckoutViewModel(
         return vouchers
     }
 
-    fun getShoppingCart(): List<SelectedProduct> {
-        return shoppingHolder.cart
-    }
-
     fun clearVouchers() {
         vouchers.clear()
     }
 
-    fun updateProduct(position: Int, product: SelectedProduct) {
-        shoppingHolder.cart[position] = product
+    fun getSelectedProducts(): LiveData<List<SelectedProduct>> {
+        return shoppingHolder.getProducts()
     }
 
-    fun removeFromCart(position: Int) {
-        shoppingHolder.cart.removeAt(position)
+    fun setProducts(products: List<SelectedProduct>) {
+        shoppingHolder.cart.clear()
+        shoppingHolder.cart.addAll(products)
+    }
+
+    fun updateSelectedProduct(product: SelectedProduct) {
+        shoppingHolder.updateProduct(product)
+    }
+
+    fun removeFromCart(product: SelectedProduct) {
+        shoppingHolder.removeProductAt(product)
     }
 
     fun clearCart() {
-        shoppingHolder.cart.clear()
+        shoppingHolder.removeAllProducts()
     }
 
     fun getCurrency(): LiveData<String> {
@@ -80,7 +85,6 @@ class CheckoutViewModel(
     fun setPin(string: String?) {
         this.pin = string
     }
-
 
     fun payByCard(pin: String, value: Double, currency: String): Single<Pair<Tag, UserBalance>> {
         return subtractMoneyFromCard(pin, value, currency).flatMap { it ->
@@ -97,15 +101,6 @@ class CheckoutViewModel(
 
     private fun convertTagToString(tag: Tag): String {
         return NfcUtil.toHexString(tag.id).uppercase(Locale.US)
-    }
-
-    private fun createVoucherPurchase(): Purchase {
-        return Purchase().apply {
-            products.addAll(shoppingHolder.cart)
-            vouchers.addAll(shoppingHolder.vouchers.map { it.id })
-            vendorId = currentVendor.vendor.id
-            createdAt = convertTimeForApiRequestBody(Date())
-        }
     }
 
     private fun subtractMoneyFromCard(
@@ -137,6 +132,20 @@ class CheckoutViewModel(
             })
     }
 
+    private fun saveVoucherPurchaseToDb(): Completable {
+        return purchaseFacade.savePurchase(createVoucherPurchase())
+    }
+
+    private fun createVoucherPurchase(): Purchase {
+        return Purchase().apply {
+            products.addAll(shoppingHolder.cart)
+            vouchers.addAll(shoppingHolder.vouchers.map { it.id })
+            vendorId = currentVendor.vendor.id
+            createdAt = convertTimeForApiRequestBody(Date())
+            currency = getCurrency().toString()
+        }
+    }
+
     private fun saveCardPurchaseToDb(card: String): Completable {
         return purchaseFacade.savePurchase(createCardPurchase(card))
     }
@@ -147,6 +156,7 @@ class CheckoutViewModel(
             smartcard = card
             vendorId = currentVendor.vendor.id
             createdAt = convertTimeForApiRequestBody(Date())
+            currency = getCurrency().toString()
         }
     }
 }

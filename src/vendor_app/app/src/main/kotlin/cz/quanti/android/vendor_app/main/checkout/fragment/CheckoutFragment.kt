@@ -65,18 +65,16 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
         super.onStart()
 
         vm.init()
-        initObservers()
-        initOnClickListeners()
+
         initSelectedProductsAdapter()
         initScannedVouchersAdapter()
+        initObservers()
+        initOnClickListeners()
     }
 
     override fun onResume() {
         super.onResume()
-
         showIfPurchasePaid()
-        showIfCartEmpty()
-        actualizeTotal()
     }
 
     override fun onStop() {
@@ -89,10 +87,45 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
         super.onDestroy()
     }
 
+    private fun initSelectedProductsAdapter() {
+        val viewManager = LinearLayoutManager(activity)
+
+        checkoutSelectedProductsRecyclerView?.setHasFixedSize(true)
+        checkoutSelectedProductsRecyclerView?.layoutManager = viewManager
+        checkoutSelectedProductsRecyclerView?.adapter = selectedProductsAdapter
+    }
+
+    private fun initScannedVouchersAdapter() {
+        val viewManager = LinearLayoutManager(activity)
+
+        scannedVouchersRecyclerView?.setHasFixedSize(true)
+        scannedVouchersRecyclerView?.layoutManager = viewManager
+        scannedVouchersRecyclerView?.adapter = scannedVoucherAdapter
+
+        scannedVoucherAdapter.setData(vm.getVouchers())
+        if (vm.getVouchers().isEmpty()) {
+            scannedVouchersRecyclerView?.visibility = View.INVISIBLE
+            pleaseScanVoucherTextView?.visibility = View.VISIBLE
+            payByCardButton?.visibility = View.VISIBLE
+        } else {
+            scannedVouchersRecyclerView?.visibility = View.VISIBLE
+            pleaseScanVoucherTextView?.visibility = View.INVISIBLE
+            payByCardButton?.visibility = View.INVISIBLE
+        }
+    }
 
     private fun initObservers() {
         vm.getCurrency().observe(viewLifecycleOwner, {
-            initSelectedProductsAdapter()
+            selectedProductsAdapter.chosenCurrency = vm.getCurrency().value.toString()
+            selectedProductsAdapter.notifyDataSetChanged()
+            actualizeTotal()
+        })
+
+        vm.getSelectedProducts().observe(viewLifecycleOwner, {
+            selectedProductsAdapter.closeExpandedCard()
+            selectedProductsAdapter.setData(it)
+            vm.setProducts(it)
+            showIfCartEmpty(it.isNotEmpty())
             actualizeTotal()
         })
     }
@@ -182,14 +215,12 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
         }
     }
 
-    override fun updateItem(position: Int, item: SelectedProduct, newPrice: Double) {
+    override fun updateItem(item: SelectedProduct, newPrice: Double) {
         item.price = newPrice
-        vm.updateProduct(position, item)
-        actualizeTotal()
-        selectedProductsAdapter.notifyDataSetChanged()
+        vm.updateSelectedProduct(item)
     }
 
-    override fun removeItemFromCart(position: Int) {
+    override fun removeItemFromCart(product: SelectedProduct) {
         AlertDialog.Builder(requireContext(), R.style.DialogTheme)
             .setTitle(getString(R.string.are_you_sure_dialog_title))
             .setMessage(getString(R.string.remove_product_from_cart_dialog_message))
@@ -199,10 +230,8 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
                 if (selectedProductsAdapter.itemCount == 1) {
                     clearCart()
                 } else {
-                    vm.removeFromCart(position)
-                    selectedProductsAdapter.removeAt(position)
+                    vm.removeFromCart(product)
                 }
-                actualizeTotal()
             }
             .setNegativeButton(android.R.string.cancel, null)
             .show()
@@ -218,13 +247,10 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
 
     private fun clearCart() {
         vm.clearCart()
-        selectedProductsAdapter.clearAll()
-        showIfCartEmpty()
-        actualizeTotal()
     }
 
-    private fun showIfCartEmpty() {
-        if(vm.getShoppingCart().isNotEmpty()) {
+    private fun showIfCartEmpty(notEmpty: Boolean) {
+        if(notEmpty) {
             emptyCartTextView.visibility = View.GONE
             payByCardButton.isEnabled = true
             scanButton.isEnabled = true
@@ -276,36 +302,6 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
                     dialog?.cancel()
                 }
                 .show()
-        }
-    }
-
-    private fun initSelectedProductsAdapter() {
-        val viewManager = LinearLayoutManager(activity)
-
-        checkoutSelectedProductsRecyclerView?.setHasFixedSize(true)
-        checkoutSelectedProductsRecyclerView?.layoutManager = viewManager
-        checkoutSelectedProductsRecyclerView?.adapter = selectedProductsAdapter
-        selectedProductsAdapter.chosenCurrency = vm.getCurrency().value.toString()
-
-        selectedProductsAdapter.setData(vm.getShoppingCart())
-    }
-
-    private fun initScannedVouchersAdapter() {
-        val viewManager = LinearLayoutManager(activity)
-
-        scannedVouchersRecyclerView?.setHasFixedSize(true)
-        scannedVouchersRecyclerView?.layoutManager = viewManager
-        scannedVouchersRecyclerView?.adapter = scannedVoucherAdapter
-
-        scannedVoucherAdapter.setData(vm.getVouchers())
-        if (vm.getVouchers().isEmpty()) {
-            scannedVouchersRecyclerView?.visibility = View.INVISIBLE
-            pleaseScanVoucherTextView?.visibility = View.VISIBLE
-            payByCardButton?.visibility = View.VISIBLE
-        } else {
-            scannedVouchersRecyclerView?.visibility = View.VISIBLE
-            pleaseScanVoucherTextView?.visibility = View.INVISIBLE
-            payByCardButton?.visibility = View.INVISIBLE
         }
     }
 

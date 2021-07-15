@@ -24,6 +24,9 @@ import cz.quanti.android.vendor_app.repository.booklet.impl.BookletRepositoryImp
 import cz.quanti.android.vendor_app.repository.card.CardFacade
 import cz.quanti.android.vendor_app.repository.card.impl.CardFacadeImpl
 import cz.quanti.android.vendor_app.repository.card.impl.CardRepositoryImpl
+import cz.quanti.android.vendor_app.repository.invoice.InvoiceFacade
+import cz.quanti.android.vendor_app.repository.invoice.impl.InvoiceFacadeImpl
+import cz.quanti.android.vendor_app.repository.invoice.impl.InvoiceRepositoryImpl
 import cz.quanti.android.vendor_app.repository.login.LoginFacade
 import cz.quanti.android.vendor_app.repository.login.impl.LoginFacadeImpl
 import cz.quanti.android.vendor_app.repository.login.impl.LoginRepositoryImpl
@@ -35,6 +38,9 @@ import cz.quanti.android.vendor_app.repository.purchase.impl.PurchaseFacadeImpl
 import cz.quanti.android.vendor_app.repository.purchase.impl.PurchaseRepositoryImpl
 import cz.quanti.android.vendor_app.repository.synchronization.SynchronizationFacade
 import cz.quanti.android.vendor_app.repository.synchronization.impl.SynchronizationFacadeImpl
+import cz.quanti.android.vendor_app.repository.transaction.TransactionFacade
+import cz.quanti.android.vendor_app.repository.transaction.impl.TransactionFacadeImpl
+import cz.quanti.android.vendor_app.repository.transaction.impl.TransactionRepositoryImpl
 import cz.quanti.android.vendor_app.repository.utils.interceptor.HostUrlInterceptor
 import cz.quanti.android.vendor_app.sync.SynchronizationManager
 import cz.quanti.android.vendor_app.sync.SynchronizationManagerImpl
@@ -114,9 +120,15 @@ object KoinInitializer {
             db.productDao(),
             db.purchasedProductDao(),
             db.selectedProductDao(),
-            db.invoiceDao(),
+            api
+        )
+        val transactionRepo = TransactionRepositoryImpl(
             db.transactionDao(),
             db.transactionPurchaseDao(),
+            api
+        )
+        val invoiceRepo = InvoiceRepositoryImpl(
+            db.invoiceDao(),
             api
         )
 
@@ -126,8 +138,10 @@ object KoinInitializer {
         val bookletFacade: BookletFacade = BookletFacadeImpl(bookletRepo)
         val cardFacade: CardFacade = CardFacadeImpl(cardRepo)
         val purchaseFacade: PurchaseFacade = PurchaseFacadeImpl(purchaseRepo, cardRepo)
+        val transactionFacade: TransactionFacade = TransactionFacadeImpl(transactionRepo)
+        val invoiceFacade: InvoiceFacade = InvoiceFacadeImpl(invoiceRepo)
         val syncFacade: SynchronizationFacade =
-            SynchronizationFacadeImpl(bookletFacade, cardFacade, productFacade, purchaseFacade)
+            SynchronizationFacadeImpl(bookletFacade, cardFacade, productFacade, purchaseFacade, transactionFacade, invoiceFacade)
         val synchronizationManager: SynchronizationManager =
             SynchronizationManagerImpl(preferences, syncFacade)
         val nfcFacade: VendorFacade = PINFacade(

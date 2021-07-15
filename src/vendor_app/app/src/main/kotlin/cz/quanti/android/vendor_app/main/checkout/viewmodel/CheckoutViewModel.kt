@@ -28,7 +28,6 @@ class CheckoutViewModel(
     private val currentVendor: CurrentVendor,
     private val nfcTagPublisher: NfcTagPublisher
 ) : ViewModel() {
-    private val TAG = this.javaClass.simpleName
     private var vouchers: MutableList<Voucher> = mutableListOf()
     private var pin: String? = null
 
@@ -158,5 +157,9 @@ class CheckoutViewModel(
             createdAt = convertTimeForApiRequestBody(Date())
             currency = getCurrency().toString()
         }
+    }
+
+    companion object {
+        private val TAG = CheckoutViewModel::class.java.simpleName
     }
 }

@@ -3,14 +3,8 @@ package cz.quanti.android.vendor_app.repository.purchase.impl
 import cz.quanti.android.vendor_app.repository.card.CardRepository
 import cz.quanti.android.vendor_app.repository.purchase.PurchaseFacade
 import cz.quanti.android.vendor_app.repository.purchase.PurchaseRepository
-import cz.quanti.android.vendor_app.repository.invoice.dto.Invoice
 import cz.quanti.android.vendor_app.repository.purchase.dto.Purchase
 import cz.quanti.android.vendor_app.repository.purchase.dto.SelectedProduct
-import cz.quanti.android.vendor_app.repository.purchase.dto.Transaction
-import cz.quanti.android.vendor_app.repository.transaction.dto.Transaction
-import cz.quanti.android.vendor_app.repository.purchase.dto.api.InvoiceApiEntity
-import cz.quanti.android.vendor_app.repository.transaction.dto.api.TransactionPurchaseApiEntity
-import cz.quanti.android.vendor_app.repository.transaction.dto.api.TransactionApiEntity
 import cz.quanti.android.vendor_app.utils.BlockedCardError
 import cz.quanti.android.vendor_app.utils.VendorAppException
 import cz.quanti.android.vendor_app.utils.isPositiveResponseHttpCode
@@ -34,14 +28,11 @@ class PurchaseFacadeImpl(
         }
     }
 
-    override fun syncWithServer(vendorId: Int): Completable {
+    override fun syncWithServer(): Completable {
         Log.d(TAG, "Sync started" )
         return preparePurchases()
             .andThen(sendPurchasesToServer())
             .andThen(deletePurchasedProducts())
-            .andThen(retrieveInvoices(vendorId))
-            .andThen(retrieveTransactions(vendorId))
-
     }
 
     override fun unsyncedPurchases(): Single<List<Purchase>> {
@@ -50,14 +41,6 @@ class PurchaseFacadeImpl(
 
     override fun getPurchasesCount(): Observable<Long> {
         return purchaseRepo.getPurchasesCount()
-    }
-
-    override fun getInvoices(): Single<List<Invoice>> {
-        return purchaseRepo.getInvoices()
-    }
-
-    override fun getTransactions(): Single<List<Transaction>> {
-        return purchaseRepo.getTransactions()
     }
 
     override fun addProductToCart(product: SelectedProduct) {
@@ -155,84 +138,6 @@ class PurchaseFacadeImpl(
 
     private fun deletePurchasedProducts(): Completable {
         return purchaseRepo.deletePurchasedProducts()
-    }
-
-    private fun retrieveInvoices(vendorId: Int): Completable {
-        return purchaseRepo.retrieveInvoices(vendorId).flatMapCompletable {
-            val responseCode = it.first
-            val invoicesList = it.second
-            if (isPositiveResponseHttpCode(responseCode)) {
-                actualizeInvoiceDatabase(invoicesList)
-            } else {
-                //todo doresit aby exceptiony neprerusovaly sync
-                throw VendorAppException("Received code $responseCode when trying download invoices.").apply {
-                    apiError = true
-                    apiResponseCode = responseCode
-                }
-            }
-        }
-    }
-
-    private fun retrieveTransactions(vendorId: Int): Completable {
-        return purchaseRepo.retrieveTransactions(vendorId).flatMapCompletable {
-            val responseCode = it.first
-            val transactionsList = it.second
-            if (isPositiveResponseHttpCode(responseCode)) {
-                var id: Long = 1
-                deleteAllTransactions().andThen(
-                    deleteAllTransactionPurchases().andThen(
-                        Observable.fromIterable(transactionsList).flatMapCompletable { transactions ->
-                            purchaseRepo.retrieveTransactionsPurchases(vendorId, transactions.projectId, transactions.currency).flatMapCompletable { response ->
-                                val transactionPurchasesList = response.second
-                                if (isPositiveResponseHttpCode(response.first)) {
-                                    saveTransactionToDb(transactions, id).flatMapCompletable { transactionId ->
-                                        id++
-                                        actualizeTransactionPurchaseDatabase(transactionPurchasesList, transactionId)
-                                    }
-                                } else {
-                                    //todo doresit aby exceptiony neprerusovaly sync
-                                    throw VendorAppException("Received code ${response.first} when trying download purchases.").apply {
-                                        apiError = true
-                                        apiResponseCode = responseCode
-                                    }
-                                }
-                            }
-                        }
-                    )
-                )
-            } else {
-                //todo doresit aby exceptiony neprerusovaly sync
-                throw VendorAppException("Received code $responseCode when trying download transactions.").apply {
-                    apiError = true
-                    apiResponseCode = responseCode
-                }
-            }
-        }
-    }
-
-    private fun actualizeInvoiceDatabase(invoices: List<InvoiceApiEntity>?): Completable {
-        return purchaseRepo.deleteInvoices().andThen(
-            Observable.fromIterable(invoices).flatMapCompletable { invoice ->
-                Completable.fromSingle( purchaseRepo.saveInvoice(invoice) )
-            })
-    }
-
-    private fun deleteAllTransactions(): Completable {
-        return purchaseRepo.deleteTransactions()
-    }
-
-    private fun saveTransactionToDb(transaction: TransactionApiEntity, transactionId: Long): Single<Long> {
-        return purchaseRepo.saveTransaction(transaction, transactionId)
-    }
-
-    private fun deleteAllTransactionPurchases(): Completable {
-        return purchaseRepo.deleteTransactionPurchases()
-    }
-
-    private fun actualizeTransactionPurchaseDatabase(transactionPurchases: List<TransactionPurchaseApiEntity>?, transactionId: Long): Completable {
-        return Observable.fromIterable(transactionPurchases).flatMapCompletable { transactionPurchase ->
-                Completable.fromSingle( purchaseRepo.saveTransactionPurchase(transactionPurchase, transactionId) )
-            }
     }
 
     companion object {

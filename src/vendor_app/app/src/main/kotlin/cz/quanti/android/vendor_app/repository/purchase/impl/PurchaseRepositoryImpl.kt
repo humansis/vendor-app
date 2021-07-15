@@ -2,9 +2,6 @@ package cz.quanti.android.vendor_app.repository.purchase.impl
 
 import cz.quanti.android.vendor_app.repository.VendorAPI
 import cz.quanti.android.vendor_app.repository.product.dao.ProductDao
-import cz.quanti.android.vendor_app.repository.invoice.dto.Invoice
-import cz.quanti.android.vendor_app.repository.invoice.dao.InvoiceDao
-import cz.quanti.android.vendor_app.repository.invoice.dto.db.InvoiceDbEntity
 import cz.quanti.android.vendor_app.repository.product.dto.Product
 import cz.quanti.android.vendor_app.repository.product.dto.db.ProductDbEntity
 import cz.quanti.android.vendor_app.repository.purchase.PurchaseRepository
@@ -12,14 +9,6 @@ import cz.quanti.android.vendor_app.repository.purchase.dao.*
 import cz.quanti.android.vendor_app.repository.purchase.dto.*
 import cz.quanti.android.vendor_app.repository.purchase.dto.api.*
 import cz.quanti.android.vendor_app.repository.purchase.dto.db.*
-import cz.quanti.android.vendor_app.repository.transaction.dto.Transaction
-import cz.quanti.android.vendor_app.repository.transaction.dto.TransactionPurchase
-import cz.quanti.android.vendor_app.repository.transaction.dao.TransactionDao
-import cz.quanti.android.vendor_app.repository.transaction.dao.TransactionPurchaseDao
-import cz.quanti.android.vendor_app.repository.transaction.dto.api.TransactionApiEntity
-import cz.quanti.android.vendor_app.repository.transaction.dto.api.TransactionPurchaseApiEntity
-import cz.quanti.android.vendor_app.repository.transaction.dto.db.TransactionDbEntity
-import cz.quanti.android.vendor_app.repository.transaction.dto.db.TransactionPurchaseDbEntity
 import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.Single
@@ -32,9 +21,6 @@ class PurchaseRepositoryImpl(
     private val productDao: ProductDao,
     private val purchasedProductDao: PurchasedProductDao,
     private val selectedProductDao: SelectedProductDao,
-    private val invoiceDao: InvoiceDao,
-    private val transactionDao: TransactionDao,
-    private val transactionPurchaseDao: TransactionPurchaseDao,
     private val api: VendorAPI
 ) : PurchaseRepository {
 
@@ -134,120 +120,6 @@ class PurchaseRepositoryImpl(
                         }
                 }.toList()
         }
-    }
-
-    override fun retrieveInvoices(vendorId: Int): Single<Pair<Int, List<InvoiceApiEntity>>> {
-        return api.getInvoices(vendorId).map { response ->
-            var invoices = listOf<InvoiceApiEntity>()
-            response.body()?.let { invoices = it.data }
-            Pair(response.code(), invoices)
-        }
-    }
-
-    override fun deleteInvoices(): Completable {
-        return Completable.fromCallable { invoiceDao.deleteAll()}
-    }
-
-    override fun saveInvoice(invoice: InvoiceApiEntity): Single<Long> {
-        return Single.fromCallable { invoiceDao.insert(convertToDb(invoice)) }
-    }
-
-    override fun getInvoices(): Single<List<Invoice>> {
-        return invoiceDao.getAll().flatMap { invoicesDb ->
-            Observable.fromIterable(invoicesDb)
-                .flatMapSingle { invoiceDb ->
-                    val invoice = Invoice(
-                        invoiceId = invoiceDb.id,
-                        date = invoiceDb.date,
-                        quantity = invoiceDb.quantity,
-                        value = invoiceDb.value,
-                        currency = invoiceDb.currency
-                    )
-                    Single.just(invoice)
-                }.toList()
-        }
-    }
-
-    override fun getTransactions(): Single<List<Transaction>> {
-        return transactionDao.getAll().flatMap { transactionsDb ->
-            Observable.fromIterable(transactionsDb)
-                .flatMapSingle { transactionDb ->
-                    getTransactionPurchasesById(
-                        getTransactionPurchaseIdsForTransaction(transactionDb.dbId)
-                    ).flatMap { transactionPurchases ->
-                        val transaction = Transaction(
-                            //todo dodelat api request na endpoint aby se misto cisla projektu ukazoval jeho nazev
-                            projectId = transactionDb.projectId,
-                            purchases = transactionPurchases,
-                            value = transactionDb.value,
-                            currency = transactionDb.currency
-                        )
-                        Single.just(transaction)
-                    }
-                }.toList()
-        }
-    }
-
-    private fun getTransactionPurchaseIdsForTransaction(transactionId: Long): List<Long> {
-        val transactionPurchaseIds = mutableListOf<Long>()
-        transactionPurchaseDao.getTransactionPurchaseForTransaction(transactionId).forEach {
-            transactionPurchaseIds.add(it.dbId)
-        }
-        return transactionPurchaseIds
-    }
-
-    private fun getTransactionPurchasesById(purchaseIds: List<Long>): Single<List<TransactionPurchase>> {
-        val transactionPurchases = mutableListOf<TransactionPurchase>()
-        purchaseIds.forEach {
-            val transactionPurchaseDb = transactionPurchaseDao.getTransactionPurchasesById(it)
-                transactionPurchases.add(
-                    TransactionPurchase(
-                        purchaseId = transactionPurchaseDb.dbId,
-                        transactionId = transactionPurchaseDb.transactionId,
-                        beneficiaryId = transactionPurchaseDb.beneficiaryId,
-                        createdAt = transactionPurchaseDb.createdAt,
-                        value = transactionPurchaseDb.value,
-                        currency = transactionPurchaseDb.currency
-                    )
-                )
-        }
-        return Single.just(transactionPurchases)
-    }
-
-    override fun retrieveTransactions(vendorId: Int): Single<Pair<Int, List<TransactionApiEntity>>> {
-        return api.getTransactions(vendorId).map { response ->
-            var transactions = listOf<TransactionApiEntity>()
-            response.body()?.let { transactions = it }
-            Pair(response.code(), transactions)
-        }
-    }
-
-    override fun deleteTransactions(): Completable {
-        return Completable.fromCallable { transactionDao.deleteAll() }
-    }
-
-    override fun saveTransaction(transaction: TransactionApiEntity, transactionId: Long): Single<Long> {
-        return Single.fromCallable { transactionDao.insert(convertToDb(transaction, transactionId)) }
-    }
-
-    override fun retrieveTransactionsPurchases(
-        vendorId: Int,
-        projectId: Long,
-        currency: String
-    ): Single<Pair<Int, List<TransactionPurchaseApiEntity>>> {
-        return api.getTransactionsPurchases(vendorId, projectId, currency).map { response ->
-            var transactionPurchases = listOf<TransactionPurchaseApiEntity>()
-            response.body()?.let { transactionPurchases = it }
-            Pair(response.code(), transactionPurchases)
-        }
-    }
-
-    override fun deleteTransactionPurchases(): Completable {
-        return Completable.fromCallable { transactionPurchaseDao.deleteAll() }
-    }
-
-    override fun saveTransactionPurchase(transactionPurchase: TransactionPurchaseApiEntity, transactionId: Long): Single<Long> {
-        return Single.fromCallable { transactionPurchaseDao.insert(convertToDb(transactionPurchase, transactionId)) }
     }
 
     override fun addProductToCart(product: SelectedProduct) {
@@ -355,36 +227,6 @@ class PurchaseRepositoryImpl(
             productId = selectedProduct.product.id,
             value = selectedProduct.price,
             purchaseId = purchaseId
-        )
-    }
-
-    private fun convertToDb(invoice: InvoiceApiEntity): InvoiceDbEntity {
-        return InvoiceDbEntity(
-            id = invoice.id,
-            date = invoice.date,
-            quantity = invoice.quantity,
-            value = invoice.value,
-            currency = invoice.currency
-        )
-    }
-
-    private fun convertToDb(transaction: TransactionApiEntity, transactionId: Long): TransactionDbEntity {
-        return TransactionDbEntity(
-            dbId = transactionId,
-            projectId = transaction.projectId,
-            value = transaction.value,
-            currency = transaction.currency
-        )
-    }
-
-    private fun convertToDb(transactionPurchase: TransactionPurchaseApiEntity, transactionId: Long): TransactionPurchaseDbEntity {
-        return TransactionPurchaseDbEntity(
-            dbId = transactionPurchase.id,
-            value = transactionPurchase.value,
-            currency = transactionPurchase.currency,
-            beneficiaryId = transactionPurchase.beneficiaryId,
-            createdAt = transactionPurchase.dateOfPurchase,
-            transactionId = transactionId
         )
     }
 

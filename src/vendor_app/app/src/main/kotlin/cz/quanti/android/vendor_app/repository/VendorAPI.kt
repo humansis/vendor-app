@@ -2,6 +2,7 @@ package cz.quanti.android.vendor_app.repository
 
 import cz.quanti.android.vendor_app.repository.booklet.dto.api.BookletApiEntity
 import cz.quanti.android.vendor_app.repository.booklet.dto.api.BookletCodesBody
+import cz.quanti.android.vendor_app.repository.invoice.dto.api.V2InvoiceApiEntity
 import cz.quanti.android.vendor_app.repository.login.dto.api.SaltApiEntity
 import cz.quanti.android.vendor_app.repository.login.dto.api.VendorApiEntity
 import cz.quanti.android.vendor_app.repository.product.dto.api.ProductApiEntity

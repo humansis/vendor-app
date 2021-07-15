@@ -203,8 +203,8 @@ object KoinInitializer {
                     nfcTagPublisher
                 )
             }
-            viewModel { InvoicesViewModel(purchaseFacade, synchronizationManager) }
-            viewModel { TransactionsViewModel(purchaseFacade, synchronizationManager, syncFacade) }
+            viewModel { InvoicesViewModel(invoiceFacade, synchronizationManager) }
+            viewModel { TransactionsViewModel(transactionFacade, synchronizationManager, syncFacade) }
         }
     }
 

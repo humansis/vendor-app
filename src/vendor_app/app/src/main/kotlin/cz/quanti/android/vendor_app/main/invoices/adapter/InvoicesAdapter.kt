@@ -6,7 +6,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import cz.quanti.android.vendor_app.R
 import cz.quanti.android.vendor_app.main.invoices.viewholder.InvoicesViewHolder
-import cz.quanti.android.vendor_app.repository.purchase.dto.Invoice
+import cz.quanti.android.vendor_app.repository.invoice.dto.Invoice
 import cz.quanti.android.vendor_app.utils.convertStringToDate
 
 class InvoicesAdapter(

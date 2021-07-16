@@ -9,10 +9,16 @@ import cz.quanti.android.vendor_app.repository.booklet.dao.BookletDao
 import cz.quanti.android.vendor_app.repository.booklet.dto.db.BookletDbEntity
 import cz.quanti.android.vendor_app.repository.card.dao.BlockedCardDao
 import cz.quanti.android.vendor_app.repository.card.dto.db.BlockedCardDbEntity
+import cz.quanti.android.vendor_app.repository.invoice.dao.InvoiceDao
+import cz.quanti.android.vendor_app.repository.invoice.dto.db.InvoiceDbEntity
 import cz.quanti.android.vendor_app.repository.product.dao.ProductDao
 import cz.quanti.android.vendor_app.repository.product.dto.db.ProductDbEntity
 import cz.quanti.android.vendor_app.repository.purchase.dao.*
 import cz.quanti.android.vendor_app.repository.purchase.dto.db.*
+import cz.quanti.android.vendor_app.repository.transaction.dao.TransactionDao
+import cz.quanti.android.vendor_app.repository.transaction.dao.TransactionPurchaseDao
+import cz.quanti.android.vendor_app.repository.transaction.dto.db.TransactionDbEntity
+import cz.quanti.android.vendor_app.repository.transaction.dto.db.TransactionPurchaseDbEntity
 import cz.quanti.android.vendor_app.repository.utils.typeconverter.DateTypeConverter
 
 @Database(

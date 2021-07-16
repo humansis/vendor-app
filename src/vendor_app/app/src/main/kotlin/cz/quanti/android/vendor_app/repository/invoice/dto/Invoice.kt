@@ -1,4 +1,4 @@
-package cz.quanti.android.vendor_app.repository.purchase.dto
+package cz.quanti.android.vendor_app.repository.invoice.dto
 
 class Invoice (
     var invoiceId: Long = 0,

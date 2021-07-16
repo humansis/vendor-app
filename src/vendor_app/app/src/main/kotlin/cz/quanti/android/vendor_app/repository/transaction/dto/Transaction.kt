@@ -1,4 +1,4 @@
-package cz.quanti.android.vendor_app.repository.purchase.dto
+package cz.quanti.android.vendor_app.repository.transaction.dto
 
 class Transaction (
     var projectId: Long = 0,

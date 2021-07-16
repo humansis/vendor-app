@@ -10,7 +10,7 @@ import androidx.core.view.isEmpty
 import androidx.recyclerview.widget.RecyclerView
 import cz.quanti.android.vendor_app.R
 import cz.quanti.android.vendor_app.main.transactions.viewholder.TransactionsViewHolder
-import cz.quanti.android.vendor_app.repository.purchase.dto.Transaction
+import cz.quanti.android.vendor_app.repository.transaction.dto.Transaction
 import cz.quanti.android.vendor_app.utils.convertStringToDate
 
 class TransactionsAdapter(

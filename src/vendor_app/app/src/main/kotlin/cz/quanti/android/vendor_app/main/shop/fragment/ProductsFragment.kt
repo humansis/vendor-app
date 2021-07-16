@@ -47,6 +47,7 @@ class ProductsFragment : Fragment(), OnTouchOutsideViewListener {
             viewLifecycleOwner,
             object : OnBackPressedCallback(true) {
                 override fun handleOnBackPressed() {
+                    // TODO update after product categories are introduced
                     requireActivity().finish()
                 }
             }
@@ -63,6 +64,11 @@ class ProductsFragment : Fragment(), OnTouchOutsideViewListener {
         initOnClickListeners()
     }
 
+    override fun onPause() {
+        (activity as MainActivity).setOnTouchOutsideViewListener(null, null)
+        super.onPause()
+    }
+
     override fun onStop() {
         // colapse searchbar after eventual screen rotation
         productsSearchBar.onActionViewCollapsed()
@@ -70,8 +76,8 @@ class ProductsFragment : Fragment(), OnTouchOutsideViewListener {
     }
 
     override fun onTouchOutside(view: View?, event: MotionEvent?) {
-        if (view == productsSearchBar) {
-            if (productsSearchBar.query.isBlank()) {
+        if (!productsSearchBar.isIconified) {
+            if (productsSearchBar.query.isNotEmpty()) {
                 productsSearchBar.onActionViewCollapsed()
             } else {
                 productsSearchBar.clearFocus()
@@ -114,10 +120,8 @@ class ProductsFragment : Fragment(), OnTouchOutsideViewListener {
                 return false
             }
         })
-        (activity as MainActivity).setOnTouchOutsideViewListener(
-            productsSearchBar,
-            this
-        )
+
+        (activity as MainActivity).setOnTouchOutsideViewListener(productsSearchBar, this)
     }
 
     private fun initObservers() {

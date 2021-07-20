@@ -36,7 +36,7 @@ class ScanCardFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         activityCallback = activity as ActivityCallback
-        activityCallback?.setToolbarVisible(false)
+        activityCallback?.setBackButtonVisible(true)
         return inflater.inflate(R.layout.fragment_scan_card, container, false)
     }
 
@@ -72,6 +72,11 @@ class ScanCardFragment : Fragment() {
         paymentDisposable?.dispose()
         paymentDisposable = null
         super.onStop()
+    }
+
+    override fun onDestroyView() {
+        activityCallback?.setBackButtonVisible(false)
+        super.onDestroyView()
     }
 
     private fun init() {

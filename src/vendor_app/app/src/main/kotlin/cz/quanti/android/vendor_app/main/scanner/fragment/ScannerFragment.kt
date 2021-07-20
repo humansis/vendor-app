@@ -46,13 +46,15 @@ class ScannerFragment : Fragment() {
     private lateinit var deactivated: List<Booklet>
     private lateinit var protected: List<Booklet>
     private var disposables: MutableList<Disposable> = mutableListOf()
+    private var activityCallback: ActivityCallback? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        (activity as ActivityCallback).setToolbarVisible(false)
+        activityCallback = activity as ActivityCallback
+        activityCallback?.setBackButtonVisible(true)
         return inflater.inflate(R.layout.fragment_scanner, container, false)
     }
 
@@ -71,6 +73,11 @@ class ScannerFragment : Fragment() {
                     Log.e(it)
                 }
             ))
+    }
+
+    override fun onDestroyView() {
+        activityCallback?.setBackButtonVisible(false)
+        super.onDestroyView()
     }
 
     override fun onRequestPermissionsResult(

@@ -18,6 +18,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
+import androidx.core.view.isVisible
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.navigation.findNavController
 import com.google.android.material.appbar.AppBarLayout
@@ -67,6 +68,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
     private lateinit var connectionObserver: ConnectionObserver
 
     private lateinit var drawer: DrawerLayout
+    private lateinit var toggle: ActionBarDrawerToggle
     private lateinit var toolbar: Toolbar
     private lateinit var appBar: AppBarLayout
 
@@ -89,7 +91,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
         val navigationView = findViewById<NavigationView>(R.id.nav_view)
         navigationView.setNavigationItemSelectedListener(this)
 
-        val toggle = ActionBarDrawerToggle(
+        toggle = ActionBarDrawerToggle(
             this,
             drawer,
             toolbar,
@@ -176,6 +178,10 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
                 ContextCompat.getDrawable(this, drawable)
             )
         })
+
+        backNavigation?.setOnClickListener {
+            findNavController(R.id.nav_host_fragment).popBackStack()
+        }
 
         syncButton?.setOnClickListener {
             synchronizationManager.synchronizeWithServer()
@@ -334,12 +340,23 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
     }
 
     override fun setToolbarVisible(boolean: Boolean) {
+        Log.d("xxx", toolbar.navigationIcon.toString())
         if (boolean) {
             appBar.visibility = View.VISIBLE
             drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
         } else {
             appBar.visibility = View.GONE
             drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
+        }
+    }
+
+    override fun setBackButtonVisible(boolean: Boolean) {
+        backNavigation?.isVisible = boolean
+        toggle.isDrawerIndicatorEnabled = !boolean
+        if (boolean) {
+            drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
+        } else {
+            drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
         }
     }
 

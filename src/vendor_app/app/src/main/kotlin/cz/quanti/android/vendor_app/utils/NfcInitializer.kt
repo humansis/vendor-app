@@ -48,7 +48,7 @@ object NfcInitializer {
             .setPositiveButton(activity.getString(R.string.proceed)) { _,_ ->
                 activity.startActivity(Intent(Settings.ACTION_NFC_SETTINGS))
             }
-            .setNegativeButton(activity.getString(R.string.cancel), null)
+            .setNegativeButton(activity.getString(android.R.string.cancel), null)
             .create()
             .show()
     }

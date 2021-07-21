@@ -23,8 +23,10 @@ import cz.quanti.android.vendor_app.main.shop.adapter.ShopAdapter
 import cz.quanti.android.vendor_app.main.shop.viewmodel.ShopViewModel
 import cz.quanti.android.vendor_app.repository.product.dto.Product
 import cz.quanti.android.vendor_app.repository.purchase.dto.SelectedProduct
+import cz.quanti.android.vendor_app.utils.getStringFromDouble
 import io.reactivex.BackpressureStrategy
 import kotlinx.android.synthetic.main.fragment_products.*
+import kotlinx.android.synthetic.main.fragment_products.totalTextView
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class ProductsFragment : Fragment(), OnTouchOutsideViewListener {
@@ -131,14 +133,17 @@ class ProductsFragment : Fragment(), OnTouchOutsideViewListener {
                 adapter.setData(it)
             })
 
-        vm.getSelectedProducts().observe(viewLifecycleOwner, {
-            when (it.size) {
+        vm.getSelectedProducts().observe(viewLifecycleOwner, { products ->
+            when (products.size) {
                 EMPTY_CART_SIZE -> {
                     cartBadge.visibility = View.GONE
+                    totalTextView.visibility = View.GONE
                 }
                 else -> {
+                    actualizeTotal(products.map { it.price }.sum())
+                    totalTextView.visibility = View.VISIBLE
                     cartBadge.visibility = View.VISIBLE
-                    cartBadge.text = it.size.toString()
+                    cartBadge.text = products.size.toString()
                 }
             }
         })
@@ -214,6 +219,11 @@ class ProductsFragment : Fragment(), OnTouchOutsideViewListener {
                 this.price = unitPrice
             }
         vm.addToShoppingCart(selected)
+    }
+
+    private fun actualizeTotal(total: Double) {
+        val totalText = "${getString(R.string.total)}: ${getStringFromDouble(total)} ${vm.getCurrency().value}"
+        totalTextView?.text = totalText
     }
 
     private fun showInvalidPriceEnteredMessage() {

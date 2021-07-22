@@ -22,26 +22,10 @@
                 android:id="@+id/toolbar"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
-                android:background="@color/screenBackgroundColor">
-
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:id="@+id/backNavigation"
-                    android:layout_height="?attr/actionBarSize"
-                    android:layout_width="wrap_content"
-                    android:layout_gravity="start"
-                    android:animateLayoutChanges="true"
-                    android:visibility="gone">
-
-                    <ImageView
-                        android:layout_height="wrap_content"
-                        android:layout_width="wrap_content"
-                        android:src="@drawable/arrow_back"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintTop_toTopOf="parent"
-                        app:layout_constraintBottom_toBottomOf="parent"/>
-
-                </androidx.constraintlayout.widget.ConstraintLayout>
+                android:background="@color/screenBackgroundColor"
+                app:title="@string/app_name"
+                app:subtitleTextAppearance="@style/Toolbar.Subtitle"
+                app:titleTextAppearance="@style/Toolbar.Title">
 
                  <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_height="?attr/actionBarSize"
@@ -97,20 +81,6 @@
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
             </androidx.appcompat.widget.Toolbar>
-
-            <TextView
-                android:id="@+id/appbar_title"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerInParent="true"
-                android:layout_marginHorizontal="?attr/actionBarSize"
-                android:text="@string/app_name"
-                android:textAppearance="?android:attr/textAppearanceMedium"
-                android:textStyle="bold"
-                android:textSize="@dimen/action_bar_title"
-                android:textColor="@color/black"
-                android:minLines="1"
-                android:maxLines="2"/>
 
         </RelativeLayout>
 

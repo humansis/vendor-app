@@ -54,7 +54,7 @@ class ScannerFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         activityCallback = activity as ActivityCallback
-        activityCallback?.setBackButtonVisible(true)
+        activityCallback?.setSubtitle(null)
         return inflater.inflate(R.layout.fragment_scanner, container, false)
     }
 
@@ -73,11 +73,6 @@ class ScannerFragment : Fragment() {
                     Log.e(it)
                 }
             ))
-    }
-
-    override fun onDestroyView() {
-        activityCallback?.setBackButtonVisible(false)
-        super.onDestroyView()
     }
 
     override fun onRequestPermissionsResult(
@@ -158,7 +153,10 @@ class ScannerFragment : Fragment() {
                 }
             }
         }
-        codeScanner?.startPreview()
+        Timer().schedule(timerTask {
+            codeScanner?.startPreview()
+        }, DEFAULT_ANIMATION_LENGTH)
+
     }
 
     override fun onResume() {
@@ -295,5 +293,9 @@ class ScannerFragment : Fragment() {
             }
         }
         return Pair(title, message)
+    }
+
+    companion object {
+        const val DEFAULT_ANIMATION_LENGTH: Long = 300
     }
 }

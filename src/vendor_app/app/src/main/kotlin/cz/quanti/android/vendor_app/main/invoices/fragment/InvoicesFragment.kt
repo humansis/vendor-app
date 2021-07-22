@@ -22,13 +22,15 @@ class InvoicesFragment : Fragment() {
     private val vm: InvoicesViewModel by viewModel()
     private lateinit var invoicesAdapter: InvoicesAdapter
     private var synchronizeInvoicesDisposable: Disposable? = null
+    private var activityCallback: ActivityCallback? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        (requireActivity() as ActivityCallback).setTitle(getString(R.string.reimbursed_invoices))
+        activityCallback = activity as ActivityCallback
+        activityCallback?.setSubtitle(getString(R.string.reimbursed_invoices))
         invoicesAdapter = InvoicesAdapter(requireContext())
         return inflater.inflate(R.layout.fragment_invoices, container, false)
     }

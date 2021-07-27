@@ -135,17 +135,29 @@ class LoginFragment : Fragment() {
                                     loginButton.visibility = View.VISIBLE
                                     loginButton.isEnabled = true
                                     Log.e(TAG, it)
-                                    if (vm.isNetworkConnected().value == true) {
-                                        usernameEditText.error = getString(R.string.wrong_password)
-                                        passwordEditText.error = getString(R.string.wrong_password)
-                                    } else {
-                                        usernameEditText.error = null
-                                        passwordEditText.error = null
-                                        Toast.makeText(
-                                            context,
-                                            getString(R.string.no_internet_connection),
-                                            Toast.LENGTH_LONG
-                                        ).show()
+                                    when {
+                                        vm.isNetworkConnected().value == false -> {
+                                            usernameEditText.error = null
+                                            passwordEditText.error = null
+                                            Toast.makeText(
+                                                context,
+                                                getString(R.string.no_internet_connection),
+                                                Toast.LENGTH_LONG
+                                            ).show()
+                                        }
+                                        ( it.message == USER_DOES_NOT_EXIST || it.message == WRONG_PASSWORD )-> {
+                                            usernameEditText.error = getString(R.string.wrong_password)
+                                            passwordEditText.error = getString(R.string.wrong_password)
+                                        }
+                                        else -> {
+                                            usernameEditText.error = null
+                                            passwordEditText.error = null
+                                            Toast.makeText(
+                                                context,
+                                                it.message,
+                                                Toast.LENGTH_LONG
+                                            ).show()
+                                        }
                                     }
                                 }
                             )
@@ -161,5 +173,7 @@ class LoginFragment : Fragment() {
 
     companion object {
         private val TAG = LoginFragment::class.java.simpleName
+        private const val USER_DOES_NOT_EXIST = "Could not obtain salt for the user."
+        private const val WRONG_PASSWORD = "Cannot login"
     }
 }

@@ -75,6 +75,23 @@ upload_to_artifactory:
   extends: .upload_gradle
   when: manual
 
+upload_to_artifactory:
+  stage: upload
+  variables:
+    ARTIFACTORY_REPOSITORY: /vendor_app-gradle-local/
+  extends: .upload_gradle
+  except:
+    - tags
+  when: manual
+
+upload_to_artifactory_automatically:
+  stage: upload
+  variables:
+    ARTIFACTORY_REPOSITORY: /vendor_app-gradle-local/
+  extends: .upload_gradle
+  only:
+    - tags
+
 upload_to_firebase:
   stage: firebase
   extends: .gradle_build
@@ -82,6 +99,7 @@ upload_to_firebase:
     - ./gradlew --build-cache clean
         app:assembleDebug app:appDistributionUploadDebug
   when: manual
+
 
 publish_to_playstore:
   stage: publish

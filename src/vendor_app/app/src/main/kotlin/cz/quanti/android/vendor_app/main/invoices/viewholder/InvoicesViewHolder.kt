@@ -4,9 +4,9 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import cz.quanti.android.vendor_app.databinding.ItemInvoiceBinding
 
-class InvoicesViewHolder(binding: ItemInvoiceBinding) : RecyclerView.ViewHolder(binding.root) {
-    var invoiceId: TextView = binding.invoiceNumberText
-    var date: TextView = binding.invoiceDateText
-    var quantity: TextView  = binding.invoiceQuantityText
-    var total: TextView = binding.invoiceTotalText
+class InvoicesViewHolder(invoiceBinding: ItemInvoiceBinding) : RecyclerView.ViewHolder(invoiceBinding.root) {
+    var invoiceId: TextView = invoiceBinding.invoiceNumberText
+    var date: TextView = invoiceBinding.invoiceDateText
+    var quantity: TextView  = invoiceBinding.invoiceQuantityText
+    var total: TextView = invoiceBinding.invoiceTotalText
 }

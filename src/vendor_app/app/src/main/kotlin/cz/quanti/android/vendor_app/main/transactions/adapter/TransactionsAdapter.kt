@@ -23,7 +23,7 @@ class TransactionsAdapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TransactionsViewHolder {
         val inflater = LayoutInflater.from(parent.context)
-        val  transactionBinding = ItemTransactionBinding.inflate(inflater)
+        val transactionBinding = ItemTransactionBinding.inflate(inflater)
         return TransactionsViewHolder(transactionBinding)
     }
 

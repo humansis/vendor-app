@@ -8,7 +8,6 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import cz.quanti.android.vendor_app.R
-import cz.quanti.android.vendor_app.databinding.ItemProductOptionsBinding
 import cz.quanti.android.vendor_app.databinding.ItemShoppingCartBinding
 import cz.quanti.android.vendor_app.main.checkout.callback.CheckoutFragmentCallback
 import cz.quanti.android.vendor_app.main.checkout.viewholder.SelectedProductsViewHolder
@@ -29,8 +28,7 @@ class SelectedProductsAdapter(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SelectedProductsViewHolder {
         val inflater = LayoutInflater.from(parent.context)
         val selectedProductBinding = ItemShoppingCartBinding.inflate(inflater)
-        val optionsBinding = ItemProductOptionsBinding.inflate(inflater)
-        return SelectedProductsViewHolder(selectedProductBinding, optionsBinding)
+        return SelectedProductsViewHolder(selectedProductBinding)
     }
 
     override fun getItemCount(): Int {

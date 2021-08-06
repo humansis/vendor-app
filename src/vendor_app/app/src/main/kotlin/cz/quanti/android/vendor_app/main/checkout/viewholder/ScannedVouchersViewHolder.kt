@@ -5,7 +5,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import cz.quanti.android.vendor_app.databinding.ItemVoucherBinding
 
-class ScannedVouchersViewHolder(binding: ItemVoucherBinding) : RecyclerView.ViewHolder(binding.root) {
-    var image: ImageView = binding.voucherImage
-    var text: TextView = binding.voucherTextView
+class ScannedVouchersViewHolder(voucherBinding: ItemVoucherBinding) : RecyclerView.ViewHolder(voucherBinding.root) {
+    var image: ImageView = voucherBinding.voucherImage
+    var text: TextView = voucherBinding.voucherTextView
 }

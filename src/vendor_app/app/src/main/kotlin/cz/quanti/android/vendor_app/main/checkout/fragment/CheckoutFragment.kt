@@ -16,7 +16,6 @@ import cz.quanti.android.vendor_app.ActivityCallback
 import cz.quanti.android.vendor_app.R
 import cz.quanti.android.vendor_app.databinding.DialogCardPinBinding
 import cz.quanti.android.vendor_app.databinding.FragmentCheckoutBinding
-import cz.quanti.android.vendor_app.databinding.ItemCheckoutFooterBinding
 import cz.quanti.android.vendor_app.main.checkout.adapter.ScannedVoucherAdapter
 import cz.quanti.android.vendor_app.main.checkout.adapter.SelectedProductsAdapter
 import cz.quanti.android.vendor_app.main.checkout.callback.CheckoutFragmentCallback
@@ -38,7 +37,6 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
     private lateinit var activityCallback: ActivityCallback
 
     private lateinit var checkoutBinding: FragmentCheckoutBinding
-    private lateinit var footerBinding: ItemCheckoutFooterBinding
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -56,7 +54,6 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
             }
         )
         checkoutBinding = FragmentCheckoutBinding.inflate(inflater, container, false)
-        footerBinding = ItemCheckoutFooterBinding.inflate(inflater, container, false)
         return checkoutBinding.root
     }
 
@@ -138,11 +135,11 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
 
     private fun initOnClickListeners() {
 
-        footerBinding.backButton.setOnClickListener {
+        checkoutBinding.checkoutFooter.backButton.setOnClickListener {
             cancel()
         }
 
-        footerBinding.clearAllButton.setOnClickListener {
+        checkoutBinding.checkoutFooter.clearAllButton.setOnClickListener {
             AlertDialog.Builder(requireContext(), R.style.DialogTheme)
                 .setTitle(getString(R.string.are_you_sure_dialog_title))
                 .setMessage(getString(R.string.clear_cart_dialog_message))
@@ -155,7 +152,7 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
                 .show()
         }
 
-        footerBinding.proceedButton.setOnClickListener {
+        checkoutBinding.checkoutFooter.proceedButton.setOnClickListener {
             proceed()
         }
 
@@ -260,31 +257,31 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
             checkoutBinding.emptyCartTextView.visibility = View.GONE
             checkoutBinding.payByCardButton.isEnabled = true
             checkoutBinding.scanButton.isEnabled = true
-            footerBinding.clearAllButton.isEnabled = true
+            checkoutBinding.checkoutFooter.clearAllButton.isEnabled = true
         } else {
             checkoutBinding.emptyCartTextView.visibility = View.VISIBLE
             checkoutBinding.payByCardButton.isEnabled = false
             checkoutBinding.scanButton.isEnabled = false
-            footerBinding.clearAllButton.isEnabled = false
+            checkoutBinding.checkoutFooter.clearAllButton.isEnabled = false
         }
     }
 
     private fun showIfPurchasePaid() {
         if(vm.getVouchers().isNotEmpty()) {
             if (vm.getTotal() <= 0) {
-                footerBinding.proceedButton.visibility = View.VISIBLE
+                checkoutBinding.checkoutFooter.proceedButton.visibility = View.VISIBLE
                 checkoutBinding.scanButton.isEnabled = false
             } else {
-                footerBinding.proceedButton.visibility = View.GONE
+                checkoutBinding.checkoutFooter.proceedButton.visibility = View.GONE
                 checkoutBinding.scanButton.isEnabled = true
             }
             checkoutBinding.payByCardButton.visibility = View.INVISIBLE
-            footerBinding.clearAllButton.visibility = View.GONE
+            checkoutBinding.checkoutFooter.clearAllButton.visibility = View.GONE
         } else {
-            footerBinding.proceedButton.visibility = View.GONE
+            checkoutBinding.checkoutFooter.proceedButton.visibility = View.GONE
             checkoutBinding.scanButton.isEnabled = true
             checkoutBinding.payByCardButton.visibility = View.VISIBLE
-            footerBinding.clearAllButton.visibility = View.VISIBLE
+            checkoutBinding.checkoutFooter.clearAllButton.visibility = View.VISIBLE
         }
     }
 

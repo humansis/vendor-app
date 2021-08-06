@@ -5,8 +5,8 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.RecyclerView
 import cz.quanti.android.vendor_app.databinding.ItemProductBinding
 
-class ShopViewHolder(binding: ItemProductBinding) : RecyclerView.ViewHolder(binding.root) {
-    var productName: TextView = binding.productName
-    var productImage: ImageView = binding.productImage
-    var productLayout: ConstraintLayout = binding.productLayout
+class ShopViewHolder(productBinding: ItemProductBinding) : RecyclerView.ViewHolder(productBinding.root) {
+    var productName: TextView = productBinding.productName
+    var productImage: ImageView = productBinding.productImage
+    var productLayout: ConstraintLayout = productBinding.productLayout
 }

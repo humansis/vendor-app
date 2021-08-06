@@ -114,7 +114,8 @@
             app:layout_constraintBottom_toBottomOf="parent">
 
             <include
-                layout="@layout/item_product_options"/>
+                layout="@layout/item_product_options"
+                android:id="@+id/productOptions"/>
 
         </FrameLayout>
 

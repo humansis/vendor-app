@@ -27,8 +27,8 @@ class ShopAdapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ShopViewHolder {
         val inflater = LayoutInflater.from(parent.context)
-        val binding = ItemProductBinding.inflate(inflater)
-        return ShopViewHolder(binding)
+        val productBinding = ItemProductBinding.inflate(inflater)
+        return ShopViewHolder(productBinding)
     }
 
     @SuppressLint("NotifyDataSetChanged")

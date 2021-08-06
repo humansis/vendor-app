@@ -9,7 +9,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import cz.quanti.android.vendor_app.ActivityCallback
 import cz.quanti.android.vendor_app.R
 import cz.quanti.android.vendor_app.databinding.FragmentTransactionsBinding
-import cz.quanti.android.vendor_app.databinding.ItemWarningBinding
 import cz.quanti.android.vendor_app.main.transactions.adapter.TransactionsAdapter
 import cz.quanti.android.vendor_app.main.transactions.viewmodel.TransactionsViewModel
 import cz.quanti.android.vendor_app.repository.transaction.dto.Transaction
@@ -29,7 +28,6 @@ class TransactionsFragment : Fragment() {
     private var loadTransactionsDisposable: Disposable? = null
 
     private lateinit var transactionsBinding: FragmentTransactionsBinding
-    private lateinit var warningBinding: ItemWarningBinding
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -39,7 +37,6 @@ class TransactionsFragment : Fragment() {
         (requireActivity() as ActivityCallback).setTitle(getString(R.string.transactions_to_reimburse))
         transactionsAdapter = TransactionsAdapter(requireContext())
         transactionsBinding = FragmentTransactionsBinding.inflate(inflater)
-        warningBinding = ItemWarningBinding.inflate(inflater)
         return transactionsBinding.root
     }
 
@@ -49,8 +46,8 @@ class TransactionsFragment : Fragment() {
         transactionsBinding.transactionsRecyclerView.setHasFixedSize(true)
         transactionsBinding.transactionsRecyclerView.layoutManager = viewManager
         transactionsBinding.transactionsRecyclerView.adapter = transactionsAdapter
-        warningBinding.root.visibility = View.GONE
-        warningBinding.warningButton.setOnClickListener {
+        transactionsBinding.unsyncedWarning.root.visibility = View.GONE
+        transactionsBinding.unsyncedWarning.warningButton.setOnClickListener {
             vm.sync()
         }
     }
@@ -76,7 +73,7 @@ class TransactionsFragment : Fragment() {
                     transactionsAdapter.setData(transactionsDecorator.transactions)
                     showMessage()
                     if (transactionsDecorator.hideUnsyncedButton) {
-                        warningBinding.root.visibility = View.GONE
+                        transactionsBinding.unsyncedWarning.root.visibility = View.GONE
                     }
                 },
                     {
@@ -94,11 +91,11 @@ class TransactionsFragment : Fragment() {
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({
                     if (it.isNotEmpty()) {
-                        warningBinding.warningText.text = getString(R.string.unsynced_transactions, it.size)
-                        warningBinding.root.visibility = View.VISIBLE
-                        warningBinding.warningButton.isEnabled = true
+                        transactionsBinding.unsyncedWarning.warningText.text = getString(R.string.unsynced_transactions, it.size)
+                        transactionsBinding.unsyncedWarning.root.visibility = View.VISIBLE
+                        transactionsBinding.unsyncedWarning.warningButton.isEnabled = true
                     } else {
-                        warningBinding.root.visibility = View.GONE
+                        transactionsBinding.unsyncedWarning.root.visibility = View.GONE
                     }
                 }, {
                     Log.e(it)
@@ -112,7 +109,7 @@ class TransactionsFragment : Fragment() {
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({
-                    warningBinding.warningButton.isEnabled = false
+                    transactionsBinding.unsyncedWarning.warningButton.isEnabled = false
                 }, {
                     Log.e(it)
                 })

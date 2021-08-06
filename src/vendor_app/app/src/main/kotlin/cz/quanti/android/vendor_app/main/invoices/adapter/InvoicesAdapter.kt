@@ -19,7 +19,7 @@ class InvoicesAdapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): InvoicesViewHolder {
         val inflater = LayoutInflater.from(parent.context)
-        val invoiceBinding = ItemInvoiceBinding.inflate(inflater)
+        val invoiceBinding = ItemInvoiceBinding.inflate(inflater, parent, false)
         return InvoicesViewHolder(invoiceBinding)
     }
 

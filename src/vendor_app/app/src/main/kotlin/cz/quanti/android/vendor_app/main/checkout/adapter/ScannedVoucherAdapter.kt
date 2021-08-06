@@ -21,7 +21,7 @@ class ScannedVoucherAdapter : RecyclerView.Adapter<ScannedVouchersViewHolder>() 
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ScannedVouchersViewHolder {
         val inflater = LayoutInflater.from(parent.context)
-        val voucherBinding = ItemVoucherBinding.inflate(inflater)
+        val voucherBinding = ItemVoucherBinding.inflate(inflater, parent, false)
         return ScannedVouchersViewHolder(voucherBinding)
     }
 

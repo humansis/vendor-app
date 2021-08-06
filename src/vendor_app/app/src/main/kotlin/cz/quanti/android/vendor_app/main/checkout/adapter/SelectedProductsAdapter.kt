@@ -27,7 +27,7 @@ class SelectedProductsAdapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SelectedProductsViewHolder {
         val inflater = LayoutInflater.from(parent.context)
-        val selectedProductBinding = ItemShoppingCartBinding.inflate(inflater)
+        val selectedProductBinding = ItemShoppingCartBinding.inflate(inflater, parent, false)
         return SelectedProductsViewHolder(selectedProductBinding)
     }
 

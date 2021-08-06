@@ -27,7 +27,7 @@ class ShopAdapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ShopViewHolder {
         val inflater = LayoutInflater.from(parent.context)
-        val productBinding = ItemProductBinding.inflate(inflater)
+        val productBinding = ItemProductBinding.inflate(inflater, parent, false)
         return ShopViewHolder(productBinding)
     }
 

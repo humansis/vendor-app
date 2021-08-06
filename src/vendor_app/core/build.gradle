@@ -1,7 +1,7 @@
 plugins {
     id 'com.android.library'
     id 'kotlin-android'
-    id 'kotlin-android-extensions'
+    //id 'kotlin-android-extensions'
     id 'org.jlleitschuh.gradle.ktlint'
 }
 
@@ -11,10 +11,12 @@ android {
     defaultConfig {
         minSdkVersion min_sdk_version
         targetSdkVersion target_version
-        versionCode 1
-        versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    buildFeatures {
+        viewBinding true
     }
 
     buildTypes {
@@ -37,7 +39,6 @@ dependencies {
     // Android
     implementation "androidx.appcompat:appcompat:$appcompat_version"
     implementation "androidx.core:core-ktx:$core_ktx_version"
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 
     // RX
     implementation "io.reactivex.rxjava2:rxandroid:$rxandroid_version"

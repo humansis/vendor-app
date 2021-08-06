@@ -8,18 +8,17 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
-import com.google.android.material.textfield.TextInputEditText
 import cz.quanti.android.nfc.exception.PINException
 import cz.quanti.android.nfc.exception.PINExceptionEnum
 import cz.quanti.android.vendor_app.ActivityCallback
 import cz.quanti.android.vendor_app.R
+import cz.quanti.android.vendor_app.databinding.DialogCardPinBinding
+import cz.quanti.android.vendor_app.databinding.FragmentScanCardBinding
 import cz.quanti.android.vendor_app.main.checkout.viewmodel.CheckoutViewModel
 import cz.quanti.android.vendor_app.utils.NfcInitializer
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
-import kotlinx.android.synthetic.main.dialog_card_pin.view.*
-import kotlinx.android.synthetic.main.fragment_scan_card.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import quanti.com.kotlinlog.Log
 
@@ -30,14 +29,17 @@ class ScanCardFragment : Fragment() {
     private var pinDialog: AlertDialog? = null
     private var activityCallback: ActivityCallback? = null
 
+    private lateinit var scanCardBinding: FragmentScanCardBinding
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         activityCallback = activity as ActivityCallback
         activityCallback?.setToolbarVisible(false)
-        return inflater.inflate(R.layout.fragment_scan_card, container, false)
+        scanCardBinding = FragmentScanCardBinding.inflate(inflater, container, false)
+        return scanCardBinding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -75,7 +77,7 @@ class ScanCardFragment : Fragment() {
     }
 
     private fun init() {
-        backButton.setOnClickListener {
+        scanCardBinding.backButton.setOnClickListener {
             findNavController().navigate(
                 ScanCardFragmentDirections.actionScanCardFragmentToCheckoutFragment()
             )
@@ -84,14 +86,14 @@ class ScanCardFragment : Fragment() {
 
     private fun showPinDialogAndPayByCard() {
         pinDialog?.dismiss()
-        val dialogView: View = layoutInflater.inflate(R.layout.dialog_card_pin, null)
-        dialogView.pin_title.text = getString(R.string.total_price, vm.getTotal(), vm.getCurrency())
+        val dialogBinding = DialogCardPinBinding.inflate(layoutInflater,null, false)
+        val dialogView: View = dialogBinding.root
+        dialogBinding.pinTitle.text = getString(R.string.total_price, vm.getTotal(), vm.getCurrency())
         pinDialog = AlertDialog.Builder(requireContext(), R.style.DialogTheme)
             .setView(dialogView)
             .setCancelable(false)
             .setPositiveButton(android.R.string.ok) { dialog, _ ->
-                val pinEditTextView =
-                    dialogView.findViewById<TextInputEditText>(R.id.pinEditText)
+                val pinEditTextView = dialogBinding.pinEditText
                 val pin = pinEditTextView.text.toString()
                 vm.setPin(pin)
                 payByCard(pin)

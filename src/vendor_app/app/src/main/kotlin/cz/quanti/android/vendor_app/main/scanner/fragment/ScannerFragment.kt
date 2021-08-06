@@ -20,6 +20,7 @@ import cz.quanti.android.vendor_app.ActivityCallback
 import cz.quanti.android.vendor_app.MainActivity
 import cz.quanti.android.vendor_app.MainViewModel
 import cz.quanti.android.vendor_app.R
+import cz.quanti.android.vendor_app.databinding.FragmentScannerBinding
 import cz.quanti.android.vendor_app.main.scanner.ScannedVoucherReturnState
 import cz.quanti.android.vendor_app.main.scanner.viewmodel.ScannerViewModel
 import cz.quanti.android.vendor_app.repository.booklet.dto.Booklet
@@ -29,7 +30,6 @@ import cz.quanti.android.vendor_app.utils.hashSHA1
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
-import kotlinx.android.synthetic.main.fragment_scanner.*
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import quanti.com.kotlinlog.Log
@@ -47,13 +47,16 @@ class ScannerFragment : Fragment() {
     private lateinit var protected: List<Booklet>
     private var disposables: MutableList<Disposable> = mutableListOf()
 
+    private lateinit var scannerBinding: FragmentScannerBinding
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         (activity as ActivityCallback).setToolbarVisible(false)
-        return inflater.inflate(R.layout.fragment_scanner, container, false)
+        scannerBinding = FragmentScannerBinding.inflate(inflater, container, false)
+        return scannerBinding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -132,7 +135,7 @@ class ScannerFragment : Fragment() {
 
     private fun runScanner() {
         val activity = requireActivity()
-        codeScanner = CodeScanner(activity, fragmentScanner)
+        codeScanner = CodeScanner(activity, scannerBinding.fragmentScanner)
         codeScanner?.scanMode = ScanMode.CONTINUOUS
         codeScanner?.decodeCallback = DecodeCallback {
             activity.runOnUiThread {

@@ -15,15 +15,16 @@ import android.view.View
 import android.widget.*
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.navigation.findNavController
-import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.navigation.NavigationView
 import cz.quanti.android.nfc.VendorFacade
 import cz.quanti.android.nfc.dto.UserBalance
+import cz.quanti.android.vendor_app.databinding.ActivityMainBinding
+import cz.quanti.android.vendor_app.databinding.AppBarMainBinding
+import cz.quanti.android.vendor_app.databinding.NavHeaderBinding
 import cz.quanti.android.vendor_app.main.authorization.viewmodel.LoginViewModel
 import cz.quanti.android.vendor_app.main.shop.adapter.CurrencyAdapter
 import cz.quanti.android.vendor_app.main.shop.viewmodel.ShopViewModel
@@ -39,8 +40,6 @@ import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
-import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.app_bar_main.*
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import quanti.com.kotlinlog.Log
@@ -64,11 +63,11 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
     private var syncDisposable: Disposable? = null
     private var readBalanceDisposable: Disposable? = null
 
-    private lateinit var connectionObserver: ConnectionObserver
+    private lateinit var activityBinding: ActivityMainBinding
+    private lateinit var appBarBinding: AppBarMainBinding
+    private lateinit var navHeaderBinding: NavHeaderBinding
 
-    private lateinit var drawer: DrawerLayout
-    private lateinit var toolbar: Toolbar
-    private lateinit var appBar: AppBarLayout
+    private lateinit var connectionObserver: ConnectionObserver
 
     @SuppressLint("SourceLockedOrientationActivity")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -78,31 +77,31 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
             requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
         }
 
-        setContentView(R.layout.activity_main)
+        activityBinding = ActivityMainBinding.inflate(layoutInflater)
+        appBarBinding = AppBarMainBinding.inflate(layoutInflater)
+        navHeaderBinding = NavHeaderBinding.inflate(layoutInflater)
+
+        setContentView(activityBinding.root)
 
         connectionObserver = ConnectionObserver(this)
         connectionObserver.registerCallback()
 
-        toolbar = findViewById(R.id.toolbar)
-        appBar = findViewById(R.id.appBarLayout)
-        drawer = findViewById(R.id.drawer_layout)
-        val navigationView = findViewById<NavigationView>(R.id.nav_view)
-        navigationView.setNavigationItemSelectedListener(this)
+        activityBinding.navView.setNavigationItemSelectedListener(this)
 
         val toggle = ActionBarDrawerToggle(
             this,
-            drawer,
-            toolbar,
+            activityBinding.drawerLayout,
+            appBarBinding.toolbar,
             R.string.navigation_drawer_open,
             R.string.navigation_drawer_close
         )
-        drawer.addDrawerListener(toggle)
+        activityBinding.drawerLayout.addDrawerListener(toggle)
         toggle.syncState()
         setUpToolbar()
         initPriceUnitSpinner()
-        btn_logout.setOnClickListener {
+        activityBinding.btnLogout.setOnClickListener {
             logout()
-            drawer.closeDrawer(GravityCompat.START)
+            activityBinding.drawerLayout.closeDrawer(GravityCompat.START)
         }
     }
 
@@ -149,13 +148,13 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
                 shareLogsDialog()
             }
         }
-        drawer.closeDrawer(GravityCompat.START)
+        activityBinding.drawerLayout.closeDrawer(GravityCompat.START)
         return true
     }
 
     override fun onBackPressed() {
-        if (drawer.isDrawerOpen(GravityCompat.START)) {
-            drawer.closeDrawer(GravityCompat.START)
+        if (activityBinding.drawerLayout.isDrawerOpen(GravityCompat.START)) {
+            activityBinding.drawerLayout.closeDrawer(GravityCompat.START)
         } else {
             super.onBackPressed()
         }
@@ -164,26 +163,27 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
     private fun setUpToolbar() {
         mainVM.showDot().observe(this, {
             if (it) {
-                dot?.visibility = View.VISIBLE
+                appBarBinding.dot.visibility = View.VISIBLE
             } else {
-                dot?.visibility = View.INVISIBLE
+                appBarBinding.dot.visibility = View.INVISIBLE
             }
         })
 
         loginVM.isNetworkConnected().observe(this, { available ->
             val drawable = if (available) R.drawable.ic_cloud else R.drawable.ic_cloud_offline
-            syncButton?.setImageDrawable(
+            appBarBinding.syncButton.setImageDrawable(
                 ContextCompat.getDrawable(this, drawable)
             )
         })
 
-        syncButton?.setOnClickListener {
+        appBarBinding.syncButton.setOnClickListener {
             synchronizationManager.synchronizeWithServer()
         }
     }
 
     override fun setTitle(titleText: String) {
-        appbar_title.text = titleText
+        activityBinding.drawerLayout
+        appBarBinding.appbarTitle.text = titleText
     }
 
     override fun onNewIntent(intent: Intent) {
@@ -284,12 +284,12 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
             .subscribe({
                 when (it) {
                     SynchronizationState.STARTED -> {
-                        progressBar?.visibility = View.VISIBLE
-                        syncButtonArea?.visibility = View.INVISIBLE
+                        appBarBinding.progressBar.visibility = View.VISIBLE
+                        appBarBinding.syncButtonArea.visibility = View.INVISIBLE
                     }
                     SynchronizationState.SUCCESS -> {
-                        progressBar?.visibility = View.GONE
-                        syncButtonArea?.visibility = View.VISIBLE
+                        appBarBinding.progressBar.visibility = View.GONE
+                        appBarBinding.syncButtonArea.visibility = View.VISIBLE
                         Toast.makeText(
                             this,
                             getString(R.string.data_were_successfully_synchronized),
@@ -297,8 +297,8 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
                         ).show()
                     }
                     SynchronizationState.ERROR -> {
-                        progressBar?.visibility = View.GONE
-                        syncButtonArea?.visibility = View.VISIBLE
+                        appBarBinding.progressBar.visibility = View.GONE
+                        appBarBinding.syncButtonArea.visibility = View.VISIBLE
                         if (loginVM.isNetworkConnected().value != true) {
                             Toast.makeText(
                                 this,
@@ -333,43 +333,43 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
             )
     }
 
+    override fun getNavView(): NavigationView {
+        return activityBinding.navView
+    }
+
     override fun setToolbarVisible(boolean: Boolean) {
         if (boolean) {
-            appBar.visibility = View.VISIBLE
-            drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
+            appBarBinding.appBarLayout.visibility = View.VISIBLE
+            activityBinding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
         } else {
-            appBar.visibility = View.GONE
-            drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
+            appBarBinding.appBarLayout.visibility = View.GONE
+            activityBinding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
         }
     }
 
     override fun loadNavHeader(currentVendorName: String) {
         val metrics: DisplayMetrics = resources.displayMetrics
-        val ivAppIcon = nav_view.getHeaderView(0).findViewById<ImageView>(R.id.iv_app_icon)
-        ivAppIcon.layoutParams.height = if ((metrics.heightPixels/metrics.density) > 640) {
+        navHeaderBinding.ivAppIcon.layoutParams.height = if ((metrics.heightPixels/metrics.density) > 640) {
             resources.getDimensionPixelSize(R.dimen.nav_header_image_height_tall)
         } else {
             resources.getDimensionPixelSize(R.dimen.nav_header_image_height_regular)
         }
 
-        val tvAppVersion = nav_view.getHeaderView(0).findViewById<TextView>(R.id.tv_app_version)
         var appVersion = (getString(R.string.app_name) + " " + getString(R.string.version, BuildConfig.VERSION_NAME))
         if (BuildConfig.DEBUG) { appVersion += (" (" + BuildConfig.BUILD_NUMBER + ")") }
-        tvAppVersion.text = appVersion
+        navHeaderBinding.tvAppVersion.text = appVersion
 
-        val tvEnvironment = nav_view.getHeaderView(0).findViewById<TextView>(R.id.tv_environment)
         if(BuildConfig.DEBUG) {
-            tvEnvironment.text = getString(
+            navHeaderBinding.tvEnvironment.text = getString(
                 R.string.environment,
                 preferences.url
             )
         } else {
-            tvEnvironment.visibility = View.GONE
+            navHeaderBinding.tvEnvironment.visibility = View.GONE
         }
 
         if (loginVM.isVendorLoggedIn()) {
-            val tvUsername = nav_view.getHeaderView(0).findViewById<TextView>(R.id.tv_username)
-            tvUsername.text = currentVendorName
+            navHeaderBinding.tvUsername.text = currentVendorName
         }
     }
 
@@ -377,18 +377,18 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
         val currencyAdapter = CurrencyAdapter(this)
         currencyAdapter.init(shopVM.getCurrencies())
         currencyAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        priceUnitSpinner.adapter = currencyAdapter
+        activityBinding.priceUnitSpinner.adapter = currencyAdapter
         shopVM.getCurrency().observe(this, {
-            priceUnitSpinner.setSelection(
+            activityBinding.priceUnitSpinner.setSelection(
                 currencyAdapter.getPosition(it)
             )
         })
-        priceUnitSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+        activityBinding.priceUnitSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onNothingSelected(parent: AdapterView<*>?) {
             }
 
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                shopVM.setCurrency(priceUnitSpinner.selectedItem as String)
+                shopVM.setCurrency(activityBinding.priceUnitSpinner.selectedItem as String)
             }
         }
     }

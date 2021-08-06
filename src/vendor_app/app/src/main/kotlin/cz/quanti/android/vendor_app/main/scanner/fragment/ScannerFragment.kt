@@ -46,13 +46,15 @@ class ScannerFragment : Fragment() {
     private lateinit var deactivated: List<Booklet>
     private lateinit var protected: List<Booklet>
     private var disposables: MutableList<Disposable> = mutableListOf()
+    private var activityCallback: ActivityCallback? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        (activity as ActivityCallback).setToolbarVisible(false)
+        activityCallback = activity as ActivityCallback
+        activityCallback?.setSubtitle(null)
         return inflater.inflate(R.layout.fragment_scanner, container, false)
     }
 
@@ -151,7 +153,10 @@ class ScannerFragment : Fragment() {
                 }
             }
         }
-        codeScanner?.startPreview()
+        Timer().schedule(timerTask {
+            codeScanner?.startPreview()
+        }, DEFAULT_ANIMATION_LENGTH)
+
     }
 
     override fun onResume() {
@@ -288,5 +293,9 @@ class ScannerFragment : Fragment() {
             }
         }
         return Pair(title, message)
+    }
+
+    companion object {
+        const val DEFAULT_ANIMATION_LENGTH: Long = 300
     }
 }

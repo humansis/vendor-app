@@ -29,12 +29,15 @@ class LoginFragment : Fragment() {
     private val vm: LoginViewModel by viewModel()
     private var disposable: Disposable? = null
 
+    private var activityCallback: ActivityCallback? = null
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        (requireActivity() as (ActivityCallback)).setToolbarVisible(false)
+        activityCallback = activity as ActivityCallback
+        activityCallback?.setToolbarVisible(false)
         return inflater.inflate(R.layout.fragment_login, container, false)
     }
 

@@ -32,6 +32,8 @@ class ProductsFragment : Fragment(), OnTouchOutsideViewListener {
     private val vm: ShopViewModel by viewModel()
     private lateinit var adapter: ShopAdapter
 
+    private var activityCallback: ActivityCallback? = null
+
     var chosenCurrency: String = ""
 
     override fun onCreateView(
@@ -39,8 +41,9 @@ class ProductsFragment : Fragment(), OnTouchOutsideViewListener {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        (requireActivity() as ActivityCallback).setToolbarVisible(true)
-        (requireActivity() as ActivityCallback).setTitle(getString(R.string.app_name))
+        activityCallback = activity as ActivityCallback
+        activityCallback?.setToolbarVisible(true)
+        activityCallback?.setSubtitle(getString(R.string.products))
         requireActivity().findViewById<NavigationView>(R.id.nav_view).setCheckedItem(R.id.home_button)
 
         requireActivity().onBackPressedDispatcher.addCallback(

@@ -27,13 +27,15 @@ class TransactionsFragment : Fragment() {
     private var syncStartedDisposable: Disposable? = null
     private var unsyncedPurchasesDisposable: Disposable? = null
     private var loadTransactionsDisposable: Disposable? = null
+    private var activityCallback: ActivityCallback? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        (requireActivity() as ActivityCallback).setTitle(getString(R.string.transactions_to_reimburse))
+        activityCallback = activity as ActivityCallback
+        activityCallback?.setSubtitle(getString(R.string.transactions_to_reimburse))
         transactionsAdapter = TransactionsAdapter(requireContext())
         return inflater.inflate(R.layout.fragment_transactions, container, false)
     }

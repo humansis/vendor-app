@@ -23,7 +23,6 @@ import com.google.android.material.navigation.NavigationView
 import cz.quanti.android.nfc.VendorFacade
 import cz.quanti.android.nfc.dto.UserBalance
 import cz.quanti.android.vendor_app.databinding.ActivityMainBinding
-import cz.quanti.android.vendor_app.databinding.AppBarMainBinding
 import cz.quanti.android.vendor_app.databinding.NavHeaderBinding
 import cz.quanti.android.vendor_app.main.authorization.viewmodel.LoginViewModel
 import cz.quanti.android.vendor_app.main.shop.adapter.CurrencyAdapter
@@ -64,7 +63,6 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
     private var readBalanceDisposable: Disposable? = null
 
     private lateinit var activityBinding: ActivityMainBinding
-    private lateinit var appBarBinding: AppBarMainBinding
     private lateinit var navHeaderBinding: NavHeaderBinding
 
     private lateinit var connectionObserver: ConnectionObserver
@@ -78,8 +76,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
         }
 
         activityBinding = ActivityMainBinding.inflate(layoutInflater)
-        appBarBinding = AppBarMainBinding.inflate(layoutInflater)
-        navHeaderBinding = NavHeaderBinding.inflate(layoutInflater)
+        navHeaderBinding = NavHeaderBinding.bind(activityBinding.navView.getHeaderView(0))
 
         setContentView(activityBinding.root)
 
@@ -91,7 +88,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
         val toggle = ActionBarDrawerToggle(
             this,
             activityBinding.drawerLayout,
-            appBarBinding.toolbar,
+            activityBinding.appBar.toolbar,
             R.string.navigation_drawer_open,
             R.string.navigation_drawer_close
         )
@@ -163,27 +160,27 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
     private fun setUpToolbar() {
         mainVM.showDot().observe(this, {
             if (it) {
-                appBarBinding.dot.visibility = View.VISIBLE
+                activityBinding.appBar.dot.visibility = View.VISIBLE
             } else {
-                appBarBinding.dot.visibility = View.INVISIBLE
+                activityBinding.appBar.dot.visibility = View.INVISIBLE
             }
         })
 
         loginVM.isNetworkConnected().observe(this, { available ->
             val drawable = if (available) R.drawable.ic_cloud else R.drawable.ic_cloud_offline
-            appBarBinding.syncButton.setImageDrawable(
+            activityBinding.appBar.syncButton.setImageDrawable(
                 ContextCompat.getDrawable(this, drawable)
             )
         })
 
-        appBarBinding.syncButton.setOnClickListener {
+        activityBinding.appBar.syncButton.setOnClickListener {
             synchronizationManager.synchronizeWithServer()
         }
     }
 
     override fun setTitle(titleText: String) {
         activityBinding.drawerLayout
-        appBarBinding.appbarTitle.text = titleText
+        activityBinding.appBar.appbarTitle.text = titleText
     }
 
     override fun onNewIntent(intent: Intent) {
@@ -284,12 +281,12 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
             .subscribe({
                 when (it) {
                     SynchronizationState.STARTED -> {
-                        appBarBinding.progressBar.visibility = View.VISIBLE
-                        appBarBinding.syncButtonArea.visibility = View.INVISIBLE
+                        activityBinding.appBar.progressBar.visibility = View.VISIBLE
+                        activityBinding.appBar.syncButtonArea.visibility = View.INVISIBLE
                     }
                     SynchronizationState.SUCCESS -> {
-                        appBarBinding.progressBar.visibility = View.GONE
-                        appBarBinding.syncButtonArea.visibility = View.VISIBLE
+                        activityBinding.appBar.progressBar.visibility = View.GONE
+                        activityBinding.appBar.syncButtonArea.visibility = View.VISIBLE
                         Toast.makeText(
                             this,
                             getString(R.string.data_were_successfully_synchronized),
@@ -297,8 +294,8 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
                         ).show()
                     }
                     SynchronizationState.ERROR -> {
-                        appBarBinding.progressBar.visibility = View.GONE
-                        appBarBinding.syncButtonArea.visibility = View.VISIBLE
+                        activityBinding.appBar.progressBar.visibility = View.GONE
+                        activityBinding.appBar.syncButtonArea.visibility = View.VISIBLE
                         if (loginVM.isNetworkConnected().value != true) {
                             Toast.makeText(
                                 this,
@@ -339,10 +336,10 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
 
     override fun setToolbarVisible(boolean: Boolean) {
         if (boolean) {
-            appBarBinding.appBarLayout.visibility = View.VISIBLE
+            activityBinding.appBar.appBarLayout.visibility = View.VISIBLE
             activityBinding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
         } else {
-            appBarBinding.appBarLayout.visibility = View.GONE
+            activityBinding.appBar.appBarLayout.visibility = View.GONE
             activityBinding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
         }
     }

@@ -13,12 +13,13 @@ import android.view.MenuItem
 import android.view.MotionEvent
 import android.view.View
 import android.widget.*
-import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.navigation.findNavController
+import androidx.navigation.fragment.NavHostFragment
+import androidx.navigation.ui.AppBarConfiguration
 import com.google.android.material.navigation.NavigationView
 import cz.quanti.android.nfc.VendorFacade
 import cz.quanti.android.nfc.dto.UserBalance
@@ -83,23 +84,8 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
         connectionObserver = ConnectionObserver(this)
         connectionObserver.registerCallback()
 
-        activityBinding.navView.setNavigationItemSelectedListener(this)
-
-        val toggle = ActionBarDrawerToggle(
-            this,
-            activityBinding.drawerLayout,
-            activityBinding.appBar.toolbar,
-            R.string.navigation_drawer_open,
-            R.string.navigation_drawer_close
-        )
-        activityBinding.drawerLayout.addDrawerListener(toggle)
-        toggle.syncState()
         setUpToolbar()
-        initPriceUnitSpinner()
-        activityBinding.btnLogout.setOnClickListener {
-            logout()
-            activityBinding.drawerLayout.closeDrawer(GravityCompat.START)
-        }
+        setUpNavigationMenu()
     }
 
     override fun onResume() {
@@ -130,7 +116,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.home_button -> {
-                findNavController(R.id.nav_host_fragment).popBackStack(R.id.productFragment, false)
+                findNavController(R.id.nav_host_fragment).popBackStack(R.id.productsFragment, false)
             }
             R.id.transactions_button -> {
                 findNavController(R.id.nav_host_fragment).navigate(R.id.transactionsFragment)
@@ -158,6 +144,18 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
     }
 
     private fun setUpToolbar() {
+        val navigationView = findViewById<NavigationView>(R.id.nav_view)
+        navigationView.setNavigationItemSelectedListener(this)
+
+        val appBarConfiguration = AppBarConfiguration(
+            setOf(R.id.productsFragment, R.id.transactionsFragment, R.id.invoicesFragment, R.id.checkoutFragment),
+            drawer
+        )
+
+        val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
+
+        toolbar.setupWithNavController(navHostFragment.navController, appBarConfiguration)
+
         mainVM.showDot().observe(this, {
             if (it) {
                 activityBinding.appBar.dot.visibility = View.VISIBLE
@@ -178,9 +176,16 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
         }
     }
 
-    override fun setTitle(titleText: String) {
-        activityBinding.drawerLayout
-        activityBinding.appBar.appbarTitle.text = titleText
+    private fun setUpNavigationMenu() {
+        initPriceUnitSpinner()
+        activityBinding.btnLogout.setOnClickListener {
+            logout()
+            activityBinding.drawerLayout.closeDrawer(GravityCompat.START)
+        }
+    }
+
+    override fun setSubtitle(titleText: String?) {
+        toolbar.subtitle = titleText
     }
 
     override fun onNewIntent(intent: Intent) {
@@ -341,6 +346,14 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
         } else {
             activityBinding.appBar.appBarLayout.visibility = View.GONE
             activityBinding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
+        }
+    }
+
+    override fun setBackButtonVisible(boolean: Boolean) {
+        if (boolean) {
+            drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
+        } else {
+            drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
         }
     }
 

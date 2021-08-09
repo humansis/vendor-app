@@ -37,7 +37,7 @@ class ScanCardFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         activityCallback = activity as ActivityCallback
-        activityCallback?.setToolbarVisible(false)
+        activityCallback.setSubtitle(null)
         scanCardBinding = FragmentScanCardBinding.inflate(inflater, container, false)
         return scanCardBinding.root
     }

@@ -44,7 +44,7 @@ class ProductsFragment : Fragment(), OnTouchOutsideViewListener {
     ): View {
         activityCallback = requireActivity() as ActivityCallback
         activityCallback.setToolbarVisible(true)
-        activityCallback.setTitle(getString(R.string.app_name))
+        activityCallback.setSubTitle(getString(R.string.app_name))
         activityCallback.getNavView().setCheckedItem(R.id.home_button)
 
         productsBinding = FragmentProductsBinding.inflate(inflater, container, false)

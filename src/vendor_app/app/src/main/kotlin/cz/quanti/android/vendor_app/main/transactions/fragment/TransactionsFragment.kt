@@ -26,6 +26,7 @@ class TransactionsFragment : Fragment() {
     private var syncStartedDisposable: Disposable? = null
     private var unsyncedPurchasesDisposable: Disposable? = null
     private var loadTransactionsDisposable: Disposable? = null
+    private var activityCallback: ActivityCallback? = null
 
     private lateinit var transactionsBinding: FragmentTransactionsBinding
 
@@ -34,7 +35,8 @@ class TransactionsFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        (requireActivity() as ActivityCallback).setTitle(getString(R.string.transactions_to_reimburse))
+        activityCallback = requireActivity() as ActivityCallback
+        activityCallback.setSubtitle(getString(R.string.transactions_to_reimburse))
         transactionsAdapter = TransactionsAdapter(requireContext())
         transactionsBinding = FragmentTransactionsBinding.inflate(inflater)
         return transactionsBinding.root

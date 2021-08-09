@@ -22,6 +22,7 @@ class InvoicesFragment : Fragment() {
     private val vm: InvoicesViewModel by viewModel()
     private lateinit var invoicesAdapter: InvoicesAdapter
     private var synchronizeInvoicesDisposable: Disposable? = null
+    private var activityCallback: ActivityCallback? = null
 
     private lateinit var invoicesBinding: FragmentInvoicesBinding
 
@@ -30,7 +31,8 @@ class InvoicesFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        (requireActivity() as ActivityCallback).setTitle(getString(R.string.reimbursed_invoices))
+        activityCallback = activity as ActivityCallback
+        activityCallback?.setSubtitle(getString(R.string.reimbursed_invoices))
         invoicesBinding = FragmentInvoicesBinding.inflate(inflater, container, false)
         invoicesAdapter = InvoicesAdapter(requireContext())
         return invoicesBinding.root

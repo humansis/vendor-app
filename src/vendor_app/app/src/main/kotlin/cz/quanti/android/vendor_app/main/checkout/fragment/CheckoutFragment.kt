@@ -44,7 +44,7 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
         savedInstanceState: Bundle?
     ): View {
         activityCallback = activity as ActivityCallback
-        activityCallback.setToolbarVisible(true)
+        activityCallback.setSubtitle(getString(R.string.checkout))
         requireActivity().onBackPressedDispatcher.addCallback(
             viewLifecycleOwner,
             object : OnBackPressedCallback(true) {

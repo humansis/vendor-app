@@ -20,6 +20,7 @@ import androidx.drawerlayout.widget.DrawerLayout
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
+import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.navigation.NavigationView
 import cz.quanti.android.nfc.VendorFacade
 import cz.quanti.android.nfc.dto.UserBalance
@@ -144,17 +145,21 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
     }
 
     private fun setUpToolbar() {
-        val navigationView = findViewById<NavigationView>(R.id.nav_view)
-        navigationView.setNavigationItemSelectedListener(this)
+        activityBinding.navView.setNavigationItemSelectedListener(this)
 
         val appBarConfiguration = AppBarConfiguration(
-            setOf(R.id.productsFragment, R.id.transactionsFragment, R.id.invoicesFragment, R.id.checkoutFragment),
-            drawer
+            setOf(
+                R.id.productsFragment,
+                R.id.transactionsFragment,
+                R.id.invoicesFragment,
+                R.id.checkoutFragment
+            ),
+            activityBinding.drawerLayout
         )
 
         val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
 
-        toolbar.setupWithNavController(navHostFragment.navController, appBarConfiguration)
+        activityBinding.appBar.toolbar.setupWithNavController(navHostFragment.navController, appBarConfiguration)
 
         mainVM.showDot().observe(this, {
             if (it) {
@@ -185,7 +190,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
     }
 
     override fun setSubtitle(titleText: String?) {
-        toolbar.subtitle = titleText
+        activityBinding.appBar.toolbar.subtitle = titleText
     }
 
     override fun onNewIntent(intent: Intent) {
@@ -351,9 +356,9 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
 
     override fun setBackButtonVisible(boolean: Boolean) {
         if (boolean) {
-            drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
+            activityBinding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
         } else {
-            drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
+            activityBinding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
         }
     }
 

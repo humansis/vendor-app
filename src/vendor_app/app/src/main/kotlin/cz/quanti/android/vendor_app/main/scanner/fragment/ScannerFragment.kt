@@ -46,7 +46,7 @@ class ScannerFragment : Fragment() {
     private lateinit var deactivated: List<Booklet>
     private lateinit var protected: List<Booklet>
     private var disposables: MutableList<Disposable> = mutableListOf()
-    private var activityCallback: ActivityCallback? = null
+    private lateinit var activityCallback: ActivityCallback
 
     private lateinit var scannerBinding: FragmentScannerBinding
 

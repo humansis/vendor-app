@@ -27,7 +27,7 @@ class ScanCardFragment : Fragment() {
     private val vm: CheckoutViewModel by viewModel()
     private var paymentDisposable: Disposable? = null
     private var pinDialog: AlertDialog? = null
-    private var activityCallback: ActivityCallback? = null
+    private lateinit var activityCallback: ActivityCallback
 
     private lateinit var scanCardBinding: FragmentScanCardBinding
 

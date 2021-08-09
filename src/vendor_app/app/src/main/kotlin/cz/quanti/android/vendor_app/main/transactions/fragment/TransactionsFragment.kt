@@ -26,7 +26,7 @@ class TransactionsFragment : Fragment() {
     private var syncStartedDisposable: Disposable? = null
     private var unsyncedPurchasesDisposable: Disposable? = null
     private var loadTransactionsDisposable: Disposable? = null
-    private var activityCallback: ActivityCallback? = null
+    private lateinit var activityCallback: ActivityCallback
 
     private lateinit var transactionsBinding: FragmentTransactionsBinding
 

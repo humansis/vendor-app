@@ -29,7 +29,7 @@ class LoginFragment : Fragment() {
     private val vm: LoginViewModel by viewModel()
     private var disposable: Disposable? = null
 
-    private var activityCallback: ActivityCallback? = null
+    private lateinit var activityCallback: ActivityCallback
 
     private lateinit var loginBinding: FragmentLoginBinding
 
@@ -38,8 +38,8 @@ class LoginFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        activityCallback = activity as ActivityCallback
-        activityCallback?.setToolbarVisible(false)
+        activityCallback = requireActivity() as ActivityCallback
+        activityCallback.setToolbarVisible(false)
         loginBinding = FragmentLoginBinding.inflate(inflater, container, false)
         return loginBinding.root
     }

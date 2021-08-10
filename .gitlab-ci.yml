@@ -3,8 +3,6 @@ include:
     ref: 'mobile/docker-ci'
     file: 'src/mobile/gradle.template.yml'
 
-image: artifactory.quanti.cz/docker/devel-settings:jdk-11
-
 # todo: versioning
 variables:
   ARTIFACT_PATH: ./src/vendor_app/app/build/outputs/apk/*/vendor-app-*.apk

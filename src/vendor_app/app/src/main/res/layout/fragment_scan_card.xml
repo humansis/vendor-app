@@ -6,6 +6,18 @@
     android:background="@color/screenBackgroundColor">
 
     <TextView
+        android:id="@+id/totalPriceText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/red"
+        android:textSize="@dimen/dialog_title"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/scanCardText"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+    <TextView
+        android:id="@+id/scanCardText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/scan_card"

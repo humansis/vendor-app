@@ -1,6 +1,7 @@
 package cz.quanti.android.vendor_app.main.checkout.fragment
 
 import android.app.AlertDialog
+import android.content.DialogInterface
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -8,6 +9,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.core.content.ContextCompat.getColor
+import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -286,7 +288,7 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
        if (NfcInitializer.initNfc(requireActivity())) {
            val dialogView: View = layoutInflater.inflate(R.layout.dialog_card_pin, null)
            dialogView.pin_title.text = getString(R.string.total_price, vm.getTotal(), vm.getCurrency().value)
-           AlertDialog.Builder(requireContext(), R.style.DialogTheme)
+           val pinDialog = AlertDialog.Builder(requireContext(), R.style.DialogTheme)
                 .setView(dialogView)
                 .setCancelable(false)
                 .setPositiveButton(android.R.string.ok) { dialog, _ ->
@@ -302,6 +304,13 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
                     dialog?.cancel()
                 }
                 .show()
+
+           val positiveButton = pinDialog?.getButton(DialogInterface.BUTTON_POSITIVE)
+           positiveButton?.isEnabled = false
+
+           dialogView.findViewById<TextInputEditText>(R.id.pinEditText).doOnTextChanged { text, _, _, _ ->
+               positiveButton?.isEnabled = !text.isNullOrEmpty()
+           }
         }
     }
 

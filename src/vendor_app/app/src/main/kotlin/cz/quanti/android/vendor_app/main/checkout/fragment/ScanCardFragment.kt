@@ -1,11 +1,13 @@
 package cz.quanti.android.vendor_app.main.checkout.fragment
 
 import android.app.AlertDialog
+import android.content.DialogInterface
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.textfield.TextInputEditText
@@ -42,6 +44,7 @@ class ScanCardFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        totalPriceText.text = getString(R.string.total_price, vm.getTotal(), vm.getCurrency().value)
         init()
     }
 
@@ -85,7 +88,7 @@ class ScanCardFragment : Fragment() {
     private fun showPinDialogAndPayByCard() {
         pinDialog?.dismiss()
         val dialogView: View = layoutInflater.inflate(R.layout.dialog_card_pin, null)
-        dialogView.pin_title.text = getString(R.string.total_price, vm.getTotal(), vm.getCurrency())
+        dialogView.pin_title.text = getString(R.string.incorrect_pin)
         pinDialog = AlertDialog.Builder(requireContext(), R.style.DialogTheme)
             .setView(dialogView)
             .setCancelable(false)
@@ -104,6 +107,13 @@ class ScanCardFragment : Fragment() {
                 )
             }
             .show()
+
+        val positiveButton = pinDialog?.getButton(DialogInterface.BUTTON_POSITIVE)
+        positiveButton?.isEnabled = false
+
+        dialogView.findViewById<TextInputEditText>(R.id.pinEditText).doOnTextChanged { text, _, _, _ ->
+            positiveButton?.isEnabled = !text.isNullOrEmpty()
+        }
     }
 
      private fun payByCard(pin: String) {

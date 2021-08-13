@@ -7,6 +7,7 @@
     <dimen name="dimen_32dp">32dp</dimen>
     <dimen name="dimen_48dp">48dp</dimen>
     <dimen name="dimen_64dp">64dp</dimen>
+    <dimen name="dimen_128dp">128dp</dimen>
     <bool name="isTablet">false</bool>
 
     <dimen name="border_padding">15dp</dimen>

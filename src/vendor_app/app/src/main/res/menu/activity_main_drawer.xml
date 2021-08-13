@@ -46,6 +46,14 @@
                 app:showAsAction="never" />
 
             <item
+                android:id="@+id/fix_card_button"
+                android:enabled="true"
+                android:icon="@drawable/ic_construction"
+                android:title="@string/fix_card"
+                android:visible="true"
+                app:showAsAction="never" />
+
+            <item
                 android:id="@+id/share_logs_button"
                 android:enabled="true"
                 android:icon="@drawable/ic_export"

@@ -129,7 +129,7 @@
             android:text="@string/pay_by_card"
             android:textColor="@color/payment_button_color"
             android:textSize="@dimen/button_text"
-            app:icon="@drawable/credit_card"
+            app:icon="@drawable/ic_card"
             app:iconTint="@color/payment_button_color"
             app:layout_constraintTop_toBottomOf="@+id/pleaseScanVoucherTextView"
             app:layout_constraintBottom_toTopOf="@+id/checkoutFooter"

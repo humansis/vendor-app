@@ -26,6 +26,7 @@
         android:text="@string/scan_card"
         android:textSize="@dimen/fragment_big_title"
         android:textColor="@color/black"
+        android:justificationMode="inter_word"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"

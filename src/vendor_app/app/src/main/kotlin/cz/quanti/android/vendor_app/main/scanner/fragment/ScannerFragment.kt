@@ -57,6 +57,8 @@ class ScannerFragment : Fragment() {
     ): View {
         activityCallback = requireActivity() as ActivityCallback
         activityCallback.setSubtitle(null)
+        activityCallback.setDrawerLocked(true)
+        activityCallback.setSyncButtonEnabled(false)
         scannerBinding = FragmentScannerBinding.inflate(inflater, container, false)
         return scannerBinding.root
     }
@@ -76,6 +78,36 @@ class ScannerFragment : Fragment() {
                     Log.e(it)
                 }
             ))
+    }
+
+    override fun onResume() {
+        super.onResume()
+        codeScanner?.startPreview()
+    }
+
+    override fun onPause() {
+        codeScanner?.releaseResources()
+        super.onPause()
+    }
+
+    override fun onStop() {
+        codeScanner?.releaseResources()
+        super.onStop()
+    }
+
+    override fun onDestroyView() {
+        activityCallback.setDrawerLocked(false)
+        activityCallback.setSyncButtonEnabled(true)
+        super.onDestroyView()
+    }
+
+    override fun onDestroy() {
+        codeScanner?.releaseResources()
+        for (disposable in disposables) {
+            disposable.dispose()
+        }
+        disposables.clear()
+        super.onDestroy()
     }
 
     override fun onRequestPermissionsResult(
@@ -160,30 +192,6 @@ class ScannerFragment : Fragment() {
             codeScanner?.startPreview()
         }, DEFAULT_ANIMATION_LENGTH)
 
-    }
-
-    override fun onResume() {
-        super.onResume()
-        codeScanner?.startPreview()
-    }
-
-    override fun onPause() {
-        codeScanner?.releaseResources()
-        super.onPause()
-    }
-
-    override fun onStop() {
-        codeScanner?.releaseResources()
-        super.onStop()
-    }
-
-    override fun onDestroy() {
-        codeScanner?.releaseResources()
-        for (disposable in disposables) {
-            disposable.dispose()
-        }
-        disposables.clear()
-        super.onDestroy()
     }
 
     private fun processScannedCode(scannedCode: String) {

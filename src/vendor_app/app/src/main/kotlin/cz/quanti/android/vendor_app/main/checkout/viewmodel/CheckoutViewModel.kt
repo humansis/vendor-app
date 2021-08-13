@@ -2,6 +2,7 @@ package cz.quanti.android.vendor_app.main.checkout.viewmodel
 
 import android.nfc.Tag
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import cz.quanti.android.nfc.VendorFacade
 import cz.quanti.android.nfc.dto.UserBalance
@@ -30,6 +31,8 @@ class CheckoutViewModel(
 ) : ViewModel() {
     private var vouchers: MutableList<Voucher> = mutableListOf()
     private var pin: String? = null
+    private val originalBalanceLD = MutableLiveData<Double?>(null)
+    private val isScanningInProgressLD = MutableLiveData(false)
 
     fun init() {
         this.vouchers = shoppingHolder.vouchers
@@ -43,6 +46,22 @@ class CheckoutViewModel(
         val total = shoppingHolder.cart.map { it.price }.sum()
         val paid = vouchers.map { it.value }.sum()
         return round(total - paid, 3)
+    }
+
+    fun setScanningInProgress(inProgress: Boolean) {
+        isScanningInProgressLD.value = inProgress
+    }
+
+    fun getScanningInProgress(): MutableLiveData<Boolean> {
+        return isScanningInProgressLD
+    }
+
+    fun setOriginalBalance(originalBalance: Double?) {
+        this.originalBalanceLD.value = originalBalance // TODO zapsat do db + timestamp.. pokud null tak posledni zaznam smazat (bude asi potreba pridat userid pro identifikaci)
+    }
+
+    fun getOriginalBalance(): MutableLiveData<Double?> {
+        return originalBalanceLD
     }
 
     fun getVouchers(): List<Voucher> {
@@ -90,6 +109,7 @@ class CheckoutViewModel(
             val tag = it.first
             val userBalance = it.second
             saveCardPurchaseToDb(convertTagToString(tag))
+                // TODO nemůže se to tady zapsat ale stejně vyhodit exceptionu ? Pak se to posere, protože platba bude uložená v db ale v appce se ukáže error a že platba neproběhla. Probrat se zdendou
                 .subscribeOn(Schedulers.io())
                 .toSingleDefault(Pair(tag, userBalance))
                 .flatMap {
@@ -109,6 +129,7 @@ class CheckoutViewModel(
     ): Single<Pair<Tag, UserBalance>> {
         return Single.fromObservable(
             nfcTagPublisher.getTagObservable().take(1).flatMapSingle { tag ->
+                setScanningInProgress(true)
                 cardFacade.getBlockedCards()
                     .subscribeOn(Schedulers.io())
                     .flatMap {
@@ -117,9 +138,9 @@ class CheckoutViewModel(
                     } else {
                         NfcLogger.d(
                             TAG,
-                            "subtractBalanceFromCard: value: $value, currencyCode: $currency"
+                            "subtractBalanceFromCard: value: $value, currencyCode: $currency, originalBalance: $originalBalanceLD"
                         )
-                        nfcFacade.subtractFromBalance(tag, pin, value, currency).map { userBalance ->
+                        nfcFacade.subtractFromBalance(tag, pin, value, currency, originalBalanceLD.value).map { userBalance ->
                             NfcLogger.d(
                                 TAG,
                                 "subtractedBalanceFromCard: balance: ${userBalance.balance}, beneficiaryId: ${userBalance.userId}, currencyCode: ${userBalance.currencyCode}"

@@ -133,6 +133,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
             }
             R.id.fix_card_button -> {
                 // TODO fixovani karty z db + overeni casu a userid
+                // TODO dat pryc pokud se zrusi db
             }
         }
         activityBinding.drawerLayout.closeDrawer(GravityCompat.START)

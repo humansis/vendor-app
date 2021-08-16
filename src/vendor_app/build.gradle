@@ -12,7 +12,7 @@ buildscript {
     ext.koin_version = '3.1.2'
     ext.kotlin_logger_version = '2.2.5'
     ext.kotlin_version = '1.5.21'
-    ext.ktlint_version = '8.2.0'
+    ext.ktlint_version = '9.3.0'
     ext.lifecycle_version = '2.3.1'
     ext.lifecycle_extensions_version = '2.2.0'
     ext.logging_interceptor_version = '3.12.1'

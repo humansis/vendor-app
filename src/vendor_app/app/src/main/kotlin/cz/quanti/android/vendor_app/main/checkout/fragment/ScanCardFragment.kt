@@ -155,6 +155,7 @@ class ScanCardFragment : Fragment() {
                              .show()
                          vm.setScanningInProgress(false)
                          vm.setOriginalBalance(null)
+                         vm.setOriginalTag(null)
                          vm.clearCart()
                          vm.clearVouchers()
                          findNavController().navigate(
@@ -174,6 +175,7 @@ class ScanCardFragment : Fragment() {
                                      }
                                      PINExceptionEnum.PRESERVE_BALANCE -> {
                                          it.extraData?.let { it1 -> vm.setOriginalBalance(it1.toDouble()) }
+                                         //vm.setOriginalTag() // TODO asi mi musi tagid vracet knihovna
                                          scanCardBinding.message.text = getString(R.string.scan_card_to_fix)
                                          scanCardBinding.icon.visibility = View.VISIBLE
                                          payByCard(pin)

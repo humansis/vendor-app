@@ -32,6 +32,7 @@ class CheckoutViewModel(
     private var vouchers: MutableList<Voucher> = mutableListOf()
     private var pin: String? = null
     private val originalBalanceLD = MutableLiveData<Double?>(null)
+    private val originalTagLD = MutableLiveData<Tag?>(null)
     private val isScanningInProgressLD = MutableLiveData(false)
 
     fun init() {
@@ -58,10 +59,17 @@ class CheckoutViewModel(
 
     fun setOriginalBalance(originalBalance: Double?) {
         this.originalBalanceLD.value = originalBalance // TODO zapsat do db + timestamp.. pokud null tak posledni zaznam smazat (bude asi potreba pridat userid pro identifikaci)
+    // prevent this user from creating new purchase until he is removed from db (allow finishing interrupted payment but prevent new purchase)
+    // -> allow if originalbalance == userid v db ale ne, pokud originalbalance == null
+        // ma vubec smysl to ukladat do db s nejakym casovym limitem? asi ne
     }
 
     fun getOriginalBalance(): MutableLiveData<Double?> {
         return originalBalanceLD
+    }
+
+    fun setOriginalTag(originalTag: Tag?) {
+        this.originalTagLD.value = originalTag
     }
 
     fun getVouchers(): List<Voucher> {
@@ -109,7 +117,6 @@ class CheckoutViewModel(
             val tag = it.first
             val userBalance = it.second
             saveCardPurchaseToDb(convertTagToString(tag))
-                // TODO nemůže se to tady zapsat ale stejně vyhodit exceptionu ? Pak se to posere, protože platba bude uložená v db ale v appce se ukáže error a že platba neproběhla. Probrat se zdendou
                 .subscribeOn(Schedulers.io())
                 .toSingleDefault(Pair(tag, userBalance))
                 .flatMap {
@@ -129,6 +136,7 @@ class CheckoutViewModel(
     ): Single<Pair<Tag, UserBalance>> {
         return Single.fromObservable(
             nfcTagPublisher.getTagObservable().take(1).flatMapSingle { tag ->
+                if (originalTagLD.value == null) setOriginalTag(tag) // TODO remove after exception returns tagid
                 setScanningInProgress(true)
                 cardFacade.getBlockedCards()
                     .subscribeOn(Schedulers.io())
@@ -140,12 +148,16 @@ class CheckoutViewModel(
                             TAG,
                             "subtractBalanceFromCard: value: $value, currencyCode: $currency, originalBalance: $originalBalanceLD"
                         )
-                        nfcFacade.subtractFromBalance(tag, pin, value, currency, originalBalanceLD.value).map { userBalance ->
-                            NfcLogger.d(
-                                TAG,
-                                "subtractedBalanceFromCard: balance: ${userBalance.balance}, beneficiaryId: ${userBalance.userId}, currencyCode: ${userBalance.currencyCode}"
-                            )
-                            Pair(tag, userBalance)
+                        if (originalTagLD.value?.id == null || originalTagLD.value?.id.contentEquals( tag.id )) {
+                            nfcFacade.subtractFromBalance(tag, pin, value, currency, originalBalanceLD.value).map { userBalance ->
+                                NfcLogger.d(
+                                    TAG,
+                                    "subtractedBalanceFromCard: balance: ${userBalance.balance}, beneficiaryId: ${userBalance.userId}, currencyCode: ${userBalance.currencyCode}"
+                                )
+                                Pair(tag, userBalance)
+                            }
+                        } else {
+                            throw PINException(PINExceptionEnum.INVALID_DATA)
                         }
                     }
                 }

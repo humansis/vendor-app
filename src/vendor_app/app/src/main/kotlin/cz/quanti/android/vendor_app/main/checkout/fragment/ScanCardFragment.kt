@@ -1,12 +1,7 @@
 package cz.quanti.android.vendor_app.main.checkout.fragment
 
 import android.app.AlertDialog
-import android.content.Context.VIBRATOR_SERVICE
-import android.media.MediaPlayer
-import android.os.Build
 import android.os.Bundle
-import android.os.VibrationEffect
-import android.os.Vibrator
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -170,15 +165,7 @@ class ScanCardFragment : Fragment() {
         }
     }
 
-    @Suppress("DEPRECATION")
-    private fun vibrate() {
-        val vibrator = requireContext().getSystemService(VIBRATOR_SERVICE) as Vibrator
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            vibrator.vibrate(VibrationEffect.createOneShot(200, VibrationEffect.DEFAULT_AMPLITUDE))
-        } else {
-            vibrator.vibrate(200)
-        }
-    }
+
 
      private fun payByCard(pin: String) {
          if (NfcInitializer.initNfc(requireActivity())) {
@@ -217,8 +204,7 @@ class ScanCardFragment : Fragment() {
                                  payByCard(pin)
                              }
                          }
-                         vibrate()
-                         MediaPlayer.create(requireContext(), R.raw.error).start()
+                         mainVM.onError(requireContext())
                          vm.setScanningInProgress(false)
                      })
              }
@@ -237,8 +223,7 @@ class ScanCardFragment : Fragment() {
             setPositiveButton(android.R.string.ok, null)
         }.create().apply {
             setOnShowListener {
-                vibrate()
-                MediaPlayer.create(requireContext(), R.raw.end).start()
+                mainVM.onSucces(requireContext())
             }
             show()
         }

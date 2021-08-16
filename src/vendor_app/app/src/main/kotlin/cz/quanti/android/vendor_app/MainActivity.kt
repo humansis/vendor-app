@@ -1,6 +1,7 @@
 package cz.quanti.android.vendor_app
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.app.AlertDialog
 import android.content.Intent
 import android.content.pm.ActivityInfo
@@ -8,6 +9,7 @@ import android.graphics.Rect
 import android.nfc.NfcAdapter
 import android.nfc.Tag
 import android.os.Bundle
+import android.provider.Settings
 import android.util.DisplayMetrics
 import android.view.MenuItem
 import android.view.MotionEvent
@@ -23,7 +25,6 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.navigation.NavigationView
 import cz.quanti.android.nfc.VendorFacade
-import cz.quanti.android.nfc.dto.UserBalance
 import cz.quanti.android.vendor_app.databinding.ActivityMainBinding
 import cz.quanti.android.vendor_app.databinding.NavHeaderBinding
 import cz.quanti.android.vendor_app.main.authorization.viewmodel.LoginViewModel
@@ -34,10 +35,9 @@ import cz.quanti.android.vendor_app.repository.login.LoginFacade
 import cz.quanti.android.vendor_app.sync.SynchronizationManager
 import cz.quanti.android.vendor_app.sync.SynchronizationState
 import cz.quanti.android.vendor_app.utils.ConnectionObserver
-import cz.quanti.android.vendor_app.utils.NfcInitializer
 import cz.quanti.android.vendor_app.utils.NfcTagPublisher
+import cz.quanti.android.vendor_app.utils.OnTagDiscoveredEnum
 import cz.quanti.android.vendor_app.utils.PermissionRequestResult
-import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
@@ -46,7 +46,7 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 import quanti.com.kotlinlog.Log
 import quanti.com.kotlinlog.file.SendLogDialogFragment
 
-class MainActivity : AppCompatActivity(), ActivityCallback,
+class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCallback,
     NavigationView.OnNavigationItemSelectedListener {
 
     private val loginFacade: LoginFacade by inject()
@@ -108,11 +108,13 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
         loadNavHeader(loginVM.getCurrentVendorName())
         checkConnection()
         syncState()
+        initNfcAdapter()
     }
 
     override fun onPause() {
-        super.onPause()
         syncStateDisposable?.dispose()
+        NfcAdapter.getDefaultAdapter(this).disableReaderMode(this)
+        super.onPause()
     }
 
     override fun onStop() {
@@ -140,8 +142,8 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
             R.id.invoices_button -> {
                 findNavController(R.id.nav_host_fragment).navigate(R.id.invoicesFragment)
             }
-            R.id.read_balance_button -> {
-                showReadBalanceDialog()
+            R.id.read_balance_button -> { // TODO hide if mainVM.getNfcAdapter() == null
+                    showReadBalanceDialog()
             }
             R.id.share_logs_button -> {
                 shareLogsDialog()
@@ -222,6 +224,64 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
         }
     }
 
+    override fun onTagDiscovered(tag: Tag?) {
+        Log.d("tag discovered + ${mainVM.getOnTagDiscovered()}")
+        tag?.let {
+            when (mainVM.getOnTagDiscovered()) {
+                OnTagDiscoveredEnum.READ_BALANCE -> {
+                    readBalance(it)
+                }
+                else -> {
+                    // do nothing
+                }
+            }
+        }
+    }
+
+    private fun initNfcAdapter(){
+        val nfcAdapter = NfcAdapter.getDefaultAdapter(this)
+        mainVM.setNfcAdapter(nfcAdapter)
+        if (nfcAdapter == null) {
+            mainVM.setToastMessage(getString(R.string.no_nfc_available))
+        }
+    }
+
+    private fun enableNfc(onTagDiscovered: OnTagDiscoveredEnum): Boolean {
+        mainVM.getNfcAdapter()?.let { adapter ->
+            return if (!adapter.isEnabled) {
+                showWirelessSettings(this)
+                false
+            } else {
+                mainVM.setOnTagDiscovered(onTagDiscovered)
+                adapter.enableReaderMode(
+                    this,
+                    this,
+                    FLAGS,
+                    null
+                )
+                true
+            }
+        }
+        return false
+    }
+
+    private fun disableNfc() {
+        mainVM.setOnTagDiscovered(null)
+        mainVM.getNfcAdapter()?.disableReaderMode(this)
+    }
+
+    private fun showWirelessSettings(activity: Activity) {
+        AlertDialog.Builder(activity, R.style.DialogTheme)
+            .setMessage(activity.getString(R.string.you_need_to_enable_nfc))
+            .setCancelable(true)
+            .setPositiveButton(activity.getString(R.string.proceed)) { _,_ ->
+                activity.startActivity(Intent(Settings.ACTION_NFC_SETTINGS))
+            }
+            .setNegativeButton(activity.getString(R.string.cancel), null)
+            .create()
+            .show()
+    }
+
     private fun logout() {
         AlertDialog.Builder(this, R.style.DialogTheme)
             .setTitle(getString(R.string.are_you_sure_dialog_title))
@@ -237,56 +297,52 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
     }
 
     private fun showReadBalanceDialog() {
-        if (NfcInitializer.initNfc(this)) {
-            val scanCardDialog = AlertDialog.Builder(this, R.style.DialogTheme)
+        if (enableNfc(OnTagDiscoveredEnum.READ_BALANCE)) {
+            displayedDialog = AlertDialog.Builder(this, R.style.DialogTheme)
                 .setMessage(getString(R.string.scan_card))
                 .setCancelable(false)
                 .setNegativeButton(getString(R.string.cancel)) { dialog, _ ->
+                    disableNfc()
                     dialog?.dismiss()
                     readBalanceDisposable?.dispose()
                     readBalanceDisposable = null
                 }
-                .create()
-
-            scanCardDialog?.show()
-            displayedDialog = scanCardDialog
-
-            readBalanceDisposable?.dispose()
-            readBalanceDisposable = readBalance()
-                .subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe({
-                    scanCardDialog.dismiss()
-                    val cardContent = it
-                    val cardResultDialog = AlertDialog.Builder(this, R.style.DialogTheme)
-                        .setTitle(getString((R.string.read_balance)))
-                        .setMessage(
-                            getString(
-                                R.string.scanning_card_balance,
-                                "${cardContent.balance} ${cardContent.currencyCode}"
-                            )
-                        )
-                        .setCancelable(true)
-                        .setNegativeButton(getString(R.string.close)) { dialog, _ ->
-                            dialog?.dismiss()
-                            readBalanceDisposable?.dispose()
-                            readBalanceDisposable = null
-                        }
-                        .create()
-                    cardResultDialog.show()
-                    displayedDialog = cardResultDialog
-                },
-                    {
-                        Log.e(this.javaClass.simpleName, it)
-                        mainVM.setToastMessage(getString(R.string.card_error))
-                        scanCardDialog.dismiss()
-                        NfcInitializer.disableForegroundDispatch(this)
-                    })
+                .create().apply { show() }
         }
     }
 
-    private fun readBalance(): Single<UserBalance> {
-        return nfcTagPublisher.getTagObservable().firstOrError().flatMap { tag ->
-            nfcFacade.readUserBalance(tag)
-        }
+    private fun readBalance(tag: Tag) {
+        readBalanceDisposable?.dispose()
+        readBalanceDisposable = nfcFacade.readUserBalance(tag)
+            .subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe({
+                displayedDialog?.dismiss()
+                val cardContent = it
+                val cardResultDialog = AlertDialog.Builder(this, R.style.DialogTheme)
+                    .setTitle(getString((R.string.read_balance)))
+                    .setMessage(
+                        getString(
+                            R.string.scanning_card_balance,
+                            "${cardContent.balance} ${cardContent.currencyCode}"
+                        )
+                    )
+                    .setCancelable(true)
+                    .setNegativeButton(getString(R.string.close)) { dialog, _ ->
+                        disableNfc()
+                        dialog?.dismiss()
+                        readBalanceDisposable?.dispose()
+                        readBalanceDisposable = null
+                    }
+                    .create()
+                cardResultDialog.show()
+                mainVM.onSucces(this)
+                displayedDialog = cardResultDialog
+            }, {
+                Log.e(this.javaClass.simpleName, it)
+                mainVM.setToastMessage(getString(R.string.card_error))
+                mainVM.onError(this)
+                disableNfc()
+                displayedDialog?.dismiss()
+            })
     }
 
     private fun shareLogsDialog() {
@@ -495,5 +551,15 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
          * @param event The MotionEvent object containing full information about the event.
          */
         fun onTouchOutside(view: View?, event: MotionEvent?)
+    }
+
+    companion object {
+        private const val FLAGS = NfcAdapter.FLAG_READER_NFC_A or
+            NfcAdapter.FLAG_READER_NFC_B or
+            NfcAdapter.FLAG_READER_NFC_F or
+            NfcAdapter.FLAG_READER_NFC_V or
+            NfcAdapter.FLAG_READER_NFC_BARCODE or
+            NfcAdapter.FLAG_READER_SKIP_NDEF_CHECK or
+            NfcAdapter.FLAG_READER_NO_PLATFORM_SOUNDS
     }
 }

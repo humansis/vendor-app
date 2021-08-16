@@ -43,12 +43,12 @@ object NfcInitializer {
                 false
             } else {
                 adapter.enableForegroundDispatch(activity, pendingIntent, null, null)
-//                adapter.enableReaderMode(
-//                    activity,
-//                    {  },
-//                    FLAGS,
-//                    null
-//                )
+                adapter.enableReaderMode(
+                    activity,
+                    {  },
+                    FLAGS,
+                    null
+                )
                 true
             }
         }

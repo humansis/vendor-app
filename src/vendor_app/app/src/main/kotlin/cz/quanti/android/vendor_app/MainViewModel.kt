@@ -1,6 +1,7 @@
 package cz.quanti.android.vendor_app
 
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.toLiveData
 import cz.quanti.android.vendor_app.repository.synchronization.SynchronizationFacade
@@ -15,6 +16,8 @@ class MainViewModel(
 
     val cameraPermissionsGrantedSLE = SingleLiveEvent<PermissionRequestResult>()
 
+    private val toastMessageLD = MutableLiveData<String?>(null)
+
     fun grantPermission(permissionResult: PermissionRequestResult) {
         when (permissionResult.requestCode) {
             Constants.CAMERA_PERMISSION_REQUEST_CODE -> {
@@ -27,6 +30,14 @@ class MainViewModel(
         return syncFacade.getPurchasesCount().flatMap { purchasesCount ->
             syncFacade.isSyncNeeded(purchasesCount).toObservable()
         }.toFlowable(BackpressureStrategy.LATEST).toLiveData()
+    }
+
+    fun setToastMessage(message: String?) {
+        toastMessageLD.value = message
+    }
+
+    fun getToastMessage(): LiveData<String?> {
+        return toastMessageLD
     }
 
 }

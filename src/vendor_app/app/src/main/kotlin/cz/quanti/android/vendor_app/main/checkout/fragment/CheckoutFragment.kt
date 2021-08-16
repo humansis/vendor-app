@@ -13,6 +13,7 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import cz.quanti.android.vendor_app.ActivityCallback
+import cz.quanti.android.vendor_app.MainViewModel
 import cz.quanti.android.vendor_app.R
 import cz.quanti.android.vendor_app.databinding.DialogCardPinBinding
 import cz.quanti.android.vendor_app.databinding.FragmentCheckoutBinding
@@ -26,10 +27,12 @@ import cz.quanti.android.vendor_app.utils.getStringFromDouble
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
+import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import quanti.com.kotlinlog.Log
 
 class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
+    private val mainVM: MainViewModel by sharedViewModel()
     private val vm: CheckoutViewModel by viewModel()
     private lateinit var selectedProductsAdapter: SelectedProductsAdapter
     private val scannedVoucherAdapter = ScannedVoucherAdapter()
@@ -189,11 +192,7 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
                             .show()
                     },
                     {
-                        Toast.makeText(
-                            context,
-                            getString(R.string.error_while_proceeding),
-                            Toast.LENGTH_SHORT
-                        ).show()
+                        mainVM.setToastMessage(getString(R.string.error_while_proceeding))
                         Log.e(it)
                     }
                 )
@@ -241,11 +240,7 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
     }
 
     override fun showInvalidPriceEnteredMessage() {
-        Toast.makeText(
-            requireContext(),
-            getString(R.string.please_enter_price),
-            Toast.LENGTH_LONG
-        ).show()
+        mainVM.setToastMessage(getString(R.string.please_enter_price))
     }
 
     private fun clearCart() {
@@ -288,23 +283,26 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
     private fun showPinDialogAndPayByCard() {
        if (NfcInitializer.initNfc(requireActivity())) {
            val dialogBinding = DialogCardPinBinding.inflate(layoutInflater,null, false)
-           val dialogView: View = dialogBinding.root
            dialogBinding.pinTitle.text = getString(R.string.total_price, vm.getTotal(), vm.getCurrency().value)
-           AlertDialog.Builder(requireContext(), R.style.DialogTheme)
-                .setView(dialogView)
+           val dialog = AlertDialog.Builder(requireContext(), R.style.DialogTheme)
+                .setView(dialogBinding.root)
                 .setCancelable(false)
-                .setPositiveButton(android.R.string.ok) { dialog, _ ->
-                    val pinEditTextView = dialogBinding.pinEditText
-                    val pin = pinEditTextView.text.toString()
-                    dialog?.dismiss()
-                    findNavController().navigate(
-                        CheckoutFragmentDirections.actionCheckoutFragmentToScanCardFragment(pin)
-                    )
-                }
+                .setPositiveButton(android.R.string.ok, null)
                 .setNegativeButton(android.R.string.cancel) { dialog, _ ->
                     dialog?.cancel()
                 }
                 .show()
+           dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
+               val pin = dialogBinding.pinEditText.text.toString()
+               if (pin.isEmpty()) {
+                   mainVM.setToastMessage(getString(R.string.please_enter_pin))
+               } else {
+                   dialog?.dismiss()
+                   findNavController().navigate(
+                       CheckoutFragmentDirections.actionCheckoutFragmentToScanCardFragment(pin)
+                   )
+               }
+           }
         }
     }
 

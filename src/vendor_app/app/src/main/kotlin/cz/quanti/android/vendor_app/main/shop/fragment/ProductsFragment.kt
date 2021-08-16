@@ -12,22 +12,24 @@ import androidx.lifecycle.toLiveData
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import com.bumptech.glide.Glide
-import com.google.android.material.button.MaterialButton
-import com.google.android.material.textfield.TextInputLayout
 import cz.quanti.android.vendor_app.ActivityCallback
 import cz.quanti.android.vendor_app.MainActivity
 import cz.quanti.android.vendor_app.MainActivity.OnTouchOutsideViewListener
+import cz.quanti.android.vendor_app.MainViewModel
 import cz.quanti.android.vendor_app.R
+import cz.quanti.android.vendor_app.databinding.DialogProductBinding
 import cz.quanti.android.vendor_app.databinding.FragmentProductsBinding
 import cz.quanti.android.vendor_app.main.shop.adapter.ShopAdapter
 import cz.quanti.android.vendor_app.main.shop.viewmodel.ShopViewModel
 import cz.quanti.android.vendor_app.repository.product.dto.Product
 import cz.quanti.android.vendor_app.repository.purchase.dto.SelectedProduct
 import io.reactivex.BackpressureStrategy
+import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class ProductsFragment : Fragment(), OnTouchOutsideViewListener {
 
+    private val mainVM: MainViewModel by sharedViewModel()
     private val vm: ShopViewModel by viewModel()
     private lateinit var adapter: ShopAdapter
 
@@ -163,17 +165,17 @@ class ProductsFragment : Fragment(), OnTouchOutsideViewListener {
     }
 
     fun openProduct(product: Product) {
-        val dialogView = layoutInflater.inflate(R.layout.dialog_product, null)
+        val dialogBinding = DialogProductBinding.inflate(layoutInflater,null, false)
 
         Glide
             .with(requireContext())
             .load(product.image)
-            .into(dialogView.findViewById(R.id.productImage))
+            .into(dialogBinding.productImage)
 
-        dialogView.findViewById<TextView>(R.id.productName).text = product.name
+        dialogBinding.productName.text = product.name
 
         val dialog = AlertDialog.Builder(activity)
-            .setView(dialogView)
+            .setView(dialogBinding.root)
             .show()
         if ( !resources.getBoolean(R.bool.isTablet) ) {
             dialog.window?.setLayout(
@@ -181,16 +183,16 @@ class ProductsFragment : Fragment(), OnTouchOutsideViewListener {
                 LinearLayout.LayoutParams.WRAP_CONTENT
             )
         }
-        loadOptions(dialog, dialogView, product)
+        loadOptions(dialog, dialogBinding, product)
     }
 
-    private fun loadOptions(dialog: AlertDialog, dialogView: View, product: Product) {
-        val priceEditText = dialogView.findViewById<EditText>(R.id.priceEditText)
-        val confirmButton = dialogView.findViewById<MaterialButton>(R.id.confirmButton)
+    private fun loadOptions(dialog: AlertDialog, dialogBinding: DialogProductBinding, product: Product) {
+        val priceEditText = dialogBinding.editProduct.priceEditText
+        val confirmButton = dialogBinding.editProduct.confirmButton
         priceEditText.hint = requireContext().getString(R.string.price)
-        dialogView.findViewById<TextInputLayout>(R.id.priceTextInputLayout).suffixText = chosenCurrency
+        dialogBinding.editProduct.priceTextInputLayout.suffixText = chosenCurrency
 
-        dialogView.findViewById<ImageView>(R.id.closeButton).setOnClickListener {
+        dialogBinding.closeButton.setOnClickListener {
             dialog.dismiss()
         }
 
@@ -199,7 +201,7 @@ class ProductsFragment : Fragment(), OnTouchOutsideViewListener {
             try {
                 val price = priceEditText.text.toString().toDouble()
                 if (price <= INVALID_PRICE_VALUE) {
-                    showInvalidPriceEnteredMessage()
+                    mainVM.setToastMessage(getString(R.string.please_enter_price))
                 } else {
                     addProductToCart(
                         product,
@@ -208,7 +210,7 @@ class ProductsFragment : Fragment(), OnTouchOutsideViewListener {
                     dialog.dismiss()
                 }
             } catch(e: NumberFormatException) {
-                showInvalidPriceEnteredMessage()
+                mainVM.setToastMessage(getString(R.string.please_enter_price))
             }
         }
     }
@@ -220,14 +222,6 @@ class ProductsFragment : Fragment(), OnTouchOutsideViewListener {
                 this.price = unitPrice
             }
         vm.addToShoppingCart(selected)
-    }
-
-    private fun showInvalidPriceEnteredMessage() {
-        Toast.makeText(
-            requireContext(),
-            requireContext().getString(R.string.please_enter_price),
-            Toast.LENGTH_LONG
-        ).show()
     }
 
     companion object {

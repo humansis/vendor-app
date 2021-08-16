@@ -54,7 +54,7 @@
     <string name="please_enter_pin">እባክዎን ለካርድዎ ፒን ያስገቡ</string>
     <string name="no_nfc_available">NFC አይገኝም</string>
     <string name="you_need_to_enable_nfc">NFC ን ማንቃት ያስፈልግዎታል</string>
-    <string name="card_successfuly_paid_new_balance">ስኬት! በካርድ ላይ አዲስ ቀሪ ሂሳብ %1$.2f</string>
+    <string name="card_successfuly_paid_new_balance">በካርድ ላይ አዲስ ቀሪ ሂሳብ %1$.2f %2$s</string>
     <string name="not_enough_money_on_card">በካርዱ ላይ በቂ ገንዘብ የለም</string>
     <string name="scan_card">እባክዎን ካርዱን ይቃኙ</string>
     <string name="incorrect_pin">የተሳሳተ ፒን</string>

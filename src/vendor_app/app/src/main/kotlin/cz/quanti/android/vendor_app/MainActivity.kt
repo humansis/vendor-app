@@ -63,6 +63,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
     private var syncStateDisposable: Disposable? = null
     private var syncDisposable: Disposable? = null
     private var readBalanceDisposable: Disposable? = null
+    private var lastToast: Toast? = null
 
     private lateinit var activityBinding: ActivityMainBinding
     private lateinit var navHeaderBinding: NavHeaderBinding
@@ -87,6 +88,19 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
 
         setUpToolbar()
         setUpNavigationMenu()
+
+        mainVM.getToastMessage().observe(this, { message ->
+            lastToast?.cancel()
+            message?.let {
+                lastToast = Toast.makeText(
+                    this,
+                    message,
+                    Toast.LENGTH_LONG
+                ).apply {
+                    show()
+                }
+            }
+        })
     }
 
     override fun onResume() {
@@ -102,6 +116,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
     }
 
     override fun onStop() {
+        lastToast?.cancel()
         displayedDialog?.dismiss()
         disposable?.dispose()
         syncDisposable?.dispose()
@@ -261,11 +276,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
                 },
                     {
                         Log.e(this.javaClass.simpleName, it)
-                        Toast.makeText(
-                            this,
-                            getString(R.string.card_error),
-                            Toast.LENGTH_LONG
-                        ).show()
+                        mainVM.setToastMessage(getString(R.string.card_error))
                         scanCardDialog.dismiss()
                         NfcInitializer.disableForegroundDispatch(this)
                     })
@@ -303,27 +314,15 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
                     SynchronizationState.SUCCESS -> {
                         activityBinding.appBar.progressBar.visibility = View.GONE
                         activityBinding.appBar.syncButtonArea.visibility = View.VISIBLE
-                        Toast.makeText(
-                            this,
-                            getString(R.string.data_were_successfully_synchronized),
-                            Toast.LENGTH_LONG
-                        ).show()
+                        mainVM.setToastMessage(getString(R.string.data_were_successfully_synchronized))
                     }
                     SynchronizationState.ERROR -> {
                         activityBinding.appBar.progressBar.visibility = View.GONE
                         activityBinding.appBar.syncButtonArea.visibility = View.VISIBLE
                         if (loginVM.isNetworkConnected().value != true) {
-                            Toast.makeText(
-                                this,
-                                getString(R.string.no_internet_connection),
-                                Toast.LENGTH_LONG
-                            ).show()
+                            mainVM.setToastMessage(getString(R.string.no_internet_connection))
                         } else {
-                            Toast.makeText(
-                                this,
-                                getString(R.string.could_not_synchronize_data_with_server),
-                                Toast.LENGTH_LONG
-                            ).show()
+                            mainVM.setToastMessage(getString(R.string.could_not_synchronize_data_with_server))
                         }
                     }
                 }

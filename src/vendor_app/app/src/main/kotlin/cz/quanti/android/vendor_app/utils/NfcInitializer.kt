@@ -11,7 +11,15 @@ import cz.quanti.android.vendor_app.R
 
 object NfcInitializer {
 
-    fun initNfc( activity: Activity): Boolean {
+    private const val FLAGS = NfcAdapter.FLAG_READER_NFC_A or
+        NfcAdapter.FLAG_READER_NFC_B or
+        NfcAdapter.FLAG_READER_NFC_F or
+        NfcAdapter.FLAG_READER_NFC_V or
+        NfcAdapter.FLAG_READER_NFC_BARCODE or
+        NfcAdapter.FLAG_READER_SKIP_NDEF_CHECK or
+        NfcAdapter.FLAG_READER_NO_PLATFORM_SOUNDS
+
+    fun initNfc(activity: Activity): Boolean {
         val nfcAdapter = NfcAdapter.getDefaultAdapter(activity)
 
         if (nfcAdapter == null) {
@@ -29,12 +37,18 @@ object NfcInitializer {
                 .addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0
         )
 
-        nfcAdapter.let {
-            return if (!it.isEnabled) {
+        nfcAdapter.let { adapter ->
+            return if (!adapter.isEnabled) {
                 showWirelessSettings(activity)
                 false
             } else {
-                it.enableForegroundDispatch(activity, pendingIntent, null, null)
+                adapter.enableForegroundDispatch(activity, pendingIntent, null, null)
+//                adapter.enableReaderMode(
+//                    activity,
+//                    {  },
+//                    FLAGS,
+//                    null
+//                )
                 true
             }
         }

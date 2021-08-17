@@ -155,7 +155,7 @@ class ScanCardFragment : Fragment() {
                              .show()
                          vm.setScanningInProgress(false)
                          vm.setOriginalBalance(null)
-                         vm.setOriginalTag(null)
+                         vm.setOriginalTagId(null)
                          vm.clearCart()
                          vm.clearVouchers()
                          findNavController().navigate(
@@ -164,6 +164,7 @@ class ScanCardFragment : Fragment() {
                      }, {
                          when (it) {
                              is PINException -> {
+                                 vm.setOriginalTagId(it.tagId)
                                  Log.e(this.javaClass.simpleName, it.pinExceptionEnum.name)
                                  makeToast(getNfcCardErrorMessage(it.pinExceptionEnum))
                                  when (it.pinExceptionEnum) {
@@ -174,8 +175,7 @@ class ScanCardFragment : Fragment() {
                                          showPinDialogAndPayByCard()
                                      }
                                      PINExceptionEnum.PRESERVE_BALANCE -> {
-                                         it.extraData?.let { it1 -> vm.setOriginalBalance(it1.toDouble()) }
-                                         //vm.setOriginalTag() // TODO asi mi musi tagid vracet knihovna
+                                         it.extraData?.let { originalBalance -> vm.setOriginalBalance(originalBalance.toDouble()) }
                                          scanCardBinding.message.text = getString(R.string.scan_card_to_fix)
                                          scanCardBinding.icon.visibility = View.VISIBLE
                                          payByCard(pin)

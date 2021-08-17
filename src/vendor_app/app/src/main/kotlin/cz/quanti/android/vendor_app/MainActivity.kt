@@ -74,8 +74,8 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
 
     private lateinit var connectionObserver: ConnectionObserver
 
-    lateinit var successPlayer: MediaPlayer
-    lateinit var errorPlayer: MediaPlayer
+    private lateinit var successPlayer: MediaPlayer
+    private lateinit var errorPlayer: MediaPlayer
 
     companion object {
         private const val VOLUME = 0.25F

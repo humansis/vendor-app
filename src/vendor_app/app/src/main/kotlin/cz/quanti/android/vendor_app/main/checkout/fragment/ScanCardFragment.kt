@@ -220,6 +220,7 @@ class ScanCardFragment : Fragment() {
         when (throwable) {
             is PINException -> {
                 lastException = throwable
+                vm.setOriginalTagId(throwable.tagId)
                 Log.e(this.javaClass.simpleName, throwable.pinExceptionEnum.name)
                 mainVM.setToastMessage(getNfcCardErrorMessage(throwable.pinExceptionEnum))
                 when (throwable.pinExceptionEnum) {
@@ -231,7 +232,6 @@ class ScanCardFragment : Fragment() {
                     }
                     PINExceptionEnum.PRESERVE_BALANCE -> {
                         throwable.extraData?.let { it1 -> vm.setOriginalBalance(it1.toDouble()) }
-                        //vm.setOriginalTag() // TODO asi mi musi tagid vracet knihovna
                         payByCard()
                     }
                     else -> {

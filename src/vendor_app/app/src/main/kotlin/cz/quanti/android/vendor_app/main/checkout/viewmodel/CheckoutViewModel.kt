@@ -31,7 +31,7 @@ class CheckoutViewModel(
     private var vouchers: MutableList<Voucher> = mutableListOf()
     private var pin: String? = null
     private val originalBalanceLD = MutableLiveData<Double?>(null)
-    private val originalTagLD = MutableLiveData<Tag?>(null)
+    private val originalTagIdLD = MutableLiveData<ByteArray?>(null)
     private val isScanningInProgressLD = MutableLiveData(false)
 
     fun init() {
@@ -67,8 +67,8 @@ class CheckoutViewModel(
         return originalBalanceLD
     }
 
-    fun setOriginalTag(originalTag: Tag?) {
-        this.originalTagLD.value = originalTag
+    fun setOriginalTagId(originalTagId: ByteArray?) {
+        this.originalTagIdLD.value = originalTagId
     }
 
     fun getVouchers(): List<Voucher> {
@@ -132,18 +132,17 @@ class CheckoutViewModel(
         value: Double,
         currency: String
     ): Single<UserBalance> {
-        if (originalTagLD.value == null) setOriginalTag(tag) // TODO remove after exception returns tagid
         return cardFacade.getBlockedCards()
             .subscribeOn(Schedulers.io())
             .flatMap {
             if(it.contains(convertTagToString(tag))) {
-                throw PINException(PINExceptionEnum.CARD_LOCKED)
+                throw PINException(PINExceptionEnum.CARD_LOCKED, tag.id)
             } else {
                 NfcLogger.d(
                     TAG,
                     "subtractBalanceFromCard: value: $value, currencyCode: $currency, originalBalance: $originalBalanceLD"
                 )
-                if (originalTagLD.value?.id == null || originalTagLD.value?.id.contentEquals( tag.id )) {
+                if (originalTagIdLD.value == null || originalTagIdLD.value.contentEquals( tag.id )) {
                     nfcFacade.subtractFromBalance(tag, pin, value, currency, originalBalanceLD.value).map { userBalance ->
                         NfcLogger.d(
                             TAG,
@@ -152,7 +151,7 @@ class CheckoutViewModel(
                         userBalance
                     }
                 } else {
-                    throw PINException(PINExceptionEnum.INVALID_DATA)
+                    throw PINException(PINExceptionEnum.INVALID_DATA, tag.id)
                 }
             }
         }

@@ -208,7 +208,7 @@ class ScanCardFragment : Fragment() {
         }
         vm.setScanningInProgress(false)
         vm.setOriginalBalance(null)
-        vm.setOriginalTag(null)
+        vm.setOriginalTagId(null)
         vm.clearCart()
         vm.clearVouchers()
         findNavController().navigate(

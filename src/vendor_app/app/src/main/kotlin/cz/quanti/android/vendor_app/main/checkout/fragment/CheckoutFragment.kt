@@ -264,16 +264,11 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
             }
             checkoutBinding.payByCardButton.visibility = View.INVISIBLE
             checkoutBinding.checkoutFooter.clearAllButton.visibility = View.GONE
-        } else {
-            checkoutBinding.checkoutFooter.proceedButton.visibility = View.GONE
-            checkoutBinding.scanButton.isEnabled = true
-            checkoutBinding.payByCardButton.visibility = View.VISIBLE
-            checkoutBinding.checkoutFooter.clearAllButton.visibility = View.VISIBLE
         }
     }
 
     private fun showPinDialogAndPayByCard() {
-       if (mainVM.enableNfc(requireActivity(), null)) {
+       if (mainVM.enableNfc(requireActivity())) {
            val dialogBinding = DialogCardPinBinding.inflate(layoutInflater,null, false)
            dialogBinding.pinTitle.text = getString(R.string.total_price, vm.getTotal(), vm.getCurrency().value)
            val dialog = AlertDialog.Builder(requireContext(), R.style.DialogTheme)
@@ -282,7 +277,6 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
                 .setPositiveButton(android.R.string.ok, null)
                 .setNegativeButton(android.R.string.cancel) { dialog, _ ->
                     dialog?.cancel()
-                    mainVM.disableNfc(requireActivity())
                 }
                 .show()
            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {

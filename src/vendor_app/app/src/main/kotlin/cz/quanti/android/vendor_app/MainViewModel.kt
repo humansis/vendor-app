@@ -4,12 +4,7 @@ import android.app.Activity
 import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
-import android.media.MediaPlayer
 import android.nfc.NfcAdapter
-import android.nfc.Tag
-import android.os.Build
-import android.os.VibrationEffect
-import android.os.Vibrator
 import android.provider.Settings
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -17,7 +12,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.toLiveData
 import cz.quanti.android.vendor_app.repository.synchronization.SynchronizationFacade
 import cz.quanti.android.vendor_app.utils.Constants
-import cz.quanti.android.vendor_app.utils.OnTagDiscoveredEnum
 import cz.quanti.android.vendor_app.utils.PermissionRequestResult
 import cz.quanti.android.vendor_app.utils.SingleLiveEvent
 import io.reactivex.BackpressureStrategy
@@ -27,44 +21,38 @@ class MainViewModel(
 ) : ViewModel() {
 
     private var nfcAdapter:  NfcAdapter? = null
-    private var onTagDiscovered: OnTagDiscoveredEnum? = null
 
-    val tagForPaymentDiscoveredSLE = SingleLiveEvent<Tag>()
     val cameraPermissionsGrantedSLE = SingleLiveEvent<PermissionRequestResult>()
+    val successSLE = SingleLiveEvent<Unit>()
+    val errorSLE = SingleLiveEvent<Unit>()
 
     private val toastMessageLD = MutableLiveData<String?>(null)
+    fun initNfcAdapter(activity: Activity){
 
-    fun initNfcAdapter(context: Context){
-        nfcAdapter = NfcAdapter.getDefaultAdapter(context)
+        nfcAdapter = NfcAdapter.getDefaultAdapter(activity)
         if (nfcAdapter == null) {
-            setToastMessage(context.getString(R.string.no_nfc_available))
+            setToastMessage(activity.getString(R.string.no_nfc_available))
         }
+
+        enableNfc(activity)
     }
 
-    fun enableNfc(activity: Activity, onTagDiscovered: OnTagDiscoveredEnum?): Boolean {
+    fun enableNfc(activity: Activity): Boolean {
         nfcAdapter?.let { adapter ->
             return if (!adapter.isEnabled) {
                 showWirelessSettings(activity)
                 false
             } else {
-                this.onTagDiscovered = onTagDiscovered
-                onTagDiscovered?.let {
-                    adapter.enableReaderMode(
-                        activity,
-                        activity as MainActivity,
-                        FLAGS,
-                        null
-                    )
-                }
+                adapter.enableReaderMode(
+                    activity,
+                    activity as MainActivity,
+                    FLAGS,
+                    null
+                )
                 true
             }
         }
         return false
-    }
-
-    fun disableNfc(activity: Activity) {
-        onTagDiscovered = null
-        nfcAdapter?.disableReaderMode(activity)
     }
 
     private fun showWirelessSettings(context: Context) {
@@ -77,10 +65,6 @@ class MainViewModel(
             .setNegativeButton(context.getString(R.string.cancel), null)
             .create()
             .show()
-    }
-
-    fun getOnTagDiscovered(): OnTagDiscoveredEnum? {
-        return onTagDiscovered
     }
 
     fun grantPermission(permissionResult: PermissionRequestResult) {
@@ -103,26 +87,6 @@ class MainViewModel(
 
     fun getToastMessage(): LiveData<String?> {
         return toastMessageLD
-    }
-
-    fun onSuccess(context: Context) {
-        vibrate(context)
-        MediaPlayer.create(context, R.raw.end).start()
-    }
-
-    fun onError(context: Context) {
-        vibrate(context)
-        MediaPlayer.create(context, R.raw.error).start()
-    }
-
-    @Suppress("DEPRECATION")
-    private fun vibrate(context: Context) {
-        val vibrator = context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            vibrator.vibrate(VibrationEffect.createOneShot(200, VibrationEffect.DEFAULT_AMPLITUDE))
-        } else {
-            vibrator.vibrate(200)
-        }
     }
 
     companion object {

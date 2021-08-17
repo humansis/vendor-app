@@ -1,7 +1,6 @@
 package cz.quanti.android.vendor_app.main.checkout.fragment
 
 import android.app.AlertDialog
-import android.nfc.Tag
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -16,10 +15,9 @@ import cz.quanti.android.vendor_app.ActivityCallback
 import cz.quanti.android.vendor_app.MainViewModel
 import cz.quanti.android.vendor_app.R
 import cz.quanti.android.vendor_app.databinding.DialogCardPinBinding
-import cz.quanti.android.vendor_app.databinding.DialogSucessBinding
+import cz.quanti.android.vendor_app.databinding.DialogSuccessBinding
 import cz.quanti.android.vendor_app.databinding.FragmentScanCardBinding
 import cz.quanti.android.vendor_app.main.checkout.viewmodel.CheckoutViewModel
-import cz.quanti.android.vendor_app.utils.OnTagDiscoveredEnum
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
@@ -74,11 +72,6 @@ class ScanCardFragment : Fragment() {
         }
     }
 
-    override fun onPause() {
-        mainVM.disableNfc(requireActivity())
-        super.onPause()
-    }
-
     override fun onStop() {
         paymentDisposable?.dispose()
         paymentDisposable = null
@@ -97,13 +90,6 @@ class ScanCardFragment : Fragment() {
                 ScanCardFragmentDirections.actionScanCardFragmentToCheckoutFragment()
             )
         }
-
-        mainVM.tagForPaymentDiscoveredSLE.observe(viewLifecycleOwner, { tag ->
-            vm.setScanningInProgress(true)
-            vm.getPin()?.let { pin ->
-                onTagDiscovered(tag, pin)
-            }
-        })
 
         vm.getScanningInProgress().observe(viewLifecycleOwner, { isInProgress ->
             // show spinning progressbar if scanning is in progress
@@ -174,23 +160,24 @@ class ScanCardFragment : Fragment() {
     }
 
      private fun payByCard() {
-         mainVM.enableNfc(requireActivity(), OnTagDiscoveredEnum.PAY)
+         if (mainVM.enableNfc(requireActivity())) {
+             paymentDisposable?.dispose()
+             paymentDisposable =
+                 vm.getPin()?.let { pin ->
+                     vm.payByCard(pin, vm.getTotal(), vm.getCurrency().value.toString()).subscribeOn(Schedulers.io())
+                         .observeOn(AndroidSchedulers.mainThread())
+                         .subscribe({
+                             onPaymentSuccessful(it)
+                         }, {
+                             onPaymentFailed(it)
+                         })
+                 }
+         }
      }
 
-    private fun onTagDiscovered(tag: Tag, pin: String) {
-        paymentDisposable?.dispose()
-        paymentDisposable =
-            vm.payByCard(tag, pin, vm.getTotal(), vm.getCurrency().value.toString()).subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe({
-                    onPaymentSuccessful(it)
-                }, {
-                    onPaymentFailed(it)
-                })
-    }
-
     private fun onPaymentSuccessful(userBalance: UserBalance) {
-        val dialogBinding = DialogSucessBinding.inflate(layoutInflater,null, false)
+        mainVM.successSLE.call()
+        val dialogBinding = DialogSuccessBinding.inflate(layoutInflater,null, false)
         dialogBinding.title.text = getString(R.string.success)
         dialogBinding.message.text = String.format(
             getString(R.string.card_successfuly_paid_new_balance),
@@ -200,12 +187,7 @@ class ScanCardFragment : Fragment() {
         AlertDialog.Builder(requireContext(), R.style.SuccessDialogTheme).apply {
             setView(dialogBinding.root)
             setPositiveButton(android.R.string.ok, null)
-        }.create().apply {
-            setOnShowListener {
-                mainVM.onSuccess(requireContext())
-            }
-            show()
-        }
+        }.show()
         vm.setScanningInProgress(false)
         vm.setOriginalBalance(null)
         vm.setOriginalTagId(null)
@@ -217,6 +199,8 @@ class ScanCardFragment : Fragment() {
     }
 
     private fun onPaymentFailed(throwable: Throwable) {
+        mainVM.errorSLE.call()
+        vm.setScanningInProgress(false)
         when (throwable) {
             is PINException -> {
                 lastException = throwable
@@ -245,8 +229,6 @@ class ScanCardFragment : Fragment() {
                 payByCard()
             }
         }
-        mainVM.onError(requireContext())
-        vm.setScanningInProgress(false)
     }
 
     private fun getNfcCardErrorMessage(error: PINExceptionEnum): String {

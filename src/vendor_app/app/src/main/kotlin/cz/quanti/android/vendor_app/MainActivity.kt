@@ -1,15 +1,12 @@
 package cz.quanti.android.vendor_app
 
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.app.AlertDialog
-import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.graphics.Rect
 import android.nfc.NfcAdapter
 import android.nfc.Tag
 import android.os.Bundle
-import android.provider.Settings
 import android.util.DisplayMetrics
 import android.view.MenuItem
 import android.view.MotionEvent
@@ -35,7 +32,6 @@ import cz.quanti.android.vendor_app.repository.login.LoginFacade
 import cz.quanti.android.vendor_app.sync.SynchronizationManager
 import cz.quanti.android.vendor_app.sync.SynchronizationState
 import cz.quanti.android.vendor_app.utils.ConnectionObserver
-import cz.quanti.android.vendor_app.utils.NfcTagPublisher
 import cz.quanti.android.vendor_app.utils.OnTagDiscoveredEnum
 import cz.quanti.android.vendor_app.utils.PermissionRequestResult
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -51,7 +47,6 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
 
     private val loginFacade: LoginFacade by inject()
     private val nfcFacade: VendorFacade by inject()
-    private val nfcTagPublisher: NfcTagPublisher by inject()
     private val synchronizationManager: SynchronizationManager by inject()
     private val preferences: AppPreferences by inject()
     private val mainVM: MainViewModel by viewModel()
@@ -108,7 +103,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
         loadNavHeader(loginVM.getCurrentVendorName())
         checkConnection()
         syncState()
-        initNfcAdapter()
+        mainVM.initNfcAdapter(this)
     }
 
     override fun onPause() {
@@ -216,70 +211,20 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
         }
     }
 
-    override fun onNewIntent(intent: Intent) {
-        super.onNewIntent(intent)
-        if (NfcAdapter.ACTION_TAG_DISCOVERED == intent.action || NfcAdapter.ACTION_NDEF_DISCOVERED == intent.action) {
-            val tag: Tag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG) ?: return
-            nfcTagPublisher.getTagSubject().onNext(tag)
-        }
-    }
-
     override fun onTagDiscovered(tag: Tag?) {
-        Log.d("tag discovered + ${mainVM.getOnTagDiscovered()}")
         tag?.let {
             when (mainVM.getOnTagDiscovered()) {
                 OnTagDiscoveredEnum.READ_BALANCE -> {
                     readBalance(it)
+                }
+                OnTagDiscoveredEnum.PAY -> {
+                    mainVM.tagForPaymentDiscoveredSLE.postValue(it)
                 }
                 else -> {
                     // do nothing
                 }
             }
         }
-    }
-
-    private fun initNfcAdapter(){
-        val nfcAdapter = NfcAdapter.getDefaultAdapter(this)
-        mainVM.setNfcAdapter(nfcAdapter)
-        if (nfcAdapter == null) {
-            mainVM.setToastMessage(getString(R.string.no_nfc_available))
-        }
-    }
-
-    private fun enableNfc(onTagDiscovered: OnTagDiscoveredEnum): Boolean {
-        mainVM.getNfcAdapter()?.let { adapter ->
-            return if (!adapter.isEnabled) {
-                showWirelessSettings(this)
-                false
-            } else {
-                mainVM.setOnTagDiscovered(onTagDiscovered)
-                adapter.enableReaderMode(
-                    this,
-                    this,
-                    FLAGS,
-                    null
-                )
-                true
-            }
-        }
-        return false
-    }
-
-    private fun disableNfc() {
-        mainVM.setOnTagDiscovered(null)
-        mainVM.getNfcAdapter()?.disableReaderMode(this)
-    }
-
-    private fun showWirelessSettings(activity: Activity) {
-        AlertDialog.Builder(activity, R.style.DialogTheme)
-            .setMessage(activity.getString(R.string.you_need_to_enable_nfc))
-            .setCancelable(true)
-            .setPositiveButton(activity.getString(R.string.proceed)) { _,_ ->
-                activity.startActivity(Intent(Settings.ACTION_NFC_SETTINGS))
-            }
-            .setNegativeButton(activity.getString(R.string.cancel), null)
-            .create()
-            .show()
     }
 
     private fun logout() {
@@ -297,12 +242,12 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
     }
 
     private fun showReadBalanceDialog() {
-        if (enableNfc(OnTagDiscoveredEnum.READ_BALANCE)) {
+        if (mainVM.enableNfc(this, OnTagDiscoveredEnum.READ_BALANCE)) {
             displayedDialog = AlertDialog.Builder(this, R.style.DialogTheme)
                 .setMessage(getString(R.string.scan_card))
                 .setCancelable(false)
                 .setNegativeButton(getString(R.string.cancel)) { dialog, _ ->
-                    disableNfc()
+                    mainVM.disableNfc(this)
                     dialog?.dismiss()
                     readBalanceDisposable?.dispose()
                     readBalanceDisposable = null
@@ -327,20 +272,20 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
                     )
                     .setCancelable(true)
                     .setNegativeButton(getString(R.string.close)) { dialog, _ ->
-                        disableNfc()
+                        mainVM.disableNfc(this)
                         dialog?.dismiss()
                         readBalanceDisposable?.dispose()
                         readBalanceDisposable = null
                     }
                     .create()
                 cardResultDialog.show()
-                mainVM.onSucces(this)
+                mainVM.onSuccess(this)
                 displayedDialog = cardResultDialog
             }, {
                 Log.e(this.javaClass.simpleName, it)
                 mainVM.setToastMessage(getString(R.string.card_error))
                 mainVM.onError(this)
-                disableNfc()
+                mainVM.disableNfc(this)
                 displayedDialog?.dismiss()
             })
     }
@@ -551,15 +496,5 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
          * @param event The MotionEvent object containing full information about the event.
          */
         fun onTouchOutside(view: View?, event: MotionEvent?)
-    }
-
-    companion object {
-        private const val FLAGS = NfcAdapter.FLAG_READER_NFC_A or
-            NfcAdapter.FLAG_READER_NFC_B or
-            NfcAdapter.FLAG_READER_NFC_F or
-            NfcAdapter.FLAG_READER_NFC_V or
-            NfcAdapter.FLAG_READER_NFC_BARCODE or
-            NfcAdapter.FLAG_READER_SKIP_NDEF_CHECK or
-            NfcAdapter.FLAG_READER_NO_PLATFORM_SOUNDS
     }
 }

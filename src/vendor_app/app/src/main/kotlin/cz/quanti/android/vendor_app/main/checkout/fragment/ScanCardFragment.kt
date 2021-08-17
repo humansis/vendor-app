@@ -1,6 +1,7 @@
 package cz.quanti.android.vendor_app.main.checkout.fragment
 
 import android.app.AlertDialog
+import android.nfc.Tag
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -18,7 +19,7 @@ import cz.quanti.android.vendor_app.databinding.DialogCardPinBinding
 import cz.quanti.android.vendor_app.databinding.DialogSucessBinding
 import cz.quanti.android.vendor_app.databinding.FragmentScanCardBinding
 import cz.quanti.android.vendor_app.main.checkout.viewmodel.CheckoutViewModel
-import cz.quanti.android.vendor_app.utils.NfcInitializer
+import cz.quanti.android.vendor_app.utils.OnTagDiscoveredEnum
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
@@ -66,15 +67,15 @@ class ScanCardFragment : Fragment() {
                 vm.getPin() == null -> {
                     showPinDialogAndPayByCard()
                 }
-                else -> vm.getPin()?.let {
-                    payByCard(it)
+                else -> {
+                    payByCard()
                 }
             }
         }
     }
 
     override fun onPause() {
-        NfcInitializer.disableForegroundDispatch(requireActivity())
+        mainVM.disableNfc(requireActivity())
         super.onPause()
     }
 
@@ -96,6 +97,13 @@ class ScanCardFragment : Fragment() {
                 ScanCardFragmentDirections.actionScanCardFragmentToCheckoutFragment()
             )
         }
+
+        mainVM.tagForPaymentDiscoveredSLE.observe(viewLifecycleOwner, { tag ->
+            vm.setScanningInProgress(true)
+            vm.getPin()?.let { pin ->
+                onTagDiscovered(tag, pin)
+            }
+        })
 
         vm.getScanningInProgress().observe(viewLifecycleOwner, { isInProgress ->
             // show spinning progressbar if scanning is in progress
@@ -155,7 +163,7 @@ class ScanCardFragment : Fragment() {
                         mainVM.setToastMessage(getString(R.string.please_enter_pin))
                     } else {
                         vm.setPin(pin)
-                        payByCard(pin)
+                        payByCard()
                         pinDialog?.dismiss()
                     }
                 } catch(e: NumberFormatException) {
@@ -165,50 +173,21 @@ class ScanCardFragment : Fragment() {
         }
     }
 
-
-
-     private fun payByCard(pin: String) {
-         if (NfcInitializer.initNfc(requireActivity())) {
-             paymentDisposable?.dispose()
-             paymentDisposable =
-                 vm.payByCard(pin, vm.getTotal(), vm.getCurrency().value.toString()).subscribeOn(Schedulers.io())
-                     .observeOn(AndroidSchedulers.mainThread())
-                     .subscribe({
-                         onPaymentSuccessful(it.second)
-                     }, {
-                         when (it) {
-                             is PINException -> {
-                                 lastException = it
-                                 Log.e(this.javaClass.simpleName, it.pinExceptionEnum.name)
-                                 mainVM.setToastMessage(getNfcCardErrorMessage(it.pinExceptionEnum))
-                                 when (it.pinExceptionEnum) {
-                                     PINExceptionEnum.INCORRECT_PIN -> {
-                                         paymentDisposable?.dispose()
-                                         paymentDisposable = null
-                                         vm.setPin(null)
-                                         showPinDialogAndPayByCard()
-                                     }
-                                     PINExceptionEnum.PRESERVE_BALANCE -> {
-                                         it.extraData?.let { it1 -> vm.setOriginalBalance(it1.toDouble()) }
-                                         //vm.setOriginalTag() // TODO asi mi musi tagid vracet knihovna
-                                         payByCard(pin)
-                                     }
-                                     else -> {
-                                         payByCard(pin)
-                                     }
-                                 }
-                             }
-                             else -> {
-                                 Log.e(this.javaClass.simpleName, it)
-                                 mainVM.setToastMessage(getString(R.string.card_error))
-                                 payByCard(pin)
-                             }
-                         }
-                         mainVM.onError(requireContext())
-                         vm.setScanningInProgress(false)
-                     })
-             }
+     private fun payByCard() {
+         mainVM.enableNfc(requireActivity(), OnTagDiscoveredEnum.PAY)
      }
+
+    private fun onTagDiscovered(tag: Tag, pin: String) {
+        paymentDisposable?.dispose()
+        paymentDisposable =
+            vm.payByCard(tag, pin, vm.getTotal(), vm.getCurrency().value.toString()).subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe({
+                    onPaymentSuccessful(it)
+                }, {
+                    onPaymentFailed(it)
+                })
+    }
 
     private fun onPaymentSuccessful(userBalance: UserBalance) {
         val dialogBinding = DialogSucessBinding.inflate(layoutInflater,null, false)
@@ -223,7 +202,7 @@ class ScanCardFragment : Fragment() {
             setPositiveButton(android.R.string.ok, null)
         }.create().apply {
             setOnShowListener {
-                mainVM.onSucces(requireContext())
+                mainVM.onSuccess(requireContext())
             }
             show()
         }
@@ -235,6 +214,39 @@ class ScanCardFragment : Fragment() {
         findNavController().navigate(
             ScanCardFragmentDirections.actionScanCardFragmentToVendorFragment()
         )
+    }
+
+    private fun onPaymentFailed(throwable: Throwable) {
+        when (throwable) {
+            is PINException -> {
+                lastException = throwable
+                Log.e(this.javaClass.simpleName, throwable.pinExceptionEnum.name)
+                mainVM.setToastMessage(getNfcCardErrorMessage(throwable.pinExceptionEnum))
+                when (throwable.pinExceptionEnum) {
+                    PINExceptionEnum.INCORRECT_PIN -> {
+                        paymentDisposable?.dispose()
+                        paymentDisposable = null
+                        vm.setPin(null)
+                        showPinDialogAndPayByCard()
+                    }
+                    PINExceptionEnum.PRESERVE_BALANCE -> {
+                        throwable.extraData?.let { it1 -> vm.setOriginalBalance(it1.toDouble()) }
+                        //vm.setOriginalTag() // TODO asi mi musi tagid vracet knihovna
+                        payByCard()
+                    }
+                    else -> {
+                        payByCard()
+                    }
+                }
+            }
+            else -> {
+                Log.e(this.javaClass.simpleName, throwable)
+                mainVM.setToastMessage(getString(R.string.card_error))
+                payByCard()
+            }
+        }
+        mainVM.onError(requireContext())
+        vm.setScanningInProgress(false)
     }
 
     private fun getNfcCardErrorMessage(error: PINExceptionEnum): String {

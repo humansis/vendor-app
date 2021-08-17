@@ -26,8 +26,7 @@ class CheckoutViewModel(
     private val purchaseFacade: PurchaseFacade,
     private val nfcFacade: VendorFacade,
     private val cardFacade: CardFacade,
-    private val currentVendor: CurrentVendor,
-    private val nfcTagPublisher: NfcTagPublisher
+    private val currentVendor: CurrentVendor
 ) : ViewModel() {
     private var vouchers: MutableList<Voucher> = mutableListOf()
     private var pin: String? = null
@@ -112,13 +111,11 @@ class CheckoutViewModel(
         this.pin = string
     }
 
-    fun payByCard(pin: String, value: Double, currency: String): Single<Pair<Tag, UserBalance>> {
-        return subtractMoneyFromCard(pin, value, currency).flatMap { it ->
-            val tag = it.first
-            val userBalance = it.second
+    fun payByCard(tag: Tag, pin: String, value: Double, currency: String): Single<UserBalance> {
+        return subtractMoneyFromCard(tag, pin, value, currency).flatMap { userBalance ->
             saveCardPurchaseToDb(convertTagToString(tag))
                 .subscribeOn(Schedulers.io())
-                .toSingleDefault(Pair(tag, userBalance))
+                .toSingleDefault(userBalance)
                 .flatMap {
                     Single.just(it)
                 }
@@ -130,38 +127,35 @@ class CheckoutViewModel(
     }
 
     private fun subtractMoneyFromCard(
+        tag: Tag,
         pin: String,
         value: Double,
         currency: String
-    ): Single<Pair<Tag, UserBalance>> {
-        return Single.fromObservable(
-            nfcTagPublisher.getTagObservable().take(1).flatMapSingle { tag ->
-                if (originalTagLD.value == null) setOriginalTag(tag) // TODO remove after exception returns tagid
-                setScanningInProgress(true)
-                cardFacade.getBlockedCards()
-                    .subscribeOn(Schedulers.io())
-                    .flatMap {
-                    if(it.contains(convertTagToString(tag))) {
-                        throw PINException(PINExceptionEnum.CARD_LOCKED)
-                    } else {
+    ): Single<UserBalance> {
+        if (originalTagLD.value == null) setOriginalTag(tag) // TODO remove after exception returns tagid
+        return cardFacade.getBlockedCards()
+            .subscribeOn(Schedulers.io())
+            .flatMap {
+            if(it.contains(convertTagToString(tag))) {
+                throw PINException(PINExceptionEnum.CARD_LOCKED)
+            } else {
+                NfcLogger.d(
+                    TAG,
+                    "subtractBalanceFromCard: value: $value, currencyCode: $currency, originalBalance: $originalBalanceLD"
+                )
+                if (originalTagLD.value?.id == null || originalTagLD.value?.id.contentEquals( tag.id )) {
+                    nfcFacade.subtractFromBalance(tag, pin, value, currency, originalBalanceLD.value).map { userBalance ->
                         NfcLogger.d(
                             TAG,
-                            "subtractBalanceFromCard: value: $value, currencyCode: $currency, originalBalance: $originalBalanceLD"
+                            "subtractedBalanceFromCard: balance: ${userBalance.balance}, beneficiaryId: ${userBalance.userId}, currencyCode: ${userBalance.currencyCode}"
                         )
-                        if (originalTagLD.value?.id == null || originalTagLD.value?.id.contentEquals( tag.id )) {
-                            nfcFacade.subtractFromBalance(tag, pin, value, currency, originalBalanceLD.value).map { userBalance ->
-                                NfcLogger.d(
-                                    TAG,
-                                    "subtractedBalanceFromCard: balance: ${userBalance.balance}, beneficiaryId: ${userBalance.userId}, currencyCode: ${userBalance.currencyCode}"
-                                )
-                                Pair(tag, userBalance)
-                            }
-                        } else {
-                            throw PINException(PINExceptionEnum.INVALID_DATA)
-                        }
+                        userBalance
                     }
+                } else {
+                    throw PINException(PINExceptionEnum.INVALID_DATA)
                 }
-            })
+            }
+        }
     }
 
     private fun saveVoucherPurchaseToDb(): Completable {

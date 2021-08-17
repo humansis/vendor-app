@@ -6,7 +6,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.core.content.ContextCompat.getColor
 import androidx.fragment.app.Fragment
@@ -22,7 +21,6 @@ import cz.quanti.android.vendor_app.main.checkout.adapter.SelectedProductsAdapte
 import cz.quanti.android.vendor_app.main.checkout.callback.CheckoutFragmentCallback
 import cz.quanti.android.vendor_app.main.checkout.viewmodel.CheckoutViewModel
 import cz.quanti.android.vendor_app.repository.purchase.dto.SelectedProduct
-import cz.quanti.android.vendor_app.utils.NfcInitializer
 import cz.quanti.android.vendor_app.utils.getStringFromDouble
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
@@ -164,7 +162,7 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
         }
 
         checkoutBinding.payByCardButton.setOnClickListener {
-            payByCard()
+            showPinDialogAndPayByCard()
         }
     }
 
@@ -209,12 +207,6 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
         findNavController().navigate(
             CheckoutFragmentDirections.actionCheckoutFragmentToScannerFragment()
         )
-    }
-
-    override fun payByCard() {
-        if (NfcInitializer.initNfc(requireActivity())) {
-            showPinDialogAndPayByCard()
-        }
     }
 
     override fun updateItem(item: SelectedProduct, newPrice: Double) {
@@ -281,7 +273,7 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
     }
 
     private fun showPinDialogAndPayByCard() {
-       if (NfcInitializer.initNfc(requireActivity())) {
+       if (mainVM.enableNfc(requireActivity(), null)) {
            val dialogBinding = DialogCardPinBinding.inflate(layoutInflater,null, false)
            dialogBinding.pinTitle.text = getString(R.string.total_price, vm.getTotal(), vm.getCurrency().value)
            val dialog = AlertDialog.Builder(requireContext(), R.style.DialogTheme)
@@ -290,6 +282,7 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
                 .setPositiveButton(android.R.string.ok, null)
                 .setNegativeButton(android.R.string.cancel) { dialog, _ ->
                     dialog?.cancel()
+                    mainVM.disableNfc(requireActivity())
                 }
                 .show()
            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {

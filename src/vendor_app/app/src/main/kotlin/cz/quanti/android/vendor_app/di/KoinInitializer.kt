@@ -46,7 +46,6 @@ import cz.quanti.android.vendor_app.sync.SynchronizationManager
 import cz.quanti.android.vendor_app.sync.SynchronizationManagerImpl
 import cz.quanti.android.vendor_app.utils.CurrentVendor
 import cz.quanti.android.vendor_app.utils.LoginManager
-import cz.quanti.android.vendor_app.utils.NfcTagPublisher
 import cz.quanti.android.vendor_app.utils.ShoppingHolder
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -150,8 +149,6 @@ object KoinInitializer {
             NfcUtil.hexStringToByteArray(BuildConfig.APP_ID)
         )
 
-        val nfcTagPublisher = NfcTagPublisher()
-
         return module {
             single { preferences }
             single { db }
@@ -167,7 +164,6 @@ object KoinInitializer {
             single { purchaseFacade }
             single { syncFacade }
             single { nfcFacade }
-            single { nfcTagPublisher }
             single { synchronizationManager }
 
             // View model
@@ -199,8 +195,7 @@ object KoinInitializer {
                     purchaseFacade,
                     nfcFacade,
                     cardFacade,
-                    currentVendor,
-                    nfcTagPublisher
+                    currentVendor
                 )
             }
             viewModel { InvoicesViewModel(invoiceFacade, synchronizationManager) }

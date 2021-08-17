@@ -1,11 +1,16 @@
 package cz.quanti.android.vendor_app
 
+import android.app.Activity
+import android.app.AlertDialog
 import android.content.Context
+import android.content.Intent
 import android.media.MediaPlayer
 import android.nfc.NfcAdapter
+import android.nfc.Tag
 import android.os.Build
 import android.os.VibrationEffect
 import android.os.Vibrator
+import android.provider.Settings
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -24,30 +29,58 @@ class MainViewModel(
     private var nfcAdapter:  NfcAdapter? = null
     private var onTagDiscovered: OnTagDiscoveredEnum? = null
 
+    val tagForPaymentDiscoveredSLE = SingleLiveEvent<Tag>()
     val cameraPermissionsGrantedSLE = SingleLiveEvent<PermissionRequestResult>()
 
     private val toastMessageLD = MutableLiveData<String?>(null)
 
-    fun setNfcAdapter(nfcAdapter: NfcAdapter?) {
-        this.nfcAdapter = nfcAdapter
+    fun initNfcAdapter(context: Context){
+        nfcAdapter = NfcAdapter.getDefaultAdapter(context)
+        if (nfcAdapter == null) {
+            setToastMessage(context.getString(R.string.no_nfc_available))
+        }
     }
 
-    fun getNfcAdapter(): NfcAdapter? {
-        return nfcAdapter
+    fun enableNfc(activity: Activity, onTagDiscovered: OnTagDiscoveredEnum?): Boolean {
+        nfcAdapter?.let { adapter ->
+            return if (!adapter.isEnabled) {
+                showWirelessSettings(activity)
+                false
+            } else {
+                this.onTagDiscovered = onTagDiscovered
+                onTagDiscovered?.let {
+                    adapter.enableReaderMode(
+                        activity,
+                        activity as MainActivity,
+                        FLAGS,
+                        null
+                    )
+                }
+                true
+            }
+        }
+        return false
     }
 
-    fun setOnTagDiscovered(onTagDiscovered: OnTagDiscoveredEnum?) {
-        this.onTagDiscovered = onTagDiscovered
+    fun disableNfc(activity: Activity) {
+        onTagDiscovered = null
+        nfcAdapter?.disableReaderMode(activity)
+    }
+
+    private fun showWirelessSettings(context: Context) {
+        AlertDialog.Builder(context, R.style.DialogTheme)
+            .setMessage(context.getString(R.string.you_need_to_enable_nfc))
+            .setCancelable(true)
+            .setPositiveButton(context.getString(R.string.proceed)) { _,_ ->
+                context.startActivity(Intent(Settings.ACTION_NFC_SETTINGS))
+            }
+            .setNegativeButton(context.getString(R.string.cancel), null)
+            .create()
+            .show()
     }
 
     fun getOnTagDiscovered(): OnTagDiscoveredEnum? {
         return onTagDiscovered
-    }
-
-    fun showDot(): LiveData<Boolean> {
-        return syncFacade.getPurchasesCount().flatMap { purchasesCount ->
-            syncFacade.isSyncNeeded(purchasesCount).toObservable()
-        }.toFlowable(BackpressureStrategy.LATEST).toLiveData()
     }
 
     fun grantPermission(permissionResult: PermissionRequestResult) {
@@ -58,6 +91,12 @@ class MainViewModel(
         }
     }
 
+    fun showDot(): LiveData<Boolean> {
+        return syncFacade.getPurchasesCount().flatMap { purchasesCount ->
+            syncFacade.isSyncNeeded(purchasesCount).toObservable()
+        }.toFlowable(BackpressureStrategy.LATEST).toLiveData()
+    }
+
     fun setToastMessage(message: String?) {
         toastMessageLD.value = message
     }
@@ -66,7 +105,7 @@ class MainViewModel(
         return toastMessageLD
     }
 
-    fun onSucces(context: Context) {
+    fun onSuccess(context: Context) {
         vibrate(context)
         MediaPlayer.create(context, R.raw.end).start()
     }
@@ -84,5 +123,15 @@ class MainViewModel(
         } else {
             vibrator.vibrate(200)
         }
+    }
+
+    companion object {
+        private const val FLAGS = NfcAdapter.FLAG_READER_NFC_A or
+            NfcAdapter.FLAG_READER_NFC_B or
+            NfcAdapter.FLAG_READER_NFC_F or
+            NfcAdapter.FLAG_READER_NFC_V or
+            NfcAdapter.FLAG_READER_NFC_BARCODE or
+            NfcAdapter.FLAG_READER_SKIP_NDEF_CHECK or
+            NfcAdapter.FLAG_READER_NO_PLATFORM_SOUNDS
     }
 }

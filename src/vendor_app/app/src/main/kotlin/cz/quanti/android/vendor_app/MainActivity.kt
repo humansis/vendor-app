@@ -98,17 +98,20 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
         })
     }
 
+    override fun onStart() {
+        super.onStart()
+        mainVM.initNfcAdapter(this)
+    }
+
     override fun onResume() {
         super.onResume()
         loadNavHeader(loginVM.getCurrentVendorName())
         checkConnection()
         syncState()
-        mainVM.initNfcAdapter(this)
     }
 
     override fun onPause() {
         syncStateDisposable?.dispose()
-        NfcAdapter.getDefaultAdapter(this).disableReaderMode(this)
         super.onPause()
     }
 
@@ -211,18 +214,17 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
         }
     }
 
-    override fun onTagDiscovered(tag: Tag?) {
-        tag?.let {
-            when (mainVM.getOnTagDiscovered()) {
-                OnTagDiscoveredEnum.READ_BALANCE -> {
-                    readBalance(it)
-                }
-                OnTagDiscoveredEnum.PAY -> {
-                    mainVM.tagForPaymentDiscoveredSLE.postValue(it)
-                }
-                else -> {
-                    // do nothing
-                }
+    override fun onTagDiscovered(tag: Tag) {
+        // todo nfctagpulbisher publish tag + v metodach nfctagpublisher.get()
+        when (mainVM.getOnTagDiscovered()) {
+            OnTagDiscoveredEnum.READ_BALANCE -> {
+                readBalance(tag)
+            }
+            OnTagDiscoveredEnum.PAY -> {
+                mainVM.tagForPaymentDiscoveredSLE.postValue(tag)
+            }
+            else -> {
+                // do nothing
             }
         }
     }

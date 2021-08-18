@@ -19,7 +19,6 @@ import cz.quanti.android.vendor_app.utils.*
 import io.reactivex.Completable
 import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
-import quanti.com.kotlinlog.Log
 import java.util.*
 
 class CheckoutViewModel(

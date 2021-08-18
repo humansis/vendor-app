@@ -30,7 +30,6 @@ class ScanCardFragment : Fragment() {
     private val vm: CheckoutViewModel by viewModel()
     private var paymentDisposable: Disposable? = null
     private var pinDialog: AlertDialog? = null
-    private var lastException: PINException? = null
     private lateinit var activityCallback: ActivityCallback
 
     private lateinit var scanCardBinding: FragmentScanCardBinding
@@ -94,17 +93,16 @@ class ScanCardFragment : Fragment() {
         vm.getScanningInProgress().observe(viewLifecycleOwner, { isInProgress ->
             // show spinning progressbar if scanning is in progress
             if (isInProgress) {
-                lastException = null
                 scanCardBinding.icon.visibility = View.GONE
                 scanCardBinding.scanningProgressBar.visibility = View.VISIBLE
                 scanCardBinding.message.text = getString(R.string.payment_in_progress)
             } else {
                 scanCardBinding.scanningProgressBar.visibility = View.GONE
-                if (lastException?.pinExceptionEnum == PINExceptionEnum.PRESERVE_BALANCE) {
+                if (vm.getOriginalBalance().value == null) {
+                    scanCardBinding.message.text = getString(R.string.scan_card)
+                } else {
                     scanCardBinding.icon.visibility = View.VISIBLE
                     scanCardBinding.message.text = getString(R.string.scan_card_to_fix)
-                } else {
-                    scanCardBinding.message.text = getString(R.string.scan_card)
                 }
             }
 
@@ -203,8 +201,6 @@ class ScanCardFragment : Fragment() {
         vm.setScanningInProgress(false)
         when (throwable) {
             is PINException -> {
-                lastException = throwable
-                vm.setOriginalTagId(throwable.tagId)
                 Log.e(this.javaClass.simpleName, throwable.pinExceptionEnum.name)
                 mainVM.setToastMessage(getNfcCardErrorMessage(throwable.pinExceptionEnum))
                 when (throwable.pinExceptionEnum) {
@@ -216,6 +212,7 @@ class ScanCardFragment : Fragment() {
                     }
                     PINExceptionEnum.PRESERVE_BALANCE -> {
                         throwable.extraData?.let { it1 -> vm.setOriginalBalance(it1.toDouble()) }
+                        vm.setOriginalTagId(throwable.tagId)
                         payByCard()
                     }
                     else -> {

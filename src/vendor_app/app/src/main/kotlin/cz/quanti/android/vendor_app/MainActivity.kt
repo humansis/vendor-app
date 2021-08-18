@@ -3,7 +3,6 @@ package cz.quanti.android.vendor_app
 import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.content.Context
-import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.graphics.Rect
 import android.media.MediaPlayer
@@ -77,10 +76,6 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
     private lateinit var successPlayer: MediaPlayer
     private lateinit var errorPlayer: MediaPlayer
 
-    companion object {
-        private const val VOLUME = 0.25F
-    }
-
     @SuppressLint("SourceLockedOrientationActivity")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -130,8 +125,8 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
         loadNavHeader(loginVM.getCurrentVendorName())
         checkConnection()
         syncState()
-        successPlayer = MediaPlayer.create(this, R.raw.end).apply{ setVolume(VOLUME, VOLUME) }
-        errorPlayer = MediaPlayer.create(this, R.raw.error).apply{ setVolume(VOLUME, VOLUME) }
+        successPlayer = MediaPlayer.create(this, R.raw.end)
+        errorPlayer = MediaPlayer.create(this, R.raw.error)
     }
 
     override fun onPause() {

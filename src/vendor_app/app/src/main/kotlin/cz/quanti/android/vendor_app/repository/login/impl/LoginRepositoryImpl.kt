@@ -5,13 +5,33 @@ import cz.quanti.android.vendor_app.repository.login.LoginRepository
 import cz.quanti.android.vendor_app.repository.login.dto.Salt
 import cz.quanti.android.vendor_app.repository.login.dto.Vendor
 import cz.quanti.android.vendor_app.repository.login.dto.api.*
+import cz.quanti.android.vendor_app.repository.utils.exceptions.LoginException
+import cz.quanti.android.vendor_app.repository.utils.exceptions.LoginExceptionState
+import cz.quanti.android.vendor_app.utils.VendorAppException
+import io.reactivex.Completable
 import io.reactivex.Single
+import io.reactivex.internal.operators.completable.CompletableError
+import quanti.com.kotlinlog.Log
+import java.io.IOException
+import java.net.UnknownHostException
 
 class LoginRepositoryImpl(private val api: VendorAPI) :
     LoginRepository {
 
     override fun getSalt(username: String): Single<SaltWithResponseCode> {
-        return api.getSalt(username).map { response ->
+        return api.getSalt(username).onErrorResumeNext{
+            when (it) {
+                is IOException -> {
+                    Single.error(LoginException(LoginExceptionState.NO_CONNECTION))
+                }
+                is UnknownHostException -> {
+                    Single.error(LoginException(LoginExceptionState.NO_CONNECTION))
+                }
+                else -> {
+                    throw it
+                }
+            }
+        }.map { response ->
             SaltWithResponseCode(salt = convert(response.body()), responseCode = response.code())
         }
     }

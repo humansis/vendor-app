@@ -15,6 +15,8 @@ import cz.quanti.android.vendor_app.ActivityCallback
 import cz.quanti.android.vendor_app.BuildConfig
 import cz.quanti.android.vendor_app.R
 import cz.quanti.android.vendor_app.main.authorization.viewmodel.LoginViewModel
+import cz.quanti.android.vendor_app.repository.utils.exceptions.LoginException
+import cz.quanti.android.vendor_app.repository.utils.exceptions.LoginExceptionState
 import cz.quanti.android.vendor_app.utils.ApiEnvironments
 import cz.quanti.android.vendor_app.utils.Constants
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -102,6 +104,8 @@ class LoginFragment : Fragment() {
                     loginButton.isEnabled = false
                     loginButton.visibility = View.INVISIBLE
                     loadingImageView.visibility = View.VISIBLE
+                    usernameEditText.error = null
+                    passwordEditText.error = null
 
                     val animation = RotateAnimation(
                         0f,
@@ -135,29 +139,34 @@ class LoginFragment : Fragment() {
                                     loginButton.visibility = View.VISIBLE
                                     loginButton.isEnabled = true
                                     Log.e(TAG, it)
-                                    when {
-                                        vm.isNetworkConnected().value == false -> {
-                                            usernameEditText.error = null
-                                            passwordEditText.error = null
-                                            Toast.makeText(
-                                                context,
-                                                getString(R.string.no_internet_connection),
-                                                Toast.LENGTH_LONG
-                                            ).show()
+                                    if (it is LoginException) {
+                                        when (it.state) {
+                                            LoginExceptionState.NO_CONNECTION -> {
+                                                if (vm.isNetworkConnected().value == false) {
+                                                    Log.d(it.message.toString())
+                                                    Toast.makeText(
+                                                        context,
+                                                        getString(R.string.no_internet_connection),
+                                                        Toast.LENGTH_LONG
+                                                    ).show()
+                                                } else {
+                                                    // TODO server nedostupny
+                                                }
+                                            }
+                                            LoginExceptionState.INVALID_USER,
+                                            LoginExceptionState.INVALID_PASSWORD -> {
+                                                usernameEditText.error =
+                                                    getString(R.string.wrong_password)
+                                                passwordEditText.error =
+                                                    getString(R.string.wrong_password)
+                                            }
                                         }
-                                        ( it.message == USER_DOES_NOT_EXIST || it.message == WRONG_PASSWORD )-> {
-                                            usernameEditText.error = getString(R.string.wrong_password)
-                                            passwordEditText.error = getString(R.string.wrong_password)
-                                        }
-                                        else -> {
-                                            usernameEditText.error = null
-                                            passwordEditText.error = null
-                                            Toast.makeText(
-                                                context,
-                                                it.message,
-                                                Toast.LENGTH_LONG
-                                            ).show()
-                                        }
+                                    } else {
+                                        Toast.makeText(
+                                            context,
+                                            it.message,
+                                            Toast.LENGTH_LONG
+                                        ).show()
                                     }
                                 }
                             )
@@ -173,7 +182,5 @@ class LoginFragment : Fragment() {
 
     companion object {
         private val TAG = LoginFragment::class.java.simpleName
-        private const val USER_DOES_NOT_EXIST = "Could not obtain salt for the user."
-        private const val WRONG_PASSWORD = "Cannot login"
     }
 }

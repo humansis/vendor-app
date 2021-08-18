@@ -80,10 +80,9 @@ class ProductsFragment : Fragment(), OnTouchOutsideViewListener {
 
     override fun onTouchOutside(view: View?, event: MotionEvent?) {
         if (!productsSearchBar.isIconified) {
-            if (productsSearchBar.query.isNotEmpty()) {
-                productsSearchBar.onActionViewCollapsed()
-            } else {
-                productsSearchBar.clearFocus()
+            productsSearchBar.clearFocus()
+            if (productsSearchBar.query.isEmpty()) {
+                productsSearchBar.isIconified = true
             }
         }
     }

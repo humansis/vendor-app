@@ -31,7 +31,7 @@ class SynchronizationFacadeImpl(
     }
 
     override fun isSyncNeeded(purchasesCount: Long): Single<Boolean> {
-        return if(purchasesCount > 0) {
+        return if (purchasesCount > 0) {
             Single.just(true)
         } else {
             bookletFacade.isSyncNeeded()

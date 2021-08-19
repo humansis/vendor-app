@@ -24,7 +24,7 @@ interface PurchaseRepository {
 
     fun getPurchasesCount(): Observable<Long>
 
-    //--- cart---
+    // --- cart---
     fun addProductToCart(product: SelectedProduct)
 
     fun getProductsFromCart(): Observable<List<SelectedProduct>>

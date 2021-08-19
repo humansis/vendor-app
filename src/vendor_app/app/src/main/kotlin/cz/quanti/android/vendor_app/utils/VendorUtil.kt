@@ -30,7 +30,6 @@ fun isPositiveResponseHttpCode(code: Int): Boolean {
     return (code - 200 >= 0) && (code - 300 < 0)
 }
 
-
 fun convertTimeForApiRequestBody(date: Date): String {
     return SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ", Locale.US)
         .format(date)
@@ -38,12 +37,11 @@ fun convertTimeForApiRequestBody(date: Date): String {
 
 fun convertStringToDate(context: Context, date: String): String? {
     val df = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ", Locale.US).parse(date)
-    return if (df != null){
+    return if (df != null) {
         "${getDateFormat(context).format(df)}  ${getTimeFormat(context).format(df)}"
     } else {
         null
     }
-
 }
 
 fun getDefaultCurrency(country: String): String {

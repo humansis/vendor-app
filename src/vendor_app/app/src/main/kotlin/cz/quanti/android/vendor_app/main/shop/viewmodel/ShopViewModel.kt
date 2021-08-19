@@ -42,9 +42,9 @@ class ShopViewModel(
     }
 
     fun getCurrency(): LiveData<String> {
-        if(shoppingHolder.chosenCurrency.value == "") {
+        if (shoppingHolder.chosenCurrency.value == "") {
             val savedCurrency = preferences.currency
-            if (savedCurrency.isNotEmpty() ){
+            if (savedCurrency.isNotEmpty()) {
                 shoppingHolder.chosenCurrency.postValue(savedCurrency)
             } else {
                 setCurrency(getDefaultCurrency(currentVendor.vendor.country))

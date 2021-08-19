@@ -385,7 +385,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
 
     override fun loadNavHeader(currentVendorName: String) {
         val metrics: DisplayMetrics = resources.displayMetrics
-        navHeaderBinding.ivAppIcon.layoutParams.height = if ((metrics.heightPixels/metrics.density) > 640) {
+        navHeaderBinding.ivAppIcon.layoutParams.height = if ((metrics.heightPixels / metrics.density) > 640) {
             resources.getDimensionPixelSize(R.dimen.nav_header_image_height_tall)
         } else {
             resources.getDimensionPixelSize(R.dimen.nav_header_image_height_regular)
@@ -395,7 +395,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
         if (BuildConfig.DEBUG) { appVersion += (" (" + BuildConfig.BUILD_NUMBER + ")") }
         navHeaderBinding.tvAppVersion.text = appVersion
 
-        if(BuildConfig.DEBUG) {
+        if (BuildConfig.DEBUG) {
             navHeaderBinding.tvEnvironment.text = getString(
                 R.string.environment,
                 preferences.url
@@ -438,7 +438,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }
 
-    //====OnTouchOutsideListener====
+    // ====OnTouchOutsideListener====
 
     private var mTouchOutsideView: View? = null
 
@@ -489,7 +489,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
         /**
          * Called when a touch event has occurred outside a given view.
          *
-         * @param view  The view that has not been touched.
+         * @param view The view that has not been touched.
          * @param event The MotionEvent object containing full information about the event.
          */
         fun onTouchOutside(view: View?, event: MotionEvent?)

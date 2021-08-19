@@ -20,8 +20,8 @@ interface PurchasedProductDao {
     fun getAll(): Single<List<PurchasedProductDbEntity>>
 
     @Query(
-        "SELECT * FROM " + VendorDb.TABLE_PURCHASED_PRODUCT
-            + " WHERE purchaseId = :purchaseId"
+        "SELECT * FROM " + VendorDb.TABLE_PURCHASED_PRODUCT +
+            " WHERE purchaseId = :purchaseId"
     )
     fun getProductsForPurchase(purchaseId: Long): Single<List<PurchasedProductDbEntity>>
 }

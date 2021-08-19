@@ -2,10 +2,10 @@ package cz.quanti.android.vendor_app.repository
 
 import android.content.Context
 import cz.quanti.android.vendor_app.repository.login.dto.Vendor
+import java.util.*
 import org.koin.core.component.KoinComponent
 import wtf.qase.appskeleton.core.BasePreferences
 import wtf.qase.appskeleton.core.BasePreferencesMigration
-import java.util.*
 
 class AppPreferences(context: Context) : BasePreferences(context, VERSION, MIGRATIONS),
     KoinComponent {

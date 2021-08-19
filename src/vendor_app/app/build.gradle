@@ -132,10 +132,9 @@ android {
         }
     }
 
-    android {
-        lintOptions {
-            abortOnError false
-        }
+    lintOptions {
+        checkReleaseBuilds false
+        abortOnError false
     }
 }
 

@@ -28,14 +28,13 @@ class BookletFacadeImpl(
         return bookletRepo.getProtectedBooklets()
     }
 
-
     override fun syncWithServer(): Completable {
         return sendDataToServer()
             .andThen(reloadDataFromServer())
     }
 
     override fun isSyncNeeded(): Single<Boolean> {
-        return bookletRepo.getNewlyDeactivatedCount().map{ it > 0 }
+        return bookletRepo.getNewlyDeactivatedCount().map { it > 0 }
     }
 
     private fun sendDataToServer(): Completable {

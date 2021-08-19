@@ -45,5 +45,4 @@ class InvoicesAdapter(
         invoices.addAll(data.sortedByDescending { it.date })
         notifyDataSetChanged()
     }
-
 }

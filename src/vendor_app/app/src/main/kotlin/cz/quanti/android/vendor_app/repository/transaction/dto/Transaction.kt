@@ -1,6 +1,6 @@
 package cz.quanti.android.vendor_app.repository.transaction.dto
 
-class Transaction (
+class Transaction(
     var projectId: Long = 0,
     var purchases: List<TransactionPurchase> = listOf(),
     var value: Double = 0.0,

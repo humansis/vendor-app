@@ -6,8 +6,8 @@ import io.reactivex.Observable
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.PublishSubject
 import io.reactivex.subjects.Subject
-import quanti.com.kotlinlog.Log
 import java.util.*
+import quanti.com.kotlinlog.Log
 
 class SynchronizationManagerImpl(
     private val preferences: AppPreferences,

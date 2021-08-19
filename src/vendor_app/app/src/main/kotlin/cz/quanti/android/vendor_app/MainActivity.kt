@@ -127,6 +127,10 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
             R.id.share_logs_button -> {
                 shareLogsDialog()
             }
+            R.id.fix_card_button -> {
+                // TODO fixovani karty z db + overeni casu a userid
+                // TODO dat pryc pokud se zrusi db
+            }
         }
         activityBinding.drawerLayout.closeDrawer(GravityCompat.START)
         return true
@@ -177,16 +181,18 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
         }
     }
 
+    private fun getToobarUpButton(): ImageButton? {
+        val field = Class.forName("androidx.appcompat.widget.Toolbar").getDeclaredField("mNavButtonView")
+        field.isAccessible = true
+        return field.get(activityBinding.appBar.toolbar) as? ImageButton
+    }
+
     private fun setUpNavigationMenu() {
         initPriceUnitSpinner()
         activityBinding.btnLogout.setOnClickListener {
             logout()
             activityBinding.drawerLayout.closeDrawer(GravityCompat.START)
         }
-    }
-
-    override fun setSubtitle(titleText: String?) {
-        activityBinding.appBar.toolbar.subtitle = titleText
     }
 
     override fun onNewIntent(intent: Intent) {
@@ -344,19 +350,37 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
     override fun setToolbarVisible(boolean: Boolean) {
         if (boolean) {
             activityBinding.appBar.appBarLayout.visibility = View.VISIBLE
-            activityBinding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
         } else {
             activityBinding.appBar.appBarLayout.visibility = View.GONE
-            activityBinding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
         }
+        setDrawerLocked(!boolean)
     }
 
-    override fun setBackButtonVisible(boolean: Boolean) {
+    override fun setSubtitle(titleText: String?) {
+        activityBinding.appBar.toolbar.subtitle = titleText
+    }
+
+    override fun setDrawerLocked(boolean: Boolean) {
         if (boolean) {
             activityBinding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
         } else {
             activityBinding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
         }
+    }
+
+    override fun setBackButtonEnabled(boolean: Boolean) {
+        getToobarUpButton()?.isEnabled = boolean
+        if (!boolean) {
+            // I could not find a better method to make the arrow grey when disabled
+            getToobarUpButton()?.setImageDrawable(ContextCompat.getDrawable(this,R.drawable.arrow_back))
+            getToobarUpButton()?.drawable?.setTint(ContextCompat.getColor(this, R.color.grey))
+        } else {
+            getToobarUpButton()?.drawable?.setTint(ContextCompat.getColor(this, R.color.black))
+        }
+    }
+
+    override fun setSyncButtonEnabled(boolean: Boolean) {
+        activityBinding.appBar.syncButton.isEnabled = boolean
     }
 
     override fun loadNavHeader(currentVendorName: String) {

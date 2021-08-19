@@ -97,4 +97,6 @@
     <string name="logs_dialog_email_button">Share</string>
     <string name="environment">Environment: %1$s</string>
     <string name="confirm">Confirm</string>
+    <string name="fix_card">Fix card</string>
+    <string name="scan_card_to_fix">Scanning did not finish properly and thus the data on the card might be incomplete.\n\nScan the card again to finish the payment.</string>
 </resources>

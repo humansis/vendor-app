@@ -33,7 +33,7 @@
         <item name="android:textAllCaps">true</item>
     </style>
 
-    <style name="Toolbar.Subtitle" parent="@style/TextAppearance.Widget.AppCompat.Toolbar.Subtitle">
+    <style name="Toolbar.Subtitle" parent="TextAppearance.Widget.AppCompat.Toolbar.Subtitle">
         <item name="android:textSize">12sp</item>
         <item name="android:textAllCaps">true</item>
     </style>

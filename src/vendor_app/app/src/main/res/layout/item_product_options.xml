@@ -39,7 +39,7 @@
         android:textColor="@color/white"
         android:textSize="@dimen/button_text"
         android:stateListAnimator="@null"
-        app:icon="@drawable/shopping_basket"
+        app:icon="@drawable/ic_shopping_cart"
         app:iconTint="@color/white"/>
 
 </LinearLayout>

@@ -12,6 +12,7 @@ import cz.quanti.android.vendor_app.main.checkout.viewholder.SelectedProductsVie
 import cz.quanti.android.vendor_app.repository.purchase.dto.SelectedProduct
 import cz.quanti.android.vendor_app.utils.getStringFromDouble
 import cz.quanti.android.vendor_app.utils.round
+import java.math.BigDecimal
 
 class SelectedProductsAdapter(
     private val checkoutFragmentCallback: CheckoutFragmentCallback,
@@ -104,7 +105,8 @@ class SelectedProductsAdapter(
     }
 
     private fun loadOptions(holder: SelectedProductsViewHolder, item: SelectedProduct) {
-        holder.priceEditText.setText(item.price.toString())
+        val price = BigDecimal.valueOf(item.price).stripTrailingZeros().toPlainString()
+        holder.priceEditText.setText(price)
         holder.priceTextInputLayout.suffixText = chosenCurrency
         holder.confirm.text = context.getString(R.string.confirm)
     }

@@ -82,7 +82,7 @@ class MainViewModel(
     }
 
     fun setToastMessage(message: String?) {
-        toastMessageLD.value = message
+        toastMessageLD.postValue(message)
     }
 
     fun getToastMessage(): LiveData<String?> {

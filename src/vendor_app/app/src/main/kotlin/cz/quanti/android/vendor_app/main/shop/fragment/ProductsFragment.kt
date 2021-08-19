@@ -232,14 +232,6 @@ class ProductsFragment : Fragment(), OnTouchOutsideViewListener {
         productsBinding.totalTextView.text = totalText
     }
 
-    private fun showInvalidPriceEnteredMessage() {
-        Toast.makeText(
-            requireContext(),
-            requireContext().getString(R.string.please_enter_price),
-            Toast.LENGTH_LONG
-        ).show()
-    }
-
     companion object {
         const val EMPTY_CART_SIZE = 0
         const val INVALID_PRICE_VALUE = 0.0

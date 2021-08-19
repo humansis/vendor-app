@@ -1,12 +1,10 @@
 package cz.quanti.android.vendor_app.main.checkout.fragment
 
 import android.app.AlertDialog
-import android.content.DialogInterface
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.core.widget.doOnTextChanged
 import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
@@ -53,7 +51,7 @@ class ScanCardFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        scanCardBinding.totalPriceText.text  = getString(R.string.total_price, vm.getTotal(), vm.getCurrency().value)
+        scanCardBinding.price.text  = getString(R.string.total_price, vm.getTotal(), vm.getCurrency().value)
         init()
     }
 
@@ -97,12 +95,14 @@ class ScanCardFragment : Fragment() {
         vm.getScanningInProgress().observe(viewLifecycleOwner, { isInProgress ->
             // show spinning progressbar if scanning is in progress
             if (isInProgress) {
+                scanCardBinding.price.visibility = View.GONE
                 scanCardBinding.icon.visibility = View.GONE
                 scanCardBinding.scanningProgressBar.visibility = View.VISIBLE
                 scanCardBinding.message.text = getString(R.string.payment_in_progress)
             } else {
                 scanCardBinding.scanningProgressBar.visibility = View.GONE
-                if (vm.getOriginalBalance().value == null) {
+                if (vm.getOriginalCardData().value?.balance == null) {
+                    scanCardBinding.price.visibility = View.VISIBLE
                     scanCardBinding.message.text = getString(R.string.scan_card)
                 } else {
                     scanCardBinding.icon.visibility = View.VISIBLE
@@ -143,29 +143,24 @@ class ScanCardFragment : Fragment() {
                 )
             }
             .show()
-        pinDialog?.let {
-            it.getButton(AlertDialog.BUTTON_POSITIVE)
-                .apply {
-                    it.isEnabled = false
-                }
-                .setOnClickListener {
-                try {
-                    val pin = dialogBinding.pinEditText.text.toString()
-                    if (pin.isEmpty()) {
-                        mainVM.setToastMessage(getString(R.string.please_enter_pin))
-                    } else {
-                        vm.setPin(pin)
-                        payByCard()
-                        pinDialog?.dismiss()
-                    }
-                } catch(e: NumberFormatException) {
+        pinDialog?.let { dialog ->
+            val positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
+            positiveButton.isEnabled = false
+            positiveButton.setOnClickListener {
+                val pin = dialogBinding.pinEditText.text.toString()
+                if (pin.isEmpty()) {
                     mainVM.setToastMessage(getString(R.string.please_enter_pin))
+                } else {
+                    dialog.dismiss()
+                    findNavController().navigate(
+                        CheckoutFragmentDirections.actionCheckoutFragmentToScanCardFragment(pin)
+                    )
                 }
             }
-        }
 
-        dialogBinding.pinEditText.doOnTextChanged { text, _, _, _ ->
-            positiveButton?.isEnabled = !text.isNullOrEmpty()
+            dialogBinding.pinEditText.doOnTextChanged { text, _, _, _ ->
+                positiveButton.isEnabled = !text.isNullOrEmpty()
+            }
         }
     }
 
@@ -222,8 +217,8 @@ class ScanCardFragment : Fragment() {
                         showPinDialogAndPayByCard()
                     }
                     PINExceptionEnum.PRESERVE_BALANCE -> {
-                        it.extraData?.let { originalBalance ->
-                            vm.setOriginalCardData(originalBalance.toDouble(), it.tagId)
+                        throwable.extraData?.let { originalBalance ->
+                            vm.setOriginalCardData(originalBalance.toDouble(), throwable.tagId)
                         }
                         payByCard()
                     }

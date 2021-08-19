@@ -2,7 +2,6 @@ package cz.quanti.android.vendor_app.main.checkout.fragment
 
 import android.annotation.SuppressLint
 import android.app.AlertDialog
-import android.content.DialogInterface
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -281,11 +280,9 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
                     dialog?.cancel()
                 }
                 .show()
-           dialog.getButton(AlertDialog.BUTTON_POSITIVE)
-               .apply {
-                   it.isEnabled = false
-               }
-               .setOnClickListener {
+           val positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
+           positiveButton.isEnabled = false
+           positiveButton.setOnClickListener {
                val pin = dialogBinding.pinEditText.text.toString()
                if (pin.isEmpty()) {
                    mainVM.setToastMessage(getString(R.string.please_enter_pin))
@@ -298,7 +295,7 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
            }
 
            dialogBinding.pinEditText.doOnTextChanged { text, _, _, _ ->
-               positiveButton?.isEnabled = !text.isNullOrEmpty()
+               positiveButton.isEnabled = !text.isNullOrEmpty()
            }
         }
     }

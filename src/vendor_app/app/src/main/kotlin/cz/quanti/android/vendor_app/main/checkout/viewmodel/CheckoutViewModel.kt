@@ -58,7 +58,7 @@ class CheckoutViewModel(
 
     fun setOriginalCardData(originalBalance: Double?, originalTagId: ByteArray?) {
         this.originalCardDataLD.postValue(
-            OriginalCardData(originalBalance, tagId)
+            OriginalCardData(originalBalance, originalTagId)
         )
     }
 
@@ -134,26 +134,27 @@ class CheckoutViewModel(
                 cardFacade.getBlockedCards()
                     .subscribeOn(Schedulers.io())
                     .flatMap {
-                    if(it.contains(convertTagToString(tag))) {
-                        throw PINException(PINExceptionEnum.CARD_LOCKED, tag.id)
-                    } else {
-                        NfcLogger.d(
-                            TAG,
-                            "subtractBalanceFromCard: value: $value, currencyCode: $currency, originalBalance: ${originalCardDataLD.value?.balance}"
-                        )
-                        if (originalCardDataLD.value?.tagId == null || originalCardDataLD.value?.tagId.contentEquals( tag.id )) {
-                            nfcFacade.subtractFromBalance(tag, pin, value, currency, originalCardDataLD.value?.balance).map { userBalance ->
-                                NfcLogger.d(
-                                    TAG,
-                                    "subtractedBalanceFromCard: balance: ${userBalance.balance}, beneficiaryId: ${userBalance.userId}, currencyCode: ${userBalance.currencyCode}"
-                                )
-                                Pair(tag, userBalance)
-                            }
+                        if(it.contains(convertTagToString(tag))) {
+                            throw PINException(PINExceptionEnum.CARD_LOCKED, tag.id)
                         } else {
-                            throw PINException(PINExceptionEnum.INVALID_DATA, tag.id)
+                            NfcLogger.d(
+                                TAG,
+                                "subtractBalanceFromCard: value: $value, currencyCode: $currency, originalBalance: ${originalCardDataLD.value?.balance}"
+                            )
+                            if (originalCardDataLD.value?.tagId == null || originalCardDataLD.value?.tagId.contentEquals( tag.id )) {
+                                nfcFacade.subtractFromBalance(tag, pin, value, currency, originalCardDataLD.value?.balance).map { userBalance ->
+                                    NfcLogger.d(
+                                        TAG,
+                                        "subtractedBalanceFromCard: balance: ${userBalance.balance}, beneficiaryId: ${userBalance.userId}, currencyCode: ${userBalance.currencyCode}"
+                                    )
+                                    Pair(tag, userBalance)
+                                }
+                            } else {
+                                throw PINException(PINExceptionEnum.INVALID_DATA, tag.id)
+                            }
                         }
-                    }
-            })
+                }
+        })
     }
 
     private fun saveVoucherPurchaseToDb(): Completable {

@@ -50,7 +50,7 @@ class LoginViewModel(
     }
 
     fun isNetworkConnected(available: Boolean) {
-        isNetworkConnectedLD.postValue(available)
+        isNetworkConnectedLD.value = available
     }
 
     fun isNetworkConnected(): LiveData<Boolean> {

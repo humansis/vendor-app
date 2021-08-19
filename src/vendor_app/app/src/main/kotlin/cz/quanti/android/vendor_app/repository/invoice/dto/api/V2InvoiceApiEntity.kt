@@ -1,6 +1,6 @@
 package cz.quanti.android.vendor_app.repository.invoice.dto.api
 
-data class V2InvoiceApiEntity (
+data class V2InvoiceApiEntity(
     var totalCount: Int = 0,
     var data: List<InvoiceApiEntity> = listOf()
 )

@@ -13,7 +13,7 @@ class InvoicesViewModel(
     private val synchronizationManager: SynchronizationManager
 ) : ViewModel() {
 
-    fun getInvoices() : Single<List<Invoice>> {
+    fun getInvoices(): Single<List<Invoice>> {
         return invoiceFacade.getInvoices()
     }
 

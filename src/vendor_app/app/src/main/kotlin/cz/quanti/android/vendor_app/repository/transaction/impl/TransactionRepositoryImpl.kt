@@ -28,7 +28,7 @@ class TransactionRepositoryImpl(
                         getTransactionPurchaseIdsForTransaction(transactionDb.dbId)
                     ).flatMap { transactionPurchases ->
                         val transaction = Transaction(
-                            //todo dodelat api request na endpoint aby se misto cisla projektu ukazoval jeho nazev
+                            // todo dodelat api request na endpoint aby se misto cisla projektu ukazoval jeho nazev
                             projectId = transactionDb.projectId,
                             purchases = transactionPurchases,
                             value = transactionDb.value,

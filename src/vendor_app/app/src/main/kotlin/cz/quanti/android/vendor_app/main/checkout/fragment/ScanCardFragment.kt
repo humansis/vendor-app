@@ -161,10 +161,9 @@ class ScanCardFragment : Fragment() {
                 if (pin.isEmpty()) {
                     mainVM.setToastMessage(getString(R.string.please_enter_pin))
                 } else {
+                    vm.setPin(pin)
+                    payByCard()
                     dialog.dismiss()
-                    findNavController().navigate(
-                        CheckoutFragmentDirections.actionCheckoutFragmentToScanCardFragment(pin)
-                    )
                 }
             }
 

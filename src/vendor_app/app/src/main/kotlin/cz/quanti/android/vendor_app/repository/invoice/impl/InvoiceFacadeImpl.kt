@@ -16,7 +16,7 @@ class InvoiceFacadeImpl(
 ) : InvoiceFacade {
 
     override fun syncWithServer(vendorId: Int): Completable {
-        Log.d(TAG, "Sync started" )
+        Log.d(TAG, "Sync started")
         return retrieveInvoices(vendorId)
     }
 
@@ -31,7 +31,7 @@ class InvoiceFacadeImpl(
             if (isPositiveResponseHttpCode(responseCode)) {
                 actualizeInvoiceDatabase(invoicesList)
             } else {
-                //todo doresit aby exceptiony neprerusovaly sync
+                // todo doresit aby exceptiony neprerusovaly sync
                 throw VendorAppException("Received code $responseCode when trying download invoices.").apply {
                     apiError = true
                     apiResponseCode = responseCode
@@ -43,7 +43,7 @@ class InvoiceFacadeImpl(
     private fun actualizeInvoiceDatabase(invoices: List<InvoiceApiEntity>?): Completable {
         return invoiceRepo.deleteInvoices().andThen(
             Observable.fromIterable(invoices).flatMapCompletable { invoice ->
-                Completable.fromSingle( invoiceRepo.saveInvoice(invoice) )
+                Completable.fromSingle(invoiceRepo.saveInvoice(invoice))
             })
     }
 

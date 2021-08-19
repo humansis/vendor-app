@@ -2,9 +2,9 @@ package cz.quanti.android.vendor_app.main.transactions.viewmodel
 
 import androidx.lifecycle.ViewModel
 import cz.quanti.android.vendor_app.repository.purchase.dto.Purchase
-import cz.quanti.android.vendor_app.repository.transaction.dto.Transaction
 import cz.quanti.android.vendor_app.repository.synchronization.SynchronizationFacade
 import cz.quanti.android.vendor_app.repository.transaction.TransactionFacade
+import cz.quanti.android.vendor_app.repository.transaction.dto.Transaction
 import cz.quanti.android.vendor_app.sync.SynchronizationManager
 import cz.quanti.android.vendor_app.sync.SynchronizationState
 import io.reactivex.Observable

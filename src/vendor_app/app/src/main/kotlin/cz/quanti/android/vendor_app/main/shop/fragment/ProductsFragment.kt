@@ -25,8 +25,6 @@ import cz.quanti.android.vendor_app.repository.product.dto.Product
 import cz.quanti.android.vendor_app.repository.purchase.dto.SelectedProduct
 import cz.quanti.android.vendor_app.utils.getStringFromDouble
 import io.reactivex.BackpressureStrategy
-import kotlinx.android.synthetic.main.fragment_products.*
-import kotlinx.android.synthetic.main.fragment_products.totalTextView
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class ProductsFragment : Fragment(), OnTouchOutsideViewListener {
@@ -146,7 +144,7 @@ class ProductsFragment : Fragment(), OnTouchOutsideViewListener {
                     productsBinding.totalTextView.visibility = View.GONE
                 }
                 else -> {
-                    productsBinding.actualizeTotal(products.map { it.price }.sum())
+                    actualizeTotal(products.map { it.price }.sum())
                     productsBinding.totalTextView.visibility = View.VISIBLE
                     productsBinding.cartBadge.visibility = View.VISIBLE
                     productsBinding.cartBadge.text = products.size.toString()
@@ -229,7 +227,7 @@ class ProductsFragment : Fragment(), OnTouchOutsideViewListener {
 
     private fun actualizeTotal(total: Double) {
         val totalText = "${getString(R.string.total)}: ${getStringFromDouble(total)} ${vm.getCurrency().value}"
-        productsBinding.totalTextView?.text = totalText
+        productsBinding.totalTextView.text = totalText
     }
 
     private fun showInvalidPriceEnteredMessage() {

@@ -46,7 +46,7 @@ class ScanCardFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        totalPriceText.text = getString(R.string.total_price, vm.getTotal(), vm.getCurrency().value)
+        scanCardBinding.totalPriceText.text = getString(R.string.total_price, vm.getTotal(), vm.getCurrency().value)
         init()
     }
 
@@ -90,10 +90,9 @@ class ScanCardFragment : Fragment() {
     private fun showPinDialogAndPayByCard() {
         pinDialog?.dismiss()
         val dialogBinding = DialogCardPinBinding.inflate(layoutInflater,null, false)
-        val dialogView: View = dialogBinding.root
         dialogBinding.pinTitle.text = getString(R.string.incorrect_pin)
         pinDialog = AlertDialog.Builder(requireContext(), R.style.DialogTheme)
-            .setView(dialogView)
+            .setView(dialogBinding.root)
             .setCancelable(false)
             .setPositiveButton(android.R.string.ok) { dialog, _ ->
                 val pinEditTextView = dialogBinding.pinEditText
@@ -113,7 +112,7 @@ class ScanCardFragment : Fragment() {
         val positiveButton = pinDialog?.getButton(DialogInterface.BUTTON_POSITIVE)
         positiveButton?.isEnabled = false
 
-        dialogView.findViewById<TextInputEditText>(R.id.pinEditText).doOnTextChanged { text, _, _, _ ->
+        dialogBinding.pinEditText.doOnTextChanged { text, _, _, _ ->
             positiveButton?.isEnabled = !text.isNullOrEmpty()
         }
     }

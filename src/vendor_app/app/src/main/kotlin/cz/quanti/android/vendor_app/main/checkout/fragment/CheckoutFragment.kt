@@ -290,10 +290,9 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
     private fun showPinDialogAndPayByCard() {
        if (NfcInitializer.initNfc(requireActivity())) {
            val dialogBinding = DialogCardPinBinding.inflate(layoutInflater,null, false)
-           val dialogView: View = dialogBinding.root
            dialogBinding.pinTitle.text = getString(R.string.total_price, vm.getTotal(), vm.getCurrency().value)
-           AlertDialog.Builder(requireContext(), R.style.DialogTheme)
-                .setView(dialogView)
+           val pinDialog = AlertDialog.Builder(requireContext(), R.style.DialogTheme)
+                .setView(dialogBinding.root)
                 .setCancelable(false)
                 .setPositiveButton(android.R.string.ok) { dialog, _ ->
                     val pinEditTextView = dialogBinding.pinEditText
@@ -311,7 +310,7 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
            val positiveButton = pinDialog?.getButton(DialogInterface.BUTTON_POSITIVE)
            positiveButton?.isEnabled = false
 
-           dialogView.findViewById<TextInputEditText>(R.id.pinEditText).doOnTextChanged { text, _, _, _ ->
+           dialogBinding.pinEditText.doOnTextChanged { text, _, _, _ ->
                positiveButton?.isEnabled = !text.isNullOrEmpty()
            }
         }

@@ -49,7 +49,7 @@ class ScanCardFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        scanCardBinding.totalPriceText.text = getString(R.string.total_price, vm.getTotal(), vm.getCurrency().value)
+        scanCardBinding.totalPriceText.text  = getString(R.string.total_price, vm.getTotal(), vm.getCurrency().value)
         init()
     }
 

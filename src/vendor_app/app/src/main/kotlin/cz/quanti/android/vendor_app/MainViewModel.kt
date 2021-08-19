@@ -28,5 +28,4 @@ class MainViewModel(
             syncFacade.isSyncNeeded(purchasesCount).toObservable()
         }.toFlowable(BackpressureStrategy.LATEST).toLiveData()
     }
-
 }

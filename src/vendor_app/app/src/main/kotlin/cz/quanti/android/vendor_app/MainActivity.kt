@@ -33,10 +33,7 @@ import cz.quanti.android.vendor_app.repository.AppPreferences
 import cz.quanti.android.vendor_app.repository.login.LoginFacade
 import cz.quanti.android.vendor_app.sync.SynchronizationManager
 import cz.quanti.android.vendor_app.sync.SynchronizationState
-import cz.quanti.android.vendor_app.utils.ConnectionObserver
-import cz.quanti.android.vendor_app.utils.NfcInitializer
-import cz.quanti.android.vendor_app.utils.NfcTagPublisher
-import cz.quanti.android.vendor_app.utils.PermissionRequestResult
+import cz.quanti.android.vendor_app.utils.*
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
@@ -44,7 +41,6 @@ import io.reactivex.schedulers.Schedulers
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import quanti.com.kotlinlog.Log
-import quanti.com.kotlinlog.file.SendLogDialogFragment
 
 class MainActivity : AppCompatActivity(), ActivityCallback,
     NavigationView.OnNavigationItemSelectedListener {
@@ -280,6 +276,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
             emailButtonText = getString(R.string.logs_dialog_email_button),
             dialogTheme = R.style.DialogTheme
         ).show(this.supportFragmentManager, "TAG")
+        // TODO inside this method in kotlinlogger there is a method getZipOfFiles() that automatically deletes all logs older than 4 days
     }
 
     @Suppress("WHEN_ENUM_CAN_BE_NULL_IN_JAVA")

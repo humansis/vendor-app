@@ -110,6 +110,7 @@ class ScannerFragment : Fragment() {
         super.onDestroy()
     }
 
+    @Suppress("DEPRECATION")
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<out String>,
@@ -146,6 +147,7 @@ class ScannerFragment : Fragment() {
         return true
     }
 
+    @Suppress("DEPRECATION")
     private fun startScanner() {
         if (!cameraPermissionGranted()) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {

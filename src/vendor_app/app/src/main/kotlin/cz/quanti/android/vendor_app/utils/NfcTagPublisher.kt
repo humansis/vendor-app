@@ -17,3 +17,4 @@ class NfcTagPublisher {
         return tagPublisher
     }
 }
+

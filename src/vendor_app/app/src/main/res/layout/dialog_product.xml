@@ -63,17 +63,14 @@
             android:duplicateParentState="true"
             tools:text="Tinned Pulses"/>
 
-        <FrameLayout
-            android:id="@+id/editProduct"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="@dimen/dimen_16dp"
-            android:layout_marginBottom="@dimen/dimen_16dp">
 
             <include
+                android:id="@+id/editProduct"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="@dimen/dimen_16dp"
+                android:layout_marginBottom="@dimen/dimen_16dp"
                 layout="@layout/item_product_options"/>
-
-        </FrameLayout>
 
     </LinearLayout>
 

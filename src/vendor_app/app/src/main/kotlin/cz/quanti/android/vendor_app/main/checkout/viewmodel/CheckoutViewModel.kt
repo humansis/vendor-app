@@ -18,6 +18,8 @@ import cz.quanti.android.vendor_app.repository.purchase.dto.SelectedProduct
 import cz.quanti.android.vendor_app.utils.*
 import io.reactivex.Completable
 import io.reactivex.Single
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import java.util.*
 
@@ -31,8 +33,8 @@ class CheckoutViewModel(
 ) : ViewModel() {
     private var vouchers: MutableList<Voucher> = mutableListOf()
     private var pin: String? = null
-    private val originalCardDataLD = MutableLiveData(OriginalCardData(null, null))
-    private val isScanningInProgressLD = MutableLiveData(false)
+    private var originalCardData = OriginalCardData(null, null)
+    private val paymentStateLD = MutableLiveData<Pair<PaymentStateEnum, PaymentResult?>>(Pair(PaymentStateEnum.READY, null))
 
     fun init() {
         this.vouchers = shoppingHolder.vouchers
@@ -48,23 +50,24 @@ class CheckoutViewModel(
         return round(total - paid, 3)
     }
 
-    fun setScanningInProgress(inProgress: Boolean) {
-        isScanningInProgressLD.value = inProgress
+    fun setPaymentState(paymentState: PaymentStateEnum) {
+        this.paymentStateLD.postValue(Pair(paymentState, null))
     }
 
-    fun getScanningInProgress(): MutableLiveData<Boolean> {
-        return isScanningInProgressLD
+    private fun setPaymentState(paymentState: PaymentStateEnum, result: PaymentResult) {
+        this.paymentStateLD.postValue(Pair(paymentState, result))
+    }
+
+    fun getPaymentState(): MutableLiveData<Pair<PaymentStateEnum, PaymentResult?>> {
+        return paymentStateLD
     }
 
     fun setOriginalCardData(originalBalance: Double?, originalTagId: ByteArray?) {
-        this.originalCardDataLD.value?.let {
-            it.balance = originalBalance
-            it.tagId = originalTagId
-        }
+        this.originalCardData = OriginalCardData(originalBalance, originalTagId)
     }
 
-    fun getOriginalCardData(): MutableLiveData<OriginalCardData> {
-        return originalCardDataLD
+    fun getOriginalCardData(): OriginalCardData {
+        return originalCardData
     }
 
     fun getVouchers(): List<Voucher> {
@@ -107,17 +110,29 @@ class CheckoutViewModel(
         this.pin = string
     }
 
-    fun payByCard(pin: String, value: Double, currency: String): Single<Pair<Tag, UserBalance>> {
-        return subtractMoneyFromCard(pin, value, currency).flatMap { it ->
+    fun payByCard(pin: String): Disposable {
+        return subtractMoneyFromCard(pin, getTotal(), getCurrency().value.toString()).flatMap {
             val tag = it.first
             val userBalance = it.second
             saveCardPurchaseToDb(convertTagToString(tag))
                 .subscribeOn(Schedulers.io())
-                .toSingleDefault(Pair(tag, userBalance))
+                .toSingleDefault(userBalance)
                 .flatMap {
-                    Single.just(it)
+                    Single.just(userBalance)
                 }
-        }
+        }.subscribeOn(Schedulers.io())
+        .observeOn(AndroidSchedulers.mainThread())
+        .subscribe({
+            setPaymentState(
+                PaymentStateEnum.SUCCESS,
+                PaymentResult(userBalance = it)
+            )
+        }, {
+            setPaymentState(
+                PaymentStateEnum.FAILED,
+                PaymentResult(throwable = it)
+            )
+        })
     }
 
     private fun convertTagToString(tag: Tag): String {
@@ -131,31 +146,31 @@ class CheckoutViewModel(
     ): Single<Pair<Tag, UserBalance>> {
         return Single.fromObservable(
             nfcTagPublisher.getTagObservable().take(1).flatMapSingle { tag ->
-                setScanningInProgress(true)
+                setPaymentState(PaymentStateEnum.IN_PROGRESS)
                 cardFacade.getBlockedCards()
                     .subscribeOn(Schedulers.io())
                     .flatMap {
-                    if(it.contains(convertTagToString(tag))) {
-                        throw PINException(PINExceptionEnum.CARD_LOCKED, tag.id)
-                    } else {
-                        NfcLogger.d(
-                            TAG,
-                            "subtractBalanceFromCard: value: $value, currencyCode: $currency, originalBalance: ${originalCardDataLD.value?.balance}"
-                        )
-                        if (originalCardDataLD.value?.tagId == null || originalCardDataLD.value?.tagId.contentEquals( tag.id )) {
-                            nfcFacade.subtractFromBalance(tag, pin, value, currency, originalCardDataLD.value?.balance).map { userBalance ->
-                                NfcLogger.d(
-                                    TAG,
-                                    "subtractedBalanceFromCard: balance: ${userBalance.balance}, beneficiaryId: ${userBalance.userId}, currencyCode: ${userBalance.currencyCode}"
-                                )
-                                Pair(tag, userBalance)
-                            }
+                        if(it.contains(convertTagToString(tag))) {
+                            throw PINException(PINExceptionEnum.CARD_LOCKED, tag.id)
                         } else {
-                            throw PINException(PINExceptionEnum.INVALID_DATA, tag.id)
+                            NfcLogger.d(
+                                TAG,
+                                "subtractBalanceFromCard: value: $value, currencyCode: $currency, originalBalance: ${originalCardData.balance}"
+                            )
+                            if (originalCardData.tagId == null || originalCardData.tagId.contentEquals( tag.id )) {
+                                nfcFacade.subtractFromBalance(tag, pin, value, currency, originalCardData.balance).map { userBalance ->
+                                    NfcLogger.d(
+                                        TAG,
+                                        "subtractedBalanceFromCard: balance: ${userBalance.balance}, beneficiaryId: ${userBalance.userId}, currencyCode: ${userBalance.currencyCode}"
+                                    )
+                                    Pair(tag, userBalance)
+                                }
+                            } else {
+                                throw PINException(PINExceptionEnum.INVALID_DATA, tag.id)
+                            }
                         }
-                    }
                 }
-            })
+        })
     }
 
     private fun saveVoucherPurchaseToDb(): Completable {
@@ -184,6 +199,18 @@ class CheckoutViewModel(
             createdAt = convertTimeForApiRequestBody(Date())
             currency = getCurrency().toString()
         }
+    }
+
+    class PaymentResult(
+        val userBalance: UserBalance? = null,
+        val throwable: Throwable? = null
+    )
+
+    enum class PaymentStateEnum {
+        READY,
+        IN_PROGRESS,
+        SUCCESS,
+        FAILED
     }
 
     companion object {

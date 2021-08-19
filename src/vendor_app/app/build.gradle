@@ -155,7 +155,7 @@ dependencies {
     implementation "com.github.Qase:KotlinLogger:$kotlin_logger_version"
 
     // Add the Firebase SDK for Crashlytics.
-    implementation 'com.google.firebase:firebase-crashlytics:18.2.0'
+    implementation 'com.google.firebase:firebase-crashlytics:18.2.1'
 
     implementation project(':core')
 

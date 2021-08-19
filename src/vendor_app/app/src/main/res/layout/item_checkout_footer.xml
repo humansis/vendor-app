@@ -63,7 +63,7 @@
         android:textSize="@dimen/button_text"
         android:stateListAnimator="@null"
         android:visibility="gone"
-        app:icon="@drawable/check"
+        app:icon="@drawable/ic_check"
         app:iconTint="@color/white"
         app:iconGravity="start"
         app:layout_constraintEnd_toEndOf="parent"

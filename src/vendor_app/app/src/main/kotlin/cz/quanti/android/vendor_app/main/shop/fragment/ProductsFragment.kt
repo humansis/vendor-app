@@ -13,18 +13,18 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import com.bumptech.glide.Glide
 import com.google.android.material.button.MaterialButton
-import com.google.android.material.navigation.NavigationView
 import com.google.android.material.textfield.TextInputLayout
 import cz.quanti.android.vendor_app.ActivityCallback
 import cz.quanti.android.vendor_app.MainActivity
 import cz.quanti.android.vendor_app.MainActivity.OnTouchOutsideViewListener
 import cz.quanti.android.vendor_app.R
+import cz.quanti.android.vendor_app.databinding.FragmentProductsBinding
 import cz.quanti.android.vendor_app.main.shop.adapter.ShopAdapter
 import cz.quanti.android.vendor_app.main.shop.viewmodel.ShopViewModel
 import cz.quanti.android.vendor_app.repository.product.dto.Product
 import cz.quanti.android.vendor_app.repository.purchase.dto.SelectedProduct
+import cz.quanti.android.vendor_app.utils.getStringFromDouble
 import io.reactivex.BackpressureStrategy
-import kotlinx.android.synthetic.main.fragment_products.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class ProductsFragment : Fragment(), OnTouchOutsideViewListener {
@@ -32,16 +32,23 @@ class ProductsFragment : Fragment(), OnTouchOutsideViewListener {
     private val vm: ShopViewModel by viewModel()
     private lateinit var adapter: ShopAdapter
 
-    var chosenCurrency: String = ""
+    private lateinit var activityCallback: ActivityCallback
+
+    private lateinit var productsBinding: FragmentProductsBinding
+
+    private var chosenCurrency: String = ""
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        (requireActivity() as ActivityCallback).setToolbarVisible(true)
-        (requireActivity() as ActivityCallback).setTitle(getString(R.string.app_name))
-        requireActivity().findViewById<NavigationView>(R.id.nav_view).setCheckedItem(R.id.home_button)
+    ): View {
+        activityCallback = requireActivity() as ActivityCallback
+        activityCallback.setToolbarVisible(true)
+        activityCallback.setSubtitle(getString(R.string.app_name))
+        activityCallback.getNavView().setCheckedItem(R.id.home_button)
+
+        productsBinding = FragmentProductsBinding.inflate(inflater, container, false)
 
         requireActivity().onBackPressedDispatcher.addCallback(
             viewLifecycleOwner,
@@ -53,7 +60,7 @@ class ProductsFragment : Fragment(), OnTouchOutsideViewListener {
             }
         )
 
-        return inflater.inflate(R.layout.fragment_products, container, false)
+        return productsBinding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -71,16 +78,15 @@ class ProductsFragment : Fragment(), OnTouchOutsideViewListener {
 
     override fun onStop() {
         // colapse searchbar after eventual screen rotation
-        productsSearchBar.onActionViewCollapsed()
+        productsBinding.productsSearchBar.onActionViewCollapsed()
         super.onStop()
     }
 
     override fun onTouchOutside(view: View?, event: MotionEvent?) {
-        if (!productsSearchBar.isIconified) {
-            if (productsSearchBar.query.isNotEmpty()) {
-                productsSearchBar.onActionViewCollapsed()
-            } else {
-                productsSearchBar.clearFocus()
+        if (!productsBinding.productsSearchBar.isIconified) {
+            productsBinding.productsSearchBar.clearFocus()
+            if (productsBinding.productsSearchBar.query.isEmpty()) {
+                productsBinding.productsSearchBar.isIconified = true
             }
         }
     }
@@ -90,9 +96,9 @@ class ProductsFragment : Fragment(), OnTouchOutsideViewListener {
 
         val viewManager = GridLayoutManager(activity, gridColumns())
 
-        productsRecyclerView.setHasFixedSize(true)
-        productsRecyclerView.layoutManager = viewManager
-        productsRecyclerView.adapter = adapter
+        productsBinding.productsRecyclerView.setHasFixedSize(true)
+        productsBinding.productsRecyclerView.layoutManager = viewManager
+        productsBinding.productsRecyclerView.adapter = adapter
     }
 
     private fun gridColumns(): Int {
@@ -106,11 +112,11 @@ class ProductsFragment : Fragment(), OnTouchOutsideViewListener {
     }
 
     private fun initSearchBar() {
-        productsSearchBar.setOnClickListener {
-            productsSearchBar.isIconified = false
+        productsBinding.productsSearchBar.setOnClickListener {
+            productsBinding.productsSearchBar.isIconified = false
         }
-        productsSearchBar.imeOptions = EditorInfo.IME_ACTION_DONE
-        productsSearchBar.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+        productsBinding.productsSearchBar.imeOptions = EditorInfo.IME_ACTION_DONE
+        productsBinding.productsSearchBar.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String): Boolean {
                 return false
             }
@@ -121,7 +127,7 @@ class ProductsFragment : Fragment(), OnTouchOutsideViewListener {
             }
         })
 
-        (activity as MainActivity).setOnTouchOutsideViewListener(productsSearchBar, this)
+        (activity as MainActivity).setOnTouchOutsideViewListener(productsBinding.productsSearchBar, this)
     }
 
     private fun initObservers() {
@@ -131,14 +137,17 @@ class ProductsFragment : Fragment(), OnTouchOutsideViewListener {
                 adapter.setData(it)
             })
 
-        vm.getSelectedProducts().observe(viewLifecycleOwner, {
-            when (it.size) {
+        vm.getSelectedProducts().observe(viewLifecycleOwner, { products ->
+            when (products.size) {
                 EMPTY_CART_SIZE -> {
-                    cartBadge.visibility = View.GONE
+                    productsBinding.cartBadge.visibility = View.GONE
+                    productsBinding.totalTextView.visibility = View.GONE
                 }
                 else -> {
-                    cartBadge.visibility = View.VISIBLE
-                    cartBadge.text = it.size.toString()
+                    actualizeTotal(products.map { it.price }.sum())
+                    productsBinding.totalTextView.visibility = View.VISIBLE
+                    productsBinding.cartBadge.visibility = View.VISIBLE
+                    productsBinding.cartBadge.text = products.size.toString()
                 }
             }
         })
@@ -149,7 +158,7 @@ class ProductsFragment : Fragment(), OnTouchOutsideViewListener {
     }
 
     private fun initOnClickListeners() {
-        cartFAB.setOnClickListener {
+        productsBinding.cartFAB.setOnClickListener {
             findNavController().navigate(
                 ProductsFragmentDirections.actionProductsFragmentToCheckoutFragment()
             )
@@ -169,7 +178,7 @@ class ProductsFragment : Fragment(), OnTouchOutsideViewListener {
         val dialog = AlertDialog.Builder(activity)
             .setView(dialogView)
             .show()
-        if ( !resources.getBoolean(R.bool.isTablet) ) {
+        if (!resources.getBoolean(R.bool.isTablet)) {
             dialog.window?.setLayout(
                 resources.displayMetrics.widthPixels,
                 LinearLayout.LayoutParams.WRAP_CONTENT
@@ -201,7 +210,7 @@ class ProductsFragment : Fragment(), OnTouchOutsideViewListener {
                     )
                     dialog.dismiss()
                 }
-            } catch(e: NumberFormatException) {
+            } catch (e: NumberFormatException) {
                 showInvalidPriceEnteredMessage()
             }
         }
@@ -214,6 +223,11 @@ class ProductsFragment : Fragment(), OnTouchOutsideViewListener {
                 this.price = unitPrice
             }
         vm.addToShoppingCart(selected)
+    }
+
+    private fun actualizeTotal(total: Double) {
+        val totalText = "${getString(R.string.total)}: ${getStringFromDouble(total)} ${vm.getCurrency().value}"
+        productsBinding.totalTextView.text = totalText
     }
 
     private fun showInvalidPriceEnteredMessage() {

@@ -24,7 +24,7 @@ class InvoiceRepositoryImpl(
     }
 
     override fun deleteInvoices(): Completable {
-        return Completable.fromCallable { invoiceDao.deleteAll()}
+        return Completable.fromCallable { invoiceDao.deleteAll() }
     }
 
     override fun saveInvoice(invoice: InvoiceApiEntity): Single<Long> {

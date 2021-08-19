@@ -2,10 +2,10 @@ package cz.quanti.android.vendor_app.repository
 
 import android.content.Context
 import cz.quanti.android.vendor_app.repository.login.dto.Vendor
+import java.util.*
 import org.koin.core.component.KoinComponent
 import wtf.qase.appskeleton.core.BasePreferences
 import wtf.qase.appskeleton.core.BasePreferencesMigration
-import java.util.*
 
 class AppPreferences(context: Context) : BasePreferences(context, VERSION, MIGRATIONS),
     KoinComponent {
@@ -27,6 +27,8 @@ class AppPreferences(context: Context) : BasePreferences(context, VERSION, MIGRA
         private const val LAST_SYNCED = "pin_vendor_app_last_synced"
 
         private const val API_URL = "pin_vendor_app_api_url"
+
+        private const val CURRENCY = "pin_vendor_app_currency"
     }
 
     override fun init() {
@@ -73,4 +75,8 @@ class AppPreferences(context: Context) : BasePreferences(context, VERSION, MIGRA
     var url: String
         get() = settings.getString(API_URL, "").toString()
         set(url) = settings.edit().putString(API_URL, url).apply()
+
+    var currency: String
+        get() = settings.getString(CURRENCY, "").toString()
+        set(currency) = settings.edit().putString(CURRENCY, currency).apply()
 }

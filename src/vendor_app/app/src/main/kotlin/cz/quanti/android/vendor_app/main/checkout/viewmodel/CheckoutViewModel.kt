@@ -112,7 +112,7 @@ class CheckoutViewModel(
                 cardFacade.getBlockedCards()
                     .subscribeOn(Schedulers.io())
                     .flatMap {
-                    if(it.contains(convertTagToString(tag))) {
+                    if (it.contains(convertTagToString(tag))) {
                         throw PINException(PINExceptionEnum.CARD_LOCKED)
                     } else {
                         NfcLogger.d(

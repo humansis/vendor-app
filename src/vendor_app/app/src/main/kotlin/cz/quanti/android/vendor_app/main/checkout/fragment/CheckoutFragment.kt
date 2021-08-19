@@ -1,6 +1,8 @@
 package cz.quanti.android.vendor_app.main.checkout.fragment
 
+import android.annotation.SuppressLint
 import android.app.AlertDialog
+import android.content.DialogInterface
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -8,12 +10,14 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.core.content.ContextCompat.getColor
+import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.google.android.material.textfield.TextInputEditText
 import cz.quanti.android.vendor_app.ActivityCallback
 import cz.quanti.android.vendor_app.R
+import cz.quanti.android.vendor_app.databinding.DialogCardPinBinding
+import cz.quanti.android.vendor_app.databinding.FragmentCheckoutBinding
 import cz.quanti.android.vendor_app.main.checkout.adapter.ScannedVoucherAdapter
 import cz.quanti.android.vendor_app.main.checkout.adapter.SelectedProductsAdapter
 import cz.quanti.android.vendor_app.main.checkout.callback.CheckoutFragmentCallback
@@ -24,9 +28,6 @@ import cz.quanti.android.vendor_app.utils.getStringFromDouble
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
-import kotlinx.android.synthetic.main.dialog_card_pin.view.*
-import kotlinx.android.synthetic.main.fragment_checkout.*
-import kotlinx.android.synthetic.main.item_checkout_footer.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import quanti.com.kotlinlog.Log
 
@@ -35,15 +36,17 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
     private lateinit var selectedProductsAdapter: SelectedProductsAdapter
     private val scannedVoucherAdapter = ScannedVoucherAdapter()
     private var disposable: Disposable? = null
-    private var activityCallback: ActivityCallback? = null
+    private lateinit var activityCallback: ActivityCallback
+
+    private lateinit var checkoutBinding: FragmentCheckoutBinding
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         activityCallback = activity as ActivityCallback
-        activityCallback?.setToolbarVisible(true)
+        activityCallback.setSubtitle(getString(R.string.checkout))
         requireActivity().onBackPressedDispatcher.addCallback(
             viewLifecycleOwner,
             object : OnBackPressedCallback(true) {
@@ -52,7 +55,8 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
                 }
             }
         )
-        return inflater.inflate(R.layout.fragment_checkout, container, false)
+        checkoutBinding = FragmentCheckoutBinding.inflate(inflater, container, false)
+        return checkoutBinding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -90,30 +94,31 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
     private fun initSelectedProductsAdapter() {
         val viewManager = LinearLayoutManager(activity)
 
-        checkoutSelectedProductsRecyclerView?.setHasFixedSize(true)
-        checkoutSelectedProductsRecyclerView?.layoutManager = viewManager
-        checkoutSelectedProductsRecyclerView?.adapter = selectedProductsAdapter
+        checkoutBinding.checkoutSelectedProductsRecyclerView.setHasFixedSize(true)
+        checkoutBinding.checkoutSelectedProductsRecyclerView.layoutManager = viewManager
+        checkoutBinding.checkoutSelectedProductsRecyclerView.adapter = selectedProductsAdapter
     }
 
     private fun initScannedVouchersAdapter() {
         val viewManager = LinearLayoutManager(activity)
 
-        scannedVouchersRecyclerView?.setHasFixedSize(true)
-        scannedVouchersRecyclerView?.layoutManager = viewManager
-        scannedVouchersRecyclerView?.adapter = scannedVoucherAdapter
+        checkoutBinding.scannedVouchersRecyclerView.setHasFixedSize(true)
+        checkoutBinding.scannedVouchersRecyclerView.layoutManager = viewManager
+        checkoutBinding.scannedVouchersRecyclerView.adapter = scannedVoucherAdapter
 
         scannedVoucherAdapter.setData(vm.getVouchers())
         if (vm.getVouchers().isEmpty()) {
-            scannedVouchersRecyclerView?.visibility = View.INVISIBLE
-            pleaseScanVoucherTextView?.visibility = View.VISIBLE
-            payByCardButton?.visibility = View.VISIBLE
+            checkoutBinding.scannedVouchersRecyclerView.visibility = View.INVISIBLE
+            checkoutBinding.pleaseScanVoucherTextView.visibility = View.VISIBLE
+            checkoutBinding.payByCardButton.visibility = View.VISIBLE
         } else {
-            scannedVouchersRecyclerView?.visibility = View.VISIBLE
-            pleaseScanVoucherTextView?.visibility = View.INVISIBLE
-            payByCardButton?.visibility = View.INVISIBLE
+            checkoutBinding.scannedVouchersRecyclerView.visibility = View.VISIBLE
+            checkoutBinding.pleaseScanVoucherTextView.visibility = View.INVISIBLE
+            checkoutBinding.payByCardButton.visibility = View.INVISIBLE
         }
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     private fun initObservers() {
         vm.getCurrency().observe(viewLifecycleOwner, {
             selectedProductsAdapter.chosenCurrency = vm.getCurrency().value.toString()
@@ -132,11 +137,11 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
 
     private fun initOnClickListeners() {
 
-        backButton?.setOnClickListener {
+        checkoutBinding.checkoutFooter.backButton.setOnClickListener {
             cancel()
         }
 
-        clearAllButton.setOnClickListener {
+        checkoutBinding.checkoutFooter.clearAllButton.setOnClickListener {
             AlertDialog.Builder(requireContext(), R.style.DialogTheme)
                 .setTitle(getString(R.string.are_you_sure_dialog_title))
                 .setMessage(getString(R.string.clear_cart_dialog_message))
@@ -149,15 +154,15 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
                 .show()
         }
 
-        proceedButton?.setOnClickListener {
+        checkoutBinding.checkoutFooter.proceedButton.setOnClickListener {
             proceed()
         }
 
-        scanButton?.setOnClickListener {
+        checkoutBinding.scanButton.setOnClickListener {
             scanVoucher()
         }
 
-        payByCardButton?.setOnClickListener {
+        checkoutBinding.payByCardButton.setOnClickListener {
             payByCard()
         }
     }
@@ -250,48 +255,47 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
     }
 
     private fun showIfCartEmpty(notEmpty: Boolean) {
-        if(notEmpty) {
-            emptyCartTextView.visibility = View.GONE
-            payByCardButton.isEnabled = true
-            scanButton.isEnabled = true
-            clearAllButton.isEnabled = true
+        if (notEmpty) {
+            checkoutBinding.emptyCartTextView.visibility = View.GONE
+            checkoutBinding.payByCardButton.isEnabled = true
+            checkoutBinding.scanButton.isEnabled = true
+            checkoutBinding.checkoutFooter.clearAllButton.isEnabled = true
         } else {
-            emptyCartTextView.visibility = View.VISIBLE
-            payByCardButton.isEnabled = false
-            scanButton.isEnabled = false
-            clearAllButton.isEnabled = false
+            checkoutBinding.emptyCartTextView.visibility = View.VISIBLE
+            checkoutBinding.payByCardButton.isEnabled = false
+            checkoutBinding.scanButton.isEnabled = false
+            checkoutBinding.checkoutFooter.clearAllButton.isEnabled = false
         }
     }
 
     private fun showIfPurchasePaid() {
-        if(vm.getVouchers().isNotEmpty()) {
+        if (vm.getVouchers().isNotEmpty()) {
             if (vm.getTotal() <= 0) {
-                proceedButton?.visibility = View.VISIBLE
-                scanButton.isEnabled = false
+                checkoutBinding.checkoutFooter.proceedButton.visibility = View.VISIBLE
+                checkoutBinding.scanButton.isEnabled = false
             } else {
-                proceedButton?.visibility = View.GONE
-                scanButton.isEnabled = true
+                checkoutBinding.checkoutFooter.proceedButton.visibility = View.GONE
+                checkoutBinding.scanButton.isEnabled = true
             }
-            payByCardButton?.visibility = View.INVISIBLE
-            clearAllButton?.visibility = View.GONE
+            checkoutBinding.payByCardButton.visibility = View.INVISIBLE
+            checkoutBinding.checkoutFooter.clearAllButton.visibility = View.GONE
         } else {
-            proceedButton?.visibility = View.GONE
-            scanButton.isEnabled = true
-            payByCardButton?.visibility = View.VISIBLE
-            clearAllButton?.visibility = View.VISIBLE
+            checkoutBinding.checkoutFooter.proceedButton.visibility = View.GONE
+            checkoutBinding.scanButton.isEnabled = true
+            checkoutBinding.payByCardButton.visibility = View.VISIBLE
+            checkoutBinding.checkoutFooter.clearAllButton.visibility = View.VISIBLE
         }
     }
 
     private fun showPinDialogAndPayByCard() {
        if (NfcInitializer.initNfc(requireActivity())) {
-           val dialogView: View = layoutInflater.inflate(R.layout.dialog_card_pin, null)
-           dialogView.pin_title.text = getString(R.string.total_price, vm.getTotal(), vm.getCurrency().value)
-           AlertDialog.Builder(requireContext(), R.style.DialogTheme)
-                .setView(dialogView)
+           val dialogBinding = DialogCardPinBinding.inflate(layoutInflater, null, false)
+           dialogBinding.pinTitle.text = getString(R.string.total_price, vm.getTotal(), vm.getCurrency().value)
+           val pinDialog = AlertDialog.Builder(requireContext(), R.style.DialogTheme)
+                .setView(dialogBinding.root)
                 .setCancelable(false)
                 .setPositiveButton(android.R.string.ok) { dialog, _ ->
-                    val pinEditTextView =
-                        dialogView.findViewById<TextInputEditText>(R.id.pinEditText)
+                    val pinEditTextView = dialogBinding.pinEditText
                     val pin = pinEditTextView.text.toString()
                     dialog?.dismiss()
                     findNavController().navigate(
@@ -302,6 +306,13 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
                     dialog?.cancel()
                 }
                 .show()
+
+           val positiveButton = pinDialog?.getButton(DialogInterface.BUTTON_POSITIVE)
+           positiveButton?.isEnabled = false
+
+           dialogBinding.pinEditText.doOnTextChanged { text, _, _, _ ->
+               positiveButton?.isEnabled = !text.isNullOrEmpty()
+           }
         }
     }
 
@@ -309,18 +320,18 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
         val total = vm.getTotal()
         val totalText = "${getString(R.string.total)}:"
         val totalPrice = "${getStringFromDouble(total)} ${vm.getCurrency().value}"
-        totalTextView?.text = totalText
-        totalPriceTextView?.text = totalPrice
+        checkoutBinding.totalTextView.text = totalText
+        checkoutBinding.totalPriceTextView.text = totalPrice
 
-        if(vm.getVouchers().isNotEmpty()) {
+        if (vm.getVouchers().isNotEmpty()) {
             if (total <= 0) {
                 val green = getColor(requireContext(), R.color.green)
-                totalTextView?.setTextColor(green)
-                totalPriceTextView?.setTextColor(green)
+                checkoutBinding.totalTextView.setTextColor(green)
+                checkoutBinding.totalPriceTextView.setTextColor(green)
             } else {
                 val red = getColor(requireContext(), R.color.red)
-                totalTextView?.setTextColor(red)
-                totalPriceTextView?.setTextColor(red)
+                checkoutBinding.totalTextView.setTextColor(red)
+                checkoutBinding.totalPriceTextView.setTextColor(red)
             }
         }
     }

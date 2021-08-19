@@ -33,7 +33,8 @@ class App : BaseApp() {
     private fun initLogger() {
         Log.initialise(this)
         Log.addLogger(AndroidLogger(LoggerBundle(LogLevel.DEBUG)))
-        Log.addLogger(FileLogger(applicationContext, CircleLogBundle()))
+        val circleLogBundle = CircleLogBundle(LogLevel.VERBOSE, 1, 50, 30, LogLevel.VERBOSE)
+        Log.addLogger(FileLogger(applicationContext, circleLogBundle))
         Log.useUncheckedErrorHandler()
         NfcLogger.registerListener(Logger())
         MetadataLogger.customMetadataLambda = {
@@ -71,6 +72,5 @@ class App : BaseApp() {
         override fun e(tag: String, message: String) {
             Log.e(tag, message)
         }
-
     }
 }

@@ -1,24 +1,26 @@
 package cz.quanti.android.vendor_app.main.invoices.adapter
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import cz.quanti.android.vendor_app.R
+import cz.quanti.android.vendor_app.databinding.ItemInvoiceBinding
 import cz.quanti.android.vendor_app.main.invoices.viewholder.InvoicesViewHolder
 import cz.quanti.android.vendor_app.repository.invoice.dto.Invoice
 import cz.quanti.android.vendor_app.utils.convertStringToDate
 
 class InvoicesAdapter(
     private val context: Context
-    ) : RecyclerView.Adapter<InvoicesViewHolder>() {
+) : RecyclerView.Adapter<InvoicesViewHolder>() {
 
     private val invoices: MutableList<Invoice> = mutableListOf()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): InvoicesViewHolder {
-        val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.item_invoice, parent, false)
-        return InvoicesViewHolder(view)
+        val inflater = LayoutInflater.from(parent.context)
+        val invoiceBinding = ItemInvoiceBinding.inflate(inflater, parent, false)
+        return InvoicesViewHolder(invoiceBinding)
     }
 
     override fun onBindViewHolder(holder: InvoicesViewHolder, position: Int) {
@@ -37,10 +39,10 @@ class InvoicesAdapter(
         return invoices.size
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     fun setData(data: List<Invoice>) {
         invoices.clear()
         invoices.addAll(data.sortedByDescending { it.date })
         notifyDataSetChanged()
     }
-
 }

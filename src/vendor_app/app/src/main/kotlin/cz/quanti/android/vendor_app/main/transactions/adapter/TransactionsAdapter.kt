@@ -1,5 +1,6 @@
 package cz.quanti.android.vendor_app.main.transactions.adapter
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
@@ -9,26 +10,27 @@ import android.widget.TextView
 import androidx.core.view.isEmpty
 import androidx.recyclerview.widget.RecyclerView
 import cz.quanti.android.vendor_app.R
+import cz.quanti.android.vendor_app.databinding.ItemTransactionBinding
 import cz.quanti.android.vendor_app.main.transactions.viewholder.TransactionsViewHolder
 import cz.quanti.android.vendor_app.repository.transaction.dto.Transaction
 import cz.quanti.android.vendor_app.utils.convertStringToDate
 
 class TransactionsAdapter(
     private val context: Context
-    ) : RecyclerView.Adapter<TransactionsViewHolder>() {
+) : RecyclerView.Adapter<TransactionsViewHolder>() {
 
     private val transactions: MutableList<Transaction> = mutableListOf()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TransactionsViewHolder {
-        val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.item_transactions, parent, false)
-        return TransactionsViewHolder(view)
+        val inflater = LayoutInflater.from(parent.context)
+        val transactionBinding = ItemTransactionBinding.inflate(inflater, parent, false)
+        return TransactionsViewHolder(transactionBinding)
     }
 
     override fun onBindViewHolder(holder: TransactionsViewHolder, position: Int) {
         val item = transactions[position]
 
-        holder.projectId.text = (context.getString(R.string.project) + "  ${item.projectId}") //todo replace later with project name
+        holder.projectId.text = (context.getString(R.string.project) + "  ${item.projectId}") // todo replace later with project name
         holder.quantity.text = context.getString(R.string.quantity, item.purchases.size)
         holder.total.text = context.getString(R.string.total_price, item.value, item.currency)
 
@@ -40,7 +42,7 @@ class TransactionsAdapter(
         holder.tableToggle.setImageResource(R.drawable.ic_baseline_keyboard_arrow_down_24)
         holder.cardView.setOnClickListener {
             if (holder.purchasesTable.visibility == View.GONE) {
-                if (holder.purchasesTable.isEmpty()){
+                if (holder.purchasesTable.isEmpty()) {
                     loadTable(item, holder)
                 }
                 holder.purchasesTable.visibility = View.VISIBLE
@@ -56,7 +58,7 @@ class TransactionsAdapter(
         val inflater = (context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater)
 
         if (item.purchases.isEmpty()) {
-            val tv = TextView(context,null)
+            val tv = TextView(context, null)
             tv.text = context.getString(R.string.no_purchases)
             holder.purchasesTable.addView(tv)
         } else {
@@ -81,10 +83,10 @@ class TransactionsAdapter(
         return transactions.size
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     fun setData(data: List<Transaction>) {
         transactions.clear()
         transactions.addAll(data)
         notifyDataSetChanged()
     }
-
 }

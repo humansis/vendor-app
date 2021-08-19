@@ -37,41 +37,45 @@
                 android:layout_height="match_parent"
                 android:layout_gravity="center"
                 android:scaleType="centerCrop" />
+
         </androidx.cardview.widget.CardView>
 
-        <TextView
-            android:id="@+id/productInfoTextView"
+        <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="@dimen/dimen_16dp"
-            android:textAlignment="viewStart"
-            android:textColor="@color/black"
-            android:textDirection="locale"
-            android:textSize="@dimen/fragment_subtitle"
-            android:textStyle="bold"
-            android:lines="1"
-            app:layout_constraintTop_toTopOf="parent"
+            android:orientation="horizontal"
+            android:animateLayoutChanges="true"
+            app:layout_constraintTop_toTopOf="@id/imageCardView"
             app:layout_constraintBottom_toBottomOf="@id/bottomGuide"
             app:layout_constraintStart_toEndOf="@id/imageCardView"
-            app:layout_constraintWidth_max="250dp"
-            app:layout_constraintWidth_percent="0.60"
-            tools:text="Cucumber and Bread and Eggs" />
+            app:layout_constraintEnd_toStartOf="@id/deleteButton">
 
-        <TextView
-            android:id="@+id/priceTextView"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:textAlignment="viewStart"
-            android:textColor="@color/black"
-            android:textDirection="locale"
-            android:textSize="@dimen/fragment_bigger_text"
-            android:lines="1"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="@id/bottomGuide"
-            app:layout_constraintEnd_toStartOf="@id/deleteButton"
-            app:layout_constraintWidth_max="100dp"
-            app:layout_constraintWidth_percent="0.25"
-            tools:text="100 SYP" />
+            <TextView
+                android:id="@+id/productInfoTextView"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginHorizontal="@dimen/dimen_16dp"
+                android:textAlignment="viewStart"
+                android:textColor="@color/black"
+                android:textDirection="locale"
+                android:textSize="@dimen/fragment_subtitle"
+                android:textStyle="bold"
+                android:lines="1"
+                tools:text="Cucumber and Bread and Eggs" />
+
+            <TextView
+                android:id="@+id/priceTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAlignment="viewEnd"
+                android:textColor="@color/black"
+                android:textDirection="locale"
+                android:textSize="@dimen/fragment_bigger_text"
+                android:lines="1"
+                tools:text="100 SYP" />
+
+        </LinearLayout>
 
         <ImageView
             android:id="@+id/deleteButton"
@@ -114,7 +118,8 @@
             app:layout_constraintBottom_toBottomOf="parent">
 
             <include
-                layout="@layout/item_product_options"/>
+                layout="@layout/item_product_options"
+                android:id="@+id/productOptions"/>
 
         </FrameLayout>
 

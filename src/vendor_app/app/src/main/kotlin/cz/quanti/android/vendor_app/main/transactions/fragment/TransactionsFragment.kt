@@ -8,6 +8,7 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import cz.quanti.android.vendor_app.ActivityCallback
 import cz.quanti.android.vendor_app.R
+import cz.quanti.android.vendor_app.databinding.FragmentTransactionsBinding
 import cz.quanti.android.vendor_app.main.transactions.adapter.TransactionsAdapter
 import cz.quanti.android.vendor_app.main.transactions.viewmodel.TransactionsViewModel
 import cz.quanti.android.vendor_app.repository.transaction.dto.Transaction
@@ -15,8 +16,6 @@ import cz.quanti.android.vendor_app.sync.SynchronizationState
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
-import kotlinx.android.synthetic.main.fragment_transactions.*
-import kotlinx.android.synthetic.main.item_warning.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import quanti.com.kotlinlog.Log
 
@@ -27,25 +26,30 @@ class TransactionsFragment : Fragment() {
     private var syncStartedDisposable: Disposable? = null
     private var unsyncedPurchasesDisposable: Disposable? = null
     private var loadTransactionsDisposable: Disposable? = null
+    private lateinit var activityCallback: ActivityCallback
+
+    private lateinit var transactionsBinding: FragmentTransactionsBinding
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        (requireActivity() as ActivityCallback).setTitle(getString(R.string.transactions_to_reimburse))
+    ): View {
+        activityCallback = requireActivity() as ActivityCallback
+        activityCallback.setSubtitle(getString(R.string.transactions_to_reimburse))
         transactionsAdapter = TransactionsAdapter(requireContext())
-        return inflater.inflate(R.layout.fragment_transactions, container, false)
+        transactionsBinding = FragmentTransactionsBinding.inflate(inflater)
+        return transactionsBinding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val viewManager = LinearLayoutManager(activity)
-        transactions_recycler_view.setHasFixedSize(true)
-        transactions_recycler_view.layoutManager = viewManager
-        transactions_recycler_view.adapter = transactionsAdapter
-        unsynced_warning.visibility = View.GONE
-        warning_button.setOnClickListener {
+        transactionsBinding.transactionsRecyclerView.setHasFixedSize(true)
+        transactionsBinding.transactionsRecyclerView.layoutManager = viewManager
+        transactionsBinding.transactionsRecyclerView.adapter = transactionsAdapter
+        transactionsBinding.unsyncedWarning.root.visibility = View.GONE
+        transactionsBinding.unsyncedWarning.warningButton.setOnClickListener {
             vm.sync()
         }
     }
@@ -58,7 +62,7 @@ class TransactionsFragment : Fragment() {
     }
 
     private fun initLoadTransactionCheck() {
-        fragment_message.text = getString(R.string.loading)
+        transactionsBinding.fragmentMessage.text = getString(R.string.loading)
         loadTransactionsDisposable?.dispose()
         loadTransactionsDisposable =
             vm.syncStateObservable().filter { it == SynchronizationState.SUCCESS }
@@ -69,10 +73,9 @@ class TransactionsFragment : Fragment() {
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({ transactionsDecorator ->
                     transactionsAdapter.setData(transactionsDecorator.transactions)
-                    transactionsAdapter.notifyDataSetChanged()
                     showMessage()
                     if (transactionsDecorator.hideUnsyncedButton) {
-                        unsynced_warning.visibility = View.GONE
+                        transactionsBinding.unsyncedWarning.root.visibility = View.GONE
                     }
                 },
                     {
@@ -90,11 +93,11 @@ class TransactionsFragment : Fragment() {
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({
                     if (it.isNotEmpty()) {
-                        warning_text.text = getString(R.string.unsynced_transactions, it.size)
-                        unsynced_warning.visibility = View.VISIBLE
-                        warning_button.isEnabled = true
+                        transactionsBinding.unsyncedWarning.warningText.text = getString(R.string.unsynced_transactions, it.size)
+                        transactionsBinding.unsyncedWarning.root.visibility = View.VISIBLE
+                        transactionsBinding.unsyncedWarning.warningButton.isEnabled = true
                     } else {
-                        unsynced_warning.visibility = View.GONE
+                        transactionsBinding.unsyncedWarning.root.visibility = View.GONE
                     }
                 }, {
                     Log.e(it)
@@ -108,7 +111,7 @@ class TransactionsFragment : Fragment() {
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({
-                    warning_button.isEnabled = false
+                    transactionsBinding.unsyncedWarning.warningButton.isEnabled = false
                 }, {
                     Log.e(it)
                 })
@@ -122,11 +125,11 @@ class TransactionsFragment : Fragment() {
     }
 
     private fun showMessage() {
-        fragment_message.text = getString(R.string.no_transactions_to_reimburse)
+        transactionsBinding.fragmentMessage.text = getString(R.string.no_transactions_to_reimburse)
         if (transactionsAdapter.itemCount == 0) {
-            fragment_message.visibility = View.VISIBLE
+            transactionsBinding.fragmentMessage.visibility = View.VISIBLE
         } else {
-            fragment_message.visibility = View.GONE
+            transactionsBinding.fragmentMessage.visibility = View.GONE
         }
     }
 

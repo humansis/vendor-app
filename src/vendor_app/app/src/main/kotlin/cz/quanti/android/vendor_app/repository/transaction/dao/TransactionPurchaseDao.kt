@@ -21,14 +21,14 @@ interface TransactionPurchaseDao {
     fun getAll(): Single<List<TransactionPurchaseDbEntity>>
 
     @Query(
-        "SELECT * FROM " + VendorDb.TABLE_TRANSACTION_PURCHASE
-            + " WHERE transactionId = :transactionId"
+        "SELECT * FROM " + VendorDb.TABLE_TRANSACTION_PURCHASE +
+            " WHERE transactionId = :transactionId"
     )
     fun getTransactionPurchaseForTransaction(transactionId: Long): List<TransactionPurchaseDbEntity>
 
     @Query(
-        "SELECT * FROM " + VendorDb.TABLE_TRANSACTION_PURCHASE
-            + " WHERE dbId = :dbId"
+        "SELECT * FROM " + VendorDb.TABLE_TRANSACTION_PURCHASE +
+            " WHERE dbId = :dbId"
     )
     fun getTransactionPurchasesById(dbId: Long): TransactionPurchaseDbEntity
 

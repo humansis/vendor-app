@@ -1,5 +1,6 @@
 package cz.quanti.android.vendor_app.main.shop.adapter
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -7,13 +8,13 @@ import android.widget.*
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
-import cz.quanti.android.vendor_app.R
+import cz.quanti.android.vendor_app.databinding.ItemProductBinding
 import cz.quanti.android.vendor_app.main.shop.fragment.ProductsFragment
 import cz.quanti.android.vendor_app.main.shop.viewholder.ShopViewHolder
 import cz.quanti.android.vendor_app.repository.product.dto.Product
-import org.koin.core.component.KoinComponent
 import java.util.*
 import kotlin.collections.ArrayList
+import org.koin.core.component.KoinComponent
 
 class ShopAdapter(
     private val productsFragment: ProductsFragment,
@@ -25,11 +26,12 @@ class ShopAdapter(
     private val productsFull: MutableList<Product> = mutableListOf()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ShopViewHolder {
-        val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.item_product, parent, false)
-        return ShopViewHolder(view)
+        val inflater = LayoutInflater.from(parent.context)
+        val productBinding = ItemProductBinding.inflate(inflater, parent, false)
+        return ShopViewHolder(productBinding)
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     fun setData(data: List<Product>) {
         products.clear()
         products.addAll(data)
@@ -65,6 +67,7 @@ class ShopAdapter(
             return results
         }
 
+        @SuppressLint("NotifyDataSetChanged")
         @Suppress("UNCHECKED_CAST")
         override fun publishResults(constraint: CharSequence, results: FilterResults) {
             products.clear()

@@ -22,8 +22,8 @@
     <string name="cannot_proceed_with_purchase_dialog_title">Failed</string>
     <string name="cannot_proceed_with_purchase_dialog_message">Cannot proceed with the purchase until it is paid.</string>
     <string name="are_you_sure_dialog_title">Are you sure?</string>
-    <string name="clear_cart_dialog_message">Are you sure you want to remove all items from the basket?</string>
-    <string name="remove_product_from_cart_dialog_message">Are you sure you want to remove this product from your basket?</string>
+    <string name="clear_cart_dialog_message">Are you sure you want to remove all items from the cart?</string>
+    <string name="remove_product_from_cart_dialog_message">Are you sure you want to remove this product from your cart?</string>
     <string name="already_scanned_dialog_title">Voucher Already Used</string>
     <string name="already_scanned_dialog_message">You already used this voucher</string>
     <string name="cannot_scan_booklet_dialog_message">You cannot scan a booklet code, you have to scan the vouchers individually.</string>
@@ -40,7 +40,7 @@
     <string name="booklet_deactivated">Booklet deactivated</string>
     <string name="wrong_voucher_password">You didn\'t type the right password. You have only %1$d try left.</string>
     <string name="wrong_voucher_password_plural">You didn\'t type the right password. You have only %1$d tries left.</string>
-    <string name="go_to_cart">Show basket</string>
+    <string name="go_to_cart">Show cart</string>
     <string name="back_button">back</string>
     <string name="pay_by_voucher">Scan a\nvoucher</string>
     <string name="pay_by_card">Pay by\ncard</string>
@@ -48,7 +48,7 @@
     <string name="no_internet_connection">Please make sure you are connected to the internet</string>
     <string name="could_not_synchronize_data_with_server">Could not synchronize data with the server</string>
     <string name="data_were_successfully_synchronized">Data were successfully synchronized with the server</string>
-    <string name="add_to_cart">Add to\nbasket</string>
+    <string name="add_to_cart">Add to\ncart</string>
     <string name="please_enter_price">Please enter price.</string>
     <string name="pin">PIN</string>
     <string name="please_enter_pin">Please enter PIN for your card</string>

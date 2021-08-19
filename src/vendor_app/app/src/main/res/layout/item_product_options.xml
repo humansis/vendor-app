@@ -25,6 +25,7 @@
             android:layout_height="wrap_content"
             android:imeOptions="flagNoExtractUi"
             android:inputType="numberDecimal"
+            android:maxLength="12"
             android:singleLine="true"/>
 
     </com.google.android.material.textfield.TextInputLayout>
@@ -38,7 +39,7 @@
         android:textColor="@color/white"
         android:textSize="@dimen/button_text"
         android:stateListAnimator="@null"
-        app:icon="@drawable/shopping_basket"
+        app:icon="@drawable/ic_shopping_cart"
         app:iconTint="@color/white"/>
 
 </LinearLayout>

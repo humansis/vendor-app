@@ -23,6 +23,7 @@ import cz.quanti.android.vendor_app.main.shop.adapter.ShopAdapter
 import cz.quanti.android.vendor_app.main.shop.viewmodel.ShopViewModel
 import cz.quanti.android.vendor_app.repository.product.dto.Product
 import cz.quanti.android.vendor_app.repository.purchase.dto.SelectedProduct
+import cz.quanti.android.vendor_app.utils.getStringFromDouble
 import io.reactivex.BackpressureStrategy
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -83,10 +84,9 @@ class ProductsFragment : Fragment(), OnTouchOutsideViewListener {
 
     override fun onTouchOutside(view: View?, event: MotionEvent?) {
         if (!productsBinding.productsSearchBar.isIconified) {
-            if (productsBinding.productsSearchBar.query.isNotEmpty()) {
-                productsBinding.productsSearchBar.onActionViewCollapsed()
-            } else {
-                productsBinding.productsSearchBar.clearFocus()
+            productsBinding.productsSearchBar.clearFocus()
+            if (productsBinding.productsSearchBar.query.isEmpty()) {
+                productsBinding.productsSearchBar.isIconified = true
             }
         }
     }
@@ -137,14 +137,17 @@ class ProductsFragment : Fragment(), OnTouchOutsideViewListener {
                 adapter.setData(it)
             })
 
-        vm.getSelectedProducts().observe(viewLifecycleOwner, {
-            when (it.size) {
+        vm.getSelectedProducts().observe(viewLifecycleOwner, { products ->
+            when (products.size) {
                 EMPTY_CART_SIZE -> {
                     productsBinding.cartBadge.visibility = View.GONE
+                    productsBinding.totalTextView.visibility = View.GONE
                 }
                 else -> {
+                    actualizeTotal(products.map { it.price }.sum())
+                    productsBinding.totalTextView.visibility = View.VISIBLE
                     productsBinding.cartBadge.visibility = View.VISIBLE
-                    productsBinding.cartBadge.text = it.size.toString()
+                    productsBinding.cartBadge.text = products.size.toString()
                 }
             }
         })
@@ -220,6 +223,11 @@ class ProductsFragment : Fragment(), OnTouchOutsideViewListener {
                 this.price = unitPrice
             }
         vm.addToShoppingCart(selected)
+    }
+
+    private fun actualizeTotal(total: Double) {
+        val totalText = "${getString(R.string.total)}: ${getStringFromDouble(total)} ${vm.getCurrency().value}"
+        productsBinding.totalTextView.text = totalText
     }
 
     private fun showInvalidPriceEnteredMessage() {

@@ -97,7 +97,7 @@ class ScanCardFragment : Fragment() {
 
         vm.getScanningInProgress().observe(viewLifecycleOwner, { isInProgress ->
             // prevent leaving ScanCardFragment when theres scanning in progress or when card got broken during previous payment
-            val enableLeaving = !isInProgress && vm.getOriginalBalance().value == null
+            val enableLeaving = !isInProgress && vm.getOriginalCardData().value?.balance == null
             activityCallback.setBackButtonEnabled(enableLeaving)
             scanCardBinding.backButton.isEnabled = (enableLeaving)
             requireActivity().onBackPressedDispatcher.addCallback(
@@ -163,8 +163,7 @@ class ScanCardFragment : Fragment() {
                              .setPositiveButton(android.R.string.ok, null)
                              .show()
                          vm.setScanningInProgress(false)
-                         vm.setOriginalBalance(null)
-                         vm.setOriginalTagId(null)
+                         vm.setOriginalCardData(null, null)
                          vm.clearCart()
                          vm.clearVouchers()
                          findNavController().navigate(
@@ -173,7 +172,6 @@ class ScanCardFragment : Fragment() {
                      }, {
                          when (it) {
                              is PINException -> {
-                                 vm.setOriginalTagId(it.tagId)
                                  Log.e(this.javaClass.simpleName, it.pinExceptionEnum.name)
                                  makeToast(getNfcCardErrorMessage(it.pinExceptionEnum))
                                  when (it.pinExceptionEnum) {
@@ -184,7 +182,9 @@ class ScanCardFragment : Fragment() {
                                          showPinDialogAndPayByCard()
                                      }
                                      PINExceptionEnum.PRESERVE_BALANCE -> {
-                                         it.extraData?.let { originalBalance -> vm.setOriginalBalance(originalBalance.toDouble()) }
+                                         it.extraData?.let { originalBalance ->
+                                             vm.setOriginalCardData(originalBalance.toDouble(), it.tagId)
+                                         }
                                          scanCardBinding.message.text = getString(R.string.scan_card_to_fix)
                                          scanCardBinding.icon.visibility = View.VISIBLE
                                          payByCard(pin)

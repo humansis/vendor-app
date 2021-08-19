@@ -31,8 +31,7 @@ class CheckoutViewModel(
 ) : ViewModel() {
     private var vouchers: MutableList<Voucher> = mutableListOf()
     private var pin: String? = null
-    private val originalBalanceLD = MutableLiveData<Double?>(null)
-    private val originalTagIdLD = MutableLiveData<ByteArray?>(null)
+    private val originalCardDataLD = MutableLiveData(OriginalCardData(null, null))
     private val isScanningInProgressLD = MutableLiveData(false)
 
     fun init() {
@@ -57,19 +56,15 @@ class CheckoutViewModel(
         return isScanningInProgressLD
     }
 
-    fun setOriginalBalance(originalBalance: Double?) {
-        this.originalBalanceLD.value = originalBalance // TODO zapsat do db + timestamp.. pokud null tak posledni zaznam smazat (bude asi potreba pridat userid pro identifikaci)
-    // prevent this user from creating new purchase until he is removed from db (allow finishing interrupted payment but prevent new purchase)
-    // -> allow if originalbalance == userid v db ale ne, pokud originalbalance == null
-        // ma vubec smysl to ukladat do db s nejakym casovym limitem? asi ne
+    fun setOriginalCardData(originalBalance: Double?, originalTagId: ByteArray?) {
+        this.originalCardDataLD.value?.let {
+            it.balance = originalBalance
+            it.tagId = originalTagId
+        }
     }
 
-    fun getOriginalBalance(): MutableLiveData<Double?> {
-        return originalBalanceLD
-    }
-
-    fun setOriginalTagId(originalTagId: ByteArray?) {
-        this.originalTagIdLD.value = originalTagId
+    fun getOriginalCardData(): MutableLiveData<OriginalCardData> {
+        return originalCardDataLD
     }
 
     fun getVouchers(): List<Voucher> {
@@ -145,10 +140,10 @@ class CheckoutViewModel(
                     } else {
                         NfcLogger.d(
                             TAG,
-                            "subtractBalanceFromCard: value: $value, currencyCode: $currency, originalBalance: $originalBalanceLD"
+                            "subtractBalanceFromCard: value: $value, currencyCode: $currency, originalBalance: ${originalCardDataLD.value?.balance}"
                         )
-                        if (originalTagIdLD.value == null || originalTagIdLD.value.contentEquals( tag.id )) {
-                            nfcFacade.subtractFromBalance(tag, pin, value, currency, originalBalanceLD.value).map { userBalance ->
+                        if (originalCardDataLD.value?.tagId == null || originalCardDataLD.value?.tagId.contentEquals( tag.id )) {
+                            nfcFacade.subtractFromBalance(tag, pin, value, currency, originalCardDataLD.value?.balance).map { userBalance ->
                                 NfcLogger.d(
                                     TAG,
                                     "subtractedBalanceFromCard: balance: ${userBalance.balance}, beneficiaryId: ${userBalance.userId}, currencyCode: ${userBalance.currencyCode}"

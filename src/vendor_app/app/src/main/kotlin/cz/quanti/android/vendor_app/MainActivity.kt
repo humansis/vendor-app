@@ -37,6 +37,7 @@ import cz.quanti.android.vendor_app.repository.AppPreferences
 import cz.quanti.android.vendor_app.repository.login.LoginFacade
 import cz.quanti.android.vendor_app.sync.SynchronizationManager
 import cz.quanti.android.vendor_app.sync.SynchronizationState
+import cz.quanti.android.vendor_app.utils.*
 import cz.quanti.android.vendor_app.utils.ConnectionObserver
 import cz.quanti.android.vendor_app.utils.NfcTagPublisher
 import cz.quanti.android.vendor_app.utils.PermissionRequestResult
@@ -47,7 +48,6 @@ import io.reactivex.schedulers.Schedulers
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import quanti.com.kotlinlog.Log
-import quanti.com.kotlinlog.file.SendLogDialogFragment
 
 class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCallback,
     NavigationView.OnNavigationItemSelectedListener {
@@ -321,6 +321,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
             emailButtonText = getString(R.string.logs_dialog_email_button),
             dialogTheme = R.style.DialogTheme
         ).show(this.supportFragmentManager, "TAG")
+        // TODO inside this method in kotlinlogger there is a method getZipOfFiles() that automatically deletes all logs older than 4 days
     }
 
     @Suppress("WHEN_ENUM_CAN_BE_NULL_IN_JAVA")
@@ -411,7 +412,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
 
     override fun loadNavHeader(currentVendorName: String) {
         val metrics: DisplayMetrics = resources.displayMetrics
-        navHeaderBinding.ivAppIcon.layoutParams.height = if ((metrics.heightPixels/metrics.density) > 640) {
+        navHeaderBinding.ivAppIcon.layoutParams.height = if ((metrics.heightPixels / metrics.density) > 640) {
             resources.getDimensionPixelSize(R.dimen.nav_header_image_height_tall)
         } else {
             resources.getDimensionPixelSize(R.dimen.nav_header_image_height_regular)
@@ -421,7 +422,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
         if (BuildConfig.DEBUG) { appVersion += (" (" + BuildConfig.BUILD_NUMBER + ")") }
         navHeaderBinding.tvAppVersion.text = appVersion
 
-        if(BuildConfig.DEBUG) {
+        if (BuildConfig.DEBUG) {
             navHeaderBinding.tvEnvironment.text = getString(
                 R.string.environment,
                 preferences.url
@@ -464,7 +465,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }
 
-    //====OnTouchOutsideListener====
+    // ====OnTouchOutsideListener====
 
     private var mTouchOutsideView: View? = null
 
@@ -516,7 +517,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
         /**
          * Called when a touch event has occurred outside a given view.
          *
-         * @param view  The view that has not been touched.
+         * @param view The view that has not been touched.
          * @param event The MotionEvent object containing full information about the event.
          */
         fun onTouchOutside(view: View?, event: MotionEvent?)

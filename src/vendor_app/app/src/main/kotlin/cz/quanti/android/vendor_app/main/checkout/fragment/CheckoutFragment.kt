@@ -2,12 +2,14 @@ package cz.quanti.android.vendor_app.main.checkout.fragment
 
 import android.annotation.SuppressLint
 import android.app.AlertDialog
+import android.content.DialogInterface
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
 import androidx.core.content.ContextCompat.getColor
+import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -240,7 +242,7 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
     }
 
     private fun showIfCartEmpty(notEmpty: Boolean) {
-        if(notEmpty) {
+        if (notEmpty) {
             checkoutBinding.emptyCartTextView.visibility = View.GONE
             checkoutBinding.payByCardButton.isEnabled = true
             checkoutBinding.scanButton.isEnabled = true
@@ -254,7 +256,7 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
     }
 
     private fun showIfPurchasePaid() {
-        if(vm.getVouchers().isNotEmpty()) {
+        if (vm.getVouchers().isNotEmpty()) {
             if (vm.getTotal() <= 0) {
                 checkoutBinding.checkoutFooter.proceedButton.visibility = View.VISIBLE
                 checkoutBinding.scanButton.isEnabled = false
@@ -279,7 +281,11 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
                     dialog?.cancel()
                 }
                 .show()
-           dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
+           dialog.getButton(AlertDialog.BUTTON_POSITIVE)
+               .apply {
+                   it.isEnabled = false
+               }
+               .setOnClickListener {
                val pin = dialogBinding.pinEditText.text.toString()
                if (pin.isEmpty()) {
                    mainVM.setToastMessage(getString(R.string.please_enter_pin))
@@ -289,6 +295,10 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
                        CheckoutFragmentDirections.actionCheckoutFragmentToScanCardFragment(pin)
                    )
                }
+           }
+
+           dialogBinding.pinEditText.doOnTextChanged { text, _, _, _ ->
+               positiveButton?.isEnabled = !text.isNullOrEmpty()
            }
         }
     }
@@ -300,7 +310,7 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
         checkoutBinding.totalTextView.text = totalText
         checkoutBinding.totalPriceTextView.text = totalPrice
 
-        if(vm.getVouchers().isNotEmpty()) {
+        if (vm.getVouchers().isNotEmpty()) {
             if (total <= 0) {
                 val green = getColor(requireContext(), R.color.green)
                 checkoutBinding.totalTextView.setTextColor(green)

@@ -1,6 +1,6 @@
 package cz.quanti.android.vendor_app.repository.invoice.dto
 
-class Invoice (
+class Invoice(
     var invoiceId: Long = 0,
     var quantity: Int = 0,
     var date: String = "",

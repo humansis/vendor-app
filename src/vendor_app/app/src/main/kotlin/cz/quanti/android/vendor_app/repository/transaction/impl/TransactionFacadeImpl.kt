@@ -17,7 +17,7 @@ class TransactionFacadeImpl(
 ) : TransactionFacade {
 
     override fun syncWithServer(vendorId: Int): Completable {
-        Log.d(TAG, "Sync started" )
+        Log.d(TAG, "Sync started")
         return retrieveTransactions(vendorId)
     }
 
@@ -42,7 +42,7 @@ class TransactionFacadeImpl(
                                         actualizeTransactionPurchaseDatabase(transactionPurchasesList, transactionId)
                                     }
                                 } else {
-                                    //todo doresit aby exceptiony neprerusovaly sync
+                                    // todo doresit aby exceptiony neprerusovaly sync
                                     throw VendorAppException("Received code ${response.first} when trying download purchases.").apply {
                                         apiError = true
                                         apiResponseCode = responseCode
@@ -53,7 +53,7 @@ class TransactionFacadeImpl(
                     )
                 )
             } else {
-                //todo doresit aby exceptiony neprerusovaly sync
+                // todo doresit aby exceptiony neprerusovaly sync
                 throw VendorAppException("Received code $responseCode when trying download transactions.").apply {
                     apiError = true
                     apiResponseCode = responseCode
@@ -76,7 +76,7 @@ class TransactionFacadeImpl(
 
     private fun actualizeTransactionPurchaseDatabase(transactionPurchases: List<TransactionPurchaseApiEntity>?, transactionId: Long): Completable {
         return Observable.fromIterable(transactionPurchases).flatMapCompletable { transactionPurchase ->
-            Completable.fromSingle( transactionRepo.saveTransactionPurchase(transactionPurchase, transactionId) )
+            Completable.fromSingle(transactionRepo.saveTransactionPurchase(transactionPurchase, transactionId))
         }
     }
 

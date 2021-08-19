@@ -12,9 +12,9 @@ import cz.quanti.android.vendor_app.databinding.ItemProductBinding
 import cz.quanti.android.vendor_app.main.shop.fragment.ProductsFragment
 import cz.quanti.android.vendor_app.main.shop.viewholder.ShopViewHolder
 import cz.quanti.android.vendor_app.repository.product.dto.Product
-import org.koin.core.component.KoinComponent
 import java.util.*
 import kotlin.collections.ArrayList
+import org.koin.core.component.KoinComponent
 
 class ShopAdapter(
     private val productsFragment: ProductsFragment,

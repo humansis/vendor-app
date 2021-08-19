@@ -13,12 +13,11 @@ import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
-
-data class ShoppingHolder (
+data class ShoppingHolder(
     val cart: MutableList<SelectedProduct> = mutableListOf(),
     val vouchers: MutableList<Voucher> = mutableListOf(),
     val chosenCurrency: MutableLiveData<String> = MutableLiveData("")
-): KoinComponent {
+) : KoinComponent {
     private val purchaseFacade: PurchaseFacade by inject()
 
     fun addProduct(product: SelectedProduct) {
@@ -50,6 +49,4 @@ data class ShoppingHolder (
             purchaseFacade.deleteAllProductsInCart()
         }
     }
-
-
 }

@@ -13,8 +13,8 @@ import cz.quanti.android.vendor_app.main.authorization.viewmodel.LoginViewModel
 import cz.quanti.android.vendor_app.main.checkout.viewmodel.CheckoutViewModel
 import cz.quanti.android.vendor_app.main.invoices.viewmodel.InvoicesViewModel
 import cz.quanti.android.vendor_app.main.scanner.viewmodel.ScannerViewModel
-import cz.quanti.android.vendor_app.main.transactions.viewmodel.TransactionsViewModel
 import cz.quanti.android.vendor_app.main.shop.viewmodel.ShopViewModel
+import cz.quanti.android.vendor_app.main.transactions.viewmodel.TransactionsViewModel
 import cz.quanti.android.vendor_app.repository.AppPreferences
 import cz.quanti.android.vendor_app.repository.VendorAPI
 import cz.quanti.android.vendor_app.repository.VendorDb
@@ -48,6 +48,7 @@ import cz.quanti.android.vendor_app.utils.CurrentVendor
 import cz.quanti.android.vendor_app.utils.LoginManager
 import cz.quanti.android.vendor_app.utils.NfcTagPublisher
 import cz.quanti.android.vendor_app.utils.ShoppingHolder
+import java.util.concurrent.TimeUnit
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import org.koin.android.ext.koin.androidContext
@@ -59,7 +60,6 @@ import org.koin.dsl.module
 import quanti.com.kotlinlog.Log
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import java.util.concurrent.TimeUnit
 
 object KoinInitializer {
 
@@ -97,7 +97,6 @@ object KoinInitializer {
         }
 
         val api = builder.build().create(VendorAPI::class.java)
-
 
         val db = Room.databaseBuilder(app, VendorDb::class.java, VendorDb.DB_NAME)
             .addMigrations(
@@ -189,7 +188,8 @@ object KoinInitializer {
                     shoppingHolder,
                     productFacade,
                     currentVendor,
-                    synchronizationManager
+                    synchronizationManager,
+                    preferences
                 )
             }
             viewModel { ScannerViewModel(shoppingHolder, bookletFacade) }

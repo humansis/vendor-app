@@ -1,10 +1,13 @@
 package cz.quanti.android.vendor_app.main.checkout.fragment
 
 import android.app.AlertDialog
+import android.content.DialogInterface
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
+import androidx.core.widget.doOnTextChanged
 import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
@@ -50,12 +53,13 @@ class ScanCardFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        scanCardBinding.totalPriceText.text  = getString(R.string.total_price, vm.getTotal(), vm.getCurrency().value)
         init()
     }
 
     override fun onResume() {
         super.onResume()
-        if(arguments?.isEmpty == false) {
+        if (arguments?.isEmpty == false) {
             vm.setPin(arguments?.get(PIN_KEY).toString())
             arguments?.clear()
         }
@@ -107,7 +111,7 @@ class ScanCardFragment : Fragment() {
             }
 
             // prevent leaving ScanCardFragment when theres scanning in progress or when card got broken during previous payment
-            val enableLeaving = !isInProgress && vm.getOriginalBalance().value == null
+            val enableLeaving = !isInProgress && vm.getOriginalCardData().value?.balance == null
             activityCallback.setBackButtonEnabled(enableLeaving)
             scanCardBinding.backButton.isEnabled = (enableLeaving)
             requireActivity().onBackPressedDispatcher.addCallback(
@@ -126,8 +130,8 @@ class ScanCardFragment : Fragment() {
 
     private fun showPinDialogAndPayByCard() {
         pinDialog?.dismiss()
-        val dialogBinding = DialogCardPinBinding.inflate(layoutInflater,null, false)
-        dialogBinding.pinTitle.text = getString(R.string.total_price, vm.getTotal(), vm.getCurrency())
+        val dialogBinding = DialogCardPinBinding.inflate(layoutInflater, null, false)
+        dialogBinding.pinTitle.text = getString(R.string.incorrect_pin)
         pinDialog = AlertDialog.Builder(requireContext(), R.style.DialogTheme)
             .setView(dialogBinding.root)
             .setCancelable(false)
@@ -140,7 +144,11 @@ class ScanCardFragment : Fragment() {
             }
             .show()
         pinDialog?.let {
-            it.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
+            it.getButton(AlertDialog.BUTTON_POSITIVE)
+                .apply {
+                    it.isEnabled = false
+                }
+                .setOnClickListener {
                 try {
                     val pin = dialogBinding.pinEditText.text.toString()
                     if (pin.isEmpty()) {
@@ -154,6 +162,10 @@ class ScanCardFragment : Fragment() {
                     mainVM.setToastMessage(getString(R.string.please_enter_pin))
                 }
             }
+        }
+
+        dialogBinding.pinEditText.doOnTextChanged { text, _, _, _ ->
+            positiveButton?.isEnabled = !text.isNullOrEmpty()
         }
     }
 
@@ -187,8 +199,7 @@ class ScanCardFragment : Fragment() {
             setPositiveButton(android.R.string.ok, null)
         }.show()
         vm.setScanningInProgress(false)
-        vm.setOriginalBalance(null)
-        vm.setOriginalTagId(null)
+        vm.setOriginalCardData(null, null)
         vm.clearCart()
         vm.clearVouchers()
         findNavController().navigate(
@@ -211,8 +222,9 @@ class ScanCardFragment : Fragment() {
                         showPinDialogAndPayByCard()
                     }
                     PINExceptionEnum.PRESERVE_BALANCE -> {
-                        throwable.extraData?.let { it1 -> vm.setOriginalBalance(it1.toDouble()) }
-                        vm.setOriginalTagId(throwable.tagId)
+                        it.extraData?.let { originalBalance ->
+                            vm.setOriginalCardData(originalBalance.toDouble(), it.tagId)
+                        }
                         payByCard()
                     }
                     else -> {

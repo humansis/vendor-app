@@ -1,6 +1,6 @@
 package cz.quanti.android.vendor_app.repository.transaction.dto
 
-class TransactionPurchase (
+class TransactionPurchase(
     var purchaseId: Long = 0,
     var value: Double = 0.0,
     var currency: String = "",

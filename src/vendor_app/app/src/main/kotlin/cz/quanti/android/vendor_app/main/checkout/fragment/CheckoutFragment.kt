@@ -255,7 +255,7 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
     }
 
     private fun showIfCartEmpty(notEmpty: Boolean) {
-        if(notEmpty) {
+        if (notEmpty) {
             checkoutBinding.emptyCartTextView.visibility = View.GONE
             checkoutBinding.payByCardButton.isEnabled = true
             checkoutBinding.scanButton.isEnabled = true
@@ -269,7 +269,7 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
     }
 
     private fun showIfPurchasePaid() {
-        if(vm.getVouchers().isNotEmpty()) {
+        if (vm.getVouchers().isNotEmpty()) {
             if (vm.getTotal() <= 0) {
                 checkoutBinding.checkoutFooter.proceedButton.visibility = View.VISIBLE
                 checkoutBinding.scanButton.isEnabled = false
@@ -289,7 +289,7 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
 
     private fun showPinDialogAndPayByCard() {
        if (NfcInitializer.initNfc(requireActivity())) {
-           val dialogBinding = DialogCardPinBinding.inflate(layoutInflater,null, false)
+           val dialogBinding = DialogCardPinBinding.inflate(layoutInflater, null, false)
            dialogBinding.pinTitle.text = getString(R.string.total_price, vm.getTotal(), vm.getCurrency().value)
            val pinDialog = AlertDialog.Builder(requireContext(), R.style.DialogTheme)
                 .setView(dialogBinding.root)
@@ -323,7 +323,7 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
         checkoutBinding.totalTextView.text = totalText
         checkoutBinding.totalPriceTextView.text = totalPrice
 
-        if(vm.getVouchers().isNotEmpty()) {
+        if (vm.getVouchers().isNotEmpty()) {
             if (total <= 0) {
                 val green = getColor(requireContext(), R.color.green)
                 checkoutBinding.totalTextView.setTextColor(green)

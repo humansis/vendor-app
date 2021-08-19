@@ -1,12 +1,13 @@
 package cz.quanti.android.vendor_app.utils
 
+import android.app.AlertDialog
 import android.app.Dialog
 import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
-import android.app.AlertDialog
 import android.widget.Toast
 import androidx.fragment.app.DialogFragment
+import java.io.File
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -19,7 +20,6 @@ import quanti.com.kotlinlog.utils.getFormattedFileNameDayNow
 import quanti.com.kotlinlog.utils.getUriForFile
 import quanti.com.kotlinlog.utils.getZipOfLogs
 import quanti.com.kotlinlog.utils.hasFileWritePermission
-import java.io.File
 
 /**
  * Created by Trnka Vladislav on 20.06.2017.
@@ -135,11 +135,11 @@ class SendLogDialogFragment : DialogFragment() {
         val subject = getString(R.string.logs_email_subject) + " " + getFormattedFileNameDayNow()
         val bodyText = getString(R.string.logs_email_text)
 
-        //await non block's current thread
+        // await non block's current thread
         val zipFileUri = zipFile?.await()?.getUriForFile(appContext)
 
         val intent = Intent(Intent.ACTION_SEND).apply {
-            type = "message/rfc822" //email
+            type = "message/rfc822" // email
             flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
             putExtra(Intent.EXTRA_EMAIL, addresses)
             putExtra(Intent.EXTRA_SUBJECT, subject)
@@ -156,7 +156,6 @@ class SendLogDialogFragment : DialogFragment() {
                 Toast.LENGTH_LONG
             ).show()
         }
-
     }
 
     /**

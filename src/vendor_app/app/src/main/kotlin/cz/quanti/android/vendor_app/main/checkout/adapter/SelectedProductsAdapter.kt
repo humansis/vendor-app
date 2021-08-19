@@ -19,7 +19,7 @@ import java.math.BigDecimal
 class SelectedProductsAdapter(
     private val checkoutFragmentCallback: CheckoutFragmentCallback,
     private val context: Context
-    ) :
+) :
     RecyclerView.Adapter<SelectedProductsViewHolder>() {
 
     private val products: MutableList<SelectedProduct> = mutableListOf()
@@ -80,7 +80,7 @@ class SelectedProductsAdapter(
                 )
                 closeCard(holder)
             }
-        } catch(e: NumberFormatException) {
+        } catch (e: NumberFormatException) {
             checkoutFragmentCallback.showInvalidPriceEnteredMessage()
         }
     }

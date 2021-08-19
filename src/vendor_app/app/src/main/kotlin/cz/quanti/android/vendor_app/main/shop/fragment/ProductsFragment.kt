@@ -178,7 +178,7 @@ class ProductsFragment : Fragment(), OnTouchOutsideViewListener {
         val dialog = AlertDialog.Builder(activity)
             .setView(dialogView)
             .show()
-        if ( !resources.getBoolean(R.bool.isTablet) ) {
+        if (!resources.getBoolean(R.bool.isTablet)) {
             dialog.window?.setLayout(
                 resources.displayMetrics.widthPixels,
                 LinearLayout.LayoutParams.WRAP_CONTENT
@@ -210,7 +210,7 @@ class ProductsFragment : Fragment(), OnTouchOutsideViewListener {
                     )
                     dialog.dismiss()
                 }
-            } catch(e: NumberFormatException) {
+            } catch (e: NumberFormatException) {
                 showInvalidPriceEnteredMessage()
             }
         }

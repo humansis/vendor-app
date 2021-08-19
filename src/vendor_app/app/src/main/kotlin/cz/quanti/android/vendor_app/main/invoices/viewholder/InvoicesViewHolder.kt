@@ -7,6 +7,6 @@ import cz.quanti.android.vendor_app.databinding.ItemInvoiceBinding
 class InvoicesViewHolder(invoiceBinding: ItemInvoiceBinding) : RecyclerView.ViewHolder(invoiceBinding.root) {
     var invoiceId: TextView = invoiceBinding.invoiceNumberText
     var date: TextView = invoiceBinding.invoiceDateText
-    var quantity: TextView  = invoiceBinding.invoiceQuantityText
+    var quantity: TextView = invoiceBinding.invoiceQuantityText
     var total: TextView = invoiceBinding.invoiceTotalText
 }

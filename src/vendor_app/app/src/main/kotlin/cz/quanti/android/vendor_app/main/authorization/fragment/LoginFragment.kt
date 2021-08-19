@@ -87,7 +87,7 @@ class LoginFragment : Fragment() {
         }
 
         if (vm.isVendorLoggedIn()) {
-            if(vm.getCurrentVendorName().equals(BuildConfig.DEMO_ACCOUNT, true)) {
+            if (vm.getCurrentVendorName().equals(BuildConfig.DEMO_ACCOUNT, true)) {
                 vm.setApiHost(ApiEnvironments.STAGE)
                 vm.saveApiHost(ApiEnvironments.STAGE)
             }

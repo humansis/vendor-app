@@ -20,7 +20,7 @@ class PurchaseFacadeImpl(
 
     override fun savePurchase(purchase: Purchase): Completable {
         return cardRepo.isBlockedCard(purchase.smartcard).flatMapCompletable { itsBlocked ->
-            if(itsBlocked) {
+            if (itsBlocked) {
                 throw BlockedCardError("This card is tagged as blocked on the server")
             } else {
                 purchaseRepo.savePurchase(purchase)
@@ -29,7 +29,7 @@ class PurchaseFacadeImpl(
     }
 
     override fun syncWithServer(): Completable {
-        Log.d(TAG, "Sync started" )
+        Log.d(TAG, "Sync started")
         return preparePurchases()
             .andThen(sendPurchasesToServer())
             .andThen(deletePurchasedProducts())
@@ -119,7 +119,7 @@ class PurchaseFacadeImpl(
                                         }
                                     }
                             }
-                            //throw exception after all purchases has been iterated
+                            // throw exception after all purchases has been iterated
                             .doOnComplete {
                                 Log.d(
                                     TAG,
@@ -143,5 +143,4 @@ class PurchaseFacadeImpl(
     companion object {
         private val TAG = PurchaseFacadeImpl::class.java.simpleName
     }
-
 }

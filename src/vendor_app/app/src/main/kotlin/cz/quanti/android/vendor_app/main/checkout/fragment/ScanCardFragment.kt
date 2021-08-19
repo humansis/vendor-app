@@ -24,7 +24,6 @@ import io.reactivex.schedulers.Schedulers
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import quanti.com.kotlinlog.Log
 
-
 class ScanCardFragment : Fragment() {
     private val vm: CheckoutViewModel by viewModel()
     private var paymentDisposable: Disposable? = null
@@ -52,7 +51,7 @@ class ScanCardFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        if(arguments?.isEmpty == false) {
+        if (arguments?.isEmpty == false) {
             vm.setPin(arguments?.get("pin").toString())
             arguments?.clear()
         }
@@ -89,7 +88,7 @@ class ScanCardFragment : Fragment() {
 
     private fun showPinDialogAndPayByCard() {
         pinDialog?.dismiss()
-        val dialogBinding = DialogCardPinBinding.inflate(layoutInflater,null, false)
+        val dialogBinding = DialogCardPinBinding.inflate(layoutInflater, null, false)
         dialogBinding.pinTitle.text = getString(R.string.incorrect_pin)
         pinDialog = AlertDialog.Builder(requireContext(), R.style.DialogTheme)
             .setView(dialogBinding.root)

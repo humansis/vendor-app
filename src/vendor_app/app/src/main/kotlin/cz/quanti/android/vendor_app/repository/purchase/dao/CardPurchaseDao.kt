@@ -22,15 +22,14 @@ interface CardPurchaseDao {
     fun getAll(): Single<List<CardPurchaseDbEntity>>
 
     @Query(
-        "SELECT * FROM " + VendorDb.TABLE_CARD_PURCHASE
-            + " WHERE purchaseId = :purchaseId"
+        "SELECT * FROM " + VendorDb.TABLE_CARD_PURCHASE +
+            " WHERE purchaseId = :purchaseId"
     )
     fun getCardForPurchase(purchaseId: Long): Maybe<CardPurchaseDbEntity>
 
-
     @Query(
-        "DELETE FROM " + VendorDb.TABLE_CARD_PURCHASE
-            + " WHERE purchaseId = :purchaseId"
+        "DELETE FROM " + VendorDb.TABLE_CARD_PURCHASE +
+            " WHERE purchaseId = :purchaseId"
     )
     fun deleteCardForPurchase(purchaseId: Long)
 }

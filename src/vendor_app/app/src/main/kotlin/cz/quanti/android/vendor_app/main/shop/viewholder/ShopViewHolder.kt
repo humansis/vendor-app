@@ -1,13 +1,12 @@
 package cz.quanti.android.vendor_app.main.shop.viewholder
 
-import android.view.View
 import android.widget.*
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.RecyclerView
-import kotlinx.android.synthetic.main.item_product.view.*
+import cz.quanti.android.vendor_app.databinding.ItemProductBinding
 
-class ShopViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-    var productName: TextView = itemView.productName
-    var productImage: ImageView = itemView.productImage
-    var productLayout: ConstraintLayout = itemView.productLayout
+class ShopViewHolder(productBinding: ItemProductBinding) : RecyclerView.ViewHolder(productBinding.root) {
+    var productName: TextView = productBinding.productName
+    var productImage: ImageView = productBinding.productImage
+    var productLayout: ConstraintLayout = productBinding.productLayout
 }

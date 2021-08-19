@@ -1,5 +1,6 @@
 package cz.quanti.android.vendor_app.main.transactions.adapter
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
@@ -9,6 +10,7 @@ import android.widget.TextView
 import androidx.core.view.isEmpty
 import androidx.recyclerview.widget.RecyclerView
 import cz.quanti.android.vendor_app.R
+import cz.quanti.android.vendor_app.databinding.ItemTransactionBinding
 import cz.quanti.android.vendor_app.main.transactions.viewholder.TransactionsViewHolder
 import cz.quanti.android.vendor_app.repository.transaction.dto.Transaction
 import cz.quanti.android.vendor_app.utils.convertStringToDate
@@ -20,9 +22,9 @@ class TransactionsAdapter(
     private val transactions: MutableList<Transaction> = mutableListOf()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TransactionsViewHolder {
-        val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.item_transactions, parent, false)
-        return TransactionsViewHolder(view)
+        val inflater = LayoutInflater.from(parent.context)
+        val transactionBinding = ItemTransactionBinding.inflate(inflater, parent, false)
+        return TransactionsViewHolder(transactionBinding)
     }
 
     override fun onBindViewHolder(holder: TransactionsViewHolder, position: Int) {
@@ -81,6 +83,7 @@ class TransactionsAdapter(
         return transactions.size
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     fun setData(data: List<Transaction>) {
         transactions.clear()
         transactions.addAll(data)

@@ -1,5 +1,6 @@
 package cz.quanti.android.vendor_app.main.checkout.adapter
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
@@ -7,6 +8,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import cz.quanti.android.vendor_app.R
+import cz.quanti.android.vendor_app.databinding.ItemShoppingCartBinding
 import cz.quanti.android.vendor_app.main.checkout.callback.CheckoutFragmentCallback
 import cz.quanti.android.vendor_app.main.checkout.viewholder.SelectedProductsViewHolder
 import cz.quanti.android.vendor_app.repository.purchase.dto.SelectedProduct
@@ -25,10 +27,9 @@ class SelectedProductsAdapter(
     private var expandedCardHolder: SelectedProductsViewHolder? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SelectedProductsViewHolder {
-        val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.item_shopping_cart, parent, false)
-
-        return SelectedProductsViewHolder(view)
+        val inflater = LayoutInflater.from(parent.context)
+        val selectedProductBinding = ItemShoppingCartBinding.inflate(inflater, parent, false)
+        return SelectedProductsViewHolder(selectedProductBinding)
     }
 
     override fun getItemCount(): Int {
@@ -111,6 +112,7 @@ class SelectedProductsAdapter(
         holder.confirm.text = context.getString(R.string.confirm)
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     fun setData(data: List<SelectedProduct>) {
         products.clear()
         products.addAll(data)

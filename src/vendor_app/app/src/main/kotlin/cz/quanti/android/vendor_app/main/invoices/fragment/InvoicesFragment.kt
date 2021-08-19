@@ -8,12 +8,12 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import cz.quanti.android.vendor_app.ActivityCallback
 import cz.quanti.android.vendor_app.R
+import cz.quanti.android.vendor_app.databinding.FragmentInvoicesBinding
 import cz.quanti.android.vendor_app.main.invoices.adapter.InvoicesAdapter
 import cz.quanti.android.vendor_app.main.invoices.viewmodel.InvoicesViewModel
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
-import kotlinx.android.synthetic.main.fragment_invoices.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import quanti.com.kotlinlog.Log
 
@@ -24,23 +24,26 @@ class InvoicesFragment : Fragment() {
     private var synchronizeInvoicesDisposable: Disposable? = null
     private var activityCallback: ActivityCallback? = null
 
+    private lateinit var invoicesBinding: FragmentInvoicesBinding
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         activityCallback = activity as ActivityCallback
         activityCallback?.setSubtitle(getString(R.string.reimbursed_invoices))
+        invoicesBinding = FragmentInvoicesBinding.inflate(inflater, container, false)
         invoicesAdapter = InvoicesAdapter(requireContext())
-        return inflater.inflate(R.layout.fragment_invoices, container, false)
+        return invoicesBinding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val viewManager = LinearLayoutManager(activity)
-        invoices_recycler_view.setHasFixedSize(true)
-        invoices_recycler_view.layoutManager = viewManager
-        invoices_recycler_view.adapter = invoicesAdapter
+        invoicesBinding.invoicesRecyclerView.setHasFixedSize(true)
+        invoicesBinding.invoicesRecyclerView.layoutManager = viewManager
+        invoicesBinding.invoicesRecyclerView.adapter = invoicesAdapter
     }
 
     override fun onStart() {
@@ -53,7 +56,6 @@ class InvoicesFragment : Fragment() {
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({ invoices ->
                 invoicesAdapter.setData(invoices)
-                invoicesAdapter.notifyDataSetChanged()
                 showMessage()
             }, {
                 Log.e(it)
@@ -66,13 +68,11 @@ class InvoicesFragment : Fragment() {
     }
 
     private fun showMessage() {
-        if (fragment_message != null) {
-            fragment_message.text = getString(R.string.no_reimbursed_invoices)
-            if (invoicesAdapter.itemCount == 0) {
-                fragment_message.visibility = View.VISIBLE
-            } else {
-                fragment_message.visibility = View.GONE
-            }
+        invoicesBinding.fragmentMessage.text = getString(R.string.no_reimbursed_invoices)
+        if (invoicesAdapter.itemCount == 0) {
+            invoicesBinding.fragmentMessage.visibility = View.VISIBLE
+        } else {
+            invoicesBinding.fragmentMessage.visibility = View.GONE
         }
     }
 }

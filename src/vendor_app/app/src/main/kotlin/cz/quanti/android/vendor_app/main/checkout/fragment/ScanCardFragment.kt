@@ -10,18 +10,17 @@ import android.widget.Toast
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
-import com.google.android.material.textfield.TextInputEditText
 import cz.quanti.android.nfc.exception.PINException
 import cz.quanti.android.nfc.exception.PINExceptionEnum
 import cz.quanti.android.vendor_app.ActivityCallback
 import cz.quanti.android.vendor_app.R
+import cz.quanti.android.vendor_app.databinding.DialogCardPinBinding
+import cz.quanti.android.vendor_app.databinding.FragmentScanCardBinding
 import cz.quanti.android.vendor_app.main.checkout.viewmodel.CheckoutViewModel
 import cz.quanti.android.vendor_app.utils.NfcInitializer
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
-import kotlinx.android.synthetic.main.dialog_card_pin.view.*
-import kotlinx.android.synthetic.main.fragment_scan_card.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import quanti.com.kotlinlog.Log
 
@@ -30,21 +29,24 @@ class ScanCardFragment : Fragment() {
     private val vm: CheckoutViewModel by viewModel()
     private var paymentDisposable: Disposable? = null
     private var pinDialog: AlertDialog? = null
-    private var activityCallback: ActivityCallback? = null
+    private lateinit var activityCallback: ActivityCallback
+
+    private lateinit var scanCardBinding: FragmentScanCardBinding
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         activityCallback = activity as ActivityCallback
-        activityCallback?.setSubtitle(null)
-        return inflater.inflate(R.layout.fragment_scan_card, container, false)
+        activityCallback.setSubtitle(null)
+        scanCardBinding = FragmentScanCardBinding.inflate(inflater, container, false)
+        return scanCardBinding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        totalPriceText.text = getString(R.string.total_price, vm.getTotal(), vm.getCurrency().value)
+        scanCardBinding.totalPriceText.text = getString(R.string.total_price, vm.getTotal(), vm.getCurrency().value)
         init()
     }
 
@@ -78,7 +80,7 @@ class ScanCardFragment : Fragment() {
     }
 
     private fun init() {
-        backButton.setOnClickListener {
+        scanCardBinding.backButton.setOnClickListener {
             findNavController().navigate(
                 ScanCardFragmentDirections.actionScanCardFragmentToCheckoutFragment()
             )
@@ -87,14 +89,13 @@ class ScanCardFragment : Fragment() {
 
     private fun showPinDialogAndPayByCard() {
         pinDialog?.dismiss()
-        val dialogView: View = layoutInflater.inflate(R.layout.dialog_card_pin, null)
-        dialogView.pin_title.text = getString(R.string.incorrect_pin)
+        val dialogBinding = DialogCardPinBinding.inflate(layoutInflater,null, false)
+        dialogBinding.pinTitle.text = getString(R.string.incorrect_pin)
         pinDialog = AlertDialog.Builder(requireContext(), R.style.DialogTheme)
-            .setView(dialogView)
+            .setView(dialogBinding.root)
             .setCancelable(false)
             .setPositiveButton(android.R.string.ok) { dialog, _ ->
-                val pinEditTextView =
-                    dialogView.findViewById<TextInputEditText>(R.id.pinEditText)
+                val pinEditTextView = dialogBinding.pinEditText
                 val pin = pinEditTextView.text.toString()
                 vm.setPin(pin)
                 payByCard(pin)
@@ -111,7 +112,7 @@ class ScanCardFragment : Fragment() {
         val positiveButton = pinDialog?.getButton(DialogInterface.BUTTON_POSITIVE)
         positiveButton?.isEnabled = false
 
-        dialogView.findViewById<TextInputEditText>(R.id.pinEditText).doOnTextChanged { text, _, _, _ ->
+        dialogBinding.pinEditText.doOnTextChanged { text, _, _, _ ->
             positiveButton?.isEnabled = !text.isNullOrEmpty()
         }
     }

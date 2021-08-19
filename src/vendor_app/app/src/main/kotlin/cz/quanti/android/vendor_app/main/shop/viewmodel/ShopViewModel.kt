@@ -1,6 +1,7 @@
 package cz.quanti.android.vendor_app.main.shop.viewmodel
 
 import androidx.lifecycle.*
+import cz.quanti.android.vendor_app.repository.AppPreferences
 import cz.quanti.android.vendor_app.repository.product.ProductFacade
 import cz.quanti.android.vendor_app.repository.product.dto.Product
 import cz.quanti.android.vendor_app.repository.purchase.dto.SelectedProduct
@@ -15,7 +16,8 @@ class ShopViewModel(
     private val shoppingHolder: ShoppingHolder,
     private val productFacade: ProductFacade,
     private val currentVendor: CurrentVendor,
-    private val synchronizationManager: SynchronizationManager
+    private val synchronizationManager: SynchronizationManager,
+    private val preferences: AppPreferences
 ) : ViewModel() {
 
     fun syncNeededObservable(): Observable<SynchronizationState> {
@@ -41,12 +43,18 @@ class ShopViewModel(
 
     fun getCurrency(): LiveData<String> {
         if(shoppingHolder.chosenCurrency.value == "") {
-            setCurrency(getDefaultCurrency(currentVendor.vendor.country))
+            val savedCurrency = preferences.currency
+            if (savedCurrency.isNotEmpty() ){
+                shoppingHolder.chosenCurrency.postValue(savedCurrency)
+            } else {
+                setCurrency(getDefaultCurrency(currentVendor.vendor.country))
+            }
         }
         return shoppingHolder.chosenCurrency
     }
 
     fun setCurrency(currency: String) {
+        preferences.currency = currency
         shoppingHolder.chosenCurrency.postValue(currency)
     }
 }

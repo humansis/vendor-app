@@ -166,17 +166,17 @@ class ScanCardFragment : Fragment() {
 
      private fun payByCard() {
          if (mainVM.enableNfc(requireActivity())) {
-             paymentDisposable?.dispose()
-             paymentDisposable =
-                 vm.getPin()?.let { pin ->
-                     vm.payByCard(pin, vm.getTotal(), vm.getCurrency().value.toString()).subscribeOn(Schedulers.io())
-                         .observeOn(AndroidSchedulers.mainThread())
-                         .subscribe({
-                             onPaymentSuccessful(it)
-                         }, {
-                             onPaymentFailed(it)
-                         })
-                 }
+             vm.getPin()?.let { pin ->
+                 paymentDisposable?.dispose()
+                 paymentDisposable = vm.payByCard(pin, vm.getTotal(), vm.getCurrency().value.toString())
+                     .subscribeOn(Schedulers.io())
+                     .observeOn(AndroidSchedulers.mainThread())
+                     .subscribe({
+                         onPaymentSuccessful(it)
+                     }, {
+                         onPaymentFailed(it)
+                     })
+             }
          }
      }
 

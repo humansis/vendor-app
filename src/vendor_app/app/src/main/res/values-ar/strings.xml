@@ -95,4 +95,5 @@
     <string name="navigation_drawer_close">أغلق لوحة التصفح</string>
     <string name="utilities">خدمات</string>
     <string name="confirm">ترتيب</string>
+    <string name="error_service_unavailable">الخدمة غير موفرة</string>
 </resources>

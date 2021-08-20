@@ -145,18 +145,18 @@ class LoginFragment : Fragment() {
                                     loginBinding.loginButton.isEnabled = true
                                     Log.e(TAG, it)
                                     if (it is LoginException) {
+                                        Log.d(it.message.toString())
                                         when (it.state) {
                                             LoginExceptionState.NO_CONNECTION -> {
-                                                if (vm.isNetworkConnected().value == false) {
-                                                    Log.d(it.message.toString())
-                                                    Toast.makeText(
-                                                        context,
-                                                        getString(R.string.no_internet_connection),
-                                                        Toast.LENGTH_LONG
-                                                    ).show()
-                                                } else {
-                                                    // TODO server nedostupny
-                                                }
+                                                Toast.makeText(
+                                                    context,
+                                                    if (vm.isNetworkConnected().value == false) {
+                                                        getString(R.string.no_internet_connection)
+                                                    } else {
+                                                        getString(R.string.error_service_unavailable)
+                                                    },
+                                                    Toast.LENGTH_LONG
+                                                ).show()
                                             }
                                             LoginExceptionState.INVALID_USER,
                                             LoginExceptionState.INVALID_PASSWORD -> {

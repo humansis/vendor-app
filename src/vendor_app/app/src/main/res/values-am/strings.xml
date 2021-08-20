@@ -76,4 +76,5 @@
     <string name="total_price">ድምር %1$.2f %2$s</string>
     <string name="date">ቀን %1$s</string>
     <string name="confirm">ማዋቀር</string>
+    <string name="error_service_unavailable">አገልግሎት የለም</string>
 </resources>

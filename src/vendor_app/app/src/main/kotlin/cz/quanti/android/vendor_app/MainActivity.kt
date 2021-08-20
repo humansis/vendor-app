@@ -2,12 +2,16 @@ package cz.quanti.android.vendor_app
 
 import android.annotation.SuppressLint
 import android.app.AlertDialog
-import android.content.Intent
+import android.content.Context
 import android.content.pm.ActivityInfo
 import android.graphics.Rect
+import android.media.MediaPlayer
 import android.nfc.NfcAdapter
 import android.nfc.Tag
+import android.os.Build
 import android.os.Bundle
+import android.os.VibrationEffect
+import android.os.Vibrator
 import android.util.DisplayMetrics
 import android.view.MenuItem
 import android.view.MotionEvent
@@ -34,6 +38,9 @@ import cz.quanti.android.vendor_app.repository.login.LoginFacade
 import cz.quanti.android.vendor_app.sync.SynchronizationManager
 import cz.quanti.android.vendor_app.sync.SynchronizationState
 import cz.quanti.android.vendor_app.utils.*
+import cz.quanti.android.vendor_app.utils.ConnectionObserver
+import cz.quanti.android.vendor_app.utils.NfcTagPublisher
+import cz.quanti.android.vendor_app.utils.PermissionRequestResult
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
@@ -42,7 +49,7 @@ import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import quanti.com.kotlinlog.Log
 
-class MainActivity : AppCompatActivity(), ActivityCallback,
+class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCallback,
     NavigationView.OnNavigationItemSelectedListener {
 
     private val loginFacade: LoginFacade by inject()
@@ -59,11 +66,15 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
     private var syncStateDisposable: Disposable? = null
     private var syncDisposable: Disposable? = null
     private var readBalanceDisposable: Disposable? = null
+    private var lastToast: Toast? = null
 
     private lateinit var activityBinding: ActivityMainBinding
     private lateinit var navHeaderBinding: NavHeaderBinding
 
     private lateinit var connectionObserver: ConnectionObserver
+
+    private lateinit var successPlayer: MediaPlayer
+    private lateinit var errorPlayer: MediaPlayer
 
     @SuppressLint("SourceLockedOrientationActivity")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -83,6 +94,30 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
 
         setUpToolbar()
         setUpNavigationMenu()
+
+        mainVM.initNfcAdapter(this)
+
+        mainVM.successSLE.observe(this, {
+            vibrate(this)
+            successPlayer.start()
+        })
+        mainVM.errorSLE.observe(this, {
+            vibrate(this)
+            errorPlayer.start()
+        })
+
+        mainVM.getToastMessage().observe(this, { message ->
+            lastToast?.cancel()
+            message?.let {
+                lastToast = Toast.makeText(
+                    this,
+                    message,
+                    Toast.LENGTH_LONG
+                ).apply {
+                    show()
+                }
+            }
+        })
     }
 
     override fun onResume() {
@@ -90,14 +125,19 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
         loadNavHeader(loginVM.getCurrentVendorName())
         checkConnection()
         syncState()
+        successPlayer = MediaPlayer.create(this, R.raw.end)
+        errorPlayer = MediaPlayer.create(this, R.raw.error)
     }
 
     override fun onPause() {
-        super.onPause()
+        successPlayer.release()
+        errorPlayer.release()
         syncStateDisposable?.dispose()
+        super.onPause()
     }
 
     override fun onStop() {
+        lastToast?.cancel()
         displayedDialog?.dismiss()
         disposable?.dispose()
         syncDisposable?.dispose()
@@ -108,6 +148,10 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
     override fun onDestroy() {
         connectionObserver.unregisterCallback()
         super.onDestroy()
+    }
+
+    override fun onTagDiscovered(tag: Tag) {
+        nfcTagPublisher.getTagSubject().onNext(tag)
     }
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
@@ -121,8 +165,8 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
             R.id.invoices_button -> {
                 findNavController(R.id.nav_host_fragment).navigate(R.id.invoicesFragment)
             }
-            R.id.read_balance_button -> {
-                showReadBalanceDialog()
+            R.id.read_balance_button -> { // TODO hide if mainVM.getNfcAdapter() == null
+                    showReadBalanceDialog()
             }
             R.id.share_logs_button -> {
                 shareLogsDialog()
@@ -177,6 +221,12 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
         }
     }
 
+    private fun getToobarUpButton(): ImageButton? {
+        val field = Class.forName("androidx.appcompat.widget.Toolbar").getDeclaredField("mNavButtonView")
+        field.isAccessible = true
+        return field.get(activityBinding.appBar.toolbar) as? ImageButton
+    }
+
     private fun setUpNavigationMenu() {
         initPriceUnitSpinner()
         activityBinding.btnLogout.setOnClickListener {
@@ -185,15 +235,13 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
         }
     }
 
-    override fun setSubtitle(titleText: String?) {
-        activityBinding.appBar.toolbar.subtitle = titleText
-    }
-
-    override fun onNewIntent(intent: Intent) {
-        super.onNewIntent(intent)
-        if (NfcAdapter.ACTION_TAG_DISCOVERED == intent.action || NfcAdapter.ACTION_NDEF_DISCOVERED == intent.action) {
-            val tag: Tag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG) ?: return
-            nfcTagPublisher.getTagSubject().onNext(tag)
+    @Suppress("DEPRECATION")
+    private fun vibrate(context: Context) {
+        val vibrator = context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            vibrator.vibrate(VibrationEffect.createOneShot(200, VibrationEffect.DEFAULT_AMPLITUDE))
+        } else {
+            vibrator.vibrate(200)
         }
     }
 
@@ -212,8 +260,8 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
     }
 
     private fun showReadBalanceDialog() {
-        if (NfcInitializer.initNfc(this)) {
-            val scanCardDialog = AlertDialog.Builder(this, R.style.DialogTheme)
+        if (mainVM.enableNfc(this)) {
+            displayedDialog = AlertDialog.Builder(this, R.style.DialogTheme)
                 .setMessage(getString(R.string.scan_card))
                 .setCancelable(false)
                 .setNegativeButton(getString(R.string.cancel)) { dialog, _ ->
@@ -221,45 +269,42 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
                     readBalanceDisposable?.dispose()
                     readBalanceDisposable = null
                 }
-                .create()
+                .create().apply { show() }
 
-            scanCardDialog?.show()
-            displayedDialog = scanCardDialog
-
-            readBalanceDisposable?.dispose()
-            readBalanceDisposable = readBalance()
-                .subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe({
-                    scanCardDialog.dismiss()
-                    val cardContent = it
-                    val cardResultDialog = AlertDialog.Builder(this, R.style.DialogTheme)
-                        .setTitle(getString((R.string.read_balance)))
-                        .setMessage(
-                            getString(
-                                R.string.scanning_card_balance,
-                                "${cardContent.balance} ${cardContent.currencyCode}"
-                            )
-                        )
-                        .setCancelable(true)
-                        .setNegativeButton(getString(R.string.close)) { dialog, _ ->
-                            dialog?.dismiss()
-                            readBalanceDisposable?.dispose()
-                            readBalanceDisposable = null
-                        }
-                        .create()
-                    cardResultDialog.show()
-                    displayedDialog = cardResultDialog
-                },
-                    {
-                        Log.e(this.javaClass.simpleName, it)
-                        Toast.makeText(
-                            this,
-                            getString(R.string.card_error),
-                            Toast.LENGTH_LONG
-                        ).show()
-                        scanCardDialog.dismiss()
-                        NfcInitializer.disableForegroundDispatch(this)
-                    })
+            showReadBalanceResult()
         }
+    }
+
+    private fun showReadBalanceResult() {
+        readBalanceDisposable?.dispose()
+        readBalanceDisposable = readBalance()
+            .subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe({
+                displayedDialog?.dismiss()
+                val cardContent = it
+                val cardResultDialog = AlertDialog.Builder(this, R.style.DialogTheme)
+                    .setTitle(getString((R.string.read_balance)))
+                    .setMessage(
+                        getString(
+                            R.string.scanning_card_balance,
+                            "${cardContent.balance} ${cardContent.currencyCode}"
+                        )
+                    )
+                    .setCancelable(true)
+                    .setNegativeButton(getString(R.string.close)) { dialog, _ ->
+                        dialog?.dismiss()
+                        readBalanceDisposable?.dispose()
+                        readBalanceDisposable = null
+                    }
+                    .create()
+                cardResultDialog.show()
+                mainVM.successSLE.call()
+                displayedDialog = cardResultDialog
+            }, {
+                Log.e(this.javaClass.simpleName, it)
+                mainVM.setToastMessage(getString(R.string.card_error))
+                mainVM.errorSLE.call()
+                displayedDialog?.dismiss()
+            })
     }
 
     private fun readBalance(): Single<UserBalance> {
@@ -294,27 +339,15 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
                     SynchronizationState.SUCCESS -> {
                         activityBinding.appBar.progressBar.visibility = View.GONE
                         activityBinding.appBar.syncButtonArea.visibility = View.VISIBLE
-                        Toast.makeText(
-                            this,
-                            getString(R.string.data_were_successfully_synchronized),
-                            Toast.LENGTH_LONG
-                        ).show()
+                        mainVM.setToastMessage(getString(R.string.data_were_successfully_synchronized))
                     }
                     SynchronizationState.ERROR -> {
                         activityBinding.appBar.progressBar.visibility = View.GONE
                         activityBinding.appBar.syncButtonArea.visibility = View.VISIBLE
                         if (loginVM.isNetworkConnected().value != true) {
-                            Toast.makeText(
-                                this,
-                                getString(R.string.no_internet_connection),
-                                Toast.LENGTH_LONG
-                            ).show()
+                            mainVM.setToastMessage(getString(R.string.no_internet_connection))
                         } else {
-                            Toast.makeText(
-                                this,
-                                getString(R.string.could_not_synchronize_data_with_server),
-                                Toast.LENGTH_LONG
-                            ).show()
+                            mainVM.setToastMessage(getString(R.string.could_not_synchronize_data_with_server))
                         }
                     }
                 }
@@ -344,19 +377,37 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
     override fun setToolbarVisible(boolean: Boolean) {
         if (boolean) {
             activityBinding.appBar.appBarLayout.visibility = View.VISIBLE
-            activityBinding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
         } else {
             activityBinding.appBar.appBarLayout.visibility = View.GONE
-            activityBinding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
         }
+        setDrawerLocked(!boolean)
     }
 
-    override fun setBackButtonVisible(boolean: Boolean) {
+    override fun setSubtitle(titleText: String?) {
+        activityBinding.appBar.toolbar.subtitle = titleText
+    }
+
+    override fun setDrawerLocked(boolean: Boolean) {
         if (boolean) {
             activityBinding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
         } else {
             activityBinding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
         }
+    }
+
+    override fun setBackButtonEnabled(boolean: Boolean) {
+        getToobarUpButton()?.isEnabled = boolean
+        if (!boolean) {
+            // I could not find a better method to make the arrow grey when disabled
+            getToobarUpButton()?.setImageDrawable(ContextCompat.getDrawable(this,R.drawable.arrow_back))
+            getToobarUpButton()?.drawable?.setTint(ContextCompat.getColor(this, R.color.grey))
+        } else {
+            getToobarUpButton()?.drawable?.setTint(ContextCompat.getColor(this, R.color.black))
+        }
+    }
+
+    override fun setSyncButtonEnabled(boolean: Boolean) {
+        activityBinding.appBar.syncButton.isEnabled = boolean
     }
 
     override fun loadNavHeader(currentVendorName: String) {
@@ -439,6 +490,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
         mOnTouchOutsideViewListener = onTouchOutsideViewListener
     }
 
+    @Suppress("unused")
     fun getOnTouchOutsideViewListener(): OnTouchOutsideViewListener? {
         return mOnTouchOutsideViewListener
     }

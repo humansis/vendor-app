@@ -2,12 +2,10 @@ package cz.quanti.android.vendor_app.main.checkout.fragment
 
 import android.annotation.SuppressLint
 import android.app.AlertDialog
-import android.content.DialogInterface
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.core.content.ContextCompat.getColor
 import androidx.core.widget.doOnTextChanged
@@ -15,6 +13,7 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import cz.quanti.android.vendor_app.ActivityCallback
+import cz.quanti.android.vendor_app.MainViewModel
 import cz.quanti.android.vendor_app.R
 import cz.quanti.android.vendor_app.databinding.DialogCardPinBinding
 import cz.quanti.android.vendor_app.databinding.FragmentCheckoutBinding
@@ -23,15 +22,16 @@ import cz.quanti.android.vendor_app.main.checkout.adapter.SelectedProductsAdapte
 import cz.quanti.android.vendor_app.main.checkout.callback.CheckoutFragmentCallback
 import cz.quanti.android.vendor_app.main.checkout.viewmodel.CheckoutViewModel
 import cz.quanti.android.vendor_app.repository.purchase.dto.SelectedProduct
-import cz.quanti.android.vendor_app.utils.NfcInitializer
 import cz.quanti.android.vendor_app.utils.getStringFromDouble
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
+import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import quanti.com.kotlinlog.Log
 
 class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
+    private val mainVM: MainViewModel by sharedViewModel()
     private val vm: CheckoutViewModel by viewModel()
     private lateinit var selectedProductsAdapter: SelectedProductsAdapter
     private val scannedVoucherAdapter = ScannedVoucherAdapter()
@@ -163,7 +163,7 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
         }
 
         checkoutBinding.payByCardButton.setOnClickListener {
-            payByCard()
+            showPinDialogAndPayByCard()
         }
     }
 
@@ -191,11 +191,7 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
                             .show()
                     },
                     {
-                        Toast.makeText(
-                            context,
-                            getString(R.string.error_while_proceeding),
-                            Toast.LENGTH_SHORT
-                        ).show()
+                        mainVM.setToastMessage(getString(R.string.error_while_proceeding))
                         Log.e(it)
                     }
                 )
@@ -212,12 +208,6 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
         findNavController().navigate(
             CheckoutFragmentDirections.actionCheckoutFragmentToScannerFragment()
         )
-    }
-
-    override fun payByCard() {
-        if (NfcInitializer.initNfc(requireActivity())) {
-            showPinDialogAndPayByCard()
-        }
     }
 
     override fun updateItem(item: SelectedProduct, newPrice: Double) {
@@ -243,11 +233,7 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
     }
 
     override fun showInvalidPriceEnteredMessage() {
-        Toast.makeText(
-            requireContext(),
-            getString(R.string.please_enter_price),
-            Toast.LENGTH_LONG
-        ).show()
+        mainVM.setToastMessage(getString(R.string.please_enter_price))
     }
 
     private fun clearCart() {
@@ -279,39 +265,37 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
             }
             checkoutBinding.payByCardButton.visibility = View.INVISIBLE
             checkoutBinding.checkoutFooter.clearAllButton.visibility = View.GONE
-        } else {
-            checkoutBinding.checkoutFooter.proceedButton.visibility = View.GONE
-            checkoutBinding.scanButton.isEnabled = true
-            checkoutBinding.payByCardButton.visibility = View.VISIBLE
-            checkoutBinding.checkoutFooter.clearAllButton.visibility = View.VISIBLE
         }
     }
 
     private fun showPinDialogAndPayByCard() {
-       if (NfcInitializer.initNfc(requireActivity())) {
-           val dialogBinding = DialogCardPinBinding.inflate(layoutInflater, null, false)
+       if (mainVM.enableNfc(requireActivity())) {
+           val dialogBinding = DialogCardPinBinding.inflate(layoutInflater,null, false)
            dialogBinding.pinTitle.text = getString(R.string.total_price, vm.getTotal(), vm.getCurrency().value)
-           val pinDialog = AlertDialog.Builder(requireContext(), R.style.DialogTheme)
+           val dialog = AlertDialog.Builder(requireContext(), R.style.DialogTheme)
                 .setView(dialogBinding.root)
                 .setCancelable(false)
-                .setPositiveButton(android.R.string.ok) { dialog, _ ->
-                    val pinEditTextView = dialogBinding.pinEditText
-                    val pin = pinEditTextView.text.toString()
-                    dialog?.dismiss()
-                    findNavController().navigate(
-                        CheckoutFragmentDirections.actionCheckoutFragmentToScanCardFragment(pin)
-                    )
-                }
+                .setPositiveButton(android.R.string.ok, null)
                 .setNegativeButton(android.R.string.cancel) { dialog, _ ->
                     dialog?.cancel()
                 }
                 .show()
-
-           val positiveButton = pinDialog?.getButton(DialogInterface.BUTTON_POSITIVE)
-           positiveButton?.isEnabled = false
+           val positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
+           positiveButton.isEnabled = false
+           positiveButton.setOnClickListener {
+               val pin = dialogBinding.pinEditText.text.toString()
+               if (pin.isEmpty()) {
+                   mainVM.setToastMessage(getString(R.string.please_enter_pin))
+               } else {
+                   dialog?.dismiss()
+                   findNavController().navigate(
+                       CheckoutFragmentDirections.actionCheckoutFragmentToScanCardFragment(pin)
+                   )
+               }
+           }
 
            dialogBinding.pinEditText.doOnTextChanged { text, _, _, _ ->
-               positiveButton?.isEnabled = !text.isNullOrEmpty()
+               positiveButton.isEnabled = !text.isNullOrEmpty()
            }
         }
     }

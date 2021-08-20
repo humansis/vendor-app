@@ -57,6 +57,8 @@ class ScannerFragment : Fragment() {
     ): View {
         activityCallback = requireActivity() as ActivityCallback
         activityCallback.setSubtitle(null)
+        activityCallback.setDrawerLocked(true)
+        activityCallback.setSyncButtonEnabled(false)
         scannerBinding = FragmentScannerBinding.inflate(inflater, container, false)
         return scannerBinding.root
     }
@@ -78,6 +80,37 @@ class ScannerFragment : Fragment() {
             ))
     }
 
+    override fun onResume() {
+        super.onResume()
+        codeScanner?.startPreview()
+    }
+
+    override fun onPause() {
+        codeScanner?.releaseResources()
+        super.onPause()
+    }
+
+    override fun onStop() {
+        codeScanner?.releaseResources()
+        super.onStop()
+    }
+
+    override fun onDestroyView() {
+        activityCallback.setDrawerLocked(false)
+        activityCallback.setSyncButtonEnabled(true)
+        super.onDestroyView()
+    }
+
+    override fun onDestroy() {
+        codeScanner?.releaseResources()
+        for (disposable in disposables) {
+            disposable.dispose()
+        }
+        disposables.clear()
+        super.onDestroy()
+    }
+
+    @Suppress("DEPRECATION")
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<out String>,
@@ -114,6 +147,7 @@ class ScannerFragment : Fragment() {
         return true
     }
 
+    @Suppress("DEPRECATION")
     private fun startScanner() {
         if (!cameraPermissionGranted()) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -159,30 +193,6 @@ class ScannerFragment : Fragment() {
         Timer().schedule(timerTask {
             codeScanner?.startPreview()
         }, DEFAULT_ANIMATION_LENGTH)
-    }
-
-    override fun onResume() {
-        super.onResume()
-        codeScanner?.startPreview()
-    }
-
-    override fun onPause() {
-        codeScanner?.releaseResources()
-        super.onPause()
-    }
-
-    override fun onStop() {
-        codeScanner?.releaseResources()
-        super.onStop()
-    }
-
-    override fun onDestroy() {
-        codeScanner?.releaseResources()
-        for (disposable in disposables) {
-            disposable.dispose()
-        }
-        disposables.clear()
-        super.onDestroy()
     }
 
     private fun processScannedCode(scannedCode: String) {

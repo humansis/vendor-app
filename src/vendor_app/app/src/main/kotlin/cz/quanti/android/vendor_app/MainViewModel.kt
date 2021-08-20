@@ -28,7 +28,6 @@ class MainViewModel(
 
     private val toastMessageLD = MutableLiveData<String?>(null)
     fun initNfcAdapter(activity: Activity){
-
         nfcAdapter = NfcAdapter.getDefaultAdapter(activity)
         if (nfcAdapter == null) {
             setToastMessage(activity.getString(R.string.no_nfc_available))
@@ -52,6 +51,7 @@ class MainViewModel(
                 true
             }
         }
+        setToastMessage(activity.getString(R.string.no_nfc_available))
         return false
     }
 

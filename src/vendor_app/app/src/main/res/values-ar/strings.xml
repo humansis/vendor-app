@@ -95,5 +95,8 @@
     <string name="navigation_drawer_close">أغلق لوحة التصفح</string>
     <string name="utilities">خدمات</string>
     <string name="confirm">ترتيب</string>
+    <string name="environment">البيئة: %1$s</string>
+    <string name="scan_card_to_fix">لم ينته المسح بشكل صحيح وبالتالي قد تكون البيانات الموجودة على البطاقة غير مكتملة.\\n\\n قم بمسح البطاقة مرة أخرى لإنهاء الدفع.</string>
+    <string name="payment_in_progress">جاري الدفع\\n\\n لا تقم بإزالة البطاقة</string>
     <string name="error_service_unavailable">الخدمة غير موفرة</string>
 </resources>

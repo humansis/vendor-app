@@ -269,10 +269,10 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
     }
 
     private fun showPinDialogAndPayByCard() {
-       if (mainVM.enableNfc(requireActivity())) {
-           val dialogBinding = DialogCardPinBinding.inflate(layoutInflater,null, false)
-           dialogBinding.pinTitle.text = getString(R.string.total_price, vm.getTotal(), vm.getCurrency().value)
-           val dialog = AlertDialog.Builder(requireContext(), R.style.DialogTheme)
+        if (mainVM.enableNfc(requireActivity())) {
+            val dialogBinding = DialogCardPinBinding.inflate(layoutInflater,null, false)
+            dialogBinding.pinTitle.text = getString(R.string.total_price, vm.getTotal(), vm.getCurrency().value)
+            val dialog = AlertDialog.Builder(requireContext(), R.style.DialogTheme)
                 .setView(dialogBinding.root)
                 .setCancelable(false)
                 .setPositiveButton(android.R.string.ok, null)
@@ -280,23 +280,23 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
                     dialog?.cancel()
                 }
                 .show()
-           val positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
-           positiveButton.isEnabled = false
-           positiveButton.setOnClickListener {
-               val pin = dialogBinding.pinEditText.text.toString()
-               if (pin.isEmpty()) {
-                   mainVM.setToastMessage(getString(R.string.please_enter_pin))
-               } else {
-                   dialog?.dismiss()
-                   findNavController().navigate(
+            val positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
+            positiveButton.isEnabled = false
+            positiveButton.setOnClickListener {
+                val pin = dialogBinding.pinEditText.text.toString()
+                if (pin.isEmpty()) {
+                    mainVM.setToastMessage(getString(R.string.please_enter_pin))
+                } else {
+                    dialog?.dismiss()
+                    findNavController().navigate(
                        CheckoutFragmentDirections.actionCheckoutFragmentToScanCardFragment(pin)
-                   )
-               }
-           }
+                    )
+                }
+            }
 
-           dialogBinding.pinEditText.doOnTextChanged { text, _, _, _ ->
-               positiveButton.isEnabled = !text.isNullOrEmpty()
-           }
+            dialogBinding.pinEditText.doOnTextChanged { text, _, _, _ ->
+                positiveButton.isEnabled = !text.isNullOrEmpty()
+            }
         }
     }
 

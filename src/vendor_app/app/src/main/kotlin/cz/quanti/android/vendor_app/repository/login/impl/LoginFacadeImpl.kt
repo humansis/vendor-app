@@ -3,6 +3,8 @@ package cz.quanti.android.vendor_app.repository.login.impl
 import cz.quanti.android.vendor_app.repository.login.LoginFacade
 import cz.quanti.android.vendor_app.repository.login.LoginRepository
 import cz.quanti.android.vendor_app.repository.login.dto.Vendor
+import cz.quanti.android.vendor_app.repository.utils.exceptions.LoginException
+import cz.quanti.android.vendor_app.repository.utils.exceptions.LoginExceptionState
 import cz.quanti.android.vendor_app.utils.*
 import io.reactivex.Completable
 
@@ -18,11 +20,8 @@ class LoginFacadeImpl(
             val salt = saltResponse.salt
             if (!isPositiveResponseHttpCode(responseCodeSalt)) {
                 Completable.error(
-                    VendorAppException("Could not obtain salt for the user.")
-                        .apply {
-                            apiError = true
-                            apiResponseCode = responseCodeSalt
-                        })
+                    LoginException(LoginExceptionState.INVALID_USER)
+                )
             } else {
                 val saltedPassword = hashAndSaltPassword(salt.salt, password)
                 val vendor = Vendor()
@@ -43,10 +42,9 @@ class LoginFacadeImpl(
                         currentVendor.vendor = loggedVendor
                         Completable.complete()
                     } else {
-                        Completable.error(VendorAppException("Cannot login").apply {
-                            this.apiError = true
-                            this.apiResponseCode = responseCodeLogin
-                        })
+                        Completable.error(
+                            LoginException(LoginExceptionState.INVALID_PASSWORD)
+                        )
                     }
                 }
             }

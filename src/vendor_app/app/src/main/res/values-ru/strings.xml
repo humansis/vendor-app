@@ -81,4 +81,5 @@
     <string name="logs_dialog_message">Вы хотите поделиться журналами учета?</string>
     <string name="logs_dialog_email_button">Поделиться</string>
     <string name="confirm">Конфигурация</string>
+    <string name="error_service_unavailable">Сервис недоступен.</string>
 </resources>

@@ -16,6 +16,8 @@ import cz.quanti.android.vendor_app.BuildConfig
 import cz.quanti.android.vendor_app.R
 import cz.quanti.android.vendor_app.databinding.FragmentLoginBinding
 import cz.quanti.android.vendor_app.main.authorization.viewmodel.LoginViewModel
+import cz.quanti.android.vendor_app.repository.utils.exceptions.LoginException
+import cz.quanti.android.vendor_app.repository.utils.exceptions.LoginExceptionState
 import cz.quanti.android.vendor_app.utils.ApiEnvironments
 import cz.quanti.android.vendor_app.utils.Constants
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -108,7 +110,8 @@ class LoginFragment : Fragment() {
                     loginBinding.loginButton.isEnabled = false
                     loginBinding.loginButton.visibility = View.INVISIBLE
                     loginBinding.loadingImageView.visibility = View.VISIBLE
-
+                    loginBinding.usernameEditText.error = null
+                    loginBinding.passwordEditText.error = null
                     val animation = RotateAnimation(
                         0f,
                         360f,
@@ -141,9 +144,26 @@ class LoginFragment : Fragment() {
                                     loginBinding.loginButton.visibility = View.VISIBLE
                                     loginBinding.loginButton.isEnabled = true
                                     Log.e(TAG, it)
-                                    if (vm.isNetworkConnected().value == true) {
-                                        loginBinding.usernameEditText.error = getString(R.string.wrong_password)
-                                        loginBinding.passwordEditText.error = getString(R.string.wrong_password)
+                                    if (it is LoginException) {
+                                        Log.d(it.message.toString())
+                                        when (it.state) {
+                                            LoginExceptionState.NO_CONNECTION -> {
+                                                Toast.makeText(
+                                                    context,
+                                                    if (vm.isNetworkConnected().value == false) {
+                                                        getString(R.string.no_internet_connection)
+                                                    } else {
+                                                        getString(R.string.error_service_unavailable)
+                                                    },
+                                                    Toast.LENGTH_LONG
+                                                ).show()
+                                            }
+                                            LoginExceptionState.INVALID_USER,
+                                            LoginExceptionState.INVALID_PASSWORD -> {
+                                                loginBinding.usernameEditText.error = getString(R.string.wrong_password)
+                                                loginBinding.passwordEditText.error = getString(R.string.wrong_password)
+                                            }
+                                        }
                                     } else {
                                         loginBinding.usernameEditText.error = null
                                         loginBinding.passwordEditText.error = null

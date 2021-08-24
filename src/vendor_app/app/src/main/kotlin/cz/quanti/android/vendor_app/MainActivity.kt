@@ -156,7 +156,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.home_button -> {
+            R.id.shop_button -> {
                 findNavController(R.id.nav_host_fragment).navigate(
                     MainNavigationDirections.actionToProductsFragment()
                 )

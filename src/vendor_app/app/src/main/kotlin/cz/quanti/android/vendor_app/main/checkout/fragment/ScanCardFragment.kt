@@ -195,7 +195,7 @@ class ScanCardFragment : Fragment() {
         vm.clearCart()
         vm.clearVouchers()
         findNavController().navigate(
-            ScanCardFragmentDirections.actionScanCardFragmentToVendorFragment()
+            ScanCardFragmentDirections.actionScanCardFragmentToProductsFragment()
         )
     }
 

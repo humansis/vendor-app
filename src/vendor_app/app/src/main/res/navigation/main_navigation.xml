@@ -10,13 +10,15 @@
         android:name="cz.quanti.android.vendor_app.main.authorization.fragment.LoginFragment"
         tools:layout="@layout/fragment_login">
         <action
-            android:id="@+id/action_loginFragment_to_vendorFragment"
+            android:id="@+id/action_loginFragment_to_productsFragment"
             app:destination="@id/productsFragment" />
     </fragment>
 
     <action
         android:id="@+id/action_to_productsFragment"
         app:destination="@id/productsFragment"
+        app:popUpTo="@id/productsFragment"
+        app:popUpToInclusive="true"
         app:enterAnim="@anim/fade_in"
         app:exitAnim="@anim/fade_out"/>
 
@@ -27,6 +29,8 @@
         <action
             android:id="@+id/action_productsFragment_to_checkoutFragment"
             app:destination="@id/checkoutFragment"
+            app:popUpTo="@id/checkoutFragment"
+            app:popUpToInclusive="true"
             app:enterAnim="@anim/slide_from_right"
             app:exitAnim="@anim/slide_to_left"
             app:popEnterAnim="@anim/slide_from_left"
@@ -36,6 +40,8 @@
     <action
         android:id="@+id/action_to_transactionsFragment"
         app:destination="@id/transactionsFragment"
+        app:popUpTo="@id/transactionsFragment"
+        app:popUpToInclusive="true"
         app:enterAnim="@anim/fade_in"
         app:exitAnim="@anim/fade_out"/>
 
@@ -47,6 +53,8 @@
     <action
         android:id="@+id/action_to_invoicesFragment"
         app:destination="@id/invoicesFragment"
+        app:popUpTo="@id/invoicesFragment"
+        app:popUpToInclusive="true"
         app:enterAnim="@anim/fade_in"
         app:exitAnim="@anim/fade_out"/>
 
@@ -63,6 +71,8 @@
         <action
             android:id="@+id/action_checkoutFragment_to_scannerFragment"
             app:destination="@id/scannerFragment"
+            app:popUpTo="@id/scannerFragment"
+            app:popUpToInclusive="true"
             app:enterAnim="@anim/slide_from_right"
             app:exitAnim="@anim/slide_to_left"
             app:popEnterAnim="@anim/slide_from_left"
@@ -70,6 +80,8 @@
         <action
             android:id="@+id/action_checkoutFragment_to_scanCardFragment"
             app:destination="@id/scanCardFragment"
+            app:popUpTo="@id/scanCardFragment"
+            app:popUpToInclusive="true"
             app:enterAnim="@anim/slide_from_right"
             app:exitAnim="@anim/slide_to_left"
             app:popEnterAnim="@anim/slide_from_left"
@@ -91,8 +103,10 @@
         android:name="cz.quanti.android.vendor_app.main.checkout.fragment.ScanCardFragment"
         tools:layout="@layout/fragment_scan_card">
         <action
-            android:id="@+id/action_scanCardFragment_to_vendorFragment"
+            android:id="@+id/action_scanCardFragment_to_productsFragment"
             app:destination="@id/productsFragment"
+            app:popUpTo="@id/productsFragment"
+            app:popUpToInclusive="true"
             app:enterAnim="@anim/slide_from_left"
             app:exitAnim="@anim/slide_to_right"/>
     </fragment>

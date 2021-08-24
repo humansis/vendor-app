@@ -4,9 +4,12 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import cz.quanti.android.vendor_app.ActivityCallback
+import cz.quanti.android.vendor_app.MainNavigationDirections
 import cz.quanti.android.vendor_app.R
 import cz.quanti.android.vendor_app.databinding.FragmentInvoicesBinding
 import cz.quanti.android.vendor_app.main.invoices.adapter.InvoicesAdapter
@@ -35,6 +38,18 @@ class InvoicesFragment : Fragment() {
         activityCallback?.setSubtitle(getString(R.string.reimbursed_invoices))
         invoicesBinding = FragmentInvoicesBinding.inflate(inflater, container, false)
         invoicesAdapter = InvoicesAdapter(requireContext())
+
+        requireActivity().onBackPressedDispatcher.addCallback(
+            viewLifecycleOwner,
+            object : OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() {
+                    findNavController().navigate(
+                        MainNavigationDirections.actionToProductsFragment()
+                    )
+                }
+            }
+        )
+
         return invoicesBinding.root
     }
 

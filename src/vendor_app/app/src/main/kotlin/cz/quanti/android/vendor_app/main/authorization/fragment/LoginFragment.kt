@@ -94,7 +94,7 @@ class LoginFragment : Fragment() {
                 vm.saveApiHost(ApiEnvironments.STAGE)
             }
             findNavController().navigate(
-                LoginFragmentDirections.actionLoginFragmentToVendorFragment()
+                LoginFragmentDirections.actionLoginFragmentToProductsFragment()
             )
         } else {
             loginBinding.logoImageView.clipToOutline = true
@@ -135,7 +135,7 @@ class LoginFragment : Fragment() {
                                     loginBinding.usernameEditText.error = null
                                     loginBinding.passwordEditText.error = null
                                     findNavController().navigate(
-                                        LoginFragmentDirections.actionLoginFragmentToVendorFragment()
+                                        LoginFragmentDirections.actionLoginFragmentToProductsFragment()
                                     )
                                 },
                                 {

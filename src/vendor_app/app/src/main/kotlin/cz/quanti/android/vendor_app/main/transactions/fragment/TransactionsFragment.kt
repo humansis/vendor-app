@@ -4,9 +4,12 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import cz.quanti.android.vendor_app.ActivityCallback
+import cz.quanti.android.vendor_app.MainNavigationDirections
 import cz.quanti.android.vendor_app.R
 import cz.quanti.android.vendor_app.databinding.FragmentTransactionsBinding
 import cz.quanti.android.vendor_app.main.transactions.adapter.TransactionsAdapter
@@ -39,6 +42,18 @@ class TransactionsFragment : Fragment() {
         activityCallback.setSubtitle(getString(R.string.transactions_to_reimburse))
         transactionsAdapter = TransactionsAdapter(requireContext())
         transactionsBinding = FragmentTransactionsBinding.inflate(inflater)
+
+        requireActivity().onBackPressedDispatcher.addCallback(
+            viewLifecycleOwner,
+            object : OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() {
+                    findNavController().navigate(
+                        MainNavigationDirections.actionToProductsFragment()
+                    )
+                }
+            }
+        )
+
         return transactionsBinding.root
     }
 

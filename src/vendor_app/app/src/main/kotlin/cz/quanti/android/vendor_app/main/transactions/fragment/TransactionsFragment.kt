@@ -23,12 +23,11 @@ class TransactionsFragment : Fragment() {
 
     private val vm: TransactionsViewModel by viewModel()
     private lateinit var transactionsAdapter: TransactionsAdapter
+    private lateinit var transactionsBinding: FragmentTransactionsBinding
     private var syncStartedDisposable: Disposable? = null
     private var unsyncedPurchasesDisposable: Disposable? = null
     private var loadTransactionsDisposable: Disposable? = null
     private lateinit var activityCallback: ActivityCallback
-
-    private lateinit var transactionsBinding: FragmentTransactionsBinding
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -62,7 +61,7 @@ class TransactionsFragment : Fragment() {
     }
 
     private fun initLoadTransactionCheck() {
-        transactionsBinding.fragmentMessage.text = getString(R.string.loading)
+        transactionsBinding.transactionsMessage.text = getString(R.string.loading)
         loadTransactionsDisposable?.dispose()
         loadTransactionsDisposable =
             vm.syncStateObservable().filter { it == SynchronizationState.SUCCESS }
@@ -73,7 +72,7 @@ class TransactionsFragment : Fragment() {
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({ transactionsDecorator ->
                     transactionsAdapter.setData(transactionsDecorator.transactions)
-                    showMessage()
+                    setMessage()
                     if (transactionsDecorator.hideUnsyncedButton) {
                         transactionsBinding.unsyncedWarning.root.visibility = View.GONE
                     }
@@ -124,12 +123,12 @@ class TransactionsFragment : Fragment() {
         loadTransactionsDisposable?.dispose()
     }
 
-    private fun showMessage() {
-        transactionsBinding.fragmentMessage.text = getString(R.string.no_transactions_to_reimburse)
+    private fun setMessage() {
+        transactionsBinding.transactionsMessage.text = getString(R.string.no_transactions_to_reimburse)
         if (transactionsAdapter.itemCount == 0) {
-            transactionsBinding.fragmentMessage.visibility = View.VISIBLE
+            transactionsBinding.transactionsMessage.visibility = View.VISIBLE
         } else {
-            transactionsBinding.fragmentMessage.visibility = View.GONE
+            transactionsBinding.transactionsMessage.visibility = View.GONE
         }
     }
 

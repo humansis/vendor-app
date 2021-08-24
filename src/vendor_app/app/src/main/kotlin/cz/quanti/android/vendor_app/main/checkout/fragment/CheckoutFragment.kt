@@ -169,9 +169,7 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
 
     override fun cancel() {
         vm.clearVouchers()
-        findNavController().navigate(
-            CheckoutFragmentDirections.actionCheckoutFragmentToVendorFragment()
-        )
+        navigateBack()
     }
 
     override fun proceed() {
@@ -182,9 +180,7 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
                     {
                         vm.clearCart()
                         vm.clearVouchers()
-                        findNavController().navigate(
-                            CheckoutFragmentDirections.actionCheckoutFragmentToVendorFragment()
-                        )
+                        navigateBack()
                         AlertDialog.Builder(requireContext(), R.style.SuccessDialogTheme)
                             .setTitle(getString(R.string.success))
                             .setPositiveButton(android.R.string.ok, null)
@@ -318,5 +314,9 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
                 checkoutBinding.totalPriceTextView.setTextColor(red)
             }
         }
+    }
+
+    private fun navigateBack() {
+        findNavController().popBackStack()
     }
 }

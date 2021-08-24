@@ -86,9 +86,7 @@ class ScanCardFragment : Fragment() {
 
     private fun init() {
         scanCardBinding.backButton.setOnClickListener {
-            findNavController().navigate(
-                ScanCardFragmentDirections.actionScanCardFragmentToCheckoutFragment()
-            )
+            navigateBack()
         }
 
         vm.getPaymentState().observe(viewLifecycleOwner, {
@@ -130,7 +128,7 @@ class ScanCardFragment : Fragment() {
                     override fun handleOnBackPressed() {
                         if (enableLeaving) {
                             // allow to navigate back only in this case
-                            requireActivity().onBackPressed()
+                            navigateBack()
                         }
                     }
                 }
@@ -148,9 +146,7 @@ class ScanCardFragment : Fragment() {
             .setPositiveButton(android.R.string.ok, null)
             .setNegativeButton(android.R.string.cancel) { dialog, _ ->
                 dialog?.dismiss()
-                findNavController().navigate(
-                    ScanCardFragmentDirections.actionScanCardFragmentToCheckoutFragment()
-                )
+                navigateBack()
             }
             .show()
         pinDialog?.let { dialog ->
@@ -247,6 +243,10 @@ class ScanCardFragment : Fragment() {
             PINExceptionEnum.PRESERVE_BALANCE -> getString(R.string.tag_lost_card_error)
             else -> getString(R.string.card_error)
         }
+    }
+
+    private fun navigateBack() {
+        findNavController().popBackStack()
     }
 
     companion object {

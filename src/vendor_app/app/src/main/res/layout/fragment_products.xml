@@ -26,6 +26,7 @@
         android:overScrollMode="never"
         android:scrollbars="none"
         android:transcriptMode="alwaysScroll"
+        android:splitMotionEvents="false"
         app:layout_constraintTop_toBottomOf="@id/productsSearchBar"
         app:layout_constraintBottom_toTopOf="@+id/totalTextView" />
 

@@ -23,9 +23,9 @@
 
     <color name="screenBackgroundColor">#f3f3f4</color>
 
-    <color name="dev">#B8B8D5</color>
-    <color name="test">#D5C5B8</color>
-    <color name="stage">#B8D5D5</color>
-    <color name="demo">#B8D5B8</color>
+    <color name="dev">#cfcfe2</color>
+    <color name="test">#e2d9cf</color>
+    <color name="stage">#cfe2e2</color>
+    <color name="demo">#cfe2cf</color>
 
 </resources>

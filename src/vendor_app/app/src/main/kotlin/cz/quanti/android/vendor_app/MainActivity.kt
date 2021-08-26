@@ -366,6 +366,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
                     loginVM.isNetworkConnected(available)
                 },
                 {
+                    Log.e(it)
                 }
             )
     }

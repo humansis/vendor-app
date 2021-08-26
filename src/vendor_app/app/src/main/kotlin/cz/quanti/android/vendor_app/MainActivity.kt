@@ -94,6 +94,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
 
         setUpToolbar()
         setUpNavigationMenu()
+        setUpBackground()
 
         mainVM.initNfcAdapter(this)
 
@@ -219,12 +220,6 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
         activityBinding.appBar.syncButton.setOnClickListener {
             synchronizationManager.synchronizeWithServer()
         }
-    }
-
-    private fun getToobarUpButton(): ImageButton? {
-        val field = Class.forName("androidx.appcompat.widget.Toolbar").getDeclaredField("mNavButtonView")
-        field.isAccessible = true
-        return field.get(activityBinding.appBar.toolbar) as? ImageButton
     }
 
     private fun setUpNavigationMenu() {
@@ -370,6 +365,12 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
             )
     }
 
+    private fun getToobarUpButton(): ImageButton? {
+        val field = Class.forName("androidx.appcompat.widget.Toolbar").getDeclaredField("mNavButtonView")
+        field.isAccessible = true
+        return field.get(activityBinding.appBar.toolbar) as? ImageButton
+    }
+
     override fun getNavView(): NavigationView {
         return activityBinding.navView
     }
@@ -434,6 +435,36 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
         if (loginVM.isVendorLoggedIn()) {
             navHeaderBinding.tvUsername.text = currentVendorName
         }
+    }
+
+    override fun getBackgroundColor(): Int {
+        return if (BuildConfig.DEBUG) {
+            when (loginVM.getSavedApiHost()?.id) {
+                ApiEnvironments.DEV.id -> {
+                    ContextCompat.getColor(this, R.color.dev)
+                }
+                ApiEnvironments.TEST.id -> {
+                    ContextCompat.getColor(this, R.color.test)
+                }
+                ApiEnvironments.STAGE.id -> {
+                    ContextCompat.getColor(this, R.color.stage)
+                }
+                ApiEnvironments.DEMO.id -> {
+                    ContextCompat.getColor(this, R.color.demo)
+                }
+                else -> {
+                    ContextCompat.getColor(this, R.color.screenBackgroundColor)
+                }
+            }
+        } else {
+            ContextCompat.getColor(this, R.color.screenBackgroundColor)
+        }
+    }
+
+    override fun setUpBackground() {
+        val color = getBackgroundColor()
+        activityBinding.appBar.toolbar.setBackgroundColor(color)
+        activityBinding.appBar.contentMain.navHostFragment.setBackgroundColor(color)
     }
 
     private fun initPriceUnitSpinner() {

@@ -22,7 +22,7 @@ class InvoicesFragment : Fragment() {
     private val vm: InvoicesViewModel by viewModel()
     private lateinit var invoicesAdapter: InvoicesAdapter
     private var synchronizeInvoicesDisposable: Disposable? = null
-    private var activityCallback: ActivityCallback? = null
+    private lateinit var activityCallback: ActivityCallback
 
     private lateinit var invoicesBinding: FragmentInvoicesBinding
 
@@ -32,7 +32,7 @@ class InvoicesFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         activityCallback = activity as ActivityCallback
-        activityCallback?.setSubtitle(getString(R.string.reimbursed_invoices))
+        activityCallback.setSubtitle(getString(R.string.reimbursed_invoices))
         invoicesBinding = FragmentInvoicesBinding.inflate(inflater, container, false)
         invoicesAdapter = InvoicesAdapter(requireContext())
         return invoicesBinding.root
@@ -44,6 +44,9 @@ class InvoicesFragment : Fragment() {
         invoicesBinding.invoicesRecyclerView.setHasFixedSize(true)
         invoicesBinding.invoicesRecyclerView.layoutManager = viewManager
         invoicesBinding.invoicesRecyclerView.adapter = invoicesAdapter
+        val color = activityCallback.getBackgroundColor()
+        invoicesBinding.shadowTop.setBackgroundColor(color)
+        invoicesBinding.shadowBottom.setBackgroundColor(color)
     }
 
     override fun onStart() {

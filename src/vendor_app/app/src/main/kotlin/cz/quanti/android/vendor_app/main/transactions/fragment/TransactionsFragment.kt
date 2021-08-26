@@ -52,6 +52,9 @@ class TransactionsFragment : Fragment() {
         transactionsBinding.unsyncedWarning.warningButton.setOnClickListener {
             vm.sync()
         }
+        val color = activityCallback.getBackgroundColor()
+        transactionsBinding.shadowTop.setBackgroundColor(color)
+        transactionsBinding.shadowBottom.setBackgroundColor(color)
     }
 
     override fun onStart() {

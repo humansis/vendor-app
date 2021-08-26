@@ -17,10 +17,15 @@
     <color name="grey">#888888</color>
     <color name="darkGrey">#FF424242</color>
 
-    <color name="screenBackgroundColor">#f3f3f4</color>
-
     <color name="yellow">#cefa05</color>
     <color name="red">#ed5565</color>
     <color name="green">#51c89e</color>
+
+    <color name="screenBackgroundColor">#f3f3f4</color>
+
+    <color name="dev">#B8B8D5</color>
+    <color name="test">#D5C5B8</color>
+    <color name="stage">#B8D5D5</color>
+    <color name="demo">#B8D5B8</color>
 
 </resources>

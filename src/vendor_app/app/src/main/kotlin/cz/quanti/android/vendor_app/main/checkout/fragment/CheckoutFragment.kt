@@ -92,18 +92,22 @@ class CheckoutFragment() : Fragment(), CheckoutFragmentCallback {
     private fun initOnClickListeners() {
 
         backButton?.setOnClickListener {
+            Log.d("Back button clicked.")
             cancel()
         }
 
         proceedButton?.setOnClickListener {
+            Log.d("Proceed button clicked.")
             proceed()
         }
 
         scanButton?.setOnClickListener {
+            Log.d("Scan button clicked.")
             scanVoucher()
         }
 
         payByCardButton?.setOnClickListener {
+            Log.d("Pay by card button clicked.")
             payByCard()
         }
     }

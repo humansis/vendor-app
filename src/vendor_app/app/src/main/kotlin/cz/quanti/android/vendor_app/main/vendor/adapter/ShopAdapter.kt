@@ -61,6 +61,7 @@ class ShopAdapter(
                     }
                 })
             holder.firstProductImage?.setOnClickListener {
+                Log.d("Product clicked.")
                 productsRow[0]?.let { product -> selectItem(holder.itemView, product) }
             }
         } else {
@@ -84,6 +85,7 @@ class ShopAdapter(
                     }
                 })
             holder.secondProductImage?.setOnClickListener {
+                Log.d("Product clicked.")
                 productsRow[1]?.let { product -> selectItem(holder.itemView, product) }
             }
         } else {
@@ -107,6 +109,7 @@ class ShopAdapter(
                     }
                 })
             holder.thirdProductImage?.setOnClickListener {
+                Log.d("Product clicked.")
                 productsRow[2]?.let { product -> selectItem(holder.itemView, product) }
             }
         } else {

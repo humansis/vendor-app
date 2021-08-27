@@ -9,6 +9,7 @@ import cz.quanti.android.vendor_app.main.vendor.callback.ShoppingCartFragmentCal
 import cz.quanti.android.vendor_app.main.vendor.viewholder.ShoppingCartViewHolder
 import cz.quanti.android.vendor_app.repository.purchase.dto.SelectedProduct
 import cz.quanti.android.vendor_app.utils.getStringFromDouble
+import quanti.com.kotlinlog.Log
 
 class ShoppingCartAdapter(private val shoppingCartFragmentCallback: ShoppingCartFragmentCallback) :
     RecyclerView.Adapter<ShoppingCartViewHolder>() {
@@ -38,6 +39,7 @@ class ShoppingCartAdapter(private val shoppingCartFragmentCallback: ShoppingCart
         holder.productDetail.text = productDetailText
         holder.price.text = priceText
         holder.remove.setOnClickListener {
+            Log.d("Remove button clicked.")
             shoppingCartFragmentCallback.removeItemFromCart(position)
         }
     }

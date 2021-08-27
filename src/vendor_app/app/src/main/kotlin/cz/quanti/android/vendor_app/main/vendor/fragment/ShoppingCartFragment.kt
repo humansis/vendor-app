@@ -22,6 +22,7 @@ import kotlinx.android.synthetic.main.fragment_shopping_cart.*
 import kotlinx.android.synthetic.main.fragment_shopping_cart.shoppingCartFooter
 import kotlinx.android.synthetic.main.item_shopping_cart_footer.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
+import quanti.com.kotlinlog.Log
 
 class ShoppingCartFragment : Fragment(), ShoppingCartFragmentCallback {
     private val vm: VendorViewModel by viewModel()
@@ -109,6 +110,7 @@ class ShoppingCartFragment : Fragment(), ShoppingCartFragmentCallback {
 
     private fun initOnClickListeners() {
         checkoutButton.setOnClickListener {
+            Log.d("Checkout button clicked.")
             if (shoppingCartAdapter.itemCount > 0){
                 findNavController().navigate(
                     VendorFragmentDirections.actionVendorFragmentToCheckoutFragment()
@@ -123,6 +125,7 @@ class ShoppingCartFragment : Fragment(), ShoppingCartFragmentCallback {
         }
 
         clearAllButton.setOnClickListener {
+            Log.d("Clear all button clicked.")
             AlertDialog.Builder(requireContext(), R.style.DialogTheme)
                 .setTitle(getString(R.string.are_you_sure_dialog_title))
                 .setMessage(getString(R.string.clear_cart_dialog_message))

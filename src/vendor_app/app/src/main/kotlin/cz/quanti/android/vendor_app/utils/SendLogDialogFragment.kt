@@ -13,6 +13,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import quanti.com.kotlinlog.Log
 import quanti.com.kotlinlog.R
 import quanti.com.kotlinlog.utils.copyLogsTOSDCard
 import quanti.com.kotlinlog.utils.getFormattedFileNameDayNow
@@ -128,6 +129,7 @@ class SendLogDialogFragment : DialogFragment() {
      */
     @Suppress("UNUSED_PARAMETER")
     private fun positiveButtonClick(dialog: DialogInterface, which: Int) = runBlocking {
+        Log.d("Share logs clicked.")
 
         val appContext = this@SendLogDialogFragment.requireContext().applicationContext
 
@@ -165,6 +167,7 @@ class SendLogDialogFragment : DialogFragment() {
      */
     @Suppress("UNUSED_PARAMETER")
     private fun neutralButtonClick(dialog: DialogInterface, which: Int) {
+        Log.d("Save file button clicked.")
 
         val appContext = this@SendLogDialogFragment.requireContext().applicationContext
 

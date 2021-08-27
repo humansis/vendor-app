@@ -79,6 +79,7 @@ class ScanCardFragment : Fragment() {
 
     private fun init() {
         backButton.setOnClickListener {
+            Log.d("Back button clicked.")
             findNavController().navigate(
                 ScanCardFragmentDirections.actionScanCardFragmentToCheckoutFragment()
             )

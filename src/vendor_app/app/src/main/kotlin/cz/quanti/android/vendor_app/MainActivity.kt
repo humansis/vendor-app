@@ -87,6 +87,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
         toggle.syncState()
         setUpToolbar()
         btn_logout.setOnClickListener {
+            Log.d("Logout button clicked.")
             logout()
             drawer.closeDrawer(GravityCompat.START)
         }
@@ -160,6 +161,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
             )
 
         syncButton?.setOnClickListener {
+            Log.d("Sync button clicked.")
             synchronizationManager.synchronizeWithServer()
         }
     }

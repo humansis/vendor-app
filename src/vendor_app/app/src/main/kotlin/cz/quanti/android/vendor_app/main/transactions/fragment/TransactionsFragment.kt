@@ -10,7 +10,6 @@ import cz.quanti.android.vendor_app.ActivityCallback
 import cz.quanti.android.vendor_app.R
 import cz.quanti.android.vendor_app.main.transactions.adapter.TransactionsAdapter
 import cz.quanti.android.vendor_app.main.transactions.viewmodel.TransactionsViewModel
-import cz.quanti.android.vendor_app.repository.purchase.dto.Transaction
 import cz.quanti.android.vendor_app.sync.SynchronizationState
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
@@ -24,9 +23,9 @@ class TransactionsFragment : Fragment() {
 
     private val vm: TransactionsViewModel by viewModel()
     private lateinit var transactionsAdapter: TransactionsAdapter
-    private var syncStartedDisposable: Disposable? = null
-    private var unsyncedPurchasesDisposable: Disposable? = null
-    private var loadTransactionsDisposable: Disposable? = null
+    private var purchasesDisposable: Disposable? = null
+    private var syncStateDisposable: Disposable? = null
+    private var transactionsDisposable: Disposable? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -52,86 +51,78 @@ class TransactionsFragment : Fragment() {
 
     override fun onStart() {
         super.onStart()
-        initLoadTransactionCheck()
-        initSyncStartedCheck()
-        initUnsyncedPurchasesCheck()
+        setMessage(getString(R.string.no_transactions_to_reimburse))
+        initObservers()
     }
 
-    private fun initLoadTransactionCheck() {
-        fragment_message.text = getString(R.string.loading)
-        loadTransactionsDisposable?.dispose()
-        loadTransactionsDisposable =
-            vm.syncStateObservable().filter { it == SynchronizationState.SUCCESS }
-                .flatMapSingle { vm.getTransactions().map { TransactionsDecorator(it, true) } }
-                .startWith(
-                    vm.getTransactions().toObservable().map { TransactionsDecorator(it, false) })
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe({ transactionsDecorator ->
-                    transactionsAdapter.setData(transactionsDecorator.transactions)
-                    transactionsAdapter.notifyDataSetChanged()
-                    showMessage()
-                    if (transactionsDecorator.hideUnsyncedButton) {
-                        unsynced_warning.visibility = View.GONE
+    private fun initObservers() {
+        purchasesDisposable?.dispose()
+        purchasesDisposable = vm.unsyncedPurchasesSingle()
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({
+                warning_text.text = getString(R.string.unsynced_transactions, it.size)
+                if (it.isNotEmpty()) {
+                    unsynced_warning.visibility = View.VISIBLE
+                } else {
+                    unsynced_warning.visibility = View.GONE
+                }
+            },{
+                Log.e(it)
+            })
+
+        syncStateDisposable?.dispose()
+        syncStateDisposable = vm.syncStateObservable()
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({ syncState ->
+                when (syncState) {
+                    SynchronizationState.SUCCESS -> {
+                        getTransactions()
                     }
-                },
-                    {
-                        Log.e(it)
-                    })
-    }
-
-    private fun initUnsyncedPurchasesCheck() {
-        unsyncedPurchasesDisposable?.dispose()
-        unsyncedPurchasesDisposable =
-            vm.syncStateObservable().filter { it == SynchronizationState.ERROR }
-                .flatMapSingle { vm.unsyncedPurchasesSingle() }
-                .startWith(vm.unsyncedPurchasesSingle().toObservable())
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe({
-                    if (it.isNotEmpty()) {
-                        warning_text.text = getString(R.string.unsynced_transactions, it.size)
-                        unsynced_warning.visibility = View.VISIBLE
+                    SynchronizationState.ERROR -> {
                         warning_button.isEnabled = true
-                    } else {
-                        unsynced_warning.visibility = View.GONE
+                        setMessage(getString(R.string.no_transactions_to_reimburse))
                     }
-                }, {
-                    Log.e(it)
-                })
+                    SynchronizationState.STARTED -> {
+                        warning_button.isEnabled = false
+                        setMessage(getString(R.string.loading))
+                    }
+                    else -> {
+
+                    }
+                }
+            }, {
+                Log.e(it)
+            })
     }
 
-    private fun initSyncStartedCheck() {
-        syncStartedDisposable?.dispose()
-        syncStartedDisposable =
-            vm.syncStateObservable().filter { it == SynchronizationState.STARTED }
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe({
-                    warning_button.isEnabled = false
-                }, {
-                    Log.e(it)
-                })
+    private fun getTransactions() {
+        transactionsDisposable?.dispose()
+        transactionsDisposable = vm.getTransactions()
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({
+                transactionsAdapter.setData(it)
+                setMessage(getString(R.string.no_transactions_to_reimburse))
+            }, {
+                Log.e(it)
+            })
     }
+
 
     override fun onStop() {
         super.onStop()
-        syncStartedDisposable?.dispose()
-        unsyncedPurchasesDisposable?.dispose()
-        loadTransactionsDisposable?.dispose()
+        transactionsDisposable?.dispose()
+        syncStateDisposable?.dispose()
     }
 
-    private fun showMessage() {
-        fragment_message.text = getString(R.string.no_transactions_to_reimburse)
+    private fun setMessage(message: String) {
+        fragment_message.text = message
         if (transactionsAdapter.itemCount == 0) {
             fragment_message.visibility = View.VISIBLE
         } else {
             fragment_message.visibility = View.GONE
         }
     }
-
-    private data class TransactionsDecorator(
-        val transactions: List<Transaction>,
-        val hideUnsyncedButton: Boolean
-    )
 }

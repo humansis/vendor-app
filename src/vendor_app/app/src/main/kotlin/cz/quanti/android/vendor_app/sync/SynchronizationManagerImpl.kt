@@ -4,7 +4,7 @@ import cz.quanti.android.vendor_app.repository.AppPreferences
 import cz.quanti.android.vendor_app.repository.synchronization.SynchronizationFacade
 import io.reactivex.Observable
 import io.reactivex.schedulers.Schedulers
-import io.reactivex.subjects.PublishSubject
+import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.Subject
 import java.util.*
 import quanti.com.kotlinlog.Log
@@ -14,7 +14,7 @@ class SynchronizationManagerImpl(
     private val syncFacade: SynchronizationFacade
 ) : SynchronizationManager {
 
-    private val syncStatePublishSubject = PublishSubject.create<SynchronizationState>()
+    private val syncStatePublishSubject = BehaviorSubject.create<SynchronizationState>()
 
     override fun synchronizeWithServer() {
         syncStatePublishSubject.onNext(SynchronizationState.STARTED)

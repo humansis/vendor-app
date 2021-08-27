@@ -35,10 +35,6 @@ class PurchaseFacadeImpl(
             .andThen(deletePurchasedProducts())
     }
 
-    override fun unsyncedPurchases(): Single<List<Purchase>> {
-        return purchaseRepo.getAllPurchases()
-    }
-
     override fun getPurchasesCount(): Observable<Long> {
         return purchaseRepo.getPurchasesCount()
     }

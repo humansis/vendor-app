@@ -333,15 +333,18 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
             .subscribe({
                 when (it) {
                     SynchronizationState.STARTED -> {
+                        activityBinding.btnLogout.isEnabled = false
                         activityBinding.appBar.progressBar.visibility = View.VISIBLE
                         activityBinding.appBar.syncButtonArea.visibility = View.INVISIBLE
                     }
                     SynchronizationState.SUCCESS -> {
+                        activityBinding.btnLogout.isEnabled = true
                         activityBinding.appBar.progressBar.visibility = View.GONE
                         activityBinding.appBar.syncButtonArea.visibility = View.VISIBLE
                         mainVM.setToastMessage(getString(R.string.data_were_successfully_synchronized))
                     }
                     SynchronizationState.ERROR -> {
+                        activityBinding.btnLogout.isEnabled = true
                         activityBinding.appBar.progressBar.visibility = View.GONE
                         activityBinding.appBar.syncButtonArea.visibility = View.VISIBLE
                         if (loginVM.isNetworkConnected().value != true) {

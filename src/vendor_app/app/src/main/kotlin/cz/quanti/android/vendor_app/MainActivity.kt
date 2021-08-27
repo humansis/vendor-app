@@ -261,10 +261,12 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
             .subscribe({
                 when (it) {
                     SynchronizationState.STARTED -> {
+                        btn_logout.isEnabled = false
                         progressBar?.visibility = View.VISIBLE
                         syncButtonArea?.visibility = View.INVISIBLE
                     }
                     SynchronizationState.SUCCESS -> {
+                        btn_logout.isEnabled = true
                         progressBar?.visibility = View.GONE
                         syncButtonArea?.visibility = View.VISIBLE
                         dot?.visibility = View.INVISIBLE
@@ -275,6 +277,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
                         ).show()
                     }
                     SynchronizationState.ERROR -> {
+                        btn_logout.isEnabled = true
                         progressBar?.visibility = View.GONE
                         syncButtonArea?.visibility = View.VISIBLE
                         if (!isNetworkConnected()) {

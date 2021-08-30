@@ -18,6 +18,7 @@ import kotlinx.android.synthetic.main.fragment_checkout.*
 import kotlinx.android.synthetic.main.item_checkout_vouchers_footer.backButton
 import kotlinx.android.synthetic.main.item_checkout_vouchers_footer.proceedButton
 import org.koin.androidx.viewmodel.ext.android.viewModel
+import quanti.com.kotlinlog.Log
 
 class CheckoutPaymentFragment : Fragment() {
     private val vm: CheckoutViewModel by viewModel()
@@ -79,21 +80,28 @@ class CheckoutPaymentFragment : Fragment() {
     }
 
     private fun initOnClickListeners() {
-
         backButton.setOnClickListener {
+            Log.d(TAG, "Back button clicked.")
             checkoutFragmentCallback.cancel()
         }
 
         proceedButton.setOnClickListener {
+            Log.d(TAG, "Proceed button clicked.")
             checkoutFragmentCallback.proceed()
         }
 
         scanButton?.setOnClickListener {
+            Log.d(TAG, "Scan button clicked.")
             checkoutFragmentCallback.scanVoucher()
         }
 
         payByCardButton?.setOnClickListener {
+            Log.d(TAG, "Pay by card button clicked.")
             checkoutFragmentCallback.payByCard()
         }
+    }
+
+    companion object {
+        private val TAG = CheckoutPaymentFragment::class.java.simpleName
     }
 }

@@ -15,6 +15,7 @@ import cz.quanti.android.vendor_app.repository.product.dto.Product
 import cz.quanti.android.vendor_app.repository.purchase.dto.SelectedProduct
 import kotlinx.android.synthetic.main.fragment_product_detail.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
+import quanti.com.kotlinlog.Log
 
 class ProductDetailFragment : Fragment() {
 
@@ -23,6 +24,7 @@ class ProductDetailFragment : Fragment() {
         const val NAME = "productName"
         const val IMAGE = "productImage"
         const val UNIT = "productUnit"
+        private val TAG = ProductDetailFragment::class.java.simpleName
     }
 
     private val vm: VendorViewModel by viewModel()
@@ -74,6 +76,7 @@ class ProductDetailFragment : Fragment() {
 
     private fun initOnClickListeners() {
         addToCartButton.setOnClickListener {
+            Log.d(TAG, "Add to cart button clicked.")
             try {
                 val price = unitPriceEditText.text.toString().toDouble()
                 if (price <= 0.0) {
@@ -95,6 +98,7 @@ class ProductDetailFragment : Fragment() {
         }
 
         backButton.setOnClickListener {
+            Log.d(TAG, "Back button clicked.")
             goToProducts()
         }
     }

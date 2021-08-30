@@ -7,7 +7,7 @@ import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.Subject
 import quanti.com.kotlinlog.Log
-import java.util.*
+import java.util.Date
 
 class SynchronizationManagerImpl(
     private val preferences: AppPreferences,
@@ -18,7 +18,7 @@ class SynchronizationManagerImpl(
 
     override fun synchronizeWithServer() {
         if (syncStatePublishSubject.value == SynchronizationState.STARTED) {
-            Log.e("Sync already in progress")
+            Log.e(TAG, "Sync already in progress")
         } else {
             syncStatePublishSubject.onNext(SynchronizationState.STARTED)
             syncFacade.synchronize(preferences.vendor.id.toInt())
@@ -30,7 +30,7 @@ class SynchronizationManagerImpl(
                         syncStatePublishSubject.onNext(SynchronizationState.SUCCESS)
                     },
                     { e ->
-                        Log.e(e)
+                        Log.e(TAG, e)
                         syncStatePublishSubject.onNext(SynchronizationState.ERROR)
                     }
                 ).let { /*ignore disposable*/ }
@@ -43,5 +43,9 @@ class SynchronizationManagerImpl(
 
     override fun syncStateObservable(): Observable<SynchronizationState> {
         return syncStatePublishSubject
+    }
+
+    companion object {
+        private val TAG = SynchronizationManagerImpl::class.java.simpleName
     }
 }

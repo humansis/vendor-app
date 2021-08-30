@@ -28,7 +28,6 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.dialog_card_pin.view.*
-import kotlinx.android.synthetic.main.dialog_voucher_password.view.*
 import kotlinx.android.synthetic.main.fragment_checkout.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import quanti.com.kotlinlog.Log
@@ -92,18 +91,22 @@ class CheckoutFragment() : Fragment(), CheckoutFragmentCallback {
     private fun initOnClickListeners() {
 
         backButton?.setOnClickListener {
+            Log.d(TAG, "Back button clicked.")
             cancel()
         }
 
         proceedButton?.setOnClickListener {
+            Log.d(TAG, "Proceed button clicked.")
             proceed()
         }
 
         scanButton?.setOnClickListener {
+            Log.d(TAG, "Scan button clicked.")
             scanVoucher()
         }
 
         payByCardButton?.setOnClickListener {
+            Log.d(TAG, "Pay by card button clicked.")
             payByCard()
         }
     }
@@ -139,7 +142,7 @@ class CheckoutFragment() : Fragment(), CheckoutFragmentCallback {
                             getString(R.string.error_while_proceeding),
                             Toast.LENGTH_SHORT
                         ).show()
-                        Log.e(it)
+                        Log.e(TAG, it)
                     }
                 )
         } else {
@@ -245,5 +248,9 @@ class CheckoutFragment() : Fragment(), CheckoutFragmentCallback {
 
     private fun isLandscapeOriented(): Boolean {
         return requireActivity().resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+    }
+
+    companion object {
+        private val TAG = CheckoutFragment::class.java.simpleName
     }
 }

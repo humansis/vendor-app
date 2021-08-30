@@ -68,7 +68,7 @@ class TransactionsFragment : Fragment() {
                     unsynced_warning.visibility = View.GONE
                 }
             },{
-                Log.e(it)
+                Log.e(TAG, it)
             })
 
         syncStateDisposable?.dispose()
@@ -93,7 +93,7 @@ class TransactionsFragment : Fragment() {
                     }
                 }
             }, {
-                Log.e(it)
+                Log.e(TAG, it)
             })
     }
 
@@ -106,7 +106,7 @@ class TransactionsFragment : Fragment() {
                 transactionsAdapter.setData(it)
                 setMessage(getString(R.string.no_transactions_to_reimburse))
             }, {
-                Log.e(it)
+                Log.e(TAG, it)
             })
     }
 
@@ -124,5 +124,9 @@ class TransactionsFragment : Fragment() {
         } else {
             fragment_message.visibility = View.GONE
         }
+    }
+
+    companion object {
+        private val TAG = TransactionsFragment::class.java.simpleName
     }
 }

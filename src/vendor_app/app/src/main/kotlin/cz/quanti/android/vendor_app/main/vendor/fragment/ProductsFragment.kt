@@ -53,12 +53,16 @@ class ProductsFragment : Fragment() {
                 .subscribe({ products ->
                     adapter.setData(products)
                 }, {
-                    Log.e(it)
+                    Log.e(TAG, it)
                 })
     }
 
     override fun onStop() {
         reloadProductsDisposable?.dispose()
         super.onStop()
+    }
+
+    companion object {
+        private val TAG = ProductsFragment::class.java.simpleName
     }
 }

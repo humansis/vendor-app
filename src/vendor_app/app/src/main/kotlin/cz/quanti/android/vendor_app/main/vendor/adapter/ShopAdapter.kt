@@ -57,10 +57,11 @@ class ShopAdapter(
                     }
 
                     override fun onError(e: java.lang.Exception?) {
-                        Log.e(e?.message ?: "")
+                        Log.e(TAG, e?.message ?: "")
                     }
                 })
             holder.firstProductImage?.setOnClickListener {
+                Log.d(TAG, "Product clicked.")
                 productsRow[0]?.let { product -> selectItem(holder.itemView, product) }
             }
         } else {
@@ -84,6 +85,7 @@ class ShopAdapter(
                     }
                 })
             holder.secondProductImage?.setOnClickListener {
+                Log.d(TAG, "Product clicked.")
                 productsRow[1]?.let { product -> selectItem(holder.itemView, product) }
             }
         } else {
@@ -107,6 +109,7 @@ class ShopAdapter(
                     }
                 })
             holder.thirdProductImage?.setOnClickListener {
+                Log.d(TAG, "Product clicked.")
                 productsRow[2]?.let { product -> selectItem(holder.itemView, product) }
             }
         } else {
@@ -130,5 +133,9 @@ class ShopAdapter(
 
     private fun selectItem(itemView: View, product: Product) {
         vendorFragmentCallback.chooseProduct(product)
+    }
+
+    companion object {
+        private val TAG = ShopAdapter::class.java.simpleName
     }
 }

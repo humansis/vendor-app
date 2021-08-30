@@ -40,6 +40,7 @@ class SendLogDialogFragment : DialogFragment() {
         const val SEND_EMAIL_ADDRESSES = "send_address"
         const val EXTRA_FILES = "extra_files"
         const val DIALOG_THEME = "dialog_theme"
+        private val TAG = SendLogDialogFragment::class.java.simpleName
 
         @JvmOverloads
         @JvmStatic
@@ -129,7 +130,7 @@ class SendLogDialogFragment : DialogFragment() {
      */
     @Suppress("UNUSED_PARAMETER")
     private fun positiveButtonClick(dialog: DialogInterface, which: Int) = runBlocking {
-        Log.d("Share logs clicked.")
+        Log.d(TAG, "Share logs clicked.")
 
         val appContext = this@SendLogDialogFragment.requireContext().applicationContext
 
@@ -167,7 +168,7 @@ class SendLogDialogFragment : DialogFragment() {
      */
     @Suppress("UNUSED_PARAMETER")
     private fun neutralButtonClick(dialog: DialogInterface, which: Int) {
-        Log.d("Save file button clicked.")
+        Log.d(TAG, "Save file button clicked.")
 
         val appContext = this@SendLogDialogFragment.requireContext().applicationContext
 

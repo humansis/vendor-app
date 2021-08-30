@@ -81,23 +81,27 @@ class CheckoutPaymentFragment : Fragment() {
 
     private fun initOnClickListeners() {
         backButton.setOnClickListener {
-            Log.d("Back button clicked.")
+            Log.d(TAG, "Back button clicked.")
             checkoutFragmentCallback.cancel()
         }
 
         proceedButton.setOnClickListener {
-            Log.d("Proceed button clicked.")
+            Log.d(TAG, "Proceed button clicked.")
             checkoutFragmentCallback.proceed()
         }
 
         scanButton?.setOnClickListener {
-            Log.d("Scan button clicked.")
+            Log.d(TAG, "Scan button clicked.")
             checkoutFragmentCallback.scanVoucher()
         }
 
         payByCardButton?.setOnClickListener {
-            Log.d("Pay by card button clicked.")
+            Log.d(TAG, "Pay by card button clicked.")
             checkoutFragmentCallback.payByCard()
         }
+    }
+
+    companion object {
+        private val TAG = CheckoutPaymentFragment::class.java.simpleName
     }
 }

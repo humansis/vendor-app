@@ -56,7 +56,7 @@ class LoginFragment : Fragment() {
             vm.setApiHost(defaultEnv)
 
             settingsImageView.setOnClickListener {
-                Log.d("Environment menu opened.")
+                Log.d(TAG, "Environment menu opened.")
                 val contextThemeWrapper =
                     ContextThemeWrapper(requireContext(), R.style.PopupMenuTheme)
                 val popup = PopupMenu(contextThemeWrapper, settingsImageView)
@@ -94,7 +94,7 @@ class LoginFragment : Fragment() {
             logoImageView.clipToOutline = true
             loginButton.isEnabled = true
             loginButton.setOnClickListener {
-                Log.d("Login button clicked.")
+                Log.d(TAG, "Login button clicked.")
                 if (usernameEditText.text.toString().isNotEmpty() && passwordEditText.text.toString().isNotEmpty()) {
 
                     if (usernameEditText.text.toString().equals(BuildConfig.DEMO_ACCOUNT, true)) {
@@ -135,7 +135,7 @@ class LoginFragment : Fragment() {
                                     loadingImageView.visibility = View.INVISIBLE
                                     loginButton.visibility = View.VISIBLE
                                     loginButton.isEnabled = true
-                                    Log.e(it)
+                                    Log.e(TAG, it)
                                     if (requireContext().isNetworkConnected()) {
                                         usernameEditText.error = getString(R.string.wrong_password)
                                         passwordEditText.error = getString(R.string.wrong_password)
@@ -156,5 +156,9 @@ class LoginFragment : Fragment() {
     override fun onDestroy() {
         disposable?.dispose()
         super.onDestroy()
+    }
+
+    companion object {
+        private val TAG = LoginFragment::class.java.simpleName
     }
 }

@@ -110,7 +110,7 @@ class ShoppingCartFragment : Fragment(), ShoppingCartFragmentCallback {
 
     private fun initOnClickListeners() {
         checkoutButton.setOnClickListener {
-            Log.d("Checkout button clicked.")
+            Log.d(TAG, "Checkout button clicked.")
             if (shoppingCartAdapter.itemCount > 0){
                 findNavController().navigate(
                     VendorFragmentDirections.actionVendorFragmentToCheckoutFragment()
@@ -125,7 +125,7 @@ class ShoppingCartFragment : Fragment(), ShoppingCartFragmentCallback {
         }
 
         clearAllButton.setOnClickListener {
-            Log.d("Clear all button clicked.")
+            Log.d(TAG, "Clear all button clicked.")
             AlertDialog.Builder(requireContext(), R.style.DialogTheme)
                 .setTitle(getString(R.string.are_you_sure_dialog_title))
                 .setMessage(getString(R.string.clear_cart_dialog_message))
@@ -149,5 +149,9 @@ class ShoppingCartFragment : Fragment(), ShoppingCartFragmentCallback {
     private fun updateTotal() {
         val totalText = "${getString(R.string.total)}: ${getStringFromDouble(getTotalPrice())} ${chosenCurrency}"
         totalPriceTextView.text = totalText
+    }
+
+    companion object {
+        private val TAG = ShoppingCartFragment::class.java.simpleName
     }
 }

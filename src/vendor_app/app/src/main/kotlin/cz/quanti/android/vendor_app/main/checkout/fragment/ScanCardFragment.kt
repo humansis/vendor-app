@@ -1,12 +1,10 @@
 package cz.quanti.android.vendor_app.main.checkout.fragment
 
 import android.app.AlertDialog
-import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
@@ -25,7 +23,6 @@ import kotlinx.android.synthetic.main.dialog_card_pin.view.*
 import kotlinx.android.synthetic.main.fragment_scan_card.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import quanti.com.kotlinlog.Log
-
 
 class ScanCardFragment : Fragment() {
     private val vm: CheckoutViewModel by viewModel()
@@ -79,7 +76,7 @@ class ScanCardFragment : Fragment() {
 
     private fun init() {
         backButton.setOnClickListener {
-            Log.d("Back button clicked.")
+            Log.d(TAG, "Back button clicked.")
             findNavController().navigate(
                 ScanCardFragmentDirections.actionScanCardFragmentToCheckoutFragment()
             )
@@ -140,7 +137,7 @@ class ScanCardFragment : Fragment() {
                      }) {
                          when (it) {
                              is PINException -> {
-                                 Log.e(this.javaClass.simpleName, it.pinExceptionEnum.name)
+                                 Log.e(TAG, it.pinExceptionEnum.name)
                                  Toast.makeText(
                                      requireContext(),
                                      getNfcCardErrorMessage(it.pinExceptionEnum),
@@ -148,7 +145,7 @@ class ScanCardFragment : Fragment() {
                                  ).show()
                              }
                              else -> {
-                                 Log.e(this.javaClass.simpleName, it)
+                                 Log.e(TAG, it)
                                  Toast.makeText(
                                      requireContext(),
                                      getString(R.string.card_error),
@@ -180,5 +177,9 @@ class ScanCardFragment : Fragment() {
             PINExceptionEnum.TAG_LOST -> getString(R.string.tag_lost_card_error)
             else -> getString(R.string.card_error)
         }
+    }
+
+    companion object {
+        private val TAG = ScanCardFragment::class.java.simpleName
     }
 }

@@ -87,7 +87,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
         toggle.syncState()
         setUpToolbar()
         btn_logout.setOnClickListener {
-            Log.d("Logout button clicked.")
+            Log.d(TAG, "Logout button clicked.")
             logout()
             drawer.closeDrawer(GravityCompat.START)
         }
@@ -161,7 +161,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
             )
 
         syncButton?.setOnClickListener {
-            Log.d("Sync button clicked.")
+            Log.d(TAG, "Sync button clicked.")
             synchronizationManager.synchronizeWithServer()
         }
     }
@@ -227,7 +227,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
                     displayedDialog = cardResultDialog
                 },
                     {
-                        Log.e(this.javaClass.simpleName, it)
+                        Log.e(TAG, it)
                         Toast.makeText(
                             this,
                             getString(R.string.card_error),
@@ -298,7 +298,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
                     }
                 }
             }, {
-                Log.e(it)
+                Log.e(TAG, it)
             })
     }
 
@@ -352,5 +352,9 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
 
     override fun setTitle(titleText: String) {
         appbar_title.text = titleText
+    }
+
+    companion object {
+        private val TAG = MainActivity::class.java.simpleName
     }
 }

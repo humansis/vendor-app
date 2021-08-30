@@ -24,6 +24,7 @@ class ProductDetailFragment : Fragment() {
         const val NAME = "productName"
         const val IMAGE = "productImage"
         const val UNIT = "productUnit"
+        private val TAG = ProductDetailFragment::class.java.simpleName
     }
 
     private val vm: VendorViewModel by viewModel()
@@ -75,7 +76,7 @@ class ProductDetailFragment : Fragment() {
 
     private fun initOnClickListeners() {
         addToCartButton.setOnClickListener {
-            Log.d("Add to cart button clicked.")
+            Log.d(TAG, "Add to cart button clicked.")
             try {
                 val price = unitPriceEditText.text.toString().toDouble()
                 if (price <= 0.0) {
@@ -97,7 +98,7 @@ class ProductDetailFragment : Fragment() {
         }
 
         backButton.setOnClickListener {
-            Log.d("Back button clicked.")
+            Log.d(TAG, "Back button clicked.")
             goToProducts()
         }
     }

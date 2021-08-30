@@ -55,7 +55,7 @@ class InvoicesFragment : Fragment() {
                 invoicesAdapter.notifyDataSetChanged()
                 showMessage()
             }, {
-                Log.e(it)
+                Log.e(TAG, it)
             })
     }
 
@@ -73,5 +73,9 @@ class InvoicesFragment : Fragment() {
                 fragment_message.visibility = View.GONE
             }
         }
+    }
+
+    companion object {
+        private val TAG = InvoicesFragment::class.java.simpleName
     }
 }

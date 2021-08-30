@@ -39,7 +39,7 @@ class ShoppingCartAdapter(private val shoppingCartFragmentCallback: ShoppingCart
         holder.productDetail.text = productDetailText
         holder.price.text = priceText
         holder.remove.setOnClickListener {
-            Log.d("Remove button clicked.")
+            Log.d(TAG, "Remove button clicked.")
             shoppingCartFragmentCallback.removeItemFromCart(position)
         }
     }
@@ -64,5 +64,9 @@ class ShoppingCartAdapter(private val shoppingCartFragmentCallback: ShoppingCart
 
     private fun add(product: SelectedProduct) {
         cart.add(product)
+    }
+
+    companion object {
+        private val TAG = ShoppingCartAdapter::class.java.simpleName
     }
 }

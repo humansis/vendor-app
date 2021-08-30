@@ -24,10 +24,9 @@ class InvoicesFragment : Fragment() {
 
     private val vm: InvoicesViewModel by viewModel()
     private lateinit var invoicesAdapter: InvoicesAdapter
+    private lateinit var invoicesBinding: FragmentInvoicesBinding
     private var synchronizeInvoicesDisposable: Disposable? = null
     private var activityCallback: ActivityCallback? = null
-
-    private lateinit var invoicesBinding: FragmentInvoicesBinding
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -63,6 +62,7 @@ class InvoicesFragment : Fragment() {
 
     override fun onStart() {
         super.onStart()
+        invoicesBinding.invoicesMessage.text = getString(R.string.loading)
         synchronizeInvoicesDisposable?.dispose()
         synchronizeInvoicesDisposable = vm.syncNeededObservable().flatMapSingle {
             vm.getInvoices()
@@ -71,7 +71,7 @@ class InvoicesFragment : Fragment() {
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({ invoices ->
                 invoicesAdapter.setData(invoices)
-                showMessage()
+                setMessage()
             }, {
                 Log.e(it)
             })
@@ -82,12 +82,12 @@ class InvoicesFragment : Fragment() {
         synchronizeInvoicesDisposable?.dispose()
     }
 
-    private fun showMessage() {
-        invoicesBinding.fragmentMessage.text = getString(R.string.no_reimbursed_invoices)
+    private fun setMessage() {
+        invoicesBinding.invoicesMessage.text = getString(R.string.no_reimbursed_invoices)
         if (invoicesAdapter.itemCount == 0) {
-            invoicesBinding.fragmentMessage.visibility = View.VISIBLE
+            invoicesBinding.invoicesMessage.visibility = View.VISIBLE
         } else {
-            invoicesBinding.fragmentMessage.visibility = View.GONE
+            invoicesBinding.invoicesMessage.visibility = View.GONE
         }
     }
 }

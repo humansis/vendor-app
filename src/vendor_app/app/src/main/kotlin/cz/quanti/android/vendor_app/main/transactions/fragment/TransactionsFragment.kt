@@ -25,11 +25,10 @@ class TransactionsFragment : Fragment() {
 
     private val vm: TransactionsViewModel by viewModel()
     private lateinit var transactionsAdapter: TransactionsAdapter
+    private lateinit var transactionsBinding: FragmentTransactionsBinding
     private var syncStateDisposable: Disposable? = null
     private var transactionsDisposable: Disposable? = null
     private lateinit var activityCallback: ActivityCallback
-
-    private lateinit var transactionsBinding: FragmentTransactionsBinding
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -129,11 +128,11 @@ class TransactionsFragment : Fragment() {
     }
 
     private fun setMessage(message: String) {
-        transactionsBinding.fragmentMessage.text = message
+        transactionsBinding.transactionsMessage.text = message
         if (transactionsAdapter.itemCount == 0) {
-            transactionsBinding.fragmentMessage.visibility = View.VISIBLE
+            transactionsBinding.transactionsMessage.visibility = View.VISIBLE
         } else {
-            transactionsBinding.fragmentMessage.visibility = View.GONE
+            transactionsBinding.transactionsMessage.visibility = View.GONE
         }
     }
 }

@@ -12,8 +12,6 @@ interface PurchaseFacade {
 
     fun syncWithServer(): Completable
 
-    fun unsyncedPurchases(): Single<List<Purchase>>
-
     fun getPurchasesCount(): Observable<Long>
 
     fun addProductToCart(product: SelectedProduct)

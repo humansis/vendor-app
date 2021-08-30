@@ -18,6 +18,16 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toTopOf="@id/productsRecyclerView" />
 
+    <TextView
+        android:id="@+id/productsMessage"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="@color/black"
+        android:textSize="@dimen/fragment_title"
+        android:gravity="center"
+        app:layout_constraintTop_toBottomOf="@id/productsSearchBar"
+        app:layout_constraintBottom_toTopOf="@+id/totalTextView" />
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/productsRecyclerView"
         android:layout_width="match_parent"
@@ -26,6 +36,7 @@
         android:overScrollMode="never"
         android:scrollbars="none"
         android:transcriptMode="alwaysScroll"
+        android:splitMotionEvents="false"
         app:layout_constraintTop_toBottomOf="@id/productsSearchBar"
         app:layout_constraintBottom_toTopOf="@+id/totalTextView" />
 
@@ -63,6 +74,7 @@
         android:elevation="@dimen/dimen_16dp"
         android:background="@drawable/circle"
         android:textAlignment="center"
+        android:textColor="@color/white"
         app:layout_constraintBottom_toBottomOf="@id/cartFAB"
         app:layout_constraintEnd_toEndOf="@id/cartFAB"
         android:layout_marginBottom="40dp"

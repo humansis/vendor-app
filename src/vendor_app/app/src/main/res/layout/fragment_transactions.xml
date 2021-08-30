@@ -20,7 +20,7 @@
         app:layout_constraintBottom_toBottomOf="parent">
 
         <TextView
-            android:id="@+id/fragment_message"
+            android:id="@+id/transactionsMessage"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textColor="@color/black"
@@ -30,12 +30,13 @@
             app:layout_constraintBottom_toBottomOf="parent"/>
 
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/transactions_recycler_view"
+            android:id="@+id/transactionsRecyclerView"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:overScrollMode="never"
             android:scrollbars="none"
             android:transcriptMode="alwaysScroll"
+            android:splitMotionEvents="false"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent" />
 

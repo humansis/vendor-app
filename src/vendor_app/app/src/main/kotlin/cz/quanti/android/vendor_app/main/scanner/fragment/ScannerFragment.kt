@@ -215,9 +215,7 @@ class ScannerFragment : Fragment() {
                     showPasswordDialog(3, voucher)
                 } else {
                     scannerVM.addVoucher(voucher)
-                    findNavController().navigate(
-                        ScannerFragmentDirections.actionScannerFragmentToCheckoutFragment()
-                    )
+                    navigateBack()
                 }
             } else {
                 val message = getDialogMessageForResultCode(resultCode)
@@ -240,9 +238,7 @@ class ScannerFragment : Fragment() {
                         .setMessage(getString(R.string.tries_exceeded_booklet_deactivated))
                         .setPositiveButton(android.R.string.ok, null)
                         .show()
-                    findNavController().navigate(
-                        ScannerFragmentDirections.actionScannerFragmentToCheckoutFragment()
-                    )
+                    navigateBack()
                 },
                 {
                     Log.e(it)
@@ -268,9 +264,7 @@ class ScannerFragment : Fragment() {
                     val password = hashSHA1(passwordEditTextView.text.toString())
                     if (password in voucher.passwords) {
                         scannerVM.addVoucher(voucher)
-                        findNavController().navigate(
-                            ScannerFragmentDirections.actionScannerFragmentToCheckoutFragment()
-                        )
+                        navigateBack()
                     } else {
                         showPasswordDialog(tries - 1, voucher)
                     }
@@ -303,6 +297,10 @@ class ScannerFragment : Fragment() {
             }
         }
         return Pair(title, message)
+    }
+
+    private fun navigateBack() {
+        findNavController().popBackStack()
     }
 
     companion object {

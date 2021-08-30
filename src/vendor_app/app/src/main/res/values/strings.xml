@@ -67,7 +67,7 @@
     <string name="menu">menu</string>
     <string name="synchronize">synchronize</string>
     <string name="humansis">humansis</string>
-    <string name="loading">loading</string>
+    <string name="loading">Loading...</string>
     <string name="unknown">Unknown</string>
     <string name="read_balance">Read balance</string>
     <string name="home">Home</string>
@@ -100,4 +100,5 @@
     <string name="scan_card_to_fix">Scanning did not finish properly and thus the data on the card might be incomplete.\n\nScan the card again to finish the payment.</string>
     <string name="payment_in_progress">Payment in progress\n\nDo not remove card</string>
     <string name="error_service_unavailable">Service is unavailable</string>
+    <string name="no_products">No products</string>
 </resources>

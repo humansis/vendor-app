@@ -157,14 +157,20 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.home_button -> {
-                findNavController(R.id.nav_host_fragment).popBackStack(R.id.productsFragment, false)
+            R.id.shop_button -> {
+                findNavController(R.id.nav_host_fragment).navigate(
+                    MainNavigationDirections.actionToProductsFragment()
+                )
             }
             R.id.transactions_button -> {
-                findNavController(R.id.nav_host_fragment).navigate(R.id.transactionsFragment)
+                findNavController(R.id.nav_host_fragment).navigate(
+                    MainNavigationDirections.actionToTransactionsFragment()
+                )
             }
             R.id.invoices_button -> {
-                findNavController(R.id.nav_host_fragment).navigate(R.id.invoicesFragment)
+                findNavController(R.id.nav_host_fragment).navigate(
+                    MainNavigationDirections.actionToInvoicesFragment()
+                )
             }
             R.id.read_balance_button -> { // TODO hide if mainVM.getNfcAdapter() == null
                     showReadBalanceDialog()
@@ -328,15 +334,18 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
             .subscribe({
                 when (it) {
                     SynchronizationState.STARTED -> {
+                        activityBinding.btnLogout.isEnabled = false
                         activityBinding.appBar.progressBar.visibility = View.VISIBLE
                         activityBinding.appBar.syncButtonArea.visibility = View.INVISIBLE
                     }
                     SynchronizationState.SUCCESS -> {
+                        activityBinding.btnLogout.isEnabled = true
                         activityBinding.appBar.progressBar.visibility = View.GONE
                         activityBinding.appBar.syncButtonArea.visibility = View.VISIBLE
                         mainVM.setToastMessage(getString(R.string.data_were_successfully_synchronized))
                     }
                     SynchronizationState.ERROR -> {
+                        activityBinding.btnLogout.isEnabled = true
                         activityBinding.appBar.progressBar.visibility = View.GONE
                         activityBinding.appBar.syncButtonArea.visibility = View.VISIBLE
                         if (loginVM.isNetworkConnected().value != true) {
@@ -361,6 +370,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
                     loginVM.isNetworkConnected(available)
                 },
                 {
+                    Log.e(it)
                 }
             )
     }
@@ -396,14 +406,20 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
         }
     }
 
+    private fun getToolbarUpButton(): ImageButton? {
+        val field = Class.forName("androidx.appcompat.widget.Toolbar").getDeclaredField("mNavButtonView")
+        field.isAccessible = true
+        return field.get(activityBinding.appBar.toolbar) as? ImageButton
+    }
+
     override fun setBackButtonEnabled(boolean: Boolean) {
-        getToobarUpButton()?.isEnabled = boolean
+        getToolbarUpButton()?.isEnabled = boolean
         if (!boolean) {
             // I could not find a better method to make the arrow grey when disabled
-            getToobarUpButton()?.setImageDrawable(ContextCompat.getDrawable(this,R.drawable.arrow_back))
-            getToobarUpButton()?.drawable?.setTint(ContextCompat.getColor(this, R.color.grey))
+            getToolbarUpButton()?.setImageDrawable(ContextCompat.getDrawable(this,R.drawable.arrow_back))
+            getToolbarUpButton()?.drawable?.setTint(ContextCompat.getColor(this, R.color.grey))
         } else {
-            getToobarUpButton()?.drawable?.setTint(ContextCompat.getColor(this, R.color.black))
+            getToolbarUpButton()?.drawable?.setTint(ContextCompat.getColor(this, R.color.black))
         }
     }
 

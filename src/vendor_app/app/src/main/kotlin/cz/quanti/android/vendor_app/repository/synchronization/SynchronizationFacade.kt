@@ -11,7 +11,5 @@ interface SynchronizationFacade {
 
     fun isSyncNeeded(purchasesCount: Long): Single<Boolean>
 
-    fun unsyncedPurchases(): Single<List<Purchase>>
-
     fun getPurchasesCount(): Observable<Long>
 }

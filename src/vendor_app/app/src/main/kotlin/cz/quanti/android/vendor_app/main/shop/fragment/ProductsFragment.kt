@@ -32,12 +32,9 @@ class ProductsFragment : Fragment(), OnTouchOutsideViewListener {
 
     private val mainVM: MainViewModel by sharedViewModel()
     private val vm: ShopViewModel by viewModel()
-    private lateinit var adapter: ShopAdapter
-
-    private lateinit var activityCallback: ActivityCallback
-
+    private lateinit var productsAdapter: ShopAdapter
     private lateinit var productsBinding: FragmentProductsBinding
-
+    private lateinit var activityCallback: ActivityCallback
     private var chosenCurrency: String = ""
 
     override fun onCreateView(
@@ -48,7 +45,7 @@ class ProductsFragment : Fragment(), OnTouchOutsideViewListener {
         activityCallback = requireActivity() as ActivityCallback
         activityCallback.setToolbarVisible(true)
         activityCallback.setSubtitle(getString(R.string.app_name))
-        activityCallback.getNavView().setCheckedItem(R.id.home_button)
+        activityCallback.getNavView().setCheckedItem(R.id.shop_button)
 
         productsBinding = FragmentProductsBinding.inflate(inflater, container, false)
 
@@ -67,6 +64,7 @@ class ProductsFragment : Fragment(), OnTouchOutsideViewListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        productsBinding.productsMessage.text = getString(R.string.loading)
         initProductsAdapter()
         initObservers()
         initSearchBar()
@@ -94,13 +92,13 @@ class ProductsFragment : Fragment(), OnTouchOutsideViewListener {
     }
 
     private fun initProductsAdapter() {
-        adapter = ShopAdapter(this, requireContext())
+        productsAdapter = ShopAdapter(this, requireContext())
 
         val viewManager = GridLayoutManager(activity, gridColumns())
 
         productsBinding.productsRecyclerView.setHasFixedSize(true)
         productsBinding.productsRecyclerView.layoutManager = viewManager
-        productsBinding.productsRecyclerView.adapter = adapter
+        productsBinding.productsRecyclerView.adapter = productsAdapter
     }
 
     private fun gridColumns(): Int {
@@ -124,7 +122,7 @@ class ProductsFragment : Fragment(), OnTouchOutsideViewListener {
             }
 
             override fun onQueryTextChange(newText: String): Boolean {
-                adapter.filter.filter(newText)
+                productsAdapter.filter.filter(newText)
                 return false
             }
         })
@@ -136,7 +134,8 @@ class ProductsFragment : Fragment(), OnTouchOutsideViewListener {
         vm.getProducts().toFlowable(BackpressureStrategy.LATEST)
             .toLiveData()
             .observe(viewLifecycleOwner, {
-                adapter.setData(it)
+                productsAdapter.setData(it)
+                setMessage()
             })
 
         vm.getSelectedProducts().observe(viewLifecycleOwner, { products ->
@@ -225,6 +224,15 @@ class ProductsFragment : Fragment(), OnTouchOutsideViewListener {
                 this.price = unitPrice
             }
         vm.addToShoppingCart(selected)
+    }
+
+    private fun setMessage() {
+        productsBinding.productsMessage.text = getString(R.string.no_products)
+        if (productsAdapter.itemCount == 0) {
+            productsBinding.productsMessage.visibility = View.VISIBLE
+        } else {
+            productsBinding.productsMessage.visibility = View.GONE
+        }
     }
 
     private fun actualizeTotal(total: Double) {

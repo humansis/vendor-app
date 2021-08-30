@@ -35,6 +35,7 @@
             android:overScrollMode="never"
             android:scrollbars="none"
             android:transcriptMode="alwaysScroll"
+            android:splitMotionEvents="false"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent" />
 

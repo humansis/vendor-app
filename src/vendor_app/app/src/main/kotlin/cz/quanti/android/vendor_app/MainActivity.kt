@@ -62,6 +62,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
     private val shopVM: ShopViewModel by viewModel()
     private var displayedDialog: AlertDialog? = null
     private var disposable: Disposable? = null
+    private var environmentDisposable: Disposable? = null
     private var connectionDisposable: Disposable? = null
     private var syncStateDisposable: Disposable? = null
     private var syncDisposable: Disposable? = null
@@ -375,12 +376,6 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
             )
     }
 
-    private fun getToobarUpButton(): ImageButton? {
-        val field = Class.forName("androidx.appcompat.widget.Toolbar").getDeclaredField("mNavButtonView")
-        field.isAccessible = true
-        return field.get(activityBinding.appBar.toolbar) as? ImageButton
-    }
-
     override fun getNavView(): NavigationView {
         return activityBinding.navView
     }
@@ -477,10 +472,21 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
         }
     }
 
-    override fun setUpBackground() {
-        val color = getBackgroundColor()
-        activityBinding.appBar.toolbar.setBackgroundColor(color)
-        activityBinding.appBar.contentMain.navHostFragment.setBackgroundColor(color)
+    private fun setUpBackground() {
+        environmentDisposable?.dispose()
+        environmentDisposable = mainVM.getCurrentEnvironmentLD()
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(
+                {
+                    val color = getBackgroundColor()
+                    activityBinding.appBar.toolbar.setBackgroundColor(color)
+                    activityBinding.appBar.contentMain.navHostFragment.setBackgroundColor(color)
+                },
+                {
+                    Log.e(it)
+                }
+            )
     }
 
     private fun initPriceUnitSpinner() {

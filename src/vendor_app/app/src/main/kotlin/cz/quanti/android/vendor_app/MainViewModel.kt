@@ -11,13 +11,13 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.toLiveData
 import cz.quanti.android.vendor_app.repository.synchronization.SynchronizationFacade
-import cz.quanti.android.vendor_app.utils.Constants
-import cz.quanti.android.vendor_app.utils.PermissionRequestResult
-import cz.quanti.android.vendor_app.utils.SingleLiveEvent
+import cz.quanti.android.vendor_app.utils.*
 import io.reactivex.BackpressureStrategy
+import io.reactivex.Observable
 
 class MainViewModel(
-    private val syncFacade: SynchronizationFacade
+    private val syncFacade: SynchronizationFacade,
+    private val currentVendor: CurrentVendor
 ) : ViewModel() {
 
     private var nfcAdapter:  NfcAdapter? = null
@@ -27,6 +27,11 @@ class MainViewModel(
     val errorSLE = SingleLiveEvent<Unit>()
 
     private val toastMessageLD = MutableLiveData<String?>(null)
+
+    fun getCurrentEnvironmentLD(): Observable<ApiEnvironments?> {
+        return currentVendor.getEnvironment()
+    }
+
     fun initNfcAdapter(activity: Activity){
         nfcAdapter = NfcAdapter.getDefaultAdapter(activity)
         if (nfcAdapter == null) {

@@ -28,6 +28,10 @@ class LoginViewModel(
         hostUrlInterceptor.setHost(host)
     }
 
+    fun saveApiHost(host: ApiEnvironments) {
+        currentVendor.url = host
+    }
+
     fun getSavedApiHost(): ApiEnvironments? {
         return currentVendor.url
     }
@@ -40,13 +44,8 @@ class LoginViewModel(
         return currentVendor.vendor.username
     }
 
-    fun saveApiHost(host: ApiEnvironments) {
-        currentVendor.url = host
-    }
-
     fun onLogin(activityCallback: ActivityCallback) {
         activityCallback.loadNavHeader(currentVendor.vendor.username)
-        activityCallback.setUpBackground()
         synchronizationManager.synchronizeWithServer()
     }
 

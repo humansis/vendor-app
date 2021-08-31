@@ -92,32 +92,11 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
         connectionObserver = ConnectionObserver(this)
         connectionObserver.registerCallback()
 
-        setUpToolbar()
-        setUpNavigationMenu()
-
         mainVM.initNfcAdapter(this)
 
-        mainVM.successSLE.observe(this, {
-            vibrate(this)
-            successPlayer.start()
-        })
-        mainVM.errorSLE.observe(this, {
-            vibrate(this)
-            errorPlayer.start()
-        })
-
-        mainVM.getToastMessage().observe(this, { message ->
-            lastToast?.cancel()
-            message?.let {
-                lastToast = Toast.makeText(
-                    this,
-                    message,
-                    Toast.LENGTH_LONG
-                ).apply {
-                    show()
-                }
-            }
-        })
+        setUpToolbar()
+        setUpNavigationMenu()
+        initObservers()
     }
 
     override fun onResume() {
@@ -233,6 +212,30 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
             logout()
             activityBinding.drawerLayout.closeDrawer(GravityCompat.START)
         }
+    }
+
+    private fun initObservers() {
+        mainVM.successSLE.observe(this, {
+            vibrate(this)
+            successPlayer.start()
+        })
+        mainVM.errorSLE.observe(this, {
+            vibrate(this)
+            errorPlayer.start()
+        })
+
+        mainVM.getToastMessage().observe(this, { message ->
+            lastToast?.cancel()
+            message?.let {
+                lastToast = Toast.makeText(
+                    this,
+                    message,
+                    Toast.LENGTH_LONG
+                ).apply {
+                    show()
+                }
+            }
+        })
     }
 
     @Suppress("DEPRECATION")

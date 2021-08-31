@@ -32,7 +32,6 @@ class MainViewModel(
         if (nfcAdapter == null) {
             setToastMessage(activity.getString(R.string.no_nfc_available))
         }
-
         enableNfc(activity)
     }
 

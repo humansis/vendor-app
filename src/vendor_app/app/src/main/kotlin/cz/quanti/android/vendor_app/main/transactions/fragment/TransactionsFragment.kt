@@ -68,7 +68,7 @@ class TransactionsFragment : Fragment() {
 
     override fun onStart() {
         super.onStart()
-        setMessage(getString(R.string.no_transactions_to_reimburse))
+        //setMessage(getString(R.string.no_transactions_to_reimburse))
         initObservers()
     }
 

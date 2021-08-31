@@ -20,9 +20,8 @@ class ShopViewModel(
     private val preferences: AppPreferences
 ) : ViewModel() {
 
-    fun syncNeededObservable(): Observable<SynchronizationState> {
+    fun syncStateObservable(): Observable<SynchronizationState> {
         return synchronizationManager.syncStateObservable()
-            .filter { it == SynchronizationState.SUCCESS }
     }
 
     fun getProducts(): Observable<List<Product>> {

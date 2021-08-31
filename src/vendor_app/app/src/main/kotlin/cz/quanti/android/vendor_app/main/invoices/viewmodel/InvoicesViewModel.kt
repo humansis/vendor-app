@@ -17,8 +17,7 @@ class InvoicesViewModel(
         return invoiceFacade.getInvoices()
     }
 
-    fun syncNeededObservable(): Observable<SynchronizationState> {
+    fun syncStateObservable(): Observable<SynchronizationState> {
         return synchronizationManager.syncStateObservable()
-            .filter { it == SynchronizationState.SUCCESS }
     }
 }

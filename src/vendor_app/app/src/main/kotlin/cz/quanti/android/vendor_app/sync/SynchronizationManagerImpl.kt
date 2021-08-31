@@ -14,7 +14,7 @@ class SynchronizationManagerImpl(
     private val syncFacade: SynchronizationFacade
 ) : SynchronizationManager {
 
-    private val syncStatePublishSubject = BehaviorSubject.create<SynchronizationState>()
+    private val syncStatePublishSubject = BehaviorSubject.createDefault(SynchronizationState.SUCCESS)
 
     override fun synchronizeWithServer() {
         if (syncStatePublishSubject.value == SynchronizationState.STARTED) {

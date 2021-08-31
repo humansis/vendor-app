@@ -27,11 +27,15 @@ class CurrentVendor(private val preferences: AppPreferences) {
             }
         }
 
-    private var environment: BehaviorSubject<ApiEnvironments?> = BehaviorSubject.createDefault(
-        ApiEnvironments.valueOf(preferences.url)
+    private var environment: BehaviorSubject<ApiEnvironments> = BehaviorSubject.createDefault(
+        try {
+            ApiEnvironments.valueOf(preferences.url)
+        } catch (e: Exception) {
+            ApiEnvironments.FRONT
+        }
     )
 
-    fun getEnvironment(): Observable<ApiEnvironments?> {
+    fun getEnvironment(): Observable<ApiEnvironments> {
         return environment
     }
 

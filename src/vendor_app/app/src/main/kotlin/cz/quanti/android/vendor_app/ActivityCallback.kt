@@ -10,5 +10,4 @@ interface ActivityCallback {
     fun setBackButtonEnabled (boolean: Boolean)
     fun setSyncButtonEnabled (boolean: Boolean)
     fun loadNavHeader(currentVendorName: String)
-    fun getBackgroundColor(): Int
 }

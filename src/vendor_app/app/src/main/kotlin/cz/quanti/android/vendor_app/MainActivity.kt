@@ -93,11 +93,11 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
         connectionObserver = ConnectionObserver(this)
         connectionObserver.registerCallback()
 
+        mainVM.initNfcAdapter(this)
+
         setUpToolbar()
         setUpNavigationMenu()
         setUpBackground()
-
-        mainVM.initNfcAdapter(this)
 
         mainVM.successSLE.observe(this, {
             vibrate(this)
@@ -235,6 +235,23 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
             logout()
             activityBinding.drawerLayout.closeDrawer(GravityCompat.START)
         }
+    }
+
+    private fun setUpBackground() {
+        environmentDisposable?.dispose()
+        environmentDisposable = mainVM.getCurrentEnvironment()
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(
+                { environment ->
+                    val color = getBackgroundColor(this, environment)
+                    activityBinding.appBar.toolbar.setBackgroundColor(color)
+                    activityBinding.appBar.contentMain.navHostFragment.setBackgroundColor(color)
+                },
+                {
+                    Log.e(it)
+                }
+            )
     }
 
     @Suppress("DEPRECATION")
@@ -446,47 +463,6 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
         if (loginVM.isVendorLoggedIn()) {
             navHeaderBinding.tvUsername.text = currentVendorName
         }
-    }
-
-    override fun getBackgroundColor(): Int {
-        return if (BuildConfig.DEBUG) {
-            when (loginVM.getSavedApiHost()?.id) {
-                ApiEnvironments.DEV.id -> {
-                    ContextCompat.getColor(this, R.color.dev)
-                }
-                ApiEnvironments.TEST.id -> {
-                    ContextCompat.getColor(this, R.color.test)
-                }
-                ApiEnvironments.STAGE.id -> {
-                    ContextCompat.getColor(this, R.color.stage)
-                }
-                ApiEnvironments.DEMO.id -> {
-                    ContextCompat.getColor(this, R.color.demo)
-                }
-                else -> {
-                    ContextCompat.getColor(this, R.color.screenBackgroundColor)
-                }
-            }
-        } else {
-            ContextCompat.getColor(this, R.color.screenBackgroundColor)
-        }
-    }
-
-    private fun setUpBackground() {
-        environmentDisposable?.dispose()
-        environmentDisposable = mainVM.getCurrentEnvironmentLD()
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(
-                {
-                    val color = getBackgroundColor()
-                    activityBinding.appBar.toolbar.setBackgroundColor(color)
-                    activityBinding.appBar.contentMain.navHostFragment.setBackgroundColor(color)
-                },
-                {
-                    Log.e(it)
-                }
-            )
     }
 
     private fun initPriceUnitSpinner() {

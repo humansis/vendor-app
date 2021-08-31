@@ -28,7 +28,7 @@ class MainViewModel(
 
     private val toastMessageLD = MutableLiveData<String?>(null)
 
-    fun getCurrentEnvironmentLD(): Observable<ApiEnvironments?> {
+    fun getCurrentEnvironment(): Observable<ApiEnvironments> {
         return currentVendor.getEnvironment()
     }
 
@@ -37,7 +37,6 @@ class MainViewModel(
         if (nfcAdapter == null) {
             setToastMessage(activity.getString(R.string.no_nfc_available))
         }
-
         enableNfc(activity)
     }
 

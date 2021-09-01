@@ -48,13 +48,13 @@
     <string name="no_internet_connection">Убедитесь, что есть связь с интернетом.</string>
     <string name="could_not_synchronize_data_with_server">Не удалось синхронизировать данные с сервером.</string>
     <string name="data_were_successfully_synchronized">Данные были успешно синхронизированы с сервером.</string>
-    <string name="add_to_cart">Добавить в корзину</string>
+    <string name="add_to_cart">Добавить\nв корзину</string>
     <string name="please_enter_price">Пожалуйста, введите стоимость.</string>
     <string name="pin">ПИН-код</string>
     <string name="please_enter_pin">Пожалуйста, введите ПИН-код к Вашей карте.</string>
     <string name="no_nfc_available">Ближняя бесконтактная связь недоступна.</string>
     <string name="you_need_to_enable_nfc">Вам нужно включить ближнюю бесконтактную связь.</string>
-    <string name="card_successfuly_paid_new_balance">Операция успешна! Баланс по карте: %1$.2f</string>
+    <string name="card_successfuly_paid_new_balance">Баланс по карте: %1$.2f %2$s</string>
     <string name="not_enough_money_on_card">Недостаточно денег на карте.</string>
     <string name="scan_card">Пожалуйста, отсканируйте карту.</string>
     <string name="incorrect_pin">Неверный ПИН-код</string>
@@ -67,7 +67,7 @@
     <string name="menu">меню</string>
     <string name="synchronize">синхронизировать</string>
     <string name="humansis">humansis</string>
-    <string name="loading">загрузка</string>
+    <string name="loading">Загрузка...</string>
     <string name="unknown">Неизвестно</string>
     <string name="scanning_card_balance">баланс по карте: %1$s</string>
     <string name="status">Статус</string>
@@ -80,4 +80,6 @@
     <string name="logs_dialog_title">Поделиться журналами учета</string>
     <string name="logs_dialog_message">Вы хотите поделиться журналами учета?</string>
     <string name="logs_dialog_email_button">Поделиться</string>
+    <string name="confirm">Конфигурация</string>
+    <string name="error_service_unavailable">Сервис недоступен.</string>
 </resources>

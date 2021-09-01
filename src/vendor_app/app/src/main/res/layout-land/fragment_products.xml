@@ -1,17 +1,84 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_weight="0.6"
-    android:background="@color/screenBackgroundColor"
-    android:id="@+id/productsFragment">
+    android:background="@color/screenBackgroundColor">
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/shopRecyclerView"
+    <androidx.appcompat.widget.SearchView
+        android:id="@+id/productsSearchBar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/dimen_8dp"
+        android:layout_marginBottom="@dimen/dimen_8dp"
+        android:background="@drawable/background_cardviewlike"
+        android:elevation="@dimen/cardview_default_elevation"
+        app:theme="@style/SearchView"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/productsRecyclerView" />
+
+    <TextView
+        android:id="@+id/productsMessage"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="@color/black"
+        android:textSize="@dimen/fragment_title"
+        android:gravity="center"
+        app:layout_constraintTop_toBottomOf="@id/productsSearchBar"
+        app:layout_constraintBottom_toTopOf="@+id/totalTextView" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/productsRecyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginHorizontal="@dimen/dimen_4dp"
         android:overScrollMode="never"
         android:scrollbars="none"
-        android:transcriptMode="alwaysScroll" />
-</LinearLayout>
+        android:transcriptMode="alwaysScroll"
+        android:splitMotionEvents="false"
+        app:layout_constraintTop_toBottomOf="@id/productsSearchBar"
+        app:layout_constraintBottom_toTopOf="@+id/totalTextView" />
+
+    <TextView
+        android:id="@+id/totalTextView"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:paddingHorizontal="60dp"
+        android:animateLayoutChanges="true"
+        android:gravity="center"
+        android:textColor="@color/black"
+        android:textStyle="bold"
+        android:textSize="@dimen/fragment_bigger_text"
+        app:layout_constraintBottom_toBottomOf="parent"
+        tools:text="Total: 120 SYP"/>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/cartFAB"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/dimen_32dp"
+        android:contentDescription="@string/add_to_cart"
+        android:src="@drawable/ic_shopping_cart"
+        app:tint="@color/white"
+        app:backgroundTint="@color/colorPrimary"
+        app:shapeAppearanceOverlay="@style/SquareFAB"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+    <TextView
+        android:id="@+id/cartBadge"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:animateLayoutChanges="true"
+        android:elevation="@dimen/dimen_16dp"
+        android:background="@drawable/circle"
+        android:textAlignment="center"
+        app:layout_constraintBottom_toBottomOf="@id/cartFAB"
+        app:layout_constraintEnd_toEndOf="@id/cartFAB"
+        android:layout_marginBottom="40dp"
+        android:layout_marginEnd="40dp"
+        app:layout_constraintDimensionRatio="1:1"
+        tools:text="1"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

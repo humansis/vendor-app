@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center"
+    android:orientation="horizontal">
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/priceTextInputLayout"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:textColorHint="@color/black"
+        android:layout_marginEnd="@dimen/dimen_16dp"
+        app:suffixTextColor="@color/darkGrey"
+        app:suffixTextAppearance="@dimen/fragment_bigger_text"
+        app:boxStrokeColor="@color/colorPrimary">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/priceEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:imeOptions="flagNoExtractUi"
+            android:inputType="numberDecimal"
+            android:maxLength="12"
+            android:singleLine="true"/>
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/confirmButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/dimen_16dp"
+        android:backgroundTint="@color/green"
+        android:textColor="@color/white"
+        android:textSize="@dimen/button_text"
+        android:stateListAnimator="@null"
+        app:icon="@drawable/ic_shopping_cart"
+        app:iconTint="@color/white"/>
+
+</LinearLayout>

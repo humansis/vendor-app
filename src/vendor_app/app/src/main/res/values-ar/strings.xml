@@ -48,13 +48,13 @@
     <string name="no_internet_connection">يرجى التأكد من اتصالك بالإنترنت</string>
     <string name="could_not_synchronize_data_with_server">تعذر مزامنة البيانات مع الخادم</string>
     <string name="data_were_successfully_synchronized">تمت مزامنة البيانات بنجاح مع الخادم</string>
-    <string name="add_to_cart">اضف الى السلة</string>
+    <string name="add_to_cart">اضف الى\nالسلة</string>
     <string name="please_enter_price">الرجاء إدخال السعر.</string>
     <string name="pin">رقم التعريف الشخصي</string>
     <string name="please_enter_pin">الرجاء إدخال رقم التعريف الشخصي لبطاقتك</string>
     <string name="no_nfc_available">\u200fNFC\u200f غير متوفر</string>
     <string name="you_need_to_enable_nfc">تحتاج إلى تمكين \u200fNFC\u200f</string>
-    <string name="card_successfuly_paid_new_balance">نجاح! الرصيد الجديد على البطاقة: %1$.2f</string>
+    <string name="card_successfuly_paid_new_balance">الرصيد الجديد على البطاقة: %1$.2f %2$s</string>
     <string name="not_enough_money_on_card">لا توجد عملة كافية على البطاقة</string>
     <string name="scan_card">يرجى مسح البطاقة ضوئيًا</string>
     <string name="incorrect_pin">رقم التعريف الشخصي غير صحيح</string>
@@ -94,5 +94,10 @@
     <string name="navigation_drawer_open">افتح لوحة التصفح</string>
     <string name="navigation_drawer_close">أغلق لوحة التصفح</string>
     <string name="utilities">خدمات</string>
-
+    <string name="confirm">ترتيب</string>
+    <string name="environment">البيئة: %1$s</string>
+    <string name="scan_card_to_fix">لم ينته المسح بشكل صحيح وبالتالي قد تكون البيانات الموجودة على البطاقة غير مكتملة.\\n\\n قم بمسح البطاقة مرة أخرى لإنهاء الدفع.</string>
+    <string name="payment_in_progress">جاري الدفع\\n\\n لا تقم بإزالة البطاقة</string>
+    <string name="error_service_unavailable">الخدمة غير موفرة</string>
+    <string name="no_products">لا يوجد منتجات</string>
 </resources>

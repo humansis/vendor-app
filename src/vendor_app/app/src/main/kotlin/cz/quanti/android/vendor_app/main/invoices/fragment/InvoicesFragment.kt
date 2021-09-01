@@ -4,17 +4,19 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import cz.quanti.android.vendor_app.ActivityCallback
-import cz.quanti.android.vendor_app.MainActivity
+import cz.quanti.android.vendor_app.MainNavigationDirections
 import cz.quanti.android.vendor_app.R
+import cz.quanti.android.vendor_app.databinding.FragmentInvoicesBinding
 import cz.quanti.android.vendor_app.main.invoices.adapter.InvoicesAdapter
 import cz.quanti.android.vendor_app.main.invoices.viewmodel.InvoicesViewModel
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
-import kotlinx.android.synthetic.main.fragment_invoices.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import quanti.com.kotlinlog.Log
 
@@ -22,28 +24,45 @@ class InvoicesFragment : Fragment() {
 
     private val vm: InvoicesViewModel by viewModel()
     private lateinit var invoicesAdapter: InvoicesAdapter
+    private lateinit var invoicesBinding: FragmentInvoicesBinding
     private var synchronizeInvoicesDisposable: Disposable? = null
+    private var activityCallback: ActivityCallback? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        (requireActivity() as ActivityCallback).setTitle(getString(R.string.reimbursed_invoices))
+    ): View {
+        activityCallback = activity as ActivityCallback
+        activityCallback?.setSubtitle(getString(R.string.reimbursed_invoices))
+        invoicesBinding = FragmentInvoicesBinding.inflate(inflater, container, false)
         invoicesAdapter = InvoicesAdapter(requireContext())
-        return inflater.inflate(R.layout.fragment_invoices, container, false)
+
+        requireActivity().onBackPressedDispatcher.addCallback(
+            viewLifecycleOwner,
+            object : OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() {
+                    findNavController().navigate(
+                        MainNavigationDirections.actionToProductsFragment()
+                    )
+                }
+            }
+        )
+
+        return invoicesBinding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val viewManager = LinearLayoutManager(activity)
-        invoices_recycler_view.setHasFixedSize(true)
-        invoices_recycler_view.layoutManager = viewManager
-        invoices_recycler_view.adapter = invoicesAdapter
+        invoicesBinding.invoicesRecyclerView.setHasFixedSize(true)
+        invoicesBinding.invoicesRecyclerView.layoutManager = viewManager
+        invoicesBinding.invoicesRecyclerView.adapter = invoicesAdapter
     }
 
     override fun onStart() {
         super.onStart()
+        invoicesBinding.invoicesMessage.text = getString(R.string.loading)
         synchronizeInvoicesDisposable?.dispose()
         synchronizeInvoicesDisposable = vm.syncNeededObservable().flatMapSingle {
             vm.getInvoices()
@@ -52,8 +71,7 @@ class InvoicesFragment : Fragment() {
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({ invoices ->
                 invoicesAdapter.setData(invoices)
-                invoicesAdapter.notifyDataSetChanged()
-                showMessage()
+                setMessage()
             }, {
                 Log.e(TAG, it)
             })
@@ -64,14 +82,12 @@ class InvoicesFragment : Fragment() {
         synchronizeInvoicesDisposable?.dispose()
     }
 
-    private fun showMessage() {
-        if (fragment_message != null) {
-            fragment_message.text = getString(R.string.no_reimbursed_invoices)
-            if (invoicesAdapter.itemCount == 0) {
-                fragment_message.visibility = View.VISIBLE
-            } else {
-                fragment_message.visibility = View.GONE
-            }
+    private fun setMessage() {
+        invoicesBinding.invoicesMessage.text = getString(R.string.no_reimbursed_invoices)
+        if (invoicesAdapter.itemCount == 0) {
+            invoicesBinding.invoicesMessage.visibility = View.VISIBLE
+        } else {
+            invoicesBinding.invoicesMessage.visibility = View.GONE
         }
     }
 

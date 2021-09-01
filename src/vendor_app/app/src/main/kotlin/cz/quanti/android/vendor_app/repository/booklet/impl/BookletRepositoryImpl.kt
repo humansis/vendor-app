@@ -2,11 +2,11 @@ package cz.quanti.android.vendor_app.repository.booklet.impl
 
 import cz.quanti.android.vendor_app.repository.VendorAPI
 import cz.quanti.android.vendor_app.repository.booklet.BookletRepository
-import cz.quanti.android.vendor_app.repository.booklet.dto.api.BookletsWithResponseCode
 import cz.quanti.android.vendor_app.repository.booklet.dao.BookletDao
 import cz.quanti.android.vendor_app.repository.booklet.dto.Booklet
 import cz.quanti.android.vendor_app.repository.booklet.dto.api.BookletApiEntity
 import cz.quanti.android.vendor_app.repository.booklet.dto.api.BookletCodesBody
+import cz.quanti.android.vendor_app.repository.booklet.dto.api.BookletsWithResponseCode
 import cz.quanti.android.vendor_app.repository.booklet.dto.db.BookletDbEntity
 import io.reactivex.Completable
 import io.reactivex.Single

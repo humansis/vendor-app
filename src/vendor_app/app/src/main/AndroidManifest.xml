@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="cz.quanti.android.vendor_app">
 
     <uses-permission android:name="android.permission.CAMERA"/>
@@ -20,17 +21,16 @@
         android:roundIcon="@mipmap/ic_launcher"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
-        android:allowBackup="true">
+        android:allowBackup="false"
+        tools:replace="android:allowBackup">
         <activity android:name="cz.quanti.android.vendor_app.MainActivity"
             android:theme="@style/AppTheme.NoActionBar"
-            android:windowSoftInputMode="stateHidden|adjustResize">
+            android:windowSoftInputMode="stateAlwaysHidden|adjustResize"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
-            <meta-data
-                android:name="android.nfc.action.TECH_DISCOVERED"
-                android:resource="@xml/nfc_tech_filter" />
         </activity>
     </application>
 </manifest>

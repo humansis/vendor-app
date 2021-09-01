@@ -2,11 +2,15 @@ package cz.quanti.android.vendor_app.repository.purchase.dto.db
 
 import androidx.room.Entity
 import androidx.room.ForeignKey
+import androidx.room.Index
 import androidx.room.PrimaryKey
 import cz.quanti.android.vendor_app.repository.VendorDb
 
 @Entity(
     tableName = VendorDb.TABLE_VOUCHER_PURCHASE,
+    indices = [Index(
+        value = ["purchaseId"]
+    )],
     foreignKeys = [ForeignKey(
         onDelete = ForeignKey.CASCADE,
         entity = PurchaseDbEntity::class,

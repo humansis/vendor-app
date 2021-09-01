@@ -14,14 +14,15 @@ import androidx.navigation.fragment.findNavController
 import cz.quanti.android.vendor_app.ActivityCallback
 import cz.quanti.android.vendor_app.BuildConfig
 import cz.quanti.android.vendor_app.R
+import cz.quanti.android.vendor_app.databinding.FragmentLoginBinding
 import cz.quanti.android.vendor_app.main.authorization.viewmodel.LoginViewModel
+import cz.quanti.android.vendor_app.repository.utils.exceptions.LoginException
+import cz.quanti.android.vendor_app.repository.utils.exceptions.LoginExceptionState
 import cz.quanti.android.vendor_app.utils.ApiEnvironments
 import cz.quanti.android.vendor_app.utils.Constants
-import extensions.isNetworkConnected
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
-import kotlinx.android.synthetic.main.fragment_login.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import quanti.com.kotlinlog.Log
 
@@ -30,36 +31,42 @@ class LoginFragment : Fragment() {
     private val vm: LoginViewModel by viewModel()
     private var disposable: Disposable? = null
 
+    private lateinit var activityCallback: ActivityCallback
+
+    private lateinit var loginBinding: FragmentLoginBinding
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        (requireActivity() as (ActivityCallback)).setToolbarVisible(false)
-        return inflater.inflate(R.layout.fragment_login, container, false)
+    ): View {
+        activityCallback = requireActivity() as ActivityCallback
+        activityCallback.setToolbarVisible(false)
+        loginBinding = FragmentLoginBinding.inflate(inflater, container, false)
+        return loginBinding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        versionTextView.text = getString(R.string.version, BuildConfig.VERSION_NAME)
+        loginBinding.versionTextView.text = getString(R.string.version, BuildConfig.VERSION_NAME)
 
         if (BuildConfig.DEBUG) {
-            settingsImageView.visibility = View.VISIBLE
-            envTextView.visibility = View.VISIBLE
+            loginBinding.settingsImageView.visibility = View.VISIBLE
+            loginBinding.envTextView.visibility = View.VISIBLE
             var defaultEnv = ApiEnvironments.DEV
             val savedEnv = vm.getSavedApiHost()
             savedEnv?.let {
                 defaultEnv = savedEnv
             }
-            envTextView.text = defaultEnv.name
+            loginBinding.envTextView.text = defaultEnv.name
             vm.setApiHost(defaultEnv)
 
-            settingsImageView.setOnClickListener {
+            loginBinding.settingsImageView.setOnClickListener {
                 Log.d(TAG, "Environment menu opened.")
                 val contextThemeWrapper =
                     ContextThemeWrapper(requireContext(), R.style.PopupMenuTheme)
-                val popup = PopupMenu(contextThemeWrapper, settingsImageView)
+                val popup = PopupMenu(contextThemeWrapper, loginBinding.settingsImageView)
                 popup.inflate(R.menu.api_urls_menu)
                 popup.menu.add(0, ApiEnvironments.FRONT.id, 0, "FRONT API")
                 popup.menu.add(0, ApiEnvironments.DEMO.id, 0, "DEMO API")
@@ -70,7 +77,7 @@ class LoginFragment : Fragment() {
                     val env = ApiEnvironments.values().find { it.id == item?.itemId }
                     env?.let {
                         vm.setApiHost(it)
-                        envTextView.text = it.name
+                        loginBinding.envTextView.text = it.name
                         vm.saveApiHost(it)
                     }
                     true
@@ -78,68 +85,89 @@ class LoginFragment : Fragment() {
                 popup.show()
             }
         } else {
-            settingsImageView.visibility = View.INVISIBLE
-            envTextView.visibility = View.INVISIBLE
+            loginBinding.settingsImageView.visibility = View.INVISIBLE
+            loginBinding.envTextView.visibility = View.INVISIBLE
         }
 
         if (vm.isVendorLoggedIn()) {
-            if(vm.getCurrentVendorName().equals(BuildConfig.DEMO_ACCOUNT, true)) {
+            if (vm.getCurrentVendorName().equals(BuildConfig.DEMO_ACCOUNT, true)) {
                 vm.setApiHost(ApiEnvironments.STAGE)
                 vm.saveApiHost(ApiEnvironments.STAGE)
             }
             findNavController().navigate(
-                LoginFragmentDirections.actionLoginFragmentToVendorFragment()
+                LoginFragmentDirections.actionLoginFragmentToProductsFragment()
             )
         } else {
-            logoImageView.clipToOutline = true
-            loginButton.isEnabled = true
-            loginButton.setOnClickListener {
+            loginBinding.logoImageView.clipToOutline = true
+            loginBinding.loginButton.isEnabled = true
+            loginBinding.loginButton.setOnClickListener {
                 Log.d(TAG, "Login button clicked.")
-                if (usernameEditText.text.toString().isNotEmpty() && passwordEditText.text.toString().isNotEmpty()) {
-
-                    if (usernameEditText.text.toString().equals(BuildConfig.DEMO_ACCOUNT, true)) {
+                if (loginBinding.usernameEditText.text.toString().isNotEmpty() && loginBinding.passwordEditText.text.toString().isNotEmpty()) {
+                    if (loginBinding.usernameEditText.text.toString().equals(BuildConfig.DEMO_ACCOUNT, true)) {
                         vm.setApiHost(ApiEnvironments.STAGE)
                         vm.saveApiHost(ApiEnvironments.STAGE)
                     }
 
-                    loginButton.isEnabled = false
-                    loginButton.visibility = View.INVISIBLE
-                    loadingImageView.visibility = View.VISIBLE
-
+                    loginBinding.loginButton.isEnabled = false
+                    loginBinding.loginButton.visibility = View.INVISIBLE
+                    loginBinding.loadingImageView.visibility = View.VISIBLE
+                    loginBinding.usernameEditText.error = null
+                    loginBinding.passwordEditText.error = null
                     val animation = RotateAnimation(
                         0f,
                         360f,
-                        loadingImageView.width / 2f,
-                        loadingImageView.height / 2f
+                        loginBinding.loadingImageView.width / 2f,
+                        loginBinding.loadingImageView.height / 2f
                     )
                     animation.duration = Constants.SYNCING_BUTTON_ANIMATION_DURATION_IN_MS
                     animation.repeatCount = Animation.INFINITE
-                    loadingImageView.startAnimation(animation)
+                    loginBinding.loadingImageView.startAnimation(animation)
 
                     disposable?.dispose()
                     disposable =
-                        vm.login(usernameEditText.text.toString(), passwordEditText.text.toString())
+                        vm.login(loginBinding.usernameEditText.text.toString(), loginBinding.passwordEditText.text.toString())
                             .subscribeOn(
                                 Schedulers.io()
                             ).observeOn(AndroidSchedulers.mainThread())
                             .subscribe(
                                 {
                                     vm.onLogin(requireActivity() as (ActivityCallback))
-                                    loadingImageView.animation.repeatCount = 0
+                                    loginBinding.loadingImageView.animation.repeatCount = 0
+                                    loginBinding.usernameEditText.error = null
+                                    loginBinding.passwordEditText.error = null
                                     findNavController().navigate(
-                                        LoginFragmentDirections.actionLoginFragmentToVendorFragment()
+                                        LoginFragmentDirections.actionLoginFragmentToProductsFragment()
                                     )
                                 },
                                 {
-                                    loadingImageView.clearAnimation()
-                                    loadingImageView.visibility = View.INVISIBLE
-                                    loginButton.visibility = View.VISIBLE
-                                    loginButton.isEnabled = true
+                                    loginBinding.loadingImageView.clearAnimation()
+                                    loginBinding.loadingImageView.visibility = View.INVISIBLE
+                                    loginBinding.loginButton.visibility = View.VISIBLE
+                                    loginBinding.loginButton.isEnabled = true
                                     Log.e(TAG, it)
-                                    if (requireContext().isNetworkConnected()) {
-                                        usernameEditText.error = getString(R.string.wrong_password)
-                                        passwordEditText.error = getString(R.string.wrong_password)
+                                    if (it is LoginException) {
+                                        Log.d(it.message.toString())
+                                        when (it.state) {
+                                            LoginExceptionState.NO_CONNECTION -> {
+                                                Toast.makeText(
+                                                    context,
+                                                    if (vm.isNetworkConnected().value == false) {
+                                                        getString(R.string.no_internet_connection)
+                                                    } else {
+                                                        getString(R.string.error_service_unavailable)
+                                                    },
+                                                    Toast.LENGTH_LONG
+                                                ).show()
+                                            }
+                                            LoginExceptionState.INVALID_USER,
+                                            LoginExceptionState.INVALID_PASSWORD -> {
+                                                loginBinding.usernameEditText.error = getString(R.string.wrong_password)
+                                                loginBinding.passwordEditText.error = getString(R.string.wrong_password)
+                                            }
+                                        }
                                     } else {
+                                        loginBinding.usernameEditText.error = null
+                                        loginBinding.passwordEditText.error = null
                                         Toast.makeText(
                                             context,
                                             getString(R.string.no_internet_connection),

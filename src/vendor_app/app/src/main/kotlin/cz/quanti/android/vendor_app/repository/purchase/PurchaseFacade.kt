@@ -1,23 +1,26 @@
 package cz.quanti.android.vendor_app.repository.purchase
 
-import cz.quanti.android.vendor_app.repository.purchase.dto.Invoice
 import cz.quanti.android.vendor_app.repository.purchase.dto.Purchase
-import cz.quanti.android.vendor_app.repository.purchase.dto.Transaction
-import cz.quanti.android.vendor_app.repository.purchase.dto.TransactionPurchase
+import cz.quanti.android.vendor_app.repository.purchase.dto.SelectedProduct
 import io.reactivex.Completable
+import io.reactivex.Observable
 import io.reactivex.Single
 
 interface PurchaseFacade {
 
     fun savePurchase(purchase: Purchase): Completable
 
-    fun syncWithServer(vendorId: Int): Completable
+    fun syncWithServer(): Completable
 
-    fun isSyncNeeded(): Single<Boolean>
+    fun getPurchasesCount(): Observable<Long>
 
-    fun unsyncedPurchases(): Single<List<Purchase>>
+    fun addProductToCart(product: SelectedProduct)
 
-    fun getInvoices(): Single<List<Invoice>>
+    fun getProductsFromCart(): Observable<List<SelectedProduct>>
 
-    fun getTransactions(): Single<List<Transaction>>
+    fun updateProductInCart(product: SelectedProduct)
+
+    fun removeProductFromCartAt(product: SelectedProduct)
+
+    fun deleteAllProductsInCart()
 }

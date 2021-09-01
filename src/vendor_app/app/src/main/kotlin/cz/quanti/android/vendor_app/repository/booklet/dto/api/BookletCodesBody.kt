@@ -6,5 +6,3 @@ data class BookletCodesBody(
     @SerializedName("bookletCodes")
     var bookletCodes: List<String>
 )
-
-

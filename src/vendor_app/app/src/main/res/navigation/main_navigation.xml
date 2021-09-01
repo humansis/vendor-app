@@ -8,60 +8,84 @@
     <fragment
         android:id="@+id/loginFragment"
         android:name="cz.quanti.android.vendor_app.main.authorization.fragment.LoginFragment"
-        android:label="fragment_login"
         tools:layout="@layout/fragment_login">
         <action
-            android:id="@+id/action_loginFragment_to_vendorFragment"
-            app:destination="@id/vendorFragment"
-            app:popUpTo="@id/vendorFragment"
-            app:popUpToInclusive="true" />
+            android:id="@+id/action_loginFragment_to_productsFragment"
+            app:destination="@id/productsFragment" />
     </fragment>
 
+    <action
+        android:id="@+id/action_to_productsFragment"
+        app:destination="@id/productsFragment"
+        app:popUpTo="@id/productsFragment"
+        app:popUpToInclusive="true"
+        app:enterAnim="@anim/fade_in"
+        app:exitAnim="@anim/fade_out"/>
+
     <fragment
-        android:id="@+id/vendorFragment"
-        android:name="cz.quanti.android.vendor_app.main.vendor.fragment.VendorFragment"
-        android:label="fragment_vendor"
-        tools:layout="@layout/fragment_vendor">
+        android:id="@+id/productsFragment"
+        android:name="cz.quanti.android.vendor_app.main.shop.fragment.ProductsFragment"
+        tools:layout="@layout/fragment_products">
         <action
-            android:id="@+id/action_vendorFragment_to_checkoutFragment"
+            android:id="@+id/action_productsFragment_to_checkoutFragment"
             app:destination="@id/checkoutFragment"
             app:popUpTo="@id/checkoutFragment"
-            app:popUpToInclusive="true" />
+            app:popUpToInclusive="true"
+            app:enterAnim="@anim/slide_from_right"
+            app:exitAnim="@anim/slide_to_left"
+            app:popEnterAnim="@anim/slide_from_left"
+            app:popExitAnim="@anim/slide_to_right"/>
     </fragment>
+
+    <action
+        android:id="@+id/action_to_transactionsFragment"
+        app:destination="@id/transactionsFragment"
+        app:popUpTo="@id/transactionsFragment"
+        app:popUpToInclusive="true"
+        app:enterAnim="@anim/fade_in"
+        app:exitAnim="@anim/fade_out"/>
 
     <fragment
         android:id="@+id/transactionsFragment"
         android:name="cz.quanti.android.vendor_app.main.transactions.fragment.TransactionsFragment"
-        android:label="fragment_transactions"
         tools:layout="@layout/fragment_transactions"/>
+
+    <action
+        android:id="@+id/action_to_invoicesFragment"
+        app:destination="@id/invoicesFragment"
+        app:popUpTo="@id/invoicesFragment"
+        app:popUpToInclusive="true"
+        app:enterAnim="@anim/fade_in"
+        app:exitAnim="@anim/fade_out"/>
 
     <fragment
         android:id="@+id/invoicesFragment"
         android:name="cz.quanti.android.vendor_app.main.invoices.fragment.InvoicesFragment"
-        android:label="fragment_invoices"
         tools:layout="@layout/fragment_invoices"/>
 
     <fragment
         android:id="@+id/checkoutFragment"
         android:name="cz.quanti.android.vendor_app.main.checkout.fragment.CheckoutFragment"
-        android:label="fragment_checkout"
         tools:layout="@layout/fragment_checkout">
-        <action
-            android:id="@+id/action_checkoutFragment_to_vendorFragment"
-            app:destination="@id/vendorFragment"
-            app:popUpTo="@id/vendorFragment"
-            app:popUpToInclusive="true">
-        </action>
+
         <action
             android:id="@+id/action_checkoutFragment_to_scannerFragment"
             app:destination="@id/scannerFragment"
             app:popUpTo="@id/scannerFragment"
-            app:popUpToInclusive="true" />
+            app:popUpToInclusive="true"
+            app:enterAnim="@anim/slide_from_right"
+            app:exitAnim="@anim/slide_to_left"
+            app:popEnterAnim="@anim/slide_from_left"
+            app:popExitAnim="@anim/slide_to_right"/>
         <action
             android:id="@+id/action_checkoutFragment_to_scanCardFragment"
             app:destination="@id/scanCardFragment"
             app:popUpTo="@id/scanCardFragment"
-            app:popUpToInclusive="true">
+            app:popUpToInclusive="true"
+            app:enterAnim="@anim/slide_from_right"
+            app:exitAnim="@anim/slide_to_left"
+            app:popEnterAnim="@anim/slide_from_left"
+            app:popExitAnim="@anim/slide_to_right">
             <argument
                 android:name="pin"
                 app:argType="string"/>
@@ -71,30 +95,20 @@
     <fragment
         android:id="@+id/scannerFragment"
         android:name="cz.quanti.android.vendor_app.main.scanner.fragment.ScannerFragment"
-        android:label="fragment_scanner"
         tools:layout="@layout/fragment_scanner">
-        <action
-            android:id="@+id/action_scannerFragment_to_checkoutFragment"
-            app:destination="@id/checkoutFragment"
-            app:popUpTo="@id/checkoutFragment"
-            app:popUpToInclusive="true" />
     </fragment>
 
     <fragment
         android:id="@+id/scanCardFragment"
         android:name="cz.quanti.android.vendor_app.main.checkout.fragment.ScanCardFragment"
-        android:label="fragment_scan_card"
         tools:layout="@layout/fragment_scan_card">
         <action
-            android:id="@+id/action_scanCardFragment_to_checkoutFragment"
-            app:destination="@id/checkoutFragment"
-            app:popUpTo="@id/checkoutFragment"
-            app:popUpToInclusive="true" />
-        <action
-            android:id="@+id/action_scanCardFragment_to_vendorFragment"
-            app:destination="@id/vendorFragment"
-            app:popUpTo="@id/vendorFragment"
-            app:popUpToInclusive="true" />
+            android:id="@+id/action_scanCardFragment_to_productsFragment"
+            app:destination="@id/productsFragment"
+            app:popUpTo="@id/productsFragment"
+            app:popUpToInclusive="true"
+            app:enterAnim="@anim/slide_from_left"
+            app:exitAnim="@anim/slide_to_right"/>
     </fragment>
 
 </navigation>

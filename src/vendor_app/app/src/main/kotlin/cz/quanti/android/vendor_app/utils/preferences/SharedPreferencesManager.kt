@@ -3,14 +3,14 @@ package cz.quanti.android.vendor_app.utils.preferences
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.SharedPreferences
-import org.koin.core.KoinComponent
-import org.koin.core.inject
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 
 object SharedPreferencesManager : ISharedPreferencesManager, KoinComponent {
 
     private const val PREF_NAME = "vendor_app_preferences"
     private val context: Context by inject()
-    private var sharedPreferences = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)!!
+    private var sharedPreferences = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
 
     @SuppressLint("CommitPrefEdits")
     private fun saveIntValue(key: String, value: Int) {
@@ -61,7 +61,7 @@ object SharedPreferencesManager : ISharedPreferencesManager, KoinComponent {
         return when (defaultValue) {
             is Int -> sharedPreferences.getInt(key, defaultValue)
             is Boolean -> sharedPreferences.getBoolean(key, defaultValue)
-            is String -> sharedPreferences.getString(key, defaultValue)!!
+            is String -> sharedPreferences.getString(key, defaultValue).toString()
             is Float -> sharedPreferences.getFloat(key, defaultValue)
             is Long -> sharedPreferences.getLong(key, defaultValue)
             else -> throw NotImplementedError()

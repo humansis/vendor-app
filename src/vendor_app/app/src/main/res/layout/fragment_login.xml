@@ -8,7 +8,7 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:background="@drawable/login_screen_image_portrait"
         tools:context=".MainActivity">
 
@@ -179,9 +179,9 @@
                     app:layout_constraintEnd_toEndOf="parent"
                     android:layout_marginTop="30dp"
                     android:src="@drawable/loading"
-                    android:tint="@color/colorPrimaryDark"
                     android:visibility="invisible"
-                    android:contentDescription="@string/loading" />
+                    android:contentDescription="@string/loading"
+                    app:tint="@color/colorPrimaryDark" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 

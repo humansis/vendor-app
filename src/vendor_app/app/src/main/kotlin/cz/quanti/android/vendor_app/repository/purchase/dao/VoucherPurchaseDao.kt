@@ -22,14 +22,14 @@ interface VoucherPurchaseDao {
     fun getAll(): Single<List<VoucherPurchaseDbEntity>>
 
     @Query(
-        "SELECT * FROM " + VendorDb.TABLE_VOUCHER_PURCHASE
-            + " WHERE purchaseId = :purchaseId"
+        "SELECT * FROM " + VendorDb.TABLE_VOUCHER_PURCHASE +
+            " WHERE purchaseId = :purchaseId"
     )
     fun getVouchersForPurchase(purchaseId: Long): Maybe<List<VoucherPurchaseDbEntity>>
 
     @Query(
-        "DELETE FROM " + VendorDb.TABLE_VOUCHER_PURCHASE
-            + " WHERE purchaseId = :purchaseId"
+        "DELETE FROM " + VendorDb.TABLE_VOUCHER_PURCHASE +
+            " WHERE purchaseId = :purchaseId"
     )
     fun deleteVoucherForPurchase(purchaseId: Long)
 }

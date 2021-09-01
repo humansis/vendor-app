@@ -1,80 +1,128 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:orientation="horizontal"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/screenBackgroundColor"
-    android:layout_marginStart="10dp"
-    android:layout_marginEnd="10dp">
+    android:layout_marginHorizontal="8dp"
+    android:layout_marginVertical="4dp"
+    android:visibility="visible"
+    android:clickable="true"
+    android:focusable="true"
+    app:cardCornerRadius="8dp"
+    app:cardBackgroundColor="@color/white">
 
-    <androidx.cardview.widget.CardView
-        android:id="@+id/cardView"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:shape="ring"
-        app:layout_constraintWidth_max="30dp"
-        app:layout_constraintWidth_percent="0.15"
-        app:layout_constraintDimensionRatio="1:1"
-        app:cardCornerRadius="15dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@id/productInfoTextView"
-        app:layout_constraintBottom_toBottomOf="@id/productInfoTextView">
-
-    <ImageView
-        android:id="@+id/productImageView"
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_gravity="center"
-        android:scaleType="centerCrop" />
-    </androidx.cardview.widget.CardView>
+        android:animateLayoutChanges="@bool/isPortrait"
+        android:padding="@dimen/dimen_16dp">
 
-    <TextView
-        android:id="@+id/productInfoTextView"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:textColor="@color/black"
-        android:textSize="@dimen/fragment_bigger_text"
-        android:layout_marginStart="10dp"
-        android:layout_marginTop="10dp"
-        android:textDirection="locale"
-        android:textAlignment="viewStart"
-        app:layout_constraintStart_toEndOf="@id/cardView"
-        app:layout_constraintEnd_toStartOf="@id/priceTextView"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintWidth_max="250dp"
-        app:layout_constraintWidth_percent="0.50"
-        tools:text="Cucumber and Bread and Eggs"/>
+        <androidx.cardview.widget.CardView
+            android:id="@+id/imageCardView"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:shape="ring"
+            app:cardCornerRadius="@dimen/dimen_16dp"
+            app:layout_constraintWidth_max="@dimen/dimen_32dp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="@id/bottomGuide"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintDimensionRatio="1:1">
 
-    <TextView
-        android:id="@+id/priceTextView"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:textColor="@color/black"
-        android:textSize="@dimen/fragment_bigger_text"
-        android:layout_marginStart="10dp"
-        android:textDirection="locale"
-        android:textAlignment="viewStart"
-        app:layout_constraintEnd_toStartOf="@id/removeProductImageView"
-        app:layout_constraintTop_toTopOf="@id/productInfoTextView"
-        app:layout_constraintBottom_toBottomOf="@id/productInfoTextView"
-        app:layout_constraintWidth_max="100dp"
-        app:layout_constraintWidth_percent="0.30"
-        tools:text="100 SYP"/>
+            <ImageView
+                android:id="@+id/productImageView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:scaleType="centerCrop" />
 
+        </androidx.cardview.widget.CardView>
 
-    <androidx.appcompat.widget.AppCompatImageView
-        android:id="@+id/removeProductImageView"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        app:layout_constraintWidth_max="24dp"
-        app:layout_constraintWidth_percent="0.15"
-        app:layout_constraintDimensionRatio="1:1"
-        app:srcCompat="@drawable/delete"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@id/productInfoTextView"
-        app:layout_constraintBottom_toBottomOf="@id/productInfoTextView"
-/>
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:animateLayoutChanges="true"
+            app:layout_constraintTop_toTopOf="@id/imageCardView"
+            app:layout_constraintBottom_toBottomOf="@id/bottomGuide"
+            app:layout_constraintStart_toEndOf="@id/imageCardView"
+            app:layout_constraintEnd_toStartOf="@id/deleteButton">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+            <TextView
+                android:id="@+id/productInfoTextView"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginHorizontal="@dimen/dimen_16dp"
+                android:textAlignment="viewStart"
+                android:textColor="@color/black"
+                android:textDirection="locale"
+                android:textSize="@dimen/fragment_subtitle"
+                android:textStyle="bold"
+                android:lines="1"
+                tools:text="Cucumber and Bread and Eggs" />
+
+            <TextView
+                android:id="@+id/priceTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAlignment="viewEnd"
+                android:textColor="@color/black"
+                android:textDirection="locale"
+                android:textSize="@dimen/fragment_bigger_text"
+                android:lines="1"
+                tools:text="100 SYP" />
+
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/deleteButton"
+            android:layout_width="@dimen/dimen_32dp"
+            android:layout_height="@dimen/dimen_32dp"
+            android:padding="@dimen/dimen_4dp"
+            android:visibility="gone"
+            app:srcCompat="@drawable/delete"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="@id/bottomGuide"
+            app:layout_constraintEnd_toStartOf="@id/closeButton"
+            app:tint="@color/red" />
+
+        <ImageView
+            android:id="@+id/closeButton"
+            android:layout_width="@dimen/dimen_32dp"
+            android:layout_height="@dimen/dimen_32dp"
+            android:padding="@dimen/dimen_4dp"
+            android:visibility="gone"
+            app:srcCompat="@drawable/clear"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="@id/bottomGuide"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:tint="@color/darkGrey" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/bottomGuide"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_begin="32dp"/>
+
+        <FrameLayout
+            android:id="@+id/editProduct"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dimen_16dp"
+            android:visibility="gone"
+            app:layout_constraintTop_toBottomOf="@id/bottomGuide"
+            app:layout_constraintBottom_toBottomOf="parent">
+
+            <include
+                layout="@layout/item_product_options"
+                android:id="@+id/productOptions"/>
+
+        </FrameLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.cardview.widget.CardView>

@@ -2,64 +2,81 @@ package cz.quanti.android.vendor_app
 
 import android.annotation.SuppressLint
 import android.app.AlertDialog
-import android.content.Intent
+import android.content.Context
 import android.content.pm.ActivityInfo
+import android.graphics.Rect
+import android.media.MediaPlayer
 import android.nfc.NfcAdapter
 import android.nfc.Tag
+import android.os.Build
 import android.os.Bundle
+import android.os.VibrationEffect
+import android.os.Vibrator
 import android.util.DisplayMetrics
 import android.view.MenuItem
+import android.view.MotionEvent
 import android.view.View
-import android.widget.ImageView
-import android.widget.TextView
-import android.widget.Toast
-import androidx.appcompat.app.ActionBarDrawerToggle
+import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
+import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.navigation.findNavController
+import androidx.navigation.fragment.NavHostFragment
+import androidx.navigation.ui.AppBarConfiguration
+import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.navigation.NavigationView
 import cz.quanti.android.nfc.VendorFacade
 import cz.quanti.android.nfc.dto.UserBalance
+import cz.quanti.android.vendor_app.databinding.ActivityMainBinding
+import cz.quanti.android.vendor_app.databinding.NavHeaderBinding
 import cz.quanti.android.vendor_app.main.authorization.viewmodel.LoginViewModel
+import cz.quanti.android.vendor_app.main.shop.adapter.CurrencyAdapter
+import cz.quanti.android.vendor_app.main.shop.viewmodel.ShopViewModel
 import cz.quanti.android.vendor_app.repository.AppPreferences
 import cz.quanti.android.vendor_app.repository.login.LoginFacade
-import cz.quanti.android.vendor_app.repository.synchronization.SynchronizationFacade
 import cz.quanti.android.vendor_app.sync.SynchronizationManager
 import cz.quanti.android.vendor_app.sync.SynchronizationState
-import cz.quanti.android.vendor_app.utils.NfcInitializer
+import cz.quanti.android.vendor_app.utils.*
+import cz.quanti.android.vendor_app.utils.ConnectionObserver
 import cz.quanti.android.vendor_app.utils.NfcTagPublisher
+import cz.quanti.android.vendor_app.utils.PermissionRequestResult
 import cz.quanti.android.vendor_app.utils.SendLogDialogFragment
 import extensions.isNetworkConnected
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
-import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.app_bar_main.*
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import quanti.com.kotlinlog.Log
 
-class MainActivity : AppCompatActivity(), ActivityCallback,
+class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCallback,
     NavigationView.OnNavigationItemSelectedListener {
 
     private val loginFacade: LoginFacade by inject()
-    private val syncFacade: SynchronizationFacade by inject()
-    private val preferences: AppPreferences by inject()
-    private val nfcTagPublisher: NfcTagPublisher by inject()
     private val nfcFacade: VendorFacade by inject()
+    private val nfcTagPublisher: NfcTagPublisher by inject()
     private val synchronizationManager: SynchronizationManager by inject()
-    private var nfcAdapter: NfcAdapter? = null
+    private val preferences: AppPreferences by inject()
+    private val mainVM: MainViewModel by viewModel()
     private val loginVM: LoginViewModel by viewModel()
+    private val shopVM: ShopViewModel by viewModel()
     private var displayedDialog: AlertDialog? = null
     private var disposable: Disposable? = null
+    private var connectionDisposable: Disposable? = null
     private var syncStateDisposable: Disposable? = null
     private var syncDisposable: Disposable? = null
     private var readBalanceDisposable: Disposable? = null
-    private lateinit var drawer: DrawerLayout
-    private lateinit var toolbar: Toolbar
+    private var lastToast: Toast? = null
+
+    private lateinit var activityBinding: ActivityMainBinding
+    private lateinit var navHeaderBinding: NavHeaderBinding
+
+    private lateinit var connectionObserver: ConnectionObserver
+
+    private lateinit var successPlayer: MediaPlayer
+    private lateinit var errorPlayer: MediaPlayer
 
     @SuppressLint("SourceLockedOrientationActivity")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -69,43 +86,60 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
             requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
         }
 
-        setContentView(R.layout.activity_main)
+        activityBinding = ActivityMainBinding.inflate(layoutInflater)
+        navHeaderBinding = NavHeaderBinding.bind(activityBinding.navView.getHeaderView(0))
 
-        toolbar = findViewById(R.id.toolbar)
-        drawer = findViewById(R.id.drawer_layout)
-        val navigationView = findViewById<NavigationView>(R.id.nav_view)
-        navigationView.setNavigationItemSelectedListener(this)
+        setContentView(activityBinding.root)
 
-        val toggle = ActionBarDrawerToggle(
-            this,
-            drawer,
-            toolbar,
-            R.string.navigation_drawer_open,
-            R.string.navigation_drawer_close
-        )
-        drawer.addDrawerListener(toggle)
-        toggle.syncState()
+        connectionObserver = ConnectionObserver(this)
+        connectionObserver.registerCallback()
+
         setUpToolbar()
-        btn_logout.setOnClickListener {
-            Log.d(TAG, "Logout button clicked.")
-            logout()
-            drawer.closeDrawer(GravityCompat.START)
-        }
-        nfcAdapter = NfcAdapter.getDefaultAdapter(this)
+        setUpNavigationMenu()
+
+        mainVM.initNfcAdapter(this)
+
+        mainVM.successSLE.observe(this, {
+            vibrate(this)
+            successPlayer.start()
+        })
+        mainVM.errorSLE.observe(this, {
+            vibrate(this)
+            errorPlayer.start()
+        })
+
+        mainVM.getToastMessage().observe(this, { message ->
+            lastToast?.cancel()
+            message?.let {
+                lastToast = Toast.makeText(
+                    this,
+                    message,
+                    Toast.LENGTH_LONG
+                ).apply {
+                    show()
+                }
+            }
+        })
     }
 
     override fun onResume() {
         super.onResume()
         loadNavHeader(loginVM.getCurrentVendorName())
+        checkConnection()
         syncState()
+        successPlayer = MediaPlayer.create(this, R.raw.end)
+        errorPlayer = MediaPlayer.create(this, R.raw.error)
     }
 
     override fun onPause() {
-        super.onPause()
+        successPlayer.release()
+        errorPlayer.release()
         syncStateDisposable?.dispose()
+        super.onPause()
     }
 
     override fun onStop() {
+        lastToast?.cancel()
         displayedDialog?.dismiss()
         disposable?.dispose()
         syncDisposable?.dispose()
@@ -113,64 +147,105 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
         super.onStop()
     }
 
+    override fun onDestroy() {
+        connectionObserver.unregisterCallback()
+        super.onDestroy()
+    }
+
+    override fun onTagDiscovered(tag: Tag) {
+        nfcTagPublisher.getTagSubject().onNext(tag)
+    }
+
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.home_button -> {
-                findNavController(R.id.nav_host_fragment).popBackStack(R.id.vendorFragment, false)
+            R.id.shop_button -> {
+                findNavController(R.id.nav_host_fragment).navigate(
+                    MainNavigationDirections.actionToProductsFragment()
+                )
             }
             R.id.transactions_button -> {
-                findNavController(R.id.nav_host_fragment).navigate(R.id.transactionsFragment)
+                findNavController(R.id.nav_host_fragment).navigate(
+                    MainNavigationDirections.actionToTransactionsFragment()
+                )
             }
             R.id.invoices_button -> {
-                findNavController(R.id.nav_host_fragment).navigate(R.id.invoicesFragment)
+                findNavController(R.id.nav_host_fragment).navigate(
+                    MainNavigationDirections.actionToInvoicesFragment()
+                )
             }
-            R.id.read_balance_button -> {
-                showReadBalanceDialog()
+            R.id.read_balance_button -> { // TODO hide if mainVM.getNfcAdapter() == null
+                    showReadBalanceDialog()
             }
             R.id.share_logs_button -> {
                 shareLogsDialog()
             }
         }
-        drawer.closeDrawer(GravityCompat.START)
+        activityBinding.drawerLayout.closeDrawer(GravityCompat.START)
         return true
     }
 
     override fun onBackPressed() {
-        if (drawer.isDrawerOpen(GravityCompat.START)) {
-            drawer.closeDrawer(GravityCompat.START)
+        if (activityBinding.drawerLayout.isDrawerOpen(GravityCompat.START)) {
+            activityBinding.drawerLayout.closeDrawer(GravityCompat.START)
         } else {
             super.onBackPressed()
         }
     }
 
     private fun setUpToolbar() {
-        disposable?.dispose()
-        disposable = syncFacade.isSyncNeeded()
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(
-                {
-                    if (it) {
-                        dot?.visibility = View.VISIBLE
-                    } else {
-                        dot?.visibility = View.INVISIBLE
-                    }
-                },
-                {
-                }
-            )
+        activityBinding.navView.setNavigationItemSelectedListener(this)
 
-        syncButton?.setOnClickListener {
+        val appBarConfiguration = AppBarConfiguration(
+            setOf(
+                R.id.productsFragment,
+                R.id.transactionsFragment,
+                R.id.invoicesFragment,
+                R.id.checkoutFragment
+            ),
+            activityBinding.drawerLayout
+        )
+
+        val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
+
+        activityBinding.appBar.toolbar.setupWithNavController(navHostFragment.navController, appBarConfiguration)
+
+        mainVM.showDot().observe(this, {
+            if (it) {
+                activityBinding.appBar.dot.visibility = View.VISIBLE
+            } else {
+                activityBinding.appBar.dot.visibility = View.INVISIBLE
+            }
+        })
+
+        loginVM.isNetworkConnected().observe(this, { available ->
+            val drawable = if (available) R.drawable.ic_cloud else R.drawable.ic_cloud_offline
+            activityBinding.appBar.syncButton.setImageDrawable(
+                ContextCompat.getDrawable(this, drawable)
+            )
+        })
+
+        activityBinding.appBar.syncButton.setOnClickListener {
             Log.d(TAG, "Sync button clicked.")
             synchronizationManager.synchronizeWithServer()
         }
     }
 
-    override fun onNewIntent(intent: Intent) {
-        super.onNewIntent(intent)
-        if (NfcAdapter.ACTION_TAG_DISCOVERED == intent.action || NfcAdapter.ACTION_NDEF_DISCOVERED == intent.action) {
-            val tag: Tag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG) ?: return
-            nfcTagPublisher.getTagSubject().onNext(tag)
+    private fun setUpNavigationMenu() {
+        initPriceUnitSpinner()
+        activityBinding.btnLogout.setOnClickListener {
+            Log.d(TAG, "Logout button clicked.")
+            logout()
+            activityBinding.drawerLayout.closeDrawer(GravityCompat.START)
+        }
+    }
+
+    @Suppress("DEPRECATION")
+    private fun vibrate(context: Context) {
+        val vibrator = context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            vibrator.vibrate(VibrationEffect.createOneShot(200, VibrationEffect.DEFAULT_AMPLITUDE))
+        } else {
+            vibrator.vibrate(200)
         }
     }
 
@@ -179,18 +254,18 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
             .setTitle(getString(R.string.are_you_sure_dialog_title))
             .setMessage(getString(R.string.logout_dialog_message))
             .setPositiveButton(
-                android.R.string.yes
+                android.R.string.ok
             ) { _, _ ->
                 loginFacade.logout()
                 findNavController(R.id.nav_host_fragment).popBackStack(R.id.loginFragment, false)
             }
-            .setNegativeButton(android.R.string.no, null)
+            .setNegativeButton(android.R.string.cancel, null)
             .show()
     }
 
     private fun showReadBalanceDialog() {
-        if (NfcInitializer.initNfc(this)) {
-            val scanCardDialog = AlertDialog.Builder(this, R.style.DialogTheme)
+        if (mainVM.enableNfc(this)) {
+            displayedDialog = AlertDialog.Builder(this, R.style.DialogTheme)
                 .setMessage(getString(R.string.scan_card))
                 .setCancelable(false)
                 .setNegativeButton(getString(R.string.cancel)) { dialog, _ ->
@@ -198,45 +273,42 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
                     readBalanceDisposable?.dispose()
                     readBalanceDisposable = null
                 }
-                .create()
+                .create().apply { show() }
 
-            scanCardDialog?.show()
-            displayedDialog = scanCardDialog
-
-            readBalanceDisposable?.dispose()
-            readBalanceDisposable = readBalance()
-                .subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe({
-                    scanCardDialog.dismiss()
-                    val cardContent = it
-                    val cardResultDialog = AlertDialog.Builder(this, R.style.DialogTheme)
-                        .setTitle(getString((R.string.read_balance)))
-                        .setMessage(
-                            getString(
-                                R.string.scanning_card_balance,
-                                "${cardContent.balance} ${cardContent.currencyCode}"
-                            )
-                        )
-                        .setCancelable(true)
-                        .setNegativeButton(getString(R.string.close)) { dialog, _ ->
-                            dialog?.dismiss()
-                            readBalanceDisposable?.dispose()
-                            readBalanceDisposable = null
-                        }
-                        .create()
-                    cardResultDialog.show()
-                    displayedDialog = cardResultDialog
-                },
-                    {
-                        Log.e(TAG, it)
-                        Toast.makeText(
-                            this,
-                            getString(R.string.card_error),
-                            Toast.LENGTH_LONG
-                        ).show()
-                        scanCardDialog.dismiss()
-                        NfcInitializer.disableForegroundDispatch(this)
-                    })
+            showReadBalanceResult()
         }
+    }
+
+    private fun showReadBalanceResult() {
+        readBalanceDisposable?.dispose()
+        readBalanceDisposable = readBalance()
+            .subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe({
+                displayedDialog?.dismiss()
+                val cardContent = it
+                val cardResultDialog = AlertDialog.Builder(this, R.style.DialogTheme)
+                    .setTitle(getString((R.string.read_balance)))
+                    .setMessage(
+                        getString(
+                            R.string.scanning_card_balance,
+                            "${cardContent.balance} ${cardContent.currencyCode}"
+                        )
+                    )
+                    .setCancelable(true)
+                    .setNegativeButton(getString(R.string.close)) { dialog, _ ->
+                        dialog?.dismiss()
+                        readBalanceDisposable?.dispose()
+                        readBalanceDisposable = null
+                    }
+                    .create()
+                cardResultDialog.show()
+                mainVM.successSLE.call()
+                displayedDialog = cardResultDialog
+            }, {
+                Log.e(TAG, it)
+                mainVM.setToastMessage(getString(R.string.card_error))
+                mainVM.errorSLE.call()
+                displayedDialog?.dismiss()
+            })
     }
 
     private fun readBalance(): Single<UserBalance> {
@@ -253,8 +325,10 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
             emailButtonText = getString(R.string.logs_dialog_email_button),
             dialogTheme = R.style.DialogTheme
         ).show(this.supportFragmentManager, "TAG")
+        // TODO inside this method in kotlinlogger there is a method getZipOfFiles() that automatically deletes all logs older than 4 days
     }
 
+    @Suppress("WHEN_ENUM_CAN_BE_NULL_IN_JAVA")
     private fun syncState() {
         syncStateDisposable?.dispose()
         syncStateDisposable = synchronizationManager.syncStateObservable()
@@ -263,37 +337,24 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
             .subscribe({
                 when (it) {
                     SynchronizationState.STARTED -> {
-                        btn_logout.isEnabled = false
-                        progressBar?.visibility = View.VISIBLE
-                        syncButtonArea?.visibility = View.INVISIBLE
+                        activityBinding.btnLogout.isEnabled = false
+                        activityBinding.appBar.progressBar.visibility = View.VISIBLE
+                        activityBinding.appBar.syncButtonArea.visibility = View.INVISIBLE
                     }
                     SynchronizationState.SUCCESS -> {
-                        btn_logout.isEnabled = true
-                        progressBar?.visibility = View.GONE
-                        syncButtonArea?.visibility = View.VISIBLE
-                        dot?.visibility = View.INVISIBLE
-                        Toast.makeText(
-                            this,
-                            getString(R.string.data_were_successfully_synchronized),
-                            Toast.LENGTH_LONG
-                        ).show()
+                        activityBinding.btnLogout.isEnabled = true
+                        activityBinding.appBar.progressBar.visibility = View.GONE
+                        activityBinding.appBar.syncButtonArea.visibility = View.VISIBLE
+                        mainVM.setToastMessage(getString(R.string.data_were_successfully_synchronized))
                     }
                     SynchronizationState.ERROR -> {
-                        btn_logout.isEnabled = true
-                        progressBar?.visibility = View.GONE
-                        syncButtonArea?.visibility = View.VISIBLE
-                        if (!isNetworkConnected()) {
-                            Toast.makeText(
-                                this,
-                                getString(R.string.no_internet_connection),
-                                Toast.LENGTH_LONG
-                            ).show()
+                        activityBinding.btnLogout.isEnabled = true
+                        activityBinding.appBar.progressBar.visibility = View.GONE
+                        activityBinding.appBar.syncButtonArea.visibility = View.VISIBLE
+                        if (loginVM.isNetworkConnected().value != true) {
+                            mainVM.setToastMessage(getString(R.string.no_internet_connection))
                         } else {
-                            Toast.makeText(
-                                this,
-                                getString(R.string.could_not_synchronize_data_with_server),
-                                Toast.LENGTH_LONG
-                            ).show()
+                            mainVM.setToastMessage(getString(R.string.could_not_synchronize_data_with_server))
                         }
                     }
                 }
@@ -302,56 +363,178 @@ class MainActivity : AppCompatActivity(), ActivityCallback,
             })
     }
 
-    override fun showDot(boolean: Boolean) {
-        if (boolean) {
-            dot?.visibility = View.VISIBLE
-        } else {
-            dot?.visibility = View.INVISIBLE
-        }
+    private fun checkConnection() {
+        connectionDisposable?.dispose()
+        connectionDisposable = connectionObserver.getNetworkAvailability()
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(
+                { available ->
+                    loginVM.isNetworkConnected(available)
+                },
+                {
+                    Log.e(it)
+                }
+            )
+    }
+
+    override fun getNavView(): NavigationView {
+        return activityBinding.navView
     }
 
     override fun setToolbarVisible(boolean: Boolean) {
         if (boolean) {
-            toolbar.visibility = View.VISIBLE
-            drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
+            activityBinding.appBar.appBarLayout.visibility = View.VISIBLE
         } else {
-            toolbar.visibility = View.GONE
-            drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
+            activityBinding.appBar.appBarLayout.visibility = View.GONE
         }
+        setDrawerLocked(!boolean)
+    }
+
+    override fun setSubtitle(titleText: String?) {
+        activityBinding.appBar.toolbar.subtitle = titleText
+    }
+
+    override fun setDrawerLocked(boolean: Boolean) {
+        if (boolean) {
+            activityBinding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
+        } else {
+            activityBinding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
+        }
+    }
+
+    private fun getToolbarUpButton(): ImageButton? {
+        val field = Class.forName("androidx.appcompat.widget.Toolbar").getDeclaredField("mNavButtonView")
+        field.isAccessible = true
+        return field.get(activityBinding.appBar.toolbar) as? ImageButton
+    }
+
+    override fun setBackButtonEnabled(boolean: Boolean) {
+        getToolbarUpButton()?.isEnabled = boolean
+        if (!boolean) {
+            // I could not find a better method to make the arrow grey when disabled
+            getToolbarUpButton()?.setImageDrawable(ContextCompat.getDrawable(this,R.drawable.arrow_back))
+            getToolbarUpButton()?.drawable?.setTint(ContextCompat.getColor(this, R.color.grey))
+        } else {
+            getToolbarUpButton()?.drawable?.setTint(ContextCompat.getColor(this, R.color.black))
+        }
+    }
+
+    override fun setSyncButtonEnabled(boolean: Boolean) {
+        activityBinding.appBar.syncButton.isEnabled = boolean
     }
 
     override fun loadNavHeader(currentVendorName: String) {
         val metrics: DisplayMetrics = resources.displayMetrics
-        val ivAppIcon = nav_view.getHeaderView(0).findViewById<ImageView>(R.id.iv_app_icon)
-        ivAppIcon.layoutParams.height = if ((metrics.heightPixels/metrics.density) > 640) {
+        navHeaderBinding.ivAppIcon.layoutParams.height = if ((metrics.heightPixels / metrics.density) > 640) {
             resources.getDimensionPixelSize(R.dimen.nav_header_image_height_tall)
         } else {
             resources.getDimensionPixelSize(R.dimen.nav_header_image_height_regular)
         }
 
-        val tvAppVersion = nav_view.getHeaderView(0).findViewById<TextView>(R.id.tv_app_version)
         var appVersion = (getString(R.string.app_name) + " " + getString(R.string.version, BuildConfig.VERSION_NAME))
         if (BuildConfig.DEBUG) { appVersion += (" (" + BuildConfig.BUILD_NUMBER + ")") }
-        tvAppVersion.text = appVersion
+        navHeaderBinding.tvAppVersion.text = appVersion
 
-        val tvEnvironment = nav_view.getHeaderView(0).findViewById<TextView>(R.id.tv_environment)
-        if(BuildConfig.DEBUG) {
-            tvEnvironment.text = getString(
+        if (BuildConfig.DEBUG) {
+            navHeaderBinding.tvEnvironment.text = getString(
                 R.string.environment,
                 preferences.url
             )
         } else {
-            tvEnvironment.visibility = View.GONE
+            navHeaderBinding.tvEnvironment.visibility = View.GONE
         }
 
         if (loginVM.isVendorLoggedIn()) {
-            val tvUsername = nav_view.getHeaderView(0).findViewById<TextView>(R.id.tv_username)
-            tvUsername.text = currentVendorName
+            navHeaderBinding.tvUsername.text = currentVendorName
         }
     }
 
-    override fun setTitle(titleText: String) {
-        appbar_title.text = titleText
+    private fun initPriceUnitSpinner() {
+        val currencyAdapter = CurrencyAdapter(this)
+        currencyAdapter.init(shopVM.getCurrencies())
+        currencyAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        activityBinding.priceUnitSpinner.adapter = currencyAdapter
+        shopVM.getCurrency().observe(this, {
+            activityBinding.priceUnitSpinner.setSelection(
+                currencyAdapter.getPosition(it)
+            )
+        })
+        activityBinding.priceUnitSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+            }
+
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                shopVM.setCurrency(activityBinding.priceUnitSpinner.selectedItem as String)
+            }
+        }
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        mainVM.grantPermission(PermissionRequestResult(requestCode, permissions, grantResults))
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+    }
+
+    // ====OnTouchOutsideListener====
+
+    private var mTouchOutsideView: View? = null
+
+    private var mOnTouchOutsideViewListener: OnTouchOutsideViewListener? = null
+
+    /**
+     * Sets a listener that is being notified when the user has tapped outside a given view. To remove the listener,
+     * call [.removeOnTouchOutsideViewListener].
+     *
+     *
+     * This is useful in scenarios where a view is in edit mode and when the user taps outside the edit mode shall be
+     * stopped.
+     *
+     * @param view
+     * @param onTouchOutsideViewListener
+     */
+    fun setOnTouchOutsideViewListener(
+        view: View?,
+        onTouchOutsideViewListener: OnTouchOutsideViewListener?
+    ) {
+        mTouchOutsideView = view
+        mOnTouchOutsideViewListener = onTouchOutsideViewListener
+    }
+
+    @Suppress("unused")
+    fun getOnTouchOutsideViewListener(): OnTouchOutsideViewListener? {
+        return mOnTouchOutsideViewListener
+    }
+
+    override fun dispatchTouchEvent(ev: MotionEvent): Boolean {
+        if (ev.action == MotionEvent.ACTION_DOWN) {
+            // Notify touch outside listener if user tapped outside a given view
+            if (mOnTouchOutsideViewListener != null && mTouchOutsideView != null && mTouchOutsideView?.visibility == View.VISIBLE) {
+                val viewRect = Rect()
+                mTouchOutsideView?.getGlobalVisibleRect(viewRect)
+                if (!viewRect.contains(ev.rawX.toInt(), ev.rawY.toInt())) {
+                    mOnTouchOutsideViewListener?.onTouchOutside(mTouchOutsideView, ev)
+                }
+            }
+        }
+        return super.dispatchTouchEvent(ev)
+    }
+
+    /**
+     * Interface definition for a callback to be invoked when a touch event has occurred outside a formerly specified
+     * view. See [.setOnTouchOutsideViewListener]
+     */
+    interface OnTouchOutsideViewListener {
+        /**
+         * Called when a touch event has occurred outside a given view.
+         *
+         * @param view The view that has not been touched.
+         * @param event The MotionEvent object containing full information about the event.
+         */
+        fun onTouchOutside(view: View?, event: MotionEvent?)
     }
 
     companion object {

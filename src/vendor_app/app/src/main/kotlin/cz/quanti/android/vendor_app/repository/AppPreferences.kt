@@ -2,12 +2,13 @@ package cz.quanti.android.vendor_app.repository
 
 import android.content.Context
 import cz.quanti.android.vendor_app.repository.login.dto.Vendor
-import org.koin.core.KoinComponent
+import java.util.*
+import org.koin.core.component.KoinComponent
 import wtf.qase.appskeleton.core.BasePreferences
 import wtf.qase.appskeleton.core.BasePreferencesMigration
-import java.util.*
 
-class AppPreferences(context: Context) : BasePreferences(context, VERSION, MIGRATIONS), KoinComponent {
+class AppPreferences(context: Context) : BasePreferences(context, VERSION, MIGRATIONS),
+    KoinComponent {
 
     companion object {
         const val VERSION = 1
@@ -26,6 +27,8 @@ class AppPreferences(context: Context) : BasePreferences(context, VERSION, MIGRA
         private const val LAST_SYNCED = "pin_vendor_app_last_synced"
 
         private const val API_URL = "pin_vendor_app_api_url"
+
+        private const val CURRENCY = "pin_vendor_app_currency"
     }
 
     override fun init() {
@@ -41,7 +44,7 @@ class AppPreferences(context: Context) : BasePreferences(context, VERSION, MIGRA
 
     var vendor: Vendor
         get() {
-            var vendor = Vendor()
+            val vendor = Vendor()
             try {
                 vendor.apply {
                     this.id = settings.getLong(VENDOR_ID, 0)
@@ -54,7 +57,7 @@ class AppPreferences(context: Context) : BasePreferences(context, VERSION, MIGRA
                     this.loggedIn = settings.getBoolean(VENDOR_LOGGED_IN, false)
                 }
             } catch (e: ClassCastException) {
-                settings.edit().remove(VENDOR_ID)
+                settings.edit().remove(VENDOR_ID).apply()
             }
             return vendor
         }
@@ -70,6 +73,10 @@ class AppPreferences(context: Context) : BasePreferences(context, VERSION, MIGRA
         }
 
     var url: String
-        get() = settings.getString(API_URL, "")!!
+        get() = settings.getString(API_URL, "").toString()
         set(url) = settings.edit().putString(API_URL, url).apply()
+
+    var currency: String
+        get() = settings.getString(CURRENCY, "").toString()
+        set(currency) = settings.edit().putString(CURRENCY, currency).apply()
 }

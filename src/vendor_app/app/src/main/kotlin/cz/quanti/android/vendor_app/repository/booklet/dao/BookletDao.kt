@@ -16,9 +16,9 @@ interface BookletDao {
     fun delete(booklet: BookletDbEntity)
 
     @Query(
-        "SELECT * FROM " + VendorDb.TABLE_BOOKLET
-            + " WHERE state = " + Booklet.STATE_DEACTIVATED
-            + " OR state = " + Booklet.STATE_NEWLY_DEACTIVATED
+        "SELECT * FROM " + VendorDb.TABLE_BOOKLET +
+            " WHERE state = " + Booklet.STATE_DEACTIVATED +
+            " OR state = " + Booklet.STATE_NEWLY_DEACTIVATED
     )
     fun getAllDeactivated(): Single<List<BookletDbEntity>>
 

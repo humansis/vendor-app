@@ -12,7 +12,7 @@
         android:layout_height="match_parent">
 
         <TextView
-            android:id="@+id/fragment_message"
+            android:id="@+id/invoicesMessage"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textColor="@color/black"
@@ -22,12 +22,13 @@
             app:layout_constraintBottom_toBottomOf="parent" />
 
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/invoices_recycler_view"
+            android:id="@+id/invoicesRecyclerView"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:overScrollMode="never"
             android:scrollbars="none"
             android:transcriptMode="alwaysScroll"
+            android:splitMotionEvents="false"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent" />
 

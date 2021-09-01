@@ -30,7 +30,6 @@ class ScannerViewModel(
         return bookletFacade.getProtectedBooklets()
     }
 
-
     fun getVoucherFromScannedCode(
         scannedCode: String,
         deactivated: List<Booklet>,
@@ -41,7 +40,7 @@ class ScannerViewModel(
         var currency = ""
         var id: Long = 0
         var value: Long = 0
-        var returnCode: ScannedVoucherReturnState
+        val returnCode: ScannedVoucherReturnState
         val booklet = getBooklet()
 
         var regex = Regex(
@@ -99,7 +98,6 @@ class ScannerViewModel(
         scannedCodeInfo.groups[2]?.value?.let { value = it.toLong() }
         scannedCodeInfo.groups[3]?.value?.let { bookletCode = it }
         scannedCodeInfo.groups[5]?.value?.let { id = it.toLong() }
-
 
         if (returnCode == ScannedVoucherReturnState.VOUCHER_WITH_PASSWORD) {
             val password = getPassword(bookletCode, protected)
@@ -159,7 +157,7 @@ class ScannerViewModel(
         if (checkIfInvalidBooklet(voucher, booklet)) {
             return ScannedVoucherReturnState.WRONG_BOOKLET
         }
-        if (checkIfDifferentCurrency(voucher, shoppingHolder.chosenCurrency)) {
+        if (checkIfDifferentCurrency(voucher, shoppingHolder.chosenCurrency.value.toString())) {
             return ScannedVoucherReturnState.WRONG_CURRENCY
         }
         return returnCode
@@ -176,7 +174,6 @@ class ScannerViewModel(
     private fun checkIfDeactivated(voucher: Voucher, deactivated: List<Booklet>): Boolean {
         return deactivated.map { booklet -> booklet.code }.contains(voucher.booklet)
     }
-
 
     private fun checkIfInvalidBooklet(voucher: Voucher, booklet: String): Boolean {
         return if (booklet == "") {

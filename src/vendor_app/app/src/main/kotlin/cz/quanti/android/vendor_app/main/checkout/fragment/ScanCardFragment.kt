@@ -5,50 +5,60 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
+import androidx.core.widget.doOnTextChanged
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
-import com.google.android.material.textfield.TextInputEditText
+import cz.quanti.android.nfc.dto.UserBalance
 import cz.quanti.android.nfc.exception.PINException
 import cz.quanti.android.nfc.exception.PINExceptionEnum
 import cz.quanti.android.vendor_app.ActivityCallback
+import cz.quanti.android.vendor_app.MainViewModel
 import cz.quanti.android.vendor_app.R
+import cz.quanti.android.vendor_app.databinding.DialogCardPinBinding
+import cz.quanti.android.vendor_app.databinding.DialogSuccessBinding
+import cz.quanti.android.vendor_app.databinding.FragmentScanCardBinding
 import cz.quanti.android.vendor_app.main.checkout.viewmodel.CheckoutViewModel
-import cz.quanti.android.vendor_app.utils.NfcInitializer
-import io.reactivex.android.schedulers.AndroidSchedulers
+import cz.quanti.android.vendor_app.main.checkout.viewmodel.CheckoutViewModel.PaymentStateEnum
 import io.reactivex.disposables.Disposable
-import io.reactivex.schedulers.Schedulers
-import kotlinx.android.synthetic.main.dialog_card_pin.view.*
-import kotlinx.android.synthetic.main.fragment_scan_card.*
+import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import quanti.com.kotlinlog.Log
 
 class ScanCardFragment : Fragment() {
+    private val mainVM: MainViewModel by sharedViewModel()
     private val vm: CheckoutViewModel by viewModel()
     private var paymentDisposable: Disposable? = null
     private var pinDialog: AlertDialog? = null
-    private var activityCallback: ActivityCallback? = null
+    private lateinit var activityCallback: ActivityCallback
+
+    private lateinit var scanCardBinding: FragmentScanCardBinding
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        (activity as AppCompatActivity).supportActionBar?.show()
+    ): View {
         activityCallback = activity as ActivityCallback
-        return inflater.inflate(R.layout.fragment_scan_card, container, false)
+        activityCallback.setSubtitle(null)
+        activityCallback.setDrawerLocked(true)
+        activityCallback.setSyncButtonEnabled(false)
+        scanCardBinding = FragmentScanCardBinding.inflate(inflater, container, false)
+
+        return scanCardBinding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        scanCardBinding.price.text  = getString(R.string.total_price, vm.getTotal(), vm.getCurrency().value)
         init()
     }
 
     override fun onResume() {
         super.onResume()
-        if(arguments?.isEmpty == false) {
-            vm.setPin(arguments?.get("pin").toString())
+        if (arguments?.isEmpty == false) {
+            vm.setPin(arguments?.get(PIN_KEY).toString())
             arguments?.clear()
         }
         if (paymentDisposable == null) {
@@ -56,16 +66,11 @@ class ScanCardFragment : Fragment() {
                 vm.getPin() == null -> {
                     showPinDialogAndPayByCard()
                 }
-                else -> vm.getPin()?.let {
-                    payByCard(it)
+                else -> {
+                    payByCard()
                 }
             }
         }
-    }
-
-    override fun onPause() {
-        NfcInitializer.disableForegroundDispatch(requireActivity())
-        super.onPause()
     }
 
     override fun onStop() {
@@ -74,98 +79,160 @@ class ScanCardFragment : Fragment() {
         super.onStop()
     }
 
+    override fun onDestroyView() {
+        activityCallback.setDrawerLocked(false)
+        activityCallback.setSyncButtonEnabled(true)
+        super.onDestroyView()
+    }
+
     private fun init() {
-        backButton.setOnClickListener {
+        scanCardBinding.backButton.setOnClickListener {
             Log.d(TAG, "Back button clicked.")
-            findNavController().navigate(
-                ScanCardFragmentDirections.actionScanCardFragmentToCheckoutFragment()
-            )
+            navigateBack()
         }
+
+        vm.getPaymentState().observe(viewLifecycleOwner, {
+            val state = it.first
+            val result = it.second
+            when (state) {
+                PaymentStateEnum.READY -> {
+                    scanCardBinding.scanningProgressBar.visibility = View.GONE
+                    if (vm.getOriginalCardData().balance == null) {
+                        scanCardBinding.price.visibility = View.VISIBLE
+                        scanCardBinding.message.text = getString(R.string.scan_card)
+                    } else {
+                        scanCardBinding.icon.visibility = View.VISIBLE
+                        scanCardBinding.message.text = getString(R.string.scan_card_to_fix)
+                    }
+                }
+                PaymentStateEnum.IN_PROGRESS -> {
+                    // show spinning progressbar if scanning is in progress
+                    scanCardBinding.price.visibility = View.GONE
+                    scanCardBinding.icon.visibility = View.GONE
+                    scanCardBinding.scanningProgressBar.visibility = View.VISIBLE
+                    scanCardBinding.message.text = getString(R.string.payment_in_progress)
+                }
+                PaymentStateEnum.SUCCESS -> {
+                    result?.userBalance?.let { balance -> onPaymentSuccessful(balance) }
+                }
+                PaymentStateEnum.FAILED -> {
+                    result?.throwable?.let { throwable -> onPaymentFailed(throwable) }
+                }
+            }
+
+            // prevent leaving ScanCardFragment when theres scanning in progress or when card got broken during previous payment
+            val enableLeaving = state!= PaymentStateEnum.IN_PROGRESS && vm.getOriginalCardData().balance == null
+            activityCallback.setBackButtonEnabled(enableLeaving)
+            scanCardBinding.backButton.isEnabled = (enableLeaving)
+            requireActivity().onBackPressedDispatcher.addCallback(
+                viewLifecycleOwner,
+                object : OnBackPressedCallback(true) {
+                    override fun handleOnBackPressed() {
+                        if (enableLeaving) {
+                            // allow to navigate back only in this case
+                            navigateBack()
+                        }
+                    }
+                }
+            )
+        })
     }
 
     private fun showPinDialogAndPayByCard() {
         pinDialog?.dismiss()
-        val dialogView: View = layoutInflater.inflate(R.layout.dialog_card_pin, null)
-        dialogView.pin_title.text = getString(R.string.total_price, vm.getTotal(), vm.getCurrency())
+        val dialogBinding = DialogCardPinBinding.inflate(layoutInflater, null, false)
+        dialogBinding.pinTitle.text = getString(R.string.incorrect_pin)
         pinDialog = AlertDialog.Builder(requireContext(), R.style.DialogTheme)
-            .setView(dialogView)
+            .setView(dialogBinding.root)
             .setCancelable(false)
-            .setPositiveButton(android.R.string.ok) { dialog, _ ->
-                val pinEditTextView =
-                    dialogView.findViewById<TextInputEditText>(R.id.pinEditText)
-                val pin = pinEditTextView.text.toString()
-                vm.setPin(pin)
-                payByCard(pin)
-                dialog?.dismiss()
-            }
+            .setPositiveButton(android.R.string.ok, null)
             .setNegativeButton(android.R.string.cancel) { dialog, _ ->
                 dialog?.dismiss()
-                findNavController().navigate(
-                    ScanCardFragmentDirections.actionScanCardFragmentToCheckoutFragment()
-                )
+                navigateBack()
             }
             .show()
+        pinDialog?.let { dialog ->
+            val positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
+            positiveButton.isEnabled = false
+            positiveButton.setOnClickListener {
+                val pin = dialogBinding.pinEditText.text.toString()
+                if (pin.isEmpty()) {
+                    mainVM.setToastMessage(getString(R.string.please_enter_pin))
+                } else {
+                    vm.setPin(pin)
+                    payByCard()
+                    dialog.dismiss()
+                }
+            }
+
+            dialogBinding.pinEditText.doOnTextChanged { text, _, _, _ ->
+                positiveButton.isEnabled = !text.isNullOrEmpty()
+            }
+        }
     }
 
-     private fun payByCard(pin: String) {
-         if (NfcInitializer.initNfc(requireActivity())) {
-             paymentDisposable?.dispose()
-             paymentDisposable =
-                 vm.payByCard(pin, vm.getTotal(), vm.getCurrency()).subscribeOn(Schedulers.io())
-                     .observeOn(AndroidSchedulers.mainThread())
-                     .subscribe({
-                         val balance = it.second.balance
-
-                         AlertDialog.Builder(requireContext(), R.style.SuccessDialogTheme)
-                             .setTitle(getString(R.string.success))
-                             .setMessage(
-                                 String.format(
-                                     getString(R.string.card_successfuly_paid_new_balance),
-                                     balance
-                                 )
-                             )
-                             .setPositiveButton(android.R.string.ok, null)
-                             .show()
-
-                         activityCallback?.showDot(true)
-                         vm.clearShoppingCart()
-                         vm.clearVouchers()
-                         vm.clearCurrency()
-                         findNavController().navigate(
-                             ScanCardFragmentDirections.actionScanCardFragmentToVendorFragment()
-                         )
-                     }) {
-                         when (it) {
-                             is PINException -> {
-                                 Log.e(TAG, it.pinExceptionEnum.name)
-                                 Toast.makeText(
-                                     requireContext(),
-                                     getNfcCardErrorMessage(it.pinExceptionEnum),
-                                     Toast.LENGTH_LONG
-                                 ).show()
-                             }
-                             else -> {
-                                 Log.e(TAG, it)
-                                 Toast.makeText(
-                                     requireContext(),
-                                     getString(R.string.card_error),
-                                     Toast.LENGTH_LONG
-                                 )
-                                     .show()
-                             }
-                         }
-
-                         if (it is PINException && it.pinExceptionEnum == PINExceptionEnum.INCORRECT_PIN) {
-                             paymentDisposable?.dispose()
-                             paymentDisposable = null
-                             vm.setPin(null)
-                             showPinDialogAndPayByCard()
-                         } else {
-                             payByCard(pin)
-                         }
-                     }
+     private fun payByCard() {
+         if (mainVM.enableNfc(requireActivity())) {
+             vm.getPin()?.let { pin ->
+                 paymentDisposable?.dispose()
+                 paymentDisposable = vm.payByCard(pin)
              }
+         }
      }
+
+    private fun onPaymentSuccessful(userBalance: UserBalance) {
+        mainVM.successSLE.call()
+        val dialogBinding = DialogSuccessBinding.inflate(layoutInflater,null, false)
+        dialogBinding.title.text = getString(R.string.success)
+        dialogBinding.message.text = String.format(
+            getString(R.string.card_successfuly_paid_new_balance),
+            userBalance.balance,
+            userBalance.currencyCode
+        )
+        AlertDialog.Builder(requireContext(), R.style.SuccessDialogTheme).apply {
+            setView(dialogBinding.root)
+            setPositiveButton(android.R.string.ok, null)
+        }.show()
+        vm.setOriginalCardData(null, null)
+        vm.clearCart()
+        vm.clearVouchers()
+        findNavController().navigate(
+            ScanCardFragmentDirections.actionScanCardFragmentToProductsFragment()
+        )
+    }
+
+    private fun onPaymentFailed(throwable: Throwable) {
+        mainVM.errorSLE.call()
+        vm.setPaymentState(PaymentStateEnum.READY)
+        when (throwable) {
+            is PINException -> {
+                Log.e(this.javaClass.simpleName, throwable.pinExceptionEnum.name)
+                mainVM.setToastMessage(getNfcCardErrorMessage(throwable.pinExceptionEnum))
+                when (throwable.pinExceptionEnum) {
+                    PINExceptionEnum.INCORRECT_PIN -> {
+                        paymentDisposable?.dispose()
+                        paymentDisposable = null
+                        vm.setPin(null)
+                        showPinDialogAndPayByCard()
+                    }
+                    PINExceptionEnum.PRESERVE_BALANCE -> {
+                        throwable.extraData?.let { originalBalance ->
+                            vm.setOriginalCardData(originalBalance.toDouble(), throwable.tagId)
+                        }
+                        payByCard()
+                    }
+                    else -> {
+                        payByCard()
+                    }
+                }
+            }
+            else -> {
+                Log.e(this.javaClass.simpleName, throwable)
+                mainVM.setToastMessage(getString(R.string.card_error))
+                payByCard()
+            }
+        }
+    }
 
     private fun getNfcCardErrorMessage(error: PINExceptionEnum): String {
         return when (error) {
@@ -175,11 +242,17 @@ class ScanCardFragment : Fragment() {
             PINExceptionEnum.INCORRECT_PIN -> getString(R.string.incorrect_pin)
             PINExceptionEnum.INSUFFICIENT_FUNDS -> getString(R.string.not_enough_money_on_card)
             PINExceptionEnum.TAG_LOST -> getString(R.string.tag_lost_card_error)
+            PINExceptionEnum.PRESERVE_BALANCE -> getString(R.string.tag_lost_card_error)
             else -> getString(R.string.card_error)
         }
     }
 
+    private fun navigateBack() {
+        findNavController().popBackStack()
+    }
+
     companion object {
+        const val PIN_KEY = "pin"
         private val TAG = ScanCardFragment::class.java.simpleName
     }
 }

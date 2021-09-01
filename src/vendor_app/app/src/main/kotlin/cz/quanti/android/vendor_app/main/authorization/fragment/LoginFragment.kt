@@ -57,10 +57,9 @@ class LoginFragment : Fragment() {
         if (BuildConfig.DEBUG) {
             loginBinding.settingsImageView.visibility = View.VISIBLE
             loginBinding.envTextView.visibility = View.VISIBLE
-            var defaultEnv = ApiEnvironments.DEV
-            val savedEnv = vm.getSavedApiHost()
-            savedEnv?.let {
-                defaultEnv = savedEnv
+            var defaultEnv = ApiEnvironments.STAGE
+            vm.getApiHost()?.let{
+                defaultEnv = it
             }
             loginBinding.envTextView.text = defaultEnv.name
             vm.setApiHost(defaultEnv)
@@ -80,7 +79,6 @@ class LoginFragment : Fragment() {
                     env?.let {
                         vm.setApiHost(it)
                         loginBinding.envTextView.text = it.name
-                        vm.saveApiHost(it)
                     }
                     true
                 }
@@ -102,7 +100,6 @@ class LoginFragment : Fragment() {
         if (vm.isVendorLoggedIn()) {
             if (vm.getCurrentVendorName().equals(BuildConfig.DEMO_ACCOUNT, true)) {
                 vm.setApiHost(ApiEnvironments.STAGE)
-                vm.saveApiHost(ApiEnvironments.STAGE)
             }
             findNavController().navigate(
                 LoginFragmentDirections.actionLoginFragmentToProductsFragment()
@@ -116,7 +113,6 @@ class LoginFragment : Fragment() {
 
                     if (loginBinding.usernameEditText.text.toString().equals(BuildConfig.DEMO_ACCOUNT, true)) {
                         vm.setApiHost(ApiEnvironments.STAGE)
-                        vm.saveApiHost(ApiEnvironments.STAGE)
                     }
 
                     loginBinding.loginButton.isEnabled = false

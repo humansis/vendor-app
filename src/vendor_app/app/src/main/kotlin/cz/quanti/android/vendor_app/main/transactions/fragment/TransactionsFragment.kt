@@ -66,7 +66,7 @@ class TransactionsFragment : Fragment() {
         transactionsBinding.unsyncedWarning.warningButton.setOnClickListener {
             vm.sync()
         }
-        val color = getBackgroundColor(requireContext(), loginVM.getSavedApiHost())
+        val color = getBackgroundColor(requireContext(), loginVM.getApiHost())
         transactionsBinding.shadowTop.background.setTint(color)
         transactionsBinding.shadowBottom.background.setTint(color)
     }

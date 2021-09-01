@@ -60,7 +60,7 @@ class InvoicesFragment : Fragment() {
         invoicesBinding.invoicesRecyclerView.setHasFixedSize(true)
         invoicesBinding.invoicesRecyclerView.layoutManager = viewManager
         invoicesBinding.invoicesRecyclerView.adapter = invoicesAdapter
-        val color = getBackgroundColor(requireContext(), loginVM.getSavedApiHost())
+        val color = getBackgroundColor(requireContext(), loginVM.getApiHost())
         invoicesBinding.shadowTop.background.setTint(color)
         invoicesBinding.shadowBottom.background.setTint(color)
     }

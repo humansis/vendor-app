@@ -21,6 +21,7 @@ import cz.quanti.android.vendor_app.databinding.DialogSuccessBinding
 import cz.quanti.android.vendor_app.databinding.FragmentScanCardBinding
 import cz.quanti.android.vendor_app.main.checkout.viewmodel.CheckoutViewModel
 import cz.quanti.android.vendor_app.main.checkout.viewmodel.CheckoutViewModel.PaymentStateEnum
+import cz.quanti.android.vendor_app.main.shop.fragment.ProductsFragment
 import io.reactivex.disposables.Disposable
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -155,6 +156,7 @@ class ScanCardFragment : Fragment() {
             val positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
             positiveButton.isEnabled = false
             positiveButton.setOnClickListener {
+                Log.d(TAG, "Dialog positive button clicked")
                 val pin = dialogBinding.pinEditText.text.toString()
                 if (pin.isEmpty()) {
                     mainVM.setToastMessage(getString(R.string.please_enter_pin))

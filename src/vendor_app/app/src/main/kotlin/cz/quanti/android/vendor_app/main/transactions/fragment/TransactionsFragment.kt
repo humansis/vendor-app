@@ -105,7 +105,7 @@ class TransactionsFragment : Fragment() {
                     }
                 }
             }, {
-                Log.e(it)
+                Log.e(TAG, it)
             })
     }
 
@@ -118,7 +118,7 @@ class TransactionsFragment : Fragment() {
                 transactionsAdapter.setData(it)
                 setMessage(getString(R.string.no_transactions_to_reimburse))
             }, {
-                Log.e(it)
+                Log.e(TAG, it)
             })
     }
 

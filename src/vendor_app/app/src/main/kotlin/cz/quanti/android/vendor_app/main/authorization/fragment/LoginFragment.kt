@@ -146,7 +146,7 @@ class LoginFragment : Fragment() {
                                     loginBinding.loginButton.isEnabled = true
                                     Log.e(TAG, it)
                                     if (it is LoginException) {
-                                        Log.d(it.message.toString())
+                                        Log.d(TAG, it.message.toString())
                                         when (it.state) {
                                             LoginExceptionState.NO_CONNECTION -> {
                                                 Toast.makeText(

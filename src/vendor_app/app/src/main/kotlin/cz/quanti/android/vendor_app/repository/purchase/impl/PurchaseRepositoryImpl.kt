@@ -42,7 +42,8 @@ class PurchaseRepositoryImpl(
                 cardPurchaseDao.insert(
                     CardPurchaseDbEntity(
                         purchaseId = id,
-                        card = purchase.smartcard
+                        card = purchase.smartcard,
+                        beneficiaryId = purchase.beneficiaryId
                     )
                 )
             }
@@ -109,11 +110,12 @@ class PurchaseRepositoryImpl(
                                             val purchase = Purchase(
                                                 smartcard = cardPurchaseDb.card,
                                                 createdAt = purchaseDb.createdAt,
-                                                dbId = purchaseDb.dbId
+                                                dbId = purchaseDb.dbId,
+                                                vendorId = purchaseDb.vendorId,
+                                                beneficiaryId = cardPurchaseDb.beneficiaryId
                                             )
                                             purchase.products.addAll(productsDb.map { convert(it) })
                                             purchase.vouchers.addAll(voucherPurchasesDb.map { it.voucher })
-                                            purchase.vendorId = purchaseDb.vendorId
                                             Single.just(purchase)
                                         }
                                 }
@@ -243,7 +245,8 @@ class PurchaseRepositoryImpl(
         return CardPurchaseApiEntity(
             products = purchase.products.map { convertToApi(it) },
             createdAt = purchase.createdAt,
-            vendorId = purchase.vendorId
+            vendorId = purchase.vendorId,
+            beneficiaryId = purchase.beneficiaryId,
         )
     }
 

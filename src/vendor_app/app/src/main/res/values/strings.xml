@@ -101,4 +101,8 @@
     <string name="payment_in_progress">Payment in progress\n\nDo not remove card</string>
     <string name="error_service_unavailable">Service is unavailable</string>
     <string name="no_products">No products</string>
+    <string name="all_products">All products</string>
+    <string name="categories">Categories</string>
+    <string name="show_products">Show all producs</string>
+    <string name="show_categories">Show product categories</string>
 </resources>

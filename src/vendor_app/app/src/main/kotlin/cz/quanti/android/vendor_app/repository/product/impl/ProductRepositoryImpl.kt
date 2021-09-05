@@ -44,7 +44,7 @@ class ProductRepositoryImpl(
         return Completable.fromCallable { productDao.insert(convert(product)) }
     }
 
-    private fun convert(dbEntity: ProductDbEntity): Product {
+    private fun convert(dbEntity: ProductDbEntity): Product { // TODO add category
         return Product().apply {
             this.id = dbEntity.id
             this.name = dbEntity.name

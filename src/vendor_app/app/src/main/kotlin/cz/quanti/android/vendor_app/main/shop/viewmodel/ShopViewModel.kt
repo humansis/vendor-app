@@ -1,7 +1,12 @@
 package cz.quanti.android.vendor_app.main.shop.viewmodel
 
+import android.content.Context
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.*
+import cz.quanti.android.vendor_app.R
 import cz.quanti.android.vendor_app.repository.AppPreferences
+import cz.quanti.android.vendor_app.repository.category.Category
+import cz.quanti.android.vendor_app.repository.category.CategoryType
 import cz.quanti.android.vendor_app.repository.product.ProductFacade
 import cz.quanti.android.vendor_app.repository.product.dto.Product
 import cz.quanti.android.vendor_app.repository.purchase.dto.SelectedProduct
@@ -23,6 +28,33 @@ class ShopViewModel(
     fun syncNeededObservable(): Observable<SynchronizationState> {
         return synchronizationManager.syncStateObservable()
             .filter { it == SynchronizationState.SUCCESS }
+    }
+
+    fun getCategories(): Observable<List<Category>> {
+        //return categoryFacade.getCategories() // TODO finish
+//        return Observable.empty() // TODO solve when empty
+        return Observable.just(mutableListOf(
+            Category(
+                1,
+                "dry foods",
+                CategoryType.FOOD
+            ),
+            Category(
+                2,
+                "wet foods",
+                CategoryType.FOOD
+            ),
+            Category(
+                3,
+                "drugs",
+                CategoryType.NONFOOD
+            ),
+            Category(
+                4,
+                "cash",
+                CategoryType.CASHBACK
+            )
+        ))
     }
 
     fun getProducts(): Observable<List<Product>> {

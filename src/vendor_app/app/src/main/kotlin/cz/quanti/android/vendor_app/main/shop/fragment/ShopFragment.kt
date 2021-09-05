@@ -1,6 +1,7 @@
 package cz.quanti.android.vendor_app.main.shop.fragment
 
 import android.app.AlertDialog
+import android.content.Context
 import android.os.Bundle
 import android.view.*
 import android.view.inputmethod.EditorInfo
@@ -8,9 +9,11 @@ import android.widget.*
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.toLiveData
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import cz.quanti.android.vendor_app.ActivityCallback
 import cz.quanti.android.vendor_app.MainActivity
@@ -18,24 +21,32 @@ import cz.quanti.android.vendor_app.MainActivity.OnTouchOutsideViewListener
 import cz.quanti.android.vendor_app.MainViewModel
 import cz.quanti.android.vendor_app.R
 import cz.quanti.android.vendor_app.databinding.DialogProductBinding
-import cz.quanti.android.vendor_app.databinding.FragmentProductsBinding
-import cz.quanti.android.vendor_app.main.shop.adapter.ShopAdapter
+import cz.quanti.android.vendor_app.databinding.FragmentShopBinding
+import cz.quanti.android.vendor_app.main.shop.adapter.CategoriesAdapter
+import cz.quanti.android.vendor_app.main.shop.adapter.ProductsAdapter
 import cz.quanti.android.vendor_app.main.shop.viewmodel.ShopViewModel
+import cz.quanti.android.vendor_app.repository.category.Category
+import cz.quanti.android.vendor_app.repository.category.CategoryType
 import cz.quanti.android.vendor_app.repository.product.dto.Product
 import cz.quanti.android.vendor_app.repository.purchase.dto.SelectedProduct
 import cz.quanti.android.vendor_app.utils.getStringFromDouble
 import io.reactivex.BackpressureStrategy
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
+import com.google.android.material.appbar.AppBarLayout
+import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.recyclerview.widget.RecyclerView
 
-class ProductsFragment : Fragment(), OnTouchOutsideViewListener {
+class ShopFragment : Fragment(), OnTouchOutsideViewListener {
 
     private val mainVM: MainViewModel by sharedViewModel()
     private val vm: ShopViewModel by viewModel()
-    private lateinit var productsAdapter: ShopAdapter
-    private lateinit var productsBinding: FragmentProductsBinding
+    private lateinit var categoriesAdapter: CategoriesAdapter
+    private lateinit var productsAdapter: ProductsAdapter
+    private lateinit var shopBinding: FragmentShopBinding
     private lateinit var activityCallback: ActivityCallback
     private var chosenCurrency: String = ""
+    private var categoriesAllowed = MutableLiveData<Boolean>()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -44,27 +55,32 @@ class ProductsFragment : Fragment(), OnTouchOutsideViewListener {
     ): View {
         activityCallback = requireActivity() as ActivityCallback
         activityCallback.setToolbarVisible(true)
-        activityCallback.setSubtitle(getString(R.string.app_name))
+        activityCallback.setSubtitle(getString(R.string.products))
         activityCallback.getNavView().setCheckedItem(R.id.shop_button)
 
-        productsBinding = FragmentProductsBinding.inflate(inflater, container, false)
+        shopBinding = FragmentShopBinding.inflate(inflater, container, false)
 
         requireActivity().onBackPressedDispatcher.addCallback(
             viewLifecycleOwner,
             object : OnBackPressedCallback(true) {
                 override fun handleOnBackPressed() {
-                    // TODO update after product categories are introduced
-                    requireActivity().finish()
+                    if (!shopBinding.categoriesAppBarLayout.isAppBarExpanded() && categoriesAllowed.value == true) {
+                        clearQuery()
+                        openCategories()
+                    } else {
+                        requireActivity().finish()
+                    }
                 }
             }
         )
 
-        return productsBinding.root
+        return shopBinding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        productsBinding.productsMessage.text = getString(R.string.loading)
+        shopBinding.productsMessage.text = getString(R.string.loading)
+        initCategoriesAdapter()
         initProductsAdapter()
         initObservers()
         initSearchBar()
@@ -77,28 +93,46 @@ class ProductsFragment : Fragment(), OnTouchOutsideViewListener {
     }
 
     override fun onStop() {
-        // colapse searchbar after eventual screen rotation
-        productsBinding.productsSearchBar.onActionViewCollapsed()
+        // collapse searchbar after eventual screen rotation
+        shopBinding.shopSearchBar.onActionViewCollapsed()
         super.onStop()
     }
 
     override fun onTouchOutside(view: View?, event: MotionEvent?) {
-        if (!productsBinding.productsSearchBar.isIconified) {
-            productsBinding.productsSearchBar.clearFocus()
-            if (productsBinding.productsSearchBar.query.isEmpty()) {
-                productsBinding.productsSearchBar.isIconified = true
+        if (!shopBinding.shopSearchBar.isIconified) {
+            shopBinding.shopSearchBar.clearFocus()
+            if (shopBinding.shopSearchBar.query.isEmpty()) {
+                shopBinding.shopSearchBar.isIconified = true
             }
         }
     }
 
+    private fun clearQuery() {
+        productsAdapter.filter.filter("")
+        shopBinding.shopSearchBar.clearFocus()
+        shopBinding.shopSearchBar.setQuery("", true)
+        shopBinding.shopSearchBar.isIconified = true
+    }
+
+    private fun initCategoriesAdapter() {
+        categoriesAdapter = CategoriesAdapter(this, requireContext())
+
+        val viewManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false )
+        //val viewManager = GridLayoutManager(activity, gridColumns()) TODO poresit s jakubem jestli je linear lepsi ?
+
+        shopBinding.categoriesRecyclerView.setHasFixedSize(true)
+        shopBinding.categoriesRecyclerView.layoutManager = viewManager
+        shopBinding.categoriesRecyclerView.adapter = categoriesAdapter
+    }
+
     private fun initProductsAdapter() {
-        productsAdapter = ShopAdapter(this, requireContext())
+        productsAdapter = ProductsAdapter(this, requireContext())
 
         val viewManager = GridLayoutManager(activity, gridColumns())
 
-        productsBinding.productsRecyclerView.setHasFixedSize(true)
-        productsBinding.productsRecyclerView.layoutManager = viewManager
-        productsBinding.productsRecyclerView.adapter = productsAdapter
+        shopBinding.productsRecyclerView.setHasFixedSize(true)
+        shopBinding.productsRecyclerView.layoutManager = viewManager
+        shopBinding.productsRecyclerView.adapter = productsAdapter
     }
 
     private fun gridColumns(): Int {
@@ -112,11 +146,12 @@ class ProductsFragment : Fragment(), OnTouchOutsideViewListener {
     }
 
     private fun initSearchBar() {
-        productsBinding.productsSearchBar.setOnClickListener {
-            productsBinding.productsSearchBar.isIconified = false
+        shopBinding.shopSearchBar.setOnClickListener {
+            shopBinding.shopSearchBar.isIconified = false
+            hideCategories(null)
         }
-        productsBinding.productsSearchBar.imeOptions = EditorInfo.IME_ACTION_DONE
-        productsBinding.productsSearchBar.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+        shopBinding.shopSearchBar.imeOptions = EditorInfo.IME_ACTION_DONE
+        shopBinding.shopSearchBar.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String): Boolean {
                 return false
             }
@@ -127,10 +162,32 @@ class ProductsFragment : Fragment(), OnTouchOutsideViewListener {
             }
         })
 
-        (activity as MainActivity).setOnTouchOutsideViewListener(productsBinding.productsSearchBar, this)
+        (activity as MainActivity).setOnTouchOutsideViewListener(shopBinding.shopSearchBar, this)
     }
 
     private fun initObservers() {
+        vm.getCategories().toFlowable(BackpressureStrategy.LATEST)
+            .toLiveData()
+            .observe(viewLifecycleOwner, { categories ->
+                if (categories.size > 1) {
+                    categoriesAllowed.value = true
+                    categoriesAdapter.setData(categories.addAllCategory(requireContext()))
+                } else {
+                    categoriesAllowed.value = false
+                }
+            })
+
+        categoriesAllowed.observe(viewLifecycleOwner, {
+            if (it) {
+                openCategories()
+                shopBinding.categoriesAppBarLayout.visibility = View.VISIBLE
+            } else {
+                hideCategories(null)
+                shopBinding.productsHeader.visibility = View.GONE // TODO vyresit proc se to neschovava
+                shopBinding.categoriesAppBarLayout.visibility = View.GONE
+            }
+        })
+
         vm.getProducts().toFlowable(BackpressureStrategy.LATEST)
             .toLiveData()
             .observe(viewLifecycleOwner, {
@@ -141,14 +198,14 @@ class ProductsFragment : Fragment(), OnTouchOutsideViewListener {
         vm.getSelectedProducts().observe(viewLifecycleOwner, { products ->
             when (products.size) {
                 EMPTY_CART_SIZE -> {
-                    productsBinding.cartBadge.visibility = View.GONE
-                    productsBinding.totalTextView.visibility = View.GONE
+                    shopBinding.cartBadge.visibility = View.GONE
+                    shopBinding.totalTextView.visibility = View.GONE
                 }
                 else -> {
                     actualizeTotal(products.map { it.price }.sum())
-                    productsBinding.totalTextView.visibility = View.VISIBLE
-                    productsBinding.cartBadge.visibility = View.VISIBLE
-                    productsBinding.cartBadge.text = products.size.toString()
+                    shopBinding.totalTextView.visibility = View.VISIBLE
+                    shopBinding.cartBadge.visibility = View.VISIBLE
+                    shopBinding.cartBadge.text = products.size.toString()
                 }
             }
         })
@@ -159,11 +216,40 @@ class ProductsFragment : Fragment(), OnTouchOutsideViewListener {
     }
 
     private fun initOnClickListeners() {
-        productsBinding.cartFAB.setOnClickListener {
+        shopBinding.cartFAB.setOnClickListener {
             findNavController().navigate(
-                ProductsFragmentDirections.actionProductsFragmentToCheckoutFragment()
+                ShopFragmentDirections.actionProductsFragmentToCheckoutFragment()
             )
         }
+
+        shopBinding.productsHeader.setOnClickListener {
+            shopBinding.productsRecyclerView.setScrollState(RecyclerView.SCROLL_STATE_IDLE)
+            clearQuery()
+            if (shopBinding.categoriesAppBarLayout.isAppBarExpanded()) {
+                hideCategories(null)
+            } else {
+                openCategories()
+            }
+        }
+    }
+
+    fun openCategory(category: Category) {
+        if (category.type != CategoryType.ALL) {
+            productsAdapter.filter.filter(category.name)
+        } else {
+            clearQuery()
+        }
+        hideCategories(category.name)
+    }
+
+    private fun openCategories() {
+        shopBinding.categoriesAppBarLayout.setExpanded(true)
+        shopBinding.productsHeader.text = getString(R.string.all_products)
+    }
+
+    private fun hideCategories(name: String?) {
+        shopBinding.categoriesAppBarLayout.setExpanded(false)
+        shopBinding.productsHeader.text = name ?: getString(R.string.all_products)
     }
 
     fun openProduct(product: Product) {
@@ -227,17 +313,17 @@ class ProductsFragment : Fragment(), OnTouchOutsideViewListener {
     }
 
     private fun setMessage() {
-        productsBinding.productsMessage.text = getString(R.string.no_products)
+        shopBinding.productsMessage.text = getString(R.string.no_products)
         if (productsAdapter.itemCount == 0) {
-            productsBinding.productsMessage.visibility = View.VISIBLE
+            shopBinding.productsMessage.visibility = View.VISIBLE
         } else {
-            productsBinding.productsMessage.visibility = View.GONE
+            shopBinding.productsMessage.visibility = View.GONE
         }
     }
 
     private fun actualizeTotal(total: Double) {
         val totalText = "${getString(R.string.total)}: ${getStringFromDouble(total)} ${vm.getCurrency().value}"
-        productsBinding.totalTextView.text = totalText
+        shopBinding.totalTextView.text = totalText
     }
 
     companion object {
@@ -247,4 +333,24 @@ class ProductsFragment : Fragment(), OnTouchOutsideViewListener {
         const val PORTRAIT_TABLET_COLUMNS = 4
         const val LANDSCAPE_TABLET_COLUMNS = 6
     }
+}
+
+private fun List<Category>.addAllCategory(context: Context): List<Category> {
+    return this.toMutableList().apply {
+        add(0, Category(0,
+            context.getString(R.string.all_products),
+            CategoryType.ALL
+        ))
+    }
+}
+
+private fun AppBarLayout.isAppBarExpanded(): Boolean {
+    val behavior = (this.layoutParams as CoordinatorLayout.LayoutParams).behavior
+    return if (behavior is AppBarLayout.Behavior) behavior.topAndBottomOffset == 0 else false
+}
+
+private fun RecyclerView.setScrollState(state: Int) {
+    val method = this::class.java.getDeclaredMethod("setScrollState", Int::class.java)
+    method.isAccessible = true
+    method.invoke(this, state)
 }

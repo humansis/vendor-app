@@ -11,13 +11,20 @@
 
     <color name="white">#FFFFFF</color>
     <color name="black">#0F0F0F</color>
+    <color name="lighterBlue">#cceeff</color>
+    <color name="lightBlue">#99ddff</color>
     <color name="darkBlue">#02617f</color>
     <color name="darkerBlue">#074F60</color>
+    <color name="lighterGreen">#ccffdd</color>
+    <color name="lightGreen">#99ffbb</color>
     <color name="green">#51c89e</color>
     <color name="darkGreen">#47aa96</color>
+    <color name="lighterGrey">#cccccc</color>
     <color name="lightGrey">#C5C5C5</color>
     <color name="grey">#888888</color>
     <color name="darkGrey">#FF424242</color>
     <color name="yellow">#cefa05</color>
     <color name="red">#ed5565</color>
+    <color name="lightOrange">#ffdd99</color>
+    <color name="lighterOrange">#ffeecc</color>
 </resources>

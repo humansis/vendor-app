@@ -172,7 +172,8 @@ object KoinInitializer {
             // View model
             viewModel {
                 MainViewModel(
-                    syncFacade
+                    syncFacade,
+                    currentVendor
                 )
             }
             viewModel {

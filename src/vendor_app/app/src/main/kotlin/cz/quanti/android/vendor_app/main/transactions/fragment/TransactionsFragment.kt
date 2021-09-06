@@ -137,15 +137,10 @@ class TransactionsFragment : Fragment() {
 
     private fun setMessage(message: String) {
         transactionsBinding.transactionsMessage.text = message
-        if (transactionsAdapter.itemCount == 0) {
-            transactionsBinding.transactionsMessage.visibility = View.VISIBLE
-        } else {
-            transactionsBinding.transactionsMessage.visibility = View.GONE
-        }
     }
 
-    private fun setMessageVisible (boolean: Boolean) {
-        if (boolean) {
+    private fun setMessageVisible (visible: Boolean) {
+        if (visible) {
             transactionsBinding.transactionsMessage.visibility = View.VISIBLE
         } else {
             transactionsBinding.transactionsMessage.visibility = View.GONE

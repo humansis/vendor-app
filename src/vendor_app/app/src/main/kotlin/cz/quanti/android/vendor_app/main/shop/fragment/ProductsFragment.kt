@@ -261,8 +261,8 @@ class ProductsFragment : Fragment(), OnTouchOutsideViewListener {
         productsBinding.productsMessage.text = message
     }
 
-    private fun setMessageVisible (boolean: Boolean) {
-        if (boolean) {
+    private fun setMessageVisible (visible: Boolean) {
+        if (visible) {
             productsBinding.productsMessage.visibility = View.VISIBLE
         } else {
             productsBinding.productsMessage.visibility = View.GONE

@@ -116,15 +116,10 @@ class InvoicesFragment : Fragment() {
 
     private fun setMessage(message: String) {
         invoicesBinding.invoicesMessage.text = message
-        if (invoicesAdapter.itemCount == 0) {
-            invoicesBinding.invoicesMessage.visibility = View.VISIBLE
-        } else {
-            invoicesBinding.invoicesMessage.visibility = View.GONE
-        }
     }
 
-    private fun setMessageVisible (boolean: Boolean) {
-        if (boolean) {
+    private fun setMessageVisible (visible: Boolean) {
+        if (visible) {
             invoicesBinding.invoicesMessage.visibility = View.VISIBLE
         } else {
             invoicesBinding.invoicesMessage.visibility = View.GONE

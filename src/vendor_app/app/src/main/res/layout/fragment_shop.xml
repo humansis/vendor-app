@@ -42,7 +42,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:fitsSystemWindows="true"
-            android:background="@color/screenBackgroundColor"
+            tools:background="@color/screenBackgroundColor"
             app:elevation="0dp">
 
             <androidx.recyclerview.widget.RecyclerView

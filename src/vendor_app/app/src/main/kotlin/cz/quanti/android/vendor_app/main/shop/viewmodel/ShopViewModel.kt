@@ -29,8 +29,8 @@ class ShopViewModel(
     }
 
     fun getCategories(): Observable<List<Category>> {
-        return categoryFacade.getCategories() // TODO finish
-        //return Observable.empty()
+        //return categoryFacade.getCategories() // TODO finish
+        return Observable.empty()
 //        return Observable.just(mutableListOf(
 //            Category(
 //                1,

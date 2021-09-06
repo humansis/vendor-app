@@ -37,10 +37,13 @@ import com.google.android.material.appbar.AppBarLayout
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.appbar.AppBarLayout.OnOffsetChangedListener
+import cz.quanti.android.vendor_app.main.authorization.viewmodel.LoginViewModel
+import cz.quanti.android.vendor_app.utils.getBackgroundColor
 import kotlin.math.abs
 
 class ShopFragment : Fragment(), OnTouchOutsideViewListener {
 
+    private val loginVM: LoginViewModel by viewModel()
     private val mainVM: MainViewModel by sharedViewModel()
     private val vm: ShopViewModel by viewModel()
     private lateinit var categoriesAdapter: CategoriesAdapter
@@ -82,6 +85,9 @@ class ShopFragment : Fragment(), OnTouchOutsideViewListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         shopBinding.productsMessage.text = getString(R.string.loading)
+        shopBinding.categoriesAppBarLayout.background.setTint(
+            getBackgroundColor(requireContext(), loginVM.getApiHost())
+        )
         initCategoriesAdapter()
         initProductsAdapter()
         initObservers()
@@ -236,7 +242,7 @@ class ShopFragment : Fragment(), OnTouchOutsideViewListener {
 
     private fun setAppBarHidden(boolean: Boolean) {
         if (boolean) {
-            shopBinding.categoriesAppBarLayout.layoutParams.height = 0
+            shopBinding.categoriesAppBarLayout.layoutParams.height = 0 // TODO vyresit proc to zas nejde
         } else {
             shopBinding.categoriesAppBarLayout.layoutParams.height = AppBarLayout.LayoutParams.WRAP_CONTENT
         }

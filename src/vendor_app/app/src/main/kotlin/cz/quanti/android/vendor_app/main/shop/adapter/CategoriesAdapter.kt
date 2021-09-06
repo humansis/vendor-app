@@ -13,8 +13,8 @@ import cz.quanti.android.vendor_app.R
 import cz.quanti.android.vendor_app.databinding.ItemCategoryBinding
 import cz.quanti.android.vendor_app.main.shop.fragment.ShopFragment
 import cz.quanti.android.vendor_app.main.shop.viewholder.CategoryViewHolder
-import cz.quanti.android.vendor_app.repository.category.Category
-import cz.quanti.android.vendor_app.repository.category.CategoryType
+import cz.quanti.android.vendor_app.repository.category.dto.Category
+import cz.quanti.android.vendor_app.repository.category.dto.CategoryType
 import org.koin.core.component.KoinComponent
 
 class CategoriesAdapter(

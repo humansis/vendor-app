@@ -2,8 +2,8 @@ package cz.quanti.android.vendor_app.main.shop.viewmodel
 
 import androidx.lifecycle.*
 import cz.quanti.android.vendor_app.repository.AppPreferences
-import cz.quanti.android.vendor_app.repository.category.Category
-import cz.quanti.android.vendor_app.repository.category.CategoryType
+import cz.quanti.android.vendor_app.repository.category.CategoryFacade
+import cz.quanti.android.vendor_app.repository.category.dto.Category
 import cz.quanti.android.vendor_app.repository.product.ProductFacade
 import cz.quanti.android.vendor_app.repository.product.dto.Product
 import cz.quanti.android.vendor_app.repository.purchase.dto.SelectedProduct
@@ -16,6 +16,7 @@ import io.reactivex.Observable
 
 class ShopViewModel(
     private val shoppingHolder: ShoppingHolder,
+    private val categoryFacade: CategoryFacade,
     private val productFacade: ProductFacade,
     private val currentVendor: CurrentVendor,
     private val synchronizationManager: SynchronizationManager,
@@ -28,35 +29,35 @@ class ShopViewModel(
     }
 
     fun getCategories(): Observable<List<Category>> {
-        //return categoryFacade.getCategories() // TODO finish
+        return categoryFacade.getCategories() // TODO finish
         //return Observable.empty()
-        return Observable.just(mutableListOf(
-            Category(
-                1,
-                "dry foods",
-                CategoryType.FOOD
-            ),
-            Category(
-                2,
-                "wet foods",
-                CategoryType.FOOD
-            ),
-            Category(
-                3,
-                "drugs",
-                CategoryType.NONFOOD
-            ),
-            Category(
-                4,
-                "tools",
-                CategoryType.NONFOOD
-            ),
-            Category(
-                5,
-                "cash",
-                CategoryType.CASHBACK
-            )
-        ))
+//        return Observable.just(mutableListOf(
+//            Category(
+//                1,
+//                "dry foods",
+//                CategoryType.FOOD
+//            ),
+//            Category(
+//                2,
+//                "wet foods",
+//                CategoryType.FOOD
+//            ),
+//            Category(
+//                3,
+//                "drugs",
+//                CategoryType.NONFOOD
+//            ),
+//            Category(
+//                4,
+//                "tools",
+//                CategoryType.NONFOOD
+//            ),
+//            Category(
+//                5,
+//                "cash",
+//                CategoryType.CASHBACK
+//            )
+//        ))
     }
 
     fun getProducts(): Observable<List<Product>> {

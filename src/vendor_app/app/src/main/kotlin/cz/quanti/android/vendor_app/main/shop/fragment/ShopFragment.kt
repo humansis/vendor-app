@@ -25,8 +25,8 @@ import cz.quanti.android.vendor_app.databinding.FragmentShopBinding
 import cz.quanti.android.vendor_app.main.shop.adapter.CategoriesAdapter
 import cz.quanti.android.vendor_app.main.shop.adapter.ProductsAdapter
 import cz.quanti.android.vendor_app.main.shop.viewmodel.ShopViewModel
-import cz.quanti.android.vendor_app.repository.category.Category
-import cz.quanti.android.vendor_app.repository.category.CategoryType
+import cz.quanti.android.vendor_app.repository.category.dto.Category
+import cz.quanti.android.vendor_app.repository.category.dto.CategoryType
 import cz.quanti.android.vendor_app.repository.product.dto.Product
 import cz.quanti.android.vendor_app.repository.purchase.dto.SelectedProduct
 import cz.quanti.android.vendor_app.utils.getStringFromDouble
@@ -344,7 +344,8 @@ private fun List<Category>.addAllCategory(context: Context): List<Category> {
         add(0, Category(0,
             context.getString(R.string.all_products),
             CategoryType.ALL
-        ))
+        )
+        )
     }
 }
 

@@ -24,6 +24,8 @@ import cz.quanti.android.vendor_app.repository.booklet.impl.BookletRepositoryImp
 import cz.quanti.android.vendor_app.repository.card.CardFacade
 import cz.quanti.android.vendor_app.repository.card.impl.CardFacadeImpl
 import cz.quanti.android.vendor_app.repository.card.impl.CardRepositoryImpl
+import cz.quanti.android.vendor_app.repository.category.CategoryFacade
+import cz.quanti.android.vendor_app.repository.category.impl.CategoryFacadeImpl
 import cz.quanti.android.vendor_app.repository.invoice.InvoiceFacade
 import cz.quanti.android.vendor_app.repository.invoice.impl.InvoiceFacadeImpl
 import cz.quanti.android.vendor_app.repository.invoice.impl.InvoiceRepositoryImpl
@@ -133,6 +135,7 @@ object KoinInitializer {
 
         // Facade
         val loginFacade: LoginFacade = LoginFacadeImpl(loginRepo, loginManager, currentVendor)
+        val categoryFacade: CategoryFacade = CategoryFacadeImpl()
         val productFacade: ProductFacade = ProductFacadeImpl(productRepo, app.applicationContext)
         val bookletFacade: BookletFacade = BookletFacadeImpl(bookletRepo)
         val cardFacade: CardFacade = CardFacadeImpl(cardRepo)
@@ -186,6 +189,7 @@ object KoinInitializer {
             viewModel {
                 ShopViewModel(
                     shoppingHolder,
+                    categoryFacade,
                     productFacade,
                     currentVendor,
                     synchronizationManager,

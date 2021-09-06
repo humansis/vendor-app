@@ -1,6 +1,6 @@
 package cz.quanti.android.vendor_app.repository.product.dto
 
-import cz.quanti.android.vendor_app.repository.category.Category
+import cz.quanti.android.vendor_app.repository.category.dto.Category
 
 data class Product(
     var id: Long = 0,

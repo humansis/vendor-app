@@ -1,4 +1,4 @@
-package cz.quanti.android.vendor_app.repository.category
+package cz.quanti.android.vendor_app.repository.category.dto
 
 data class Category(
     var id: Long = 0,

@@ -234,6 +234,7 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
 
     private fun clearCart() {
         vm.clearCart()
+        navigateBack()
     }
 
     private fun showIfCartEmpty(notEmpty: Boolean) {

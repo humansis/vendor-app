@@ -39,6 +39,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.appbar.AppBarLayout.OnOffsetChangedListener
 import cz.quanti.android.vendor_app.main.authorization.viewmodel.LoginViewModel
 import cz.quanti.android.vendor_app.utils.getBackgroundColor
+import quanti.com.kotlinlog.Log
 import kotlin.math.abs
 
 class ShopFragment : Fragment(), OnTouchOutsideViewListener {
@@ -154,6 +155,7 @@ class ShopFragment : Fragment(), OnTouchOutsideViewListener {
 
     private fun initSearchBar() {
         shopBinding.shopSearchBar.setOnClickListener {
+            Log.d(TAG, "SearchBar clicked")
             shopBinding.shopSearchBar.isIconified = false
             showCategories(false, null)
         }
@@ -228,12 +230,14 @@ class ShopFragment : Fragment(), OnTouchOutsideViewListener {
 
     private fun initOnClickListeners() {
         shopBinding.cartFAB.setOnClickListener {
+            Log.d(TAG, "Cart FAB clicked")
             findNavController().navigate(
                 ShopFragmentDirections.actionProductsFragmentToCheckoutFragment()
             )
         }
 
         shopBinding.productsHeader.setOnClickListener {
+            Log.d(TAG, "Cart products header clicked")
             shopBinding.productsRecyclerView.setScrollState(RecyclerView.SCROLL_STATE_IDLE)
             clearQuery()
             showCategories(!shopBinding.categoriesAppBarLayout.isAppBarExpanded(), null)
@@ -291,11 +295,13 @@ class ShopFragment : Fragment(), OnTouchOutsideViewListener {
         dialogBinding.editProduct.priceTextInputLayout.suffixText = chosenCurrency
 
         dialogBinding.closeButton.setOnClickListener {
+            Log.d(TAG, "Close product options button clicked")
             dialog.dismiss()
         }
 
         confirmButton.text = requireContext().getString(R.string.add_to_cart)
         confirmButton.setOnClickListener {
+            Log.d(TAG, "Confirm product options clicked")
             try {
                 val price = priceEditText.text.toString().toDouble()
                 if (price <= INVALID_PRICE_VALUE) {
@@ -337,6 +343,7 @@ class ShopFragment : Fragment(), OnTouchOutsideViewListener {
     }
 
     companion object {
+        private val TAG = ShopFragment::class.java.simpleName
         const val EMPTY_CART_SIZE = 0
         const val INVALID_PRICE_VALUE = 0.0
         const val PORTRAIT_PHONE_COLUMNS = 3

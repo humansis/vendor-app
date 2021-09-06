@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.animation.Animation
 import android.view.animation.RotateAnimation
+import android.view.inputmethod.EditorInfo
 import android.widget.PopupMenu
 import android.widget.Toast
 import androidx.fragment.app.Fragment
@@ -25,6 +26,8 @@ import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import quanti.com.kotlinlog.Log
+import cz.quanti.android.vendor_app.utils.hideKeyboard
+
 
 class LoginFragment : Fragment() {
 
@@ -54,10 +57,9 @@ class LoginFragment : Fragment() {
         if (BuildConfig.DEBUG) {
             loginBinding.settingsImageView.visibility = View.VISIBLE
             loginBinding.envTextView.visibility = View.VISIBLE
-            var defaultEnv = ApiEnvironments.DEV
-            val savedEnv = vm.getSavedApiHost()
-            savedEnv?.let {
-                defaultEnv = savedEnv
+            var defaultEnv = ApiEnvironments.STAGE
+            vm.getApiHost()?.let{
+                defaultEnv = it
             }
             loginBinding.envTextView.text = defaultEnv.name
             vm.setApiHost(defaultEnv)
@@ -78,7 +80,6 @@ class LoginFragment : Fragment() {
                     env?.let {
                         vm.setApiHost(it)
                         loginBinding.envTextView.text = it.name
-                        vm.saveApiHost(it)
                     }
                     true
                 }
@@ -89,10 +90,17 @@ class LoginFragment : Fragment() {
             loginBinding.envTextView.visibility = View.INVISIBLE
         }
 
+        loginBinding.passwordEditText.setOnEditorActionListener { _, actionId, _ ->
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
+                loginBinding.loginButton.performClick()
+                return@setOnEditorActionListener true
+            }
+            return@setOnEditorActionListener false
+        }
+
         if (vm.isVendorLoggedIn()) {
             if (vm.getCurrentVendorName().equals(BuildConfig.DEMO_ACCOUNT, true)) {
                 vm.setApiHost(ApiEnvironments.STAGE)
-                vm.saveApiHost(ApiEnvironments.STAGE)
             }
             findNavController().navigate(
                 LoginFragmentDirections.actionLoginFragmentToProductsFragment()
@@ -102,10 +110,10 @@ class LoginFragment : Fragment() {
             loginBinding.loginButton.isEnabled = true
             loginBinding.loginButton.setOnClickListener {
                 Log.d(TAG, "Login button clicked.")
+                hideKeyboard()
                 if (loginBinding.usernameEditText.text.toString().isNotEmpty() && loginBinding.passwordEditText.text.toString().isNotEmpty()) {
                     if (loginBinding.usernameEditText.text.toString().equals(BuildConfig.DEMO_ACCOUNT, true)) {
                         vm.setApiHost(ApiEnvironments.STAGE)
-                        vm.saveApiHost(ApiEnvironments.STAGE)
                     }
 
                     loginBinding.loginButton.isEnabled = false

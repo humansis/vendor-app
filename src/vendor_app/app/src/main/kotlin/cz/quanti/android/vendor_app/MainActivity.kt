@@ -63,6 +63,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
     private val shopVM: ShopViewModel by viewModel()
     private var displayedDialog: AlertDialog? = null
     private var disposable: Disposable? = null
+    private var environmentDisposable: Disposable? = null
     private var connectionDisposable: Disposable? = null
     private var syncStateDisposable: Disposable? = null
     private var syncDisposable: Disposable? = null
@@ -93,10 +94,11 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
         connectionObserver = ConnectionObserver(this)
         connectionObserver.registerCallback()
 
+        mainVM.initNfcAdapter(this)
+
         setUpToolbar()
         setUpNavigationMenu()
-
-        mainVM.initNfcAdapter(this)
+        setUpBackground()
 
         mainVM.successSLE.observe(this, {
             vibrate(this)
@@ -236,6 +238,23 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
             logout()
             activityBinding.drawerLayout.closeDrawer(GravityCompat.START)
         }
+    }
+
+    private fun setUpBackground() {
+        environmentDisposable?.dispose()
+        environmentDisposable = mainVM.getCurrentEnvironment()
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(
+                { environment ->
+                    val color = getBackgroundColor(this, environment)
+                    activityBinding.appBar.toolbar.setBackgroundColor(color)
+                    activityBinding.appBar.contentMain.navHostFragment.setBackgroundColor(color)
+                },
+                {
+                    Log.e(it)
+                }
+            )
     }
 
     @Suppress("DEPRECATION")

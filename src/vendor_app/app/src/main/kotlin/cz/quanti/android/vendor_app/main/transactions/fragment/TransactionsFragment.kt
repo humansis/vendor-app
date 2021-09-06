@@ -12,9 +12,11 @@ import cz.quanti.android.vendor_app.ActivityCallback
 import cz.quanti.android.vendor_app.MainNavigationDirections
 import cz.quanti.android.vendor_app.R
 import cz.quanti.android.vendor_app.databinding.FragmentTransactionsBinding
+import cz.quanti.android.vendor_app.main.authorization.viewmodel.LoginViewModel
 import cz.quanti.android.vendor_app.main.transactions.adapter.TransactionsAdapter
 import cz.quanti.android.vendor_app.main.transactions.viewmodel.TransactionsViewModel
 import cz.quanti.android.vendor_app.sync.SynchronizationState
+import cz.quanti.android.vendor_app.utils.getBackgroundColor
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
@@ -22,7 +24,7 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 import quanti.com.kotlinlog.Log
 
 class TransactionsFragment : Fragment() {
-
+    private val loginVM: LoginViewModel by viewModel()
     private val vm: TransactionsViewModel by viewModel()
     private lateinit var transactionsAdapter: TransactionsAdapter
     private lateinit var transactionsBinding: FragmentTransactionsBinding
@@ -65,6 +67,9 @@ class TransactionsFragment : Fragment() {
             Log.d(TAG, "Sync button clicked")
             vm.sync()
         }
+        val color = getBackgroundColor(requireContext(), loginVM.getApiHost())
+        transactionsBinding.shadowTop.background.setTint(color)
+        transactionsBinding.shadowBottom.background.setTint(color)
     }
 
     override fun onStart() {

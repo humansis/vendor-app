@@ -14,6 +14,7 @@ import cz.quanti.android.vendor_app.databinding.ItemTransactionBinding
 import cz.quanti.android.vendor_app.main.transactions.viewholder.TransactionsViewHolder
 import cz.quanti.android.vendor_app.repository.transaction.dto.Transaction
 import cz.quanti.android.vendor_app.utils.convertStringToDate
+import quanti.com.kotlinlog.Log
 
 class TransactionsAdapter(
     private val context: Context
@@ -42,12 +43,14 @@ class TransactionsAdapter(
         holder.tableToggle.setImageResource(R.drawable.ic_baseline_keyboard_arrow_down_24)
         holder.cardView.setOnClickListener {
             if (holder.purchasesTable.visibility == View.GONE) {
+                Log.d(TAG, "Transactions table opened.")
                 if (holder.purchasesTable.isEmpty()) {
                     loadTable(item, holder)
                 }
                 holder.purchasesTable.visibility = View.VISIBLE
                 holder.tableToggle.setImageResource(R.drawable.ic_baseline_keyboard_arrow_up_24)
             } else {
+                Log.d(TAG, "Transactions table closed.")
                 holder.purchasesTable.visibility = View.GONE
                 holder.tableToggle.setImageResource(R.drawable.ic_baseline_keyboard_arrow_down_24)
             }
@@ -89,4 +92,9 @@ class TransactionsAdapter(
         transactions.addAll(data)
         notifyDataSetChanged()
     }
+
+    companion object {
+        private val TAG = TransactionsAdapter::class.java.simpleName
+    }
+
 }

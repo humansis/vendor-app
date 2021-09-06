@@ -103,7 +103,7 @@ class InvoicesFragment : Fragment() {
                 invoicesAdapter.setData(invoices)
                 setMessage(getString(R.string.no_reimbursed_invoices))
             }, {
-                Log.e(it)
+                Log.e(TAG, it)
             })
     }
 
@@ -120,5 +120,9 @@ class InvoicesFragment : Fragment() {
         } else {
             invoicesBinding.invoicesMessage.visibility = View.GONE
         }
+    }
+
+    companion object {
+        private val TAG = InvoicesFragment::class.java.simpleName
     }
 }

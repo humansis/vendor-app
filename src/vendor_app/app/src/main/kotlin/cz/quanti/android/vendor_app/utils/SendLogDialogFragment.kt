@@ -14,6 +14,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import quanti.com.kotlinlog.Log
 import quanti.com.kotlinlog.R
 import quanti.com.kotlinlog.utils.copyLogsTOSDCard
 import quanti.com.kotlinlog.utils.getFormattedFileNameDayNow
@@ -39,6 +40,7 @@ class SendLogDialogFragment : DialogFragment() {
         const val SEND_EMAIL_ADDRESSES = "send_address"
         const val EXTRA_FILES = "extra_files"
         const val DIALOG_THEME = "dialog_theme"
+        private val TAG = SendLogDialogFragment::class.java.simpleName
 
         @JvmOverloads
         @JvmStatic
@@ -128,6 +130,7 @@ class SendLogDialogFragment : DialogFragment() {
      */
     @Suppress("UNUSED_PARAMETER")
     private fun positiveButtonClick(dialog: DialogInterface, which: Int) = runBlocking {
+        Log.d(TAG, "Share logs clicked.")
 
         val appContext = this@SendLogDialogFragment.requireContext().applicationContext
 
@@ -139,6 +142,7 @@ class SendLogDialogFragment : DialogFragment() {
         val zipFileUri = zipFile?.await()?.getUriForFile(appContext)
 
         val intent = Intent(Intent.ACTION_SEND).apply {
+            type = "message/rfc822" //email
             type = "message/rfc822" // email
             flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
             putExtra(Intent.EXTRA_EMAIL, addresses)
@@ -156,6 +160,7 @@ class SendLogDialogFragment : DialogFragment() {
                 Toast.LENGTH_LONG
             ).show()
         }
+
     }
 
     /**
@@ -164,6 +169,7 @@ class SendLogDialogFragment : DialogFragment() {
      */
     @Suppress("UNUSED_PARAMETER")
     private fun neutralButtonClick(dialog: DialogInterface, which: Int) {
+        Log.d(TAG, "Save file button clicked.")
 
         val appContext = this@SendLogDialogFragment.requireContext().applicationContext
 

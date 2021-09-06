@@ -64,6 +64,7 @@ class TransactionsFragment : Fragment() {
         transactionsBinding.transactionsRecyclerView.adapter = transactionsAdapter
         transactionsBinding.unsyncedWarning.root.visibility = View.GONE
         transactionsBinding.unsyncedWarning.warningButton.setOnClickListener {
+            Log.d(TAG, "Sync button clicked")
             vm.sync()
         }
         val color = getBackgroundColor(requireContext(), loginVM.getApiHost())
@@ -109,7 +110,7 @@ class TransactionsFragment : Fragment() {
                     }
                 }
             }, {
-                Log.e(it)
+                Log.e(TAG, it)
             })
     }
 
@@ -122,9 +123,10 @@ class TransactionsFragment : Fragment() {
                 transactionsAdapter.setData(it)
                 setMessage(getString(R.string.no_transactions_to_reimburse))
             }, {
-                Log.e(it)
+                Log.e(TAG, it)
             })
     }
+
 
     override fun onStop() {
         super.onStop()
@@ -139,5 +141,9 @@ class TransactionsFragment : Fragment() {
         } else {
             transactionsBinding.transactionsMessage.visibility = View.GONE
         }
+    }
+
+    companion object {
+        private val TAG = TransactionsFragment::class.java.simpleName
     }
 }

@@ -119,6 +119,7 @@ class ProductsFragment : Fragment(), OnTouchOutsideViewListener {
 
     private fun initSearchBar() {
         productsBinding.productsSearchBar.setOnClickListener {
+            Log.d(TAG, "SearchBar clicked")
             productsBinding.productsSearchBar.isIconified = false
         }
         productsBinding.productsSearchBar.imeOptions = EditorInfo.IME_ACTION_DONE
@@ -189,6 +190,7 @@ class ProductsFragment : Fragment(), OnTouchOutsideViewListener {
 
     private fun initOnClickListeners() {
         productsBinding.cartFAB.setOnClickListener {
+            Log.d(TAG, "Cart FAB clicked")
             findNavController().navigate(
                 ProductsFragmentDirections.actionProductsFragmentToCheckoutFragment()
             )
@@ -224,11 +226,13 @@ class ProductsFragment : Fragment(), OnTouchOutsideViewListener {
         dialogBinding.editProduct.priceTextInputLayout.suffixText = chosenCurrency
 
         dialogBinding.closeButton.setOnClickListener {
+            Log.d(TAG, "Close product options button clicked")
             dialog.dismiss()
         }
 
         confirmButton.text = requireContext().getString(R.string.add_to_cart)
         confirmButton.setOnClickListener {
+            Log.d(TAG, "Confirm product options clicked")
             try {
                 val price = priceEditText.text.toString().toDouble()
                 if (price <= INVALID_PRICE_VALUE) {
@@ -270,6 +274,7 @@ class ProductsFragment : Fragment(), OnTouchOutsideViewListener {
     }
 
     companion object {
+        private val TAG = ProductsFragment::class.java.simpleName
         const val EMPTY_CART_SIZE = 0
         const val INVALID_PRICE_VALUE = 0.0
         const val PORTRAIT_PHONE_COLUMNS = 3

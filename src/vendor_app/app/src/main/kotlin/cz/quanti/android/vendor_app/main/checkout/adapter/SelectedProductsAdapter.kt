@@ -11,9 +11,11 @@ import cz.quanti.android.vendor_app.R
 import cz.quanti.android.vendor_app.databinding.ItemShoppingCartBinding
 import cz.quanti.android.vendor_app.main.checkout.callback.CheckoutFragmentCallback
 import cz.quanti.android.vendor_app.main.checkout.viewholder.SelectedProductsViewHolder
+import cz.quanti.android.vendor_app.main.shop.fragment.ProductsFragment
 import cz.quanti.android.vendor_app.repository.purchase.dto.SelectedProduct
 import cz.quanti.android.vendor_app.utils.getStringFromDouble
 import cz.quanti.android.vendor_app.utils.round
+import quanti.com.kotlinlog.Log
 import java.math.BigDecimal
 
 class SelectedProductsAdapter(
@@ -49,18 +51,22 @@ class SelectedProductsAdapter(
         holder.price.text = price
 
         holder.itemView.setOnClickListener {
+            Log.d(TAG, "Product clicked")
             expandCard(holder, item)
         }
 
         holder.close.setOnClickListener {
+            Log.d(TAG, "Close button clicked")
             closeCard(holder)
         }
 
         holder.remove.setOnClickListener {
+            Log.d(TAG, "Remove button clicked")
             checkoutFragmentCallback.removeItemFromCart(item)
         }
 
         holder.confirm.setOnClickListener {
+            Log.d(TAG, "Update button clicked")
             updateProduct(item, holder)
         }
     }
@@ -121,5 +127,9 @@ class SelectedProductsAdapter(
 
     fun closeExpandedCard() {
         expandedCardHolder?.let { closeCard(it) }
+    }
+
+    companion object {
+        private val TAG = SelectedProductsAdapter::class.java.simpleName
     }
 }

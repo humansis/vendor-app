@@ -65,6 +65,7 @@ class LoginFragment : Fragment() {
             vm.setApiHost(defaultEnv)
 
             loginBinding.settingsImageView.setOnClickListener {
+                Log.d(TAG, "Environment menu opened.")
                 val contextThemeWrapper =
                     ContextThemeWrapper(requireContext(), R.style.PopupMenuTheme)
                 val popup = PopupMenu(contextThemeWrapper, loginBinding.settingsImageView)
@@ -108,9 +109,9 @@ class LoginFragment : Fragment() {
             loginBinding.logoImageView.clipToOutline = true
             loginBinding.loginButton.isEnabled = true
             loginBinding.loginButton.setOnClickListener {
+                Log.d(TAG, "Login button clicked.")
                 hideKeyboard()
                 if (loginBinding.usernameEditText.text.toString().isNotEmpty() && loginBinding.passwordEditText.text.toString().isNotEmpty()) {
-
                     if (loginBinding.usernameEditText.text.toString().equals(BuildConfig.DEMO_ACCOUNT, true)) {
                         vm.setApiHost(ApiEnvironments.STAGE)
                     }
@@ -153,7 +154,7 @@ class LoginFragment : Fragment() {
                                     loginBinding.loginButton.isEnabled = true
                                     Log.e(TAG, it)
                                     if (it is LoginException) {
-                                        Log.d(it.message.toString())
+                                        Log.d(TAG, it.message.toString())
                                         when (it.state) {
                                             LoginExceptionState.NO_CONNECTION -> {
                                                 Toast.makeText(

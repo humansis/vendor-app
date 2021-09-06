@@ -15,6 +15,7 @@ import cz.quanti.android.vendor_app.repository.product.dto.Product
 import java.util.*
 import kotlin.collections.ArrayList
 import org.koin.core.component.KoinComponent
+import quanti.com.kotlinlog.Log
 
 class ProductsAdapter(
     private val shopFragment: ShopFragment,
@@ -90,7 +91,12 @@ class ProductsAdapter(
             .into(holder.productImage)
 
         holder.productLayout.setOnClickListener {
+            Log.d(TAG, "Product $position clicked")
             shopFragment.openProduct(products[position])
         }
+    }
+
+    companion object {
+        private val TAG = ShopAdapter::class.java.simpleName
     }
 }

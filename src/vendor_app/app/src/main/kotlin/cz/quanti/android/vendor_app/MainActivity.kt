@@ -41,6 +41,7 @@ import cz.quanti.android.vendor_app.utils.*
 import cz.quanti.android.vendor_app.utils.ConnectionObserver
 import cz.quanti.android.vendor_app.utils.NfcTagPublisher
 import cz.quanti.android.vendor_app.utils.PermissionRequestResult
+import cz.quanti.android.vendor_app.utils.SendLogDialogFragment
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
@@ -225,6 +226,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
         })
 
         activityBinding.appBar.syncButton.setOnClickListener {
+            Log.d(TAG, "Sync button clicked.")
             synchronizationManager.synchronizeWithServer()
         }
     }
@@ -232,6 +234,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
     private fun setUpNavigationMenu() {
         initPriceUnitSpinner()
         activityBinding.btnLogout.setOnClickListener {
+            Log.d(TAG, "Logout button clicked.")
             logout()
             activityBinding.drawerLayout.closeDrawer(GravityCompat.START)
         }
@@ -319,7 +322,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
                 mainVM.successSLE.call()
                 displayedDialog = cardResultDialog
             }, {
-                Log.e(this.javaClass.simpleName, it)
+                Log.e(TAG, it)
                 mainVM.setToastMessage(getString(R.string.card_error))
                 mainVM.errorSLE.call()
                 displayedDialog?.dismiss()
@@ -374,7 +377,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
                     }
                 }
             }, {
-                Log.e(it)
+                Log.e(TAG, it)
             })
     }
 
@@ -388,7 +391,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
                     loginVM.isNetworkConnected(available)
                 },
                 {
-                    Log.e(it)
+                    Log.e(TAG, it)
                 }
             )
     }
@@ -550,5 +553,9 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
          * @param event The MotionEvent object containing full information about the event.
          */
         fun onTouchOutside(view: View?, event: MotionEvent?)
+    }
+
+    companion object {
+        private val TAG = MainActivity::class.java.simpleName
     }
 }

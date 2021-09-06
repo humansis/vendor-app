@@ -78,7 +78,7 @@ class InvoicesFragment : Fragment() {
                 invoicesAdapter.setData(invoices)
                 setMessage()
             }, {
-                Log.e(it)
+                Log.e(TAG, it)
             })
     }
 
@@ -94,5 +94,9 @@ class InvoicesFragment : Fragment() {
         } else {
             invoicesBinding.invoicesMessage.visibility = View.GONE
         }
+    }
+
+    companion object {
+        private val TAG = InvoicesFragment::class.java.simpleName
     }
 }

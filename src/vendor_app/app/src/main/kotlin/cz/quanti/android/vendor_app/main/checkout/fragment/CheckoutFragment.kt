@@ -21,6 +21,7 @@ import cz.quanti.android.vendor_app.main.checkout.adapter.ScannedVoucherAdapter
 import cz.quanti.android.vendor_app.main.checkout.adapter.SelectedProductsAdapter
 import cz.quanti.android.vendor_app.main.checkout.callback.CheckoutFragmentCallback
 import cz.quanti.android.vendor_app.main.checkout.viewmodel.CheckoutViewModel
+import cz.quanti.android.vendor_app.main.shop.fragment.ProductsFragment
 import cz.quanti.android.vendor_app.repository.purchase.dto.SelectedProduct
 import cz.quanti.android.vendor_app.utils.getStringFromDouble
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -138,16 +139,19 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
     private fun initOnClickListeners() {
 
         checkoutBinding.checkoutFooter.backButton.setOnClickListener {
+            Log.d(TAG, "Back button clicked.")
             cancel()
         }
 
         checkoutBinding.checkoutFooter.clearAllButton.setOnClickListener {
+            Log.d(TAG, "Clear All button clicked.")
             AlertDialog.Builder(requireContext(), R.style.DialogTheme)
                 .setTitle(getString(R.string.are_you_sure_dialog_title))
                 .setMessage(getString(R.string.clear_cart_dialog_message))
                 .setPositiveButton(
                     android.R.string.ok
                 ) { _, _ ->
+                    Log.d(TAG, "Positive button clicked.")
                     clearCart()
                 }
                 .setNegativeButton(android.R.string.cancel, null)
@@ -155,14 +159,17 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
         }
 
         checkoutBinding.checkoutFooter.proceedButton.setOnClickListener {
+            Log.d(TAG, "Proceed button clicked.")
             proceed()
         }
 
         checkoutBinding.scanButton.setOnClickListener {
+            Log.d(TAG, "Scan button clicked.")
             scanVoucher()
         }
 
         checkoutBinding.payByCardButton.setOnClickListener {
+            Log.d(TAG, "Pay by card button clicked.")
             showPinDialogAndPayByCard()
         }
     }
@@ -280,6 +287,7 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
             val positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
             positiveButton.isEnabled = false
             positiveButton.setOnClickListener {
+                Log.d(TAG, "Dialog positive button clicked")
                 val pin = dialogBinding.pinEditText.text.toString()
                 if (pin.isEmpty()) {
                     mainVM.setToastMessage(getString(R.string.please_enter_pin))
@@ -319,5 +327,9 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
 
     private fun navigateBack() {
         findNavController().popBackStack()
+    }
+
+    companion object {
+        private val TAG = CheckoutFragment::class.java.simpleName
     }
 }

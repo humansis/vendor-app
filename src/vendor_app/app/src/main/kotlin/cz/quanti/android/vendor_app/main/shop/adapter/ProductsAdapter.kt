@@ -97,6 +97,6 @@ class ProductsAdapter(
     }
 
     companion object {
-        private val TAG = ShopAdapter::class.java.simpleName
+        private val TAG = ProductsAdapter::class.java.simpleName
     }
 }

@@ -189,18 +189,21 @@ class ShopFragment : Fragment(), OnTouchOutsideViewListener {
         categoriesAllowed.observe(viewLifecycleOwner, {
             setAppBarHidden(!it)
             showCategories(it, null)
-        })
-
-        shopBinding.categoriesAppBarLayout.addOnOffsetChangedListener( OnOffsetChangedListener { appBarLayout, verticalOffset ->
-            if (abs(verticalOffset) >= appBarLayout.totalScrollRange) // If collapsed
-            {
-                shopBinding.categoriesRecyclerView.scrollToPosition(0)
+            if (it) {
+                // TODO kouknout jestli to nespamuje logy requestLayout() improperly called by RecyclerView
+                shopBinding.categoriesAppBarLayout.addOnOffsetChangedListener( OnOffsetChangedListener { appBarLayout, verticalOffset ->
+                    if (abs(verticalOffset) >= appBarLayout.totalScrollRange) // If collapsed
+                    {
+                        shopBinding.categoriesRecyclerView.scrollToPosition(0)
+                    }
+                })
             }
         })
 
         vm.getProducts().toFlowable(BackpressureStrategy.LATEST)
             .toLiveData()
             .observe(viewLifecycleOwner, {
+                // TODO if it.category == null -> vytvorit category other
                 productsAdapter.setData(it)
                 setMessage()
             })

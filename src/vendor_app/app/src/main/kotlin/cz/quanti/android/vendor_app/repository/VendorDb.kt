@@ -9,6 +9,8 @@ import cz.quanti.android.vendor_app.repository.booklet.dao.BookletDao
 import cz.quanti.android.vendor_app.repository.booklet.dto.db.BookletDbEntity
 import cz.quanti.android.vendor_app.repository.card.dao.BlockedCardDao
 import cz.quanti.android.vendor_app.repository.card.dto.db.BlockedCardDbEntity
+import cz.quanti.android.vendor_app.repository.category.dao.CategoryDao
+import cz.quanti.android.vendor_app.repository.category.dto.db.CategoryDbEntity
 import cz.quanti.android.vendor_app.repository.invoice.dao.InvoiceDao
 import cz.quanti.android.vendor_app.repository.invoice.dto.db.InvoiceDbEntity
 import cz.quanti.android.vendor_app.repository.product.dao.ProductDao
@@ -24,6 +26,7 @@ import cz.quanti.android.vendor_app.repository.utils.typeconverter.DateTypeConve
 @Database(
     entities = [
         BookletDbEntity::class,
+        CategoryDbEntity::class,
         ProductDbEntity::class,
         SelectedProductDbEntity::class,
         PurchasedProductDbEntity::class,
@@ -34,11 +37,12 @@ import cz.quanti.android.vendor_app.repository.utils.typeconverter.DateTypeConve
         InvoiceDbEntity::class,
         TransactionDbEntity::class,
         TransactionPurchaseDbEntity::class
-    ], version = 7, exportSchema = false
+    ], version = 8, exportSchema = false
 )
 @TypeConverters(DateTypeConverter::class)
 abstract class VendorDb : RoomDatabase() {
     abstract fun bookletDao(): BookletDao
+    abstract fun categoryDao(): CategoryDao
     abstract fun productDao(): ProductDao
     abstract fun selectedProductDao(): SelectedProductDao
     abstract fun purchasedProductDao(): PurchasedProductDao
@@ -53,6 +57,7 @@ abstract class VendorDb : RoomDatabase() {
     companion object {
         const val DB_NAME = "cz.quanti.android.pin.vendor_app.database"
         const val TABLE_BOOKLET = "booklet"
+        const val TABLE_CATEGORY = "category"
         const val TABLE_PRODUCT = "product"
         const val TABLE_SELECTED_PRODUCT = "selected_product"
         const val TABLE_PURCHASED_PRODUCT = "purchased_product"
@@ -107,6 +112,15 @@ abstract class VendorDb : RoomDatabase() {
         val MIGRATION_6_7 = object : Migration(6, 7) {
             override fun migrate(database: SupportSQLiteDatabase) {
                 database.execSQL("ALTER TABLE 'card_purchase' ADD 'beneficiaryId' INTEGER")
+            }
+        }
+
+        val MIGRATION_7_8 = object : Migration(7, 8) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL("ALTER TABLE product ADD categoryId INTEGER")
+                database.execSQL("ALTER TABLE product ADD unitPrice INTEGER")
+                database.execSQL("ALTER TABLE product ADD currency TEXT")
+                database.execSQL("CREATE TABLE 'category' ('id' INTEGER NOT NULL, 'name' TEXT NOT NULL, 'type' TEXT NOT NULL, 'image' TEXT NOT NULL, PRIMARY KEY('id'))")
             }
         }
     }

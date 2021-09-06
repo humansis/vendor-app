@@ -2,6 +2,7 @@ package cz.quanti.android.vendor_app.repository
 
 import cz.quanti.android.vendor_app.repository.booklet.dto.api.BookletApiEntity
 import cz.quanti.android.vendor_app.repository.booklet.dto.api.BookletCodesBody
+import cz.quanti.android.vendor_app.repository.category.dto.api.CategoryApiEntity
 import cz.quanti.android.vendor_app.repository.invoice.dto.api.V2InvoiceApiEntity
 import cz.quanti.android.vendor_app.repository.login.dto.api.SaltApiEntity
 import cz.quanti.android.vendor_app.repository.login.dto.api.VendorApiEntity
@@ -20,6 +21,9 @@ interface VendorAPI {
 
     @POST("v1/login")
     fun postLogin(@Body vendor: VendorApiEntity): Single<Response<VendorApiEntity>>
+
+    @GET("v2/categories")
+    fun getCategories(): Single<Response<List<CategoryApiEntity>>>
 
     @GET("v1/products")
     fun getProducts(): Single<Response<List<ProductApiEntity>>>

@@ -51,6 +51,7 @@
                 android:scrollbars="none"
                 android:splitMotionEvents="false"
                 android:transcriptMode="alwaysScroll"
+                app:fastScrollEnabled="false"
                 app:layout_scrollFlags="scroll|snap"/>
 
             <TextView

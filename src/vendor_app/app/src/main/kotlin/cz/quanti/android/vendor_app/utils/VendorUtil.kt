@@ -1,8 +1,14 @@
 package cz.quanti.android.vendor_app.utils
 
+import android.app.Activity
 import android.content.Context
 import android.text.format.DateFormat.getDateFormat
 import android.text.format.DateFormat.getTimeFormat
+import android.view.View
+import android.view.inputmethod.InputMethodManager
+import androidx.core.content.ContextCompat
+import androidx.fragment.app.Fragment
+import cz.quanti.android.vendor_app.R
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.text.DecimalFormat
@@ -54,6 +60,39 @@ fun getDefaultCurrency(country: String): String {
         "ETH" -> "ETB"
         else -> ""
     }
+}
+
+fun getBackgroundColor(context: Context, environment: ApiEnvironments?): Int {
+    return when (environment?.id) {
+        ApiEnvironments.DEV.id -> {
+            ContextCompat.getColor(context, R.color.dev)
+        }
+        ApiEnvironments.TEST.id -> {
+            ContextCompat.getColor(context, R.color.test)
+        }
+        ApiEnvironments.STAGE.id -> {
+            ContextCompat.getColor(context, R.color.stage)
+        }
+        ApiEnvironments.DEMO.id -> {
+            ContextCompat.getColor(context, R.color.demo)
+        }
+        else -> {
+            ContextCompat.getColor(context, R.color.screenBackgroundColor)
+        }
+    }
+}
+
+fun Fragment.hideKeyboard() {
+    view?.let { activity?.hideKeyboard(it) }
+}
+
+fun Activity.hideKeyboard() {
+    hideKeyboard(currentFocus ?: View(this))
+}
+
+fun Context.hideKeyboard(view: View) {
+    val inputMethodManager = getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
+    inputMethodManager.hideSoftInputFromWindow(view.windowToken, 0)
 }
 
 fun round(value: Double, places: Int): Double {

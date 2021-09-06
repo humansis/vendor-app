@@ -12,8 +12,10 @@ import cz.quanti.android.vendor_app.ActivityCallback
 import cz.quanti.android.vendor_app.MainNavigationDirections
 import cz.quanti.android.vendor_app.R
 import cz.quanti.android.vendor_app.databinding.FragmentInvoicesBinding
+import cz.quanti.android.vendor_app.main.authorization.viewmodel.LoginViewModel
 import cz.quanti.android.vendor_app.main.invoices.adapter.InvoicesAdapter
 import cz.quanti.android.vendor_app.main.invoices.viewmodel.InvoicesViewModel
+import cz.quanti.android.vendor_app.utils.getBackgroundColor
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
@@ -21,12 +23,12 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 import quanti.com.kotlinlog.Log
 
 class InvoicesFragment : Fragment() {
-
+    private val loginVM: LoginViewModel by viewModel()
     private val vm: InvoicesViewModel by viewModel()
     private lateinit var invoicesAdapter: InvoicesAdapter
     private lateinit var invoicesBinding: FragmentInvoicesBinding
     private var synchronizeInvoicesDisposable: Disposable? = null
-    private var activityCallback: ActivityCallback? = null
+    private lateinit var activityCallback: ActivityCallback
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -34,7 +36,7 @@ class InvoicesFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         activityCallback = activity as ActivityCallback
-        activityCallback?.setSubtitle(getString(R.string.reimbursed_invoices))
+        activityCallback.setSubtitle(getString(R.string.reimbursed_invoices))
         invoicesBinding = FragmentInvoicesBinding.inflate(inflater, container, false)
         invoicesAdapter = InvoicesAdapter(requireContext())
 
@@ -58,6 +60,9 @@ class InvoicesFragment : Fragment() {
         invoicesBinding.invoicesRecyclerView.setHasFixedSize(true)
         invoicesBinding.invoicesRecyclerView.layoutManager = viewManager
         invoicesBinding.invoicesRecyclerView.adapter = invoicesAdapter
+        val color = getBackgroundColor(requireContext(), loginVM.getApiHost())
+        invoicesBinding.shadowTop.background.setTint(color)
+        invoicesBinding.shadowBottom.background.setTint(color)
     }
 
     override fun onStart() {

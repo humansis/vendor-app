@@ -26,9 +26,10 @@ class LoginViewModel(
 
     fun setApiHost(host: ApiEnvironments) {
         hostUrlInterceptor.setHost(host)
+        currentVendor.url = host
     }
 
-    fun getSavedApiHost(): ApiEnvironments? {
+    fun getApiHost(): ApiEnvironments? {
         return currentVendor.url
     }
 
@@ -38,10 +39,6 @@ class LoginViewModel(
 
     fun getCurrentVendorName(): String {
         return currentVendor.vendor.username
-    }
-
-    fun saveApiHost(host: ApiEnvironments) {
-        currentVendor.url = host
     }
 
     fun onLogin(activityCallback: ActivityCallback) {

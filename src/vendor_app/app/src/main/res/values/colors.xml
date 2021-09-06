@@ -27,4 +27,9 @@
     <color name="red">#ed5565</color>
     <color name="lightOrange">#ffdd99</color>
     <color name="lighterOrange">#ffeecc</color>
+
+    <color name="dev">#cfcfe2</color>
+    <color name="test">#e2d9cf</color>
+    <color name="stage">#cfe2e2</color>
+    <color name="demo">#cfe2cf</color>
 </resources>

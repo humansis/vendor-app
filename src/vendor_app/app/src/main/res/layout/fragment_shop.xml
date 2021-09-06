@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:animateLayoutChanges="true"
-    android:background="@color/screenBackgroundColor">
+    tools:background="@color/screenBackgroundColor">
 
     <androidx.appcompat.widget.SearchView
         android:id="@+id/shopSearchBar"

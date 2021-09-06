@@ -143,7 +143,6 @@ class ProductsFragment : Fragment(), OnTouchOutsideViewListener {
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({ syncState ->
-                Log.d("xxx", syncState.toString())
                 when (syncState) {
                     SynchronizationState.SUCCESS, SynchronizationState.ERROR-> {
                         setMessage(getString(R.string.no_products))
@@ -155,6 +154,7 @@ class ProductsFragment : Fragment(), OnTouchOutsideViewListener {
 
                     }
                 }
+                setMessageVisible(productsAdapter.itemCount == 0)
             }, {
                 Log.e(it)
             })
@@ -163,9 +163,7 @@ class ProductsFragment : Fragment(), OnTouchOutsideViewListener {
             .toLiveData()
             .observe(viewLifecycleOwner, {
                 productsAdapter.setData(it)
-                if (it.isNotEmpty()) {
-                    productsBinding.productsMessage.visibility = View.GONE
-                }
+                setMessageVisible(it.isEmpty())
             })
 
         vm.getSelectedProducts().observe(viewLifecycleOwner, { products ->
@@ -261,7 +259,10 @@ class ProductsFragment : Fragment(), OnTouchOutsideViewListener {
 
     private fun setMessage(message: String) {
         productsBinding.productsMessage.text = message
-        if (productsAdapter.itemCount == 0) {
+    }
+
+    private fun setMessageVisible (boolean: Boolean) {
+        if (boolean) {
             productsBinding.productsMessage.visibility = View.VISIBLE
         } else {
             productsBinding.productsMessage.visibility = View.GONE

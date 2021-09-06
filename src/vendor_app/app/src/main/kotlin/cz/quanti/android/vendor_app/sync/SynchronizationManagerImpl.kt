@@ -18,7 +18,7 @@ class SynchronizationManagerImpl(
 
     override fun synchronizeWithServer() {
         if (syncStatePublishSubject.value == SynchronizationState.STARTED) {
-            Log.e(TAG, "Sync already in progress")
+            Log.e(TAG, "Synchronization already in progress")
         } else {
             syncStatePublishSubject.onNext(SynchronizationState.STARTED)
             syncFacade.synchronize(preferences.vendor.id.toInt())
@@ -28,6 +28,7 @@ class SynchronizationManagerImpl(
                     {
                         preferences.lastSynced = Date().time
                         syncStatePublishSubject.onNext(SynchronizationState.SUCCESS)
+                        Log.e(TAG, "Synchronization finished successfully")
                     },
                     { e ->
                         Log.e(TAG, e)

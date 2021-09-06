@@ -74,7 +74,6 @@ class TransactionsFragment : Fragment() {
 
     override fun onStart() {
         super.onStart()
-        //setMessage(getString(R.string.no_transactions_to_reimburse))
         initObservers()
     }
 
@@ -109,6 +108,7 @@ class TransactionsFragment : Fragment() {
 
                     }
                 }
+                setMessageVisible(transactionsAdapter.itemCount == 0)
             }, {
                 Log.e(TAG, it)
             })
@@ -122,6 +122,7 @@ class TransactionsFragment : Fragment() {
             .subscribe({
                 transactionsAdapter.setData(it)
                 setMessage(getString(R.string.no_transactions_to_reimburse))
+                setMessageVisible(transactionsAdapter.itemCount == 0)
             }, {
                 Log.e(TAG, it)
             })
@@ -137,6 +138,14 @@ class TransactionsFragment : Fragment() {
     private fun setMessage(message: String) {
         transactionsBinding.transactionsMessage.text = message
         if (transactionsAdapter.itemCount == 0) {
+            transactionsBinding.transactionsMessage.visibility = View.VISIBLE
+        } else {
+            transactionsBinding.transactionsMessage.visibility = View.GONE
+        }
+    }
+
+    private fun setMessageVisible (boolean: Boolean) {
+        if (boolean) {
             transactionsBinding.transactionsMessage.visibility = View.VISIBLE
         } else {
             transactionsBinding.transactionsMessage.visibility = View.GONE

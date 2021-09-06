@@ -69,7 +69,6 @@ class InvoicesFragment : Fragment() {
 
     override fun onStart() {
         super.onStart()
-        //setMessage(getString(R.string.no_reimbursed_invoices))
         syncStateDisposable?.dispose()
         syncStateDisposable = vm.syncStateObservable()
             .subscribeOn(Schedulers.io())
@@ -89,6 +88,7 @@ class InvoicesFragment : Fragment() {
 
                     }
                 }
+                setMessageVisible(invoicesAdapter.itemCount == 0)
             }, {
                 Log.e(it)
             })
@@ -102,6 +102,7 @@ class InvoicesFragment : Fragment() {
             .subscribe({ invoices ->
                 invoicesAdapter.setData(invoices)
                 setMessage(getString(R.string.no_reimbursed_invoices))
+                setMessageVisible(invoicesAdapter.itemCount == 0)
             }, {
                 Log.e(TAG, it)
             })
@@ -116,6 +117,14 @@ class InvoicesFragment : Fragment() {
     private fun setMessage(message: String) {
         invoicesBinding.invoicesMessage.text = message
         if (invoicesAdapter.itemCount == 0) {
+            invoicesBinding.invoicesMessage.visibility = View.VISIBLE
+        } else {
+            invoicesBinding.invoicesMessage.visibility = View.GONE
+        }
+    }
+
+    private fun setMessageVisible (boolean: Boolean) {
+        if (boolean) {
             invoicesBinding.invoicesMessage.visibility = View.VISIBLE
         } else {
             invoicesBinding.invoicesMessage.visibility = View.GONE

@@ -1,9 +1,6 @@
 package cz.quanti.android.vendor_app.main.shop.viewmodel
 
-import android.content.Context
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.*
-import cz.quanti.android.vendor_app.R
 import cz.quanti.android.vendor_app.repository.AppPreferences
 import cz.quanti.android.vendor_app.repository.category.Category
 import cz.quanti.android.vendor_app.repository.category.CategoryType
@@ -32,7 +29,7 @@ class ShopViewModel(
 
     fun getCategories(): Observable<List<Category>> {
         //return categoryFacade.getCategories() // TODO finish
-//        return Observable.empty() // TODO solve when empty
+        //return Observable.empty()
         return Observable.just(mutableListOf(
             Category(
                 1,
@@ -51,6 +48,11 @@ class ShopViewModel(
             ),
             Category(
                 4,
+                "tools",
+                CategoryType.NONFOOD
+            ),
+            Category(
+                5,
                 "cash",
                 CategoryType.CASHBACK
             )

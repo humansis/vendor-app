@@ -36,6 +36,8 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 import com.google.android.material.appbar.AppBarLayout
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.appbar.AppBarLayout.OnOffsetChangedListener
+import kotlin.math.abs
 
 class ShopFragment : Fragment(), OnTouchOutsideViewListener {
 
@@ -66,7 +68,7 @@ class ShopFragment : Fragment(), OnTouchOutsideViewListener {
                 override fun handleOnBackPressed() {
                     if (!shopBinding.categoriesAppBarLayout.isAppBarExpanded() && categoriesAllowed.value == true) {
                         clearQuery()
-                        openCategories()
+                        showCategories(true, null)
                     } else {
                         requireActivity().finish()
                     }
@@ -118,7 +120,6 @@ class ShopFragment : Fragment(), OnTouchOutsideViewListener {
         categoriesAdapter = CategoriesAdapter(this, requireContext())
 
         val viewManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false )
-        //val viewManager = GridLayoutManager(activity, gridColumns()) TODO poresit s jakubem jestli je linear lepsi ?
 
         shopBinding.categoriesRecyclerView.setHasFixedSize(true)
         shopBinding.categoriesRecyclerView.layoutManager = viewManager
@@ -148,7 +149,7 @@ class ShopFragment : Fragment(), OnTouchOutsideViewListener {
     private fun initSearchBar() {
         shopBinding.shopSearchBar.setOnClickListener {
             shopBinding.shopSearchBar.isIconified = false
-            hideCategories(null)
+            showCategories(false, null)
         }
         shopBinding.shopSearchBar.imeOptions = EditorInfo.IME_ACTION_DONE
         shopBinding.shopSearchBar.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
@@ -178,13 +179,14 @@ class ShopFragment : Fragment(), OnTouchOutsideViewListener {
             })
 
         categoriesAllowed.observe(viewLifecycleOwner, {
-            if (it) {
-                openCategories()
-                shopBinding.categoriesAppBarLayout.visibility = View.VISIBLE
-            } else {
-                hideCategories(null)
-                shopBinding.productsHeader.visibility = View.GONE // TODO vyresit proc se to neschovava
-                shopBinding.categoriesAppBarLayout.visibility = View.GONE
+            setAppBarHidden(!it)
+            showCategories(it, null)
+        })
+
+        shopBinding.categoriesAppBarLayout.addOnOffsetChangedListener( OnOffsetChangedListener { appBarLayout, verticalOffset ->
+            if (abs(verticalOffset) >= appBarLayout.totalScrollRange) // If collapsed
+            {
+                shopBinding.categoriesRecyclerView.scrollToPosition(0)
             }
         })
 
@@ -198,12 +200,15 @@ class ShopFragment : Fragment(), OnTouchOutsideViewListener {
         vm.getSelectedProducts().observe(viewLifecycleOwner, { products ->
             when (products.size) {
                 EMPTY_CART_SIZE -> {
-                    shopBinding.cartBadge.visibility = View.GONE
                     shopBinding.totalTextView.visibility = View.GONE
+                    shopBinding.cartFAB.visibility = View.GONE
+                    shopBinding.cartBadge.visibility = View.GONE
+
                 }
                 else -> {
                     actualizeTotal(products.map { it.price }.sum())
                     shopBinding.totalTextView.visibility = View.VISIBLE
+                    shopBinding.cartFAB.visibility = View.VISIBLE
                     shopBinding.cartBadge.visibility = View.VISIBLE
                     shopBinding.cartBadge.text = products.size.toString()
                 }
@@ -225,11 +230,15 @@ class ShopFragment : Fragment(), OnTouchOutsideViewListener {
         shopBinding.productsHeader.setOnClickListener {
             shopBinding.productsRecyclerView.setScrollState(RecyclerView.SCROLL_STATE_IDLE)
             clearQuery()
-            if (shopBinding.categoriesAppBarLayout.isAppBarExpanded()) {
-                hideCategories(null)
-            } else {
-                openCategories()
-            }
+            showCategories(!shopBinding.categoriesAppBarLayout.isAppBarExpanded(), null)
+        }
+    }
+
+    private fun setAppBarHidden(boolean: Boolean) {
+        if (boolean) {
+            shopBinding.categoriesAppBarLayout.layoutParams.height = 0
+        } else {
+            shopBinding.categoriesAppBarLayout.layoutParams.height = AppBarLayout.LayoutParams.WRAP_CONTENT
         }
     }
 
@@ -239,16 +248,11 @@ class ShopFragment : Fragment(), OnTouchOutsideViewListener {
         } else {
             clearQuery()
         }
-        hideCategories(category.name)
+        showCategories(false, category.name)
     }
 
-    private fun openCategories() {
-        shopBinding.categoriesAppBarLayout.setExpanded(true)
-        shopBinding.productsHeader.text = getString(R.string.all_products)
-    }
-
-    private fun hideCategories(name: String?) {
-        shopBinding.categoriesAppBarLayout.setExpanded(false)
+    private fun showCategories(boolean: Boolean, name: String?) {
+        shopBinding.categoriesAppBarLayout.setExpanded(boolean)
         shopBinding.productsHeader.text = name ?: getString(R.string.all_products)
     }
 

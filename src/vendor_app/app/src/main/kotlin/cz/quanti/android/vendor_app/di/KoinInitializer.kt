@@ -103,7 +103,8 @@ object KoinInitializer {
                 VendorDb.MIGRATION_2_3,
                 VendorDb.MIGRATION_3_4,
                 VendorDb.MIGRATION_4_5,
-                VendorDb.MIGRATION_5_6
+                VendorDb.MIGRATION_5_6,
+                VendorDb.MIGRATION_6_7
             )
             .build()
 

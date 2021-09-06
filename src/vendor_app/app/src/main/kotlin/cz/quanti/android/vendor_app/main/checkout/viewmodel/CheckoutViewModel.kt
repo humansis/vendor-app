@@ -114,7 +114,7 @@ class CheckoutViewModel(
         return subtractMoneyFromCard(pin, getTotal(), getCurrency().value.toString()).flatMap {
             val tag = it.first
             val userBalance = it.second
-            saveCardPurchaseToDb(convertTagToString(tag))
+            saveCardPurchaseToDb(convertTagToString(tag), userBalance.userId)
                 .subscribeOn(Schedulers.io())
                 .toSingleDefault(userBalance)
                 .flatMap {
@@ -183,21 +183,22 @@ class CheckoutViewModel(
             vouchers.addAll(shoppingHolder.vouchers.map { it.id })
             vendorId = currentVendor.vendor.id
             createdAt = convertTimeForApiRequestBody(Date())
-            currency = getCurrency().toString()
+            currency = getCurrency().value.toString()
         }
     }
 
-    private fun saveCardPurchaseToDb(card: String): Completable {
-        return purchaseFacade.savePurchase(createCardPurchase(card))
+    private fun saveCardPurchaseToDb(card: String, userId: String): Completable {
+        return purchaseFacade.savePurchase(createCardPurchase(card, userId))
     }
 
-    private fun createCardPurchase(card: String): Purchase {
+    private fun createCardPurchase(card: String, userId: String): Purchase {
         return Purchase().apply {
             products.addAll(shoppingHolder.cart)
             smartcard = card
+            beneficiaryId = userId.toLong()
             vendorId = currentVendor.vendor.id
             createdAt = convertTimeForApiRequestBody(Date())
-            currency = getCurrency().toString()
+            currency = getCurrency().value.toString()
         }
     }
 

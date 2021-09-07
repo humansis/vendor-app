@@ -144,14 +144,11 @@ class ProductsFragment : Fragment(), OnTouchOutsideViewListener {
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({ syncState ->
                 when (syncState) {
-                    SynchronizationState.SUCCESS, SynchronizationState.ERROR-> {
-                        setMessage(getString(R.string.no_products))
-                    }
                     SynchronizationState.STARTED -> {
                         setMessage(getString(R.string.loading))
                     }
                     else -> {
-
+                        setMessage(getString(R.string.no_products))
                     }
                 }
                 setMessageVisible(productsAdapter.itemCount == 0)

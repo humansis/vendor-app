@@ -87,15 +87,24 @@ class TransactionsFragment : Fragment() {
             }
         })
 
+        transactionsDisposable?.dispose()
+        transactionsDisposable = vm.getTransactions()
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({ transactions ->
+                transactionsAdapter.setData(transactions)
+                setMessage(getString(R.string.no_transactions_to_reimburse))
+                setMessageVisible(transactions.isEmpty())
+            }, {
+                Log.e(TAG, it)
+            })
+
         syncStateDisposable?.dispose()
         syncStateDisposable = vm.syncStateObservable()
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({ syncState ->
                 when (syncState) {
-                    SynchronizationState.SUCCESS -> {
-                        getTransactions()
-                    }
                     SynchronizationState.ERROR -> {
                         transactionsBinding.unsyncedWarning.warningButton.isEnabled = true
                         setMessage(getString(R.string.no_transactions_to_reimburse))
@@ -104,30 +113,13 @@ class TransactionsFragment : Fragment() {
                         transactionsBinding.unsyncedWarning.warningButton.isEnabled = false
                         setMessage(getString(R.string.loading))
                     }
-                    else -> {
-
-                    }
+                    else -> {}
                 }
                 setMessageVisible(transactionsAdapter.itemCount == 0)
             }, {
                 Log.e(TAG, it)
             })
     }
-
-    private fun getTransactions() {
-        transactionsDisposable?.dispose()
-        transactionsDisposable = vm.getTransactions()
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe({
-                transactionsAdapter.setData(it)
-                setMessage(getString(R.string.no_transactions_to_reimburse))
-                setMessageVisible(transactionsAdapter.itemCount == 0)
-            }, {
-                Log.e(TAG, it)
-            })
-    }
-
 
     override fun onStop() {
         super.onStop()

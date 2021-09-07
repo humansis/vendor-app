@@ -69,32 +69,10 @@ class InvoicesFragment : Fragment() {
 
     override fun onStart() {
         super.onStart()
-        syncStateDisposable?.dispose()
-        syncStateDisposable = vm.syncStateObservable()
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe({ syncState ->
-                when (syncState) {
-                    SynchronizationState.SUCCESS -> {
-                        getInvoices()
-                    }
-                    SynchronizationState.ERROR -> {
-                        setMessage(getString(R.string.no_reimbursed_invoices))
-                    }
-                    SynchronizationState.STARTED -> {
-                        setMessage(getString(R.string.loading))
-                    }
-                    else -> {
-
-                    }
-                }
-                setMessageVisible(invoicesAdapter.itemCount == 0)
-            }, {
-                Log.e(it)
-            })
+        initObservers()
     }
 
-    private fun getInvoices() {
+    private fun initObservers() {
         invoicesDisposable?.dispose()
         invoicesDisposable = vm.getInvoices()
             .subscribeOn(Schedulers.io())
@@ -102,9 +80,27 @@ class InvoicesFragment : Fragment() {
             .subscribe({ invoices ->
                 invoicesAdapter.setData(invoices)
                 setMessage(getString(R.string.no_reimbursed_invoices))
-                setMessageVisible(invoicesAdapter.itemCount == 0)
+                setMessageVisible(invoices.isEmpty())
             }, {
                 Log.e(TAG, it)
+            })
+
+        syncStateDisposable?.dispose()
+        syncStateDisposable = vm.syncStateObservable()
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({ syncState ->
+                when (syncState) {
+                    SynchronizationState.STARTED -> {
+                        setMessage(getString(R.string.loading))
+                    }
+                    else -> {
+                        setMessage(getString(R.string.no_reimbursed_invoices))
+                    }
+                }
+                setMessageVisible(invoicesAdapter.itemCount == 0)
+            }, {
+                Log.e(it)
             })
     }
 

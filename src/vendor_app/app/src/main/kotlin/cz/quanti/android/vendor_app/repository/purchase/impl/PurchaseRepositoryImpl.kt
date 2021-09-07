@@ -230,10 +230,11 @@ class PurchaseRepositoryImpl(
         )
     }
 
-    private fun convertToApi(selectedProduct: SelectedProduct): PurchasedProductApiEntity {
+    private fun convertToApi(selectedProduct: SelectedProduct, currency: String): PurchasedProductApiEntity {
         return PurchasedProductApiEntity(
             id = selectedProduct.product.id,
-            value = selectedProduct.price
+            value = selectedProduct.price,
+            currency = currency
         )
     }
 
@@ -267,7 +268,7 @@ class PurchaseRepositoryImpl(
 
     private fun convertToCardApi(purchase: Purchase): CardPurchaseApiEntity {
         return CardPurchaseApiEntity(
-            products = purchase.products.map { convertToApi(it) },
+            products = purchase.products.map { convertToApi(it, purchase.currency) },
             createdAt = purchase.createdAt,
             vendorId = purchase.vendorId,
             beneficiaryId = purchase.beneficiaryId,
@@ -276,7 +277,7 @@ class PurchaseRepositoryImpl(
 
     private fun convertToVoucherApi(purchase: Purchase): VoucherPurchaseApiEntity {
         return VoucherPurchaseApiEntity(
-            products = purchase.products.map { convertToApi(it) },
+            products = purchase.products.map { convertToApi(it, purchase.currency) },
             vouchers = purchase.vouchers,
             createdAt = purchase.createdAt,
             vendorId = purchase.vendorId

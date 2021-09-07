@@ -79,7 +79,6 @@ class InvoicesFragment : Fragment() {
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({ invoices ->
                 invoicesAdapter.setData(invoices)
-                setMessage(getString(R.string.no_reimbursed_invoices))
                 setMessageVisible(invoices.isEmpty())
             }, {
                 Log.e(TAG, it)

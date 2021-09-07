@@ -115,7 +115,6 @@ class TransactionsFragment : Fragment() {
                     }
                     else -> {}
                 }
-                setMessageVisible(transactionsAdapter.itemCount == 0)
             }, {
                 Log.e(TAG, it)
             })

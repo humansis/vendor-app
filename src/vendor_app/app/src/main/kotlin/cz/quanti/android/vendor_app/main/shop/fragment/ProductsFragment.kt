@@ -151,7 +151,6 @@ class ProductsFragment : Fragment(), OnTouchOutsideViewListener {
                         setMessage(getString(R.string.no_products))
                     }
                 }
-                setMessageVisible(productsAdapter.itemCount == 0)
             }, {
                 Log.e(it)
             })

@@ -98,7 +98,6 @@ class InvoicesFragment : Fragment() {
                         setMessage(getString(R.string.no_reimbursed_invoices))
                     }
                 }
-                setMessageVisible(invoicesAdapter.itemCount == 0)
             }, {
                 Log.e(it)
             })

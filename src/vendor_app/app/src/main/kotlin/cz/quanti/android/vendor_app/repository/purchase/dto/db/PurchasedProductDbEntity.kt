@@ -22,5 +22,7 @@ data class PurchasedProductDbEntity(
     var dbId: Long = 0,
     var productId: Long = 0,
     var value: Double = 0.0,
-    var purchaseId: Long = 0
+    var purchaseId: Long = 0,
+    var categoryId: Long = 0,
+    var currency: String? = ""
 )

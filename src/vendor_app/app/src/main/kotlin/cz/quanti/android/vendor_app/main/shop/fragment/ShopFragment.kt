@@ -349,11 +349,12 @@ class ShopFragment : Fragment(), OnTouchOutsideViewListener {
     }
 
     private fun addProductToCart(product: Product, unitPrice: Double) {
-        val selected = SelectedProduct()
-            .apply {
-                this.product = product
-                this.price = unitPrice
-            }
+        val selected = SelectedProduct(
+            product = product,
+            price = product.unitPrice ?: unitPrice,
+            category = product.category,
+            currency = product.currency
+        )
         vm.addToShoppingCart(selected)
     }
 

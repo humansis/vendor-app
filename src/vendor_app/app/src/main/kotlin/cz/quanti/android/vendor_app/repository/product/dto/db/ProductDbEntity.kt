@@ -12,6 +12,6 @@ data class ProductDbEntity(
     var image: String = "",
     var unit: String = "",
     var categoryId: Long? = 0,
-    var unitPrice: Long? = 0,
+    var unitPrice: Double? = 0.0,
     var currency: String? = ""
 )

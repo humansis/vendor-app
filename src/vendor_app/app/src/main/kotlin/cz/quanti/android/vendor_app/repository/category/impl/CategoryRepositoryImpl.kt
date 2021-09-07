@@ -36,8 +36,8 @@ class CategoryRepositoryImpl(
         }
     }
 
-    override fun getCategory(category: Category): Category {
-        return convert(categoryDao.getCategoryById(category.id))
+    override fun getCategory(categoryId: Long): Category {
+        return convert(categoryDao.getCategoryById(categoryId))
     }
 
     override fun saveCategory(category: Category): Completable {

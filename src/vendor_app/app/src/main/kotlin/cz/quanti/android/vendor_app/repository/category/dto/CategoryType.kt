@@ -4,5 +4,6 @@ enum class CategoryType() {
     ALL,
     FOOD,
     NONFOOD,
-    CASHBACK
+    CASHBACK,
+    OTHER
 }

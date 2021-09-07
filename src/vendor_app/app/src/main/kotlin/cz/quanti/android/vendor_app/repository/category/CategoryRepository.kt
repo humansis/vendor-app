@@ -8,7 +8,7 @@ import io.reactivex.Single
 interface CategoryRepository {
     fun getCategoriesFromServer(): Single<Pair<Int, List<Category>>>
     fun getCategories(): Observable<List<Category>>
-    fun getCategory(category: Category): Category
+    fun getCategory(categoryId: Long): Category
     fun saveCategory(category: Category): Completable
     fun deleteCategories(): Completable
 }

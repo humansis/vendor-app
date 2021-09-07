@@ -85,6 +85,9 @@ class CategoriesAdapter(
             CategoryType.ALL -> {
                 ContextCompat.getDrawable(context, R.drawable.ic_all)
             }
+            else -> {
+                null
+            }
         }
     }
 

@@ -93,7 +93,6 @@ class TransactionsFragment : Fragment() {
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({ transactions ->
                 transactionsAdapter.setData(transactions)
-                setMessage(getString(R.string.no_transactions_to_reimburse))
                 setMessageVisible(transactions.isEmpty())
             }, {
                 Log.e(TAG, it)
@@ -105,15 +104,14 @@ class TransactionsFragment : Fragment() {
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({ syncState ->
                 when (syncState) {
-                    SynchronizationState.ERROR -> {
-                        transactionsBinding.unsyncedWarning.warningButton.isEnabled = true
-                        setMessage(getString(R.string.no_transactions_to_reimburse))
-                    }
                     SynchronizationState.STARTED -> {
                         transactionsBinding.unsyncedWarning.warningButton.isEnabled = false
                         setMessage(getString(R.string.loading))
                     }
-                    else -> {}
+                    else -> {
+                        transactionsBinding.unsyncedWarning.warningButton.isEnabled = true
+                        setMessage(getString(R.string.no_transactions_to_reimburse))
+                    }
                 }
             }, {
                 Log.e(TAG, it)

@@ -21,7 +21,7 @@ class TransactionFacadeImpl(
         return retrieveTransactions(vendorId)
     }
 
-    override fun getTransactions(): Single<List<Transaction>> {
+    override fun getTransactions(): Observable<List<Transaction>> {
         return transactionRepo.getTransactions()
     }
 

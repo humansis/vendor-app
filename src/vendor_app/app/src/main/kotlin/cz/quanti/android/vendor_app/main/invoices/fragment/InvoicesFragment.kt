@@ -15,6 +15,7 @@ import cz.quanti.android.vendor_app.databinding.FragmentInvoicesBinding
 import cz.quanti.android.vendor_app.main.authorization.viewmodel.LoginViewModel
 import cz.quanti.android.vendor_app.main.invoices.adapter.InvoicesAdapter
 import cz.quanti.android.vendor_app.main.invoices.viewmodel.InvoicesViewModel
+import cz.quanti.android.vendor_app.sync.SynchronizationState
 import cz.quanti.android.vendor_app.utils.getBackgroundColor
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
@@ -27,7 +28,8 @@ class InvoicesFragment : Fragment() {
     private val vm: InvoicesViewModel by viewModel()
     private lateinit var invoicesAdapter: InvoicesAdapter
     private lateinit var invoicesBinding: FragmentInvoicesBinding
-    private var synchronizeInvoicesDisposable: Disposable? = null
+    private var syncStateDisposable: Disposable? = null
+    private var invoicesDisposable: Disposable? = null
     private lateinit var activityCallback: ActivityCallback
 
     override fun onCreateView(
@@ -67,29 +69,51 @@ class InvoicesFragment : Fragment() {
 
     override fun onStart() {
         super.onStart()
-        invoicesBinding.invoicesMessage.text = getString(R.string.loading)
-        synchronizeInvoicesDisposable?.dispose()
-        synchronizeInvoicesDisposable = vm.syncNeededObservable().flatMapSingle {
-            vm.getInvoices()
-        }.startWith(vm.getInvoices().toObservable())
+        initObservers()
+    }
+
+    private fun initObservers() {
+        invoicesDisposable?.dispose()
+        invoicesDisposable = vm.getInvoices()
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({ invoices ->
                 invoicesAdapter.setData(invoices)
-                setMessage()
+                setMessageVisible(invoices.isEmpty())
             }, {
                 Log.e(TAG, it)
+            })
+
+        syncStateDisposable?.dispose()
+        syncStateDisposable = vm.syncStateObservable()
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({ syncState ->
+                when (syncState) {
+                    SynchronizationState.STARTED -> {
+                        setMessage(getString(R.string.loading))
+                    }
+                    else -> {
+                        setMessage(getString(R.string.no_reimbursed_invoices))
+                    }
+                }
+            }, {
+                Log.e(it)
             })
     }
 
     override fun onStop() {
         super.onStop()
-        synchronizeInvoicesDisposable?.dispose()
+        invoicesDisposable?.dispose()
+        syncStateDisposable?.dispose()
     }
 
-    private fun setMessage() {
-        invoicesBinding.invoicesMessage.text = getString(R.string.no_reimbursed_invoices)
-        if (invoicesAdapter.itemCount == 0) {
+    private fun setMessage(message: String) {
+        invoicesBinding.invoicesMessage.text = message
+    }
+
+    private fun setMessageVisible (visible: Boolean) {
+        if (visible) {
             invoicesBinding.invoicesMessage.visibility = View.VISIBLE
         } else {
             invoicesBinding.invoicesMessage.visibility = View.GONE

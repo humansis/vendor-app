@@ -23,8 +23,12 @@ import cz.quanti.android.vendor_app.main.shop.adapter.ShopAdapter
 import cz.quanti.android.vendor_app.main.shop.viewmodel.ShopViewModel
 import cz.quanti.android.vendor_app.repository.product.dto.Product
 import cz.quanti.android.vendor_app.repository.purchase.dto.SelectedProduct
+import cz.quanti.android.vendor_app.sync.SynchronizationState
 import cz.quanti.android.vendor_app.utils.getStringFromDouble
 import io.reactivex.BackpressureStrategy
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.Disposable
+import io.reactivex.schedulers.Schedulers
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import quanti.com.kotlinlog.Log
@@ -36,6 +40,7 @@ class ProductsFragment : Fragment(), OnTouchOutsideViewListener {
     private lateinit var productsAdapter: ShopAdapter
     private lateinit var productsBinding: FragmentProductsBinding
     private lateinit var activityCallback: ActivityCallback
+    private var syncStateDisposable: Disposable? = null
     private var chosenCurrency: String = ""
 
     override fun onCreateView(
@@ -65,8 +70,8 @@ class ProductsFragment : Fragment(), OnTouchOutsideViewListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        productsBinding.productsMessage.text = getString(R.string.loading)
         initProductsAdapter()
+        productsBinding.productsMessage.text = getString(R.string.loading)
         initObservers()
         initSearchBar()
         initOnClickListeners()
@@ -133,11 +138,28 @@ class ProductsFragment : Fragment(), OnTouchOutsideViewListener {
     }
 
     private fun initObservers() {
+        syncStateDisposable?.dispose()
+        syncStateDisposable = vm.syncStateObservable()
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({ syncState ->
+                when (syncState) {
+                    SynchronizationState.STARTED -> {
+                        setMessage(getString(R.string.loading))
+                    }
+                    else -> {
+                        setMessage(getString(R.string.no_products))
+                    }
+                }
+            }, {
+                Log.e(it)
+            })
+
         vm.getProducts().toFlowable(BackpressureStrategy.LATEST)
             .toLiveData()
             .observe(viewLifecycleOwner, {
                 productsAdapter.setData(it)
-                setMessage()
+                setMessageVisible(it.isEmpty())
             })
 
         vm.getSelectedProducts().observe(viewLifecycleOwner, { products ->
@@ -231,9 +253,12 @@ class ProductsFragment : Fragment(), OnTouchOutsideViewListener {
         vm.addToShoppingCart(selected)
     }
 
-    private fun setMessage() {
-        productsBinding.productsMessage.text = getString(R.string.no_products)
-        if (productsAdapter.itemCount == 0) {
+    private fun setMessage(message: String) {
+        productsBinding.productsMessage.text = message
+    }
+
+    private fun setMessageVisible (visible: Boolean) {
+        if (visible) {
             productsBinding.productsMessage.visibility = View.VISIBLE
         } else {
             productsBinding.productsMessage.visibility = View.GONE

@@ -31,19 +31,18 @@ class InvoiceRepositoryImpl(
         return Single.fromCallable { invoiceDao.insert(convertToDb(invoice)) }
     }
 
-    override fun getInvoices(): Single<List<Invoice>> {
-        return invoiceDao.getAll().flatMap { invoicesDb ->
-            Observable.fromIterable(invoicesDb)
-                .flatMapSingle { invoiceDb ->
-                    val invoice = Invoice(
-                        invoiceId = invoiceDb.id,
-                        date = invoiceDb.date,
-                        quantity = invoiceDb.quantity,
-                        value = invoiceDb.value,
-                        currency = invoiceDb.currency
-                    )
-                    Single.just(invoice)
-                }.toList()
+    override fun getInvoices(): Observable<List<Invoice>> {
+        return invoiceDao.getAll().map { invoicesDb ->
+            invoicesDb.map { invoiceDb ->
+                val invoice = Invoice(
+                    invoiceId = invoiceDb.id,
+                    date = invoiceDb.date,
+                    quantity = invoiceDb.quantity,
+                    value = invoiceDb.value,
+                    currency = invoiceDb.currency
+                )
+                invoice
+            }
         }
     }
 

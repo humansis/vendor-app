@@ -13,12 +13,11 @@ class InvoicesViewModel(
     private val synchronizationManager: SynchronizationManager
 ) : ViewModel() {
 
-    fun getInvoices(): Single<List<Invoice>> {
+    fun getInvoices(): Observable<List<Invoice>> {
         return invoiceFacade.getInvoices()
     }
 
-    fun syncNeededObservable(): Observable<SynchronizationState> {
+    fun syncStateObservable(): Observable<SynchronizationState> {
         return synchronizationManager.syncStateObservable()
-            .filter { it == SynchronizationState.SUCCESS }
     }
 }

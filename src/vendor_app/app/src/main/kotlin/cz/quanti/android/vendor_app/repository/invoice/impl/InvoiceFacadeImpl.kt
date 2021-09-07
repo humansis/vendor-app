@@ -20,7 +20,7 @@ class InvoiceFacadeImpl(
         return retrieveInvoices(vendorId)
     }
 
-    override fun getInvoices(): Single<List<Invoice>> {
+    override fun getInvoices(): Observable<List<Invoice>> {
         return invoiceRepo.getInvoices()
     }
 

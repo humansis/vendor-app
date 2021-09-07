@@ -74,7 +74,6 @@ class TransactionsFragment : Fragment() {
 
     override fun onStart() {
         super.onStart()
-        setMessage(getString(R.string.no_transactions_to_reimburse))
         initObservers()
     }
 
@@ -88,45 +87,36 @@ class TransactionsFragment : Fragment() {
             }
         })
 
+        transactionsDisposable?.dispose()
+        transactionsDisposable = vm.getTransactions()
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({ transactions ->
+                transactionsAdapter.setData(transactions)
+                setMessageVisible(transactions.isEmpty())
+            }, {
+                Log.e(TAG, it)
+            })
+
         syncStateDisposable?.dispose()
         syncStateDisposable = vm.syncStateObservable()
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({ syncState ->
                 when (syncState) {
-                    SynchronizationState.SUCCESS -> {
-                        getTransactions()
-                    }
-                    SynchronizationState.ERROR -> {
-                        transactionsBinding.unsyncedWarning.warningButton.isEnabled = true
-                        setMessage(getString(R.string.no_transactions_to_reimburse))
-                    }
                     SynchronizationState.STARTED -> {
                         transactionsBinding.unsyncedWarning.warningButton.isEnabled = false
                         setMessage(getString(R.string.loading))
                     }
                     else -> {
-
+                        transactionsBinding.unsyncedWarning.warningButton.isEnabled = true
+                        setMessage(getString(R.string.no_transactions_to_reimburse))
                     }
                 }
             }, {
                 Log.e(TAG, it)
             })
     }
-
-    private fun getTransactions() {
-        transactionsDisposable?.dispose()
-        transactionsDisposable = vm.getTransactions()
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe({
-                transactionsAdapter.setData(it)
-                setMessage(getString(R.string.no_transactions_to_reimburse))
-            }, {
-                Log.e(TAG, it)
-            })
-    }
-
 
     override fun onStop() {
         super.onStop()
@@ -136,7 +126,10 @@ class TransactionsFragment : Fragment() {
 
     private fun setMessage(message: String) {
         transactionsBinding.transactionsMessage.text = message
-        if (transactionsAdapter.itemCount == 0) {
+    }
+
+    private fun setMessageVisible (visible: Boolean) {
+        if (visible) {
             transactionsBinding.transactionsMessage.visibility = View.VISIBLE
         } else {
             transactionsBinding.transactionsMessage.visibility = View.GONE

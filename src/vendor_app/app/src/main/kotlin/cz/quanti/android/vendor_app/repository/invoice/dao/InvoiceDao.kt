@@ -3,6 +3,7 @@ package cz.quanti.android.vendor_app.repository.invoice.dao
 import androidx.room.*
 import cz.quanti.android.vendor_app.repository.VendorDb
 import cz.quanti.android.vendor_app.repository.invoice.dto.db.InvoiceDbEntity
+import io.reactivex.Observable
 import io.reactivex.Single
 
 @Dao
@@ -18,7 +19,7 @@ interface InvoiceDao {
     fun deleteAll()
 
     @Query("SELECT * FROM " + VendorDb.TABLE_INVOICE)
-    fun getAll(): Single<List<InvoiceDbEntity>>
+    fun getAll(): Observable<List<InvoiceDbEntity>>
 
     @Query("SELECT count(*) FROM " + VendorDb.TABLE_INVOICE)
     fun getCount(): Single<Int>

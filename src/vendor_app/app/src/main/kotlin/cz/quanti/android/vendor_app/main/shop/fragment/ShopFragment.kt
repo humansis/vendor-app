@@ -275,7 +275,7 @@ class ShopFragment : Fragment(), OnTouchOutsideViewListener {
 
     private fun setAppBarHidden(boolean: Boolean) {
         if (boolean) {
-            shopBinding.categoriesAppBarLayout.layoutParams.height = 0 // TODO vyresit proc to zas nejde
+            shopBinding.categoriesAppBarLayout.layoutParams.height = 0
         } else {
             shopBinding.categoriesAppBarLayout.layoutParams.height = AppBarLayout.LayoutParams.WRAP_CONTENT
         }

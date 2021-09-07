@@ -19,7 +19,7 @@
         app:layout_constraintBottom_toTopOf="@id/shopCoordinatorLayout" />
 
     <TextView
-        android:id="@+id/productsMessage"
+        android:id="@+id/shopMessage"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textColor="@color/black"

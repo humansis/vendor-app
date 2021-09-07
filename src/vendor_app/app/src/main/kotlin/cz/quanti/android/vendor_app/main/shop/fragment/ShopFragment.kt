@@ -38,7 +38,11 @@ import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.appbar.AppBarLayout.OnOffsetChangedListener
 import cz.quanti.android.vendor_app.main.authorization.viewmodel.LoginViewModel
+import cz.quanti.android.vendor_app.sync.SynchronizationState
 import cz.quanti.android.vendor_app.utils.getBackgroundColor
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.Disposable
+import io.reactivex.schedulers.Schedulers
 import quanti.com.kotlinlog.Log
 import kotlin.math.abs
 
@@ -51,6 +55,7 @@ class ShopFragment : Fragment(), OnTouchOutsideViewListener {
     private lateinit var productsAdapter: ProductsAdapter
     private lateinit var shopBinding: FragmentShopBinding
     private lateinit var activityCallback: ActivityCallback
+    private var syncStateDisposable: Disposable? = null
     private var chosenCurrency: String = ""
     private var categoriesAllowed = MutableLiveData<Boolean>()
     private lateinit var appBarState: AppBarStateEnum
@@ -86,7 +91,6 @@ class ShopFragment : Fragment(), OnTouchOutsideViewListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        shopBinding.productsMessage.text = getString(R.string.loading)
         shopBinding.categoriesAppBarLayout.background.setTint(
             getBackgroundColor(requireContext(), loginVM.getApiHost())
         )
@@ -206,11 +210,28 @@ class ShopFragment : Fragment(), OnTouchOutsideViewListener {
             }
         })
 
+        syncStateDisposable?.dispose()
+        syncStateDisposable = vm.syncStateObservable()
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({ syncState ->
+                when (syncState) {
+                    SynchronizationState.STARTED -> {
+                        setMessage(getString(R.string.loading))
+                    }
+                    else -> {
+                        setMessage(getString(R.string.no_products))
+                    }
+                }
+            }, {
+                Log.e(it)
+            })
+
         vm.getProducts().toFlowable(BackpressureStrategy.LATEST)
             .toLiveData()
             .observe(viewLifecycleOwner, {
                 productsAdapter.setData(it)
-                setMessage()
+                setMessageVisible(it.isEmpty())
             })
 
         vm.getSelectedProducts().observe(viewLifecycleOwner, { products ->
@@ -336,12 +357,15 @@ class ShopFragment : Fragment(), OnTouchOutsideViewListener {
         vm.addToShoppingCart(selected)
     }
 
-    private fun setMessage() {
-        shopBinding.productsMessage.text = getString(R.string.no_products)
-        if (productsAdapter.itemCount == 0) {
-            shopBinding.productsMessage.visibility = View.VISIBLE
+    private fun setMessage(message: String) {
+        shopBinding.shopMessage.text = message
+    }
+
+    private fun setMessageVisible (visible: Boolean) {
+        if (visible) {
+            shopBinding.shopMessage.visibility = View.VISIBLE
         } else {
-            shopBinding.productsMessage.visibility = View.GONE
+            shopBinding.shopMessage.visibility = View.GONE
         }
     }
 

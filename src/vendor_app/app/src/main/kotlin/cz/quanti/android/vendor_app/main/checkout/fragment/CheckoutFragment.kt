@@ -136,7 +136,6 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
     }
 
     private fun initOnClickListeners() {
-
         checkoutBinding.checkoutFooter.backButton.setOnClickListener {
             Log.d(TAG, "Back button clicked.")
             cancel()

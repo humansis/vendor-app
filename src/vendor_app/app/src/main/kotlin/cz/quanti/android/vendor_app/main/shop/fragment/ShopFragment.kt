@@ -44,6 +44,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import quanti.com.kotlinlog.Log
+import java.math.BigDecimal
 import kotlin.math.abs
 
 class ShopFragment : Fragment(), OnTouchOutsideViewListener {
@@ -322,6 +323,20 @@ class ShopFragment : Fragment(), OnTouchOutsideViewListener {
         val confirmButton = dialogBinding.editProduct.confirmButton
         priceEditText.hint = requireContext().getString(R.string.price)
         dialogBinding.editProduct.priceTextInputLayout.suffixText = chosenCurrency
+
+        if (product.category.type == CategoryType.CASHBACK) {
+            dialogBinding.editProduct.priceEditText.isEnabled = false
+            product.unitPrice?.let {
+                val price = BigDecimal.valueOf(it).stripTrailingZeros().toPlainString()
+                dialogBinding.editProduct.priceEditText.setText(price.toString())
+            }
+        }
+        vm.getSelectedProducts().value
+            ?.filter { it.category.type == CategoryType.CASHBACK }
+            ?.let {
+                confirmButton.isEnabled = false
+                mainVM.setToastMessage(getString(R.string.only_one_cashback_item_allowed))
+            }
 
         dialogBinding.closeButton.setOnClickListener {
             Log.d(TAG, "Close product options button clicked")

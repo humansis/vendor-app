@@ -11,6 +11,7 @@ import cz.quanti.android.vendor_app.R
 import cz.quanti.android.vendor_app.databinding.ItemShoppingCartBinding
 import cz.quanti.android.vendor_app.main.checkout.callback.CheckoutFragmentCallback
 import cz.quanti.android.vendor_app.main.checkout.viewholder.SelectedProductsViewHolder
+import cz.quanti.android.vendor_app.repository.category.dto.CategoryType
 import cz.quanti.android.vendor_app.repository.purchase.dto.SelectedProduct
 import cz.quanti.android.vendor_app.utils.getStringFromDouble
 import cz.quanti.android.vendor_app.utils.round
@@ -112,6 +113,7 @@ class SelectedProductsAdapter(
 
     private fun loadOptions(holder: SelectedProductsViewHolder, item: SelectedProduct) {
         val price = BigDecimal.valueOf(item.price).stripTrailingZeros().toPlainString()
+        holder.priceEditText.isEnabled = item.category.type != CategoryType.CASHBACK
         holder.priceEditText.setText(price)
         holder.priceTextInputLayout.suffixText = chosenCurrency
         holder.confirm.text = context.getString(R.string.confirm)

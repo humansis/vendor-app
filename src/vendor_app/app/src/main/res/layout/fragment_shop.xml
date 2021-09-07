@@ -64,6 +64,7 @@
                 android:text="@string/all_products"
                 android:textColor="@color/colorPrimary"
                 android:textStyle="bold"
+                android:lines="1"
                 app:drawableStartCompat="@drawable/ic_down"
                 app:drawableTint="@color/colorPrimary" />
 

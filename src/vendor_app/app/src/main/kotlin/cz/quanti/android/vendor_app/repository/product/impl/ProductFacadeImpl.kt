@@ -2,6 +2,7 @@ package cz.quanti.android.vendor_app.repository.product.impl
 
 import android.content.Context
 import com.bumptech.glide.Glide
+import cz.quanti.android.vendor_app.repository.category.CategoryRepository
 import cz.quanti.android.vendor_app.repository.product.ProductFacade
 import cz.quanti.android.vendor_app.repository.product.ProductRepository
 import cz.quanti.android.vendor_app.repository.product.dto.Product
@@ -12,6 +13,7 @@ import io.reactivex.Observable
 
 class ProductFacadeImpl(
     private val productRepo: ProductRepository,
+    private val categoryRepo: CategoryRepository,
     private val context: Context
 ) : ProductFacade {
 
@@ -24,9 +26,10 @@ class ProductFacadeImpl(
     }
 
     private fun reloadProductFromServer(): Completable {
+        // Todo nejdriv mit kategorie a pak az brat produkty podle id kategorie
         return productRepo.getProductsFromServer().flatMapCompletable { response ->
             val responseCode = response.first
-            val products = response.second
+            val products = response.second.toMutableList()
             if (isPositiveResponseHttpCode(responseCode)) {
                 actualizeDatabase(products)
             } else {

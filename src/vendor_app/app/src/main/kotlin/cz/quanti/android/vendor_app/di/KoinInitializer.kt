@@ -140,14 +140,14 @@ object KoinInitializer {
         // Facade
         val loginFacade: LoginFacade = LoginFacadeImpl(loginRepo, loginManager, currentVendor)
         val categoryFacade: CategoryFacade = CategoryFacadeImpl(categoryRepo)
-        val productFacade: ProductFacade = ProductFacadeImpl(productRepo, app.applicationContext)
+        val productFacade: ProductFacade = ProductFacadeImpl(productRepo, categoryRepo, app.applicationContext)
         val bookletFacade: BookletFacade = BookletFacadeImpl(bookletRepo)
         val cardFacade: CardFacade = CardFacadeImpl(cardRepo)
         val purchaseFacade: PurchaseFacade = PurchaseFacadeImpl(purchaseRepo, cardRepo)
         val transactionFacade: TransactionFacade = TransactionFacadeImpl(transactionRepo)
         val invoiceFacade: InvoiceFacade = InvoiceFacadeImpl(invoiceRepo)
         val syncFacade: SynchronizationFacade =
-            SynchronizationFacadeImpl(bookletFacade, cardFacade, productFacade, purchaseFacade, transactionFacade, invoiceFacade)
+            SynchronizationFacadeImpl(bookletFacade, cardFacade, categoryFacade, productFacade, purchaseFacade, transactionFacade, invoiceFacade)
         val synchronizationManager: SynchronizationManager =
             SynchronizationManagerImpl(preferences, syncFacade)
         val nfcFacade: VendorFacade = PINFacade(

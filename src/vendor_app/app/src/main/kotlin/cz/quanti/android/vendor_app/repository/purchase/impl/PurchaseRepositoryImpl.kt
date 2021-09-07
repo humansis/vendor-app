@@ -204,7 +204,9 @@ class PurchaseRepositoryImpl(
     private fun convert(purchasedProductDbEntity: PurchasedProductDbEntity): SelectedProduct {
         return SelectedProduct(
             price = purchasedProductDbEntity.value,
-            product = Product(id = purchasedProductDbEntity.productId)
+            product = Product(
+                id = purchasedProductDbEntity.productId
+            )
         )
     }
 

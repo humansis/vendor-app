@@ -53,6 +53,7 @@ class ShopFragment : Fragment(), OnTouchOutsideViewListener {
     private lateinit var activityCallback: ActivityCallback
     private var chosenCurrency: String = ""
     private var categoriesAllowed = MutableLiveData<Boolean>()
+    private lateinit var appBarState: AppBarStateEnum
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -181,8 +182,10 @@ class ShopFragment : Fragment(), OnTouchOutsideViewListener {
                 if (categories.size > 1) {
                     categoriesAllowed.value = true
                     categoriesAdapter.setData(categories.addAllCategory(requireContext()))
+                    appBarState = AppBarStateEnum.EXPANDED
                 } else {
                     categoriesAllowed.value = false
+                    appBarState = AppBarStateEnum.COLLAPSED
                 }
             })
 
@@ -190,11 +193,14 @@ class ShopFragment : Fragment(), OnTouchOutsideViewListener {
             setAppBarHidden(!it)
             showCategories(it, null)
             if (it) {
-                // TODO kouknout jestli to nespamuje logy requestLayout() improperly called by RecyclerView
                 shopBinding.categoriesAppBarLayout.addOnOffsetChangedListener( OnOffsetChangedListener { appBarLayout, verticalOffset ->
-                    if (abs(verticalOffset) >= appBarLayout.totalScrollRange) // If collapsed
-                    {
-                        shopBinding.categoriesRecyclerView.scrollToPosition(0)
+                    if (abs(verticalOffset) >= appBarLayout.totalScrollRange) {
+                        if (appBarState != AppBarStateEnum.COLLAPSED) {
+                            appBarState = AppBarStateEnum.COLLAPSED
+                            shopBinding.categoriesRecyclerView.scrollToPosition(0)
+                        }
+                    } else {
+                        appBarState = AppBarStateEnum.EXPANDED
                     }
                 })
             }
@@ -203,7 +209,6 @@ class ShopFragment : Fragment(), OnTouchOutsideViewListener {
         vm.getProducts().toFlowable(BackpressureStrategy.LATEST)
             .toLiveData()
             .observe(viewLifecycleOwner, {
-                // TODO if it.category == null -> vytvorit category other
                 productsAdapter.setData(it)
                 setMessage()
             })
@@ -355,13 +360,16 @@ class ShopFragment : Fragment(), OnTouchOutsideViewListener {
     }
 }
 
+enum class AppBarStateEnum {
+    COLLAPSED, EXPANDED
+}
+
 private fun List<Category>.addAllCategory(context: Context): List<Category> {
     return this.toMutableList().apply {
         add(0, Category(0,
             context.getString(R.string.all_products),
             CategoryType.ALL
-        )
-        )
+        ))
     }
 }
 

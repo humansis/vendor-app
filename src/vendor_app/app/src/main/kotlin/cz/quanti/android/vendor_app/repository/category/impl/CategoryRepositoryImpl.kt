@@ -7,9 +7,9 @@ import cz.quanti.android.vendor_app.repository.category.dto.Category
 import cz.quanti.android.vendor_app.repository.category.dto.CategoryType
 import cz.quanti.android.vendor_app.repository.category.dto.api.CategoryApiEntity
 import cz.quanti.android.vendor_app.repository.category.dto.db.CategoryDbEntity
+import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.Single
-import quanti.com.kotlinlog.android.extractFieldName
 
 class CategoryRepositoryImpl(
     private val categoryDao: CategoryDao,
@@ -36,11 +36,32 @@ class CategoryRepositoryImpl(
         }
     }
 
+    override fun getCategory(category: Category): Category {
+        return convert(categoryDao.getCategoryById(category.id))
+    }
+
+    override fun saveCategory(category: Category): Completable {
+        return Completable.fromCallable { categoryDao.insert(convert(category)) }
+    }
+
+    override fun deleteCategories(): Completable {
+        return Completable.fromCallable { categoryDao.deleteAll() }
+    }
+
     private fun convert(category: CategoryApiEntity): Category {
         return Category(
             id = category.id,
             name = category.name,
-            type = category.type,
+            type = CategoryType.valueOf(category.type),
+            image = category.image
+        )
+    }
+
+    private fun convert(category: Category): CategoryDbEntity {
+        return CategoryDbEntity(
+            id = category.id,
+            name = category.name,
+            type = category.type.name,
             image = category.image
         )
     }

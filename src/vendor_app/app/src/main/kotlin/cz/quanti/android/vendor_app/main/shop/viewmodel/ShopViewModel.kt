@@ -68,6 +68,10 @@ class ShopViewModel(
         return shoppingHolder.getProducts()
     }
 
+    fun removeSelectedProduct(product: SelectedProduct) {
+        shoppingHolder.removeProductAt(product)
+    }
+
     fun addToShoppingCart(product: SelectedProduct) {
         shoppingHolder.addProduct(product)
     }

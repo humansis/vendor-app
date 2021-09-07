@@ -34,6 +34,7 @@ import cz.quanti.android.vendor_app.main.authorization.viewmodel.LoginViewModel
 import cz.quanti.android.vendor_app.main.shop.adapter.CurrencyAdapter
 import cz.quanti.android.vendor_app.main.shop.viewmodel.ShopViewModel
 import cz.quanti.android.vendor_app.repository.AppPreferences
+import cz.quanti.android.vendor_app.repository.category.dto.CategoryType
 import cz.quanti.android.vendor_app.repository.login.LoginFacade
 import cz.quanti.android.vendor_app.sync.SynchronizationManager
 import cz.quanti.android.vendor_app.sync.SynchronizationState
@@ -487,7 +488,17 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
 
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                 shopVM.setCurrency(activityBinding.priceUnitSpinner.selectedItem as String)
+                removeCashbackFromCart()
             }
+        }
+    }
+
+    private fun removeCashbackFromCart() {
+        shopVM.getSelectedProducts().value?.find {
+            it.category.type == CategoryType.CASHBACK && it.currency != shopVM.getCurrency().value
+        }?.let {
+            shopVM.removeSelectedProduct(it)
+            mainVM.setToastMessage(getString(R.string.item_removed_from_cart, it.product.name))
         }
     }
 

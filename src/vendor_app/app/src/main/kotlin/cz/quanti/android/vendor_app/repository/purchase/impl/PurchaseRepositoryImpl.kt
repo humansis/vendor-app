@@ -112,7 +112,8 @@ class PurchaseRepositoryImpl(
                                                 createdAt = purchaseDb.createdAt,
                                                 dbId = purchaseDb.dbId,
                                                 vendorId = purchaseDb.vendorId,
-                                                beneficiaryId = cardPurchaseDb.beneficiaryId
+                                                beneficiaryId = cardPurchaseDb.beneficiaryId,
+                                                currency = purchaseDb.currency
                                             )
                                             purchase.products.addAll(productsDb.map { convert(it) })
                                             purchase.vouchers.addAll(voucherPurchasesDb.map { it.voucher })

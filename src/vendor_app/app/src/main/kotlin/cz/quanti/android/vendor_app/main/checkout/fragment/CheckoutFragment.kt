@@ -21,6 +21,7 @@ import cz.quanti.android.vendor_app.main.checkout.adapter.ScannedVoucherAdapter
 import cz.quanti.android.vendor_app.main.checkout.adapter.SelectedProductsAdapter
 import cz.quanti.android.vendor_app.main.checkout.callback.CheckoutFragmentCallback
 import cz.quanti.android.vendor_app.main.checkout.viewmodel.CheckoutViewModel
+import cz.quanti.android.vendor_app.repository.category.dto.CategoryType
 import cz.quanti.android.vendor_app.repository.purchase.dto.SelectedProduct
 import cz.quanti.android.vendor_app.utils.getStringFromDouble
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -126,12 +127,13 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
             actualizeTotal()
         })
 
-        vm.getSelectedProducts().observe(viewLifecycleOwner, {
+        vm.getSelectedProducts().observe(viewLifecycleOwner, { products ->
             selectedProductsAdapter.closeExpandedCard()
-            selectedProductsAdapter.setData(it)
-            vm.setProducts(it)
-            showIfCartEmpty(it.isNotEmpty())
+            selectedProductsAdapter.setData(products)
+            vm.setProducts(products)
+            showIfCartEmpty(products.isNotEmpty())
             actualizeTotal()
+            checkForCashbacks(products)
         })
     }
 
@@ -320,6 +322,17 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
                 checkoutBinding.totalTextView.setTextColor(red)
                 checkoutBinding.totalPriceTextView.setTextColor(red)
             }
+        }
+    }
+
+    private fun checkForCashbacks(products: List<SelectedProduct>) {
+        if (products.filter { it.category.type == CategoryType.CASHBACK }.size > 1) {
+            checkoutBinding.scanButton.isEnabled = false
+            checkoutBinding.payByCardButton.isEnabled = false
+            mainVM.setToastMessage(getString(R.string.only_one_cashback_item_allowed))
+        } else {
+            checkoutBinding.scanButton.isEnabled = true
+            checkoutBinding.payByCardButton.isEnabled = true
         }
     }
 

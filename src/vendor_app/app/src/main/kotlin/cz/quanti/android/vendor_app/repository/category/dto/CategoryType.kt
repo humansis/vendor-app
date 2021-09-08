@@ -1,9 +1,11 @@
 package cz.quanti.android.vendor_app.repository.category.dto
 
-enum class CategoryType() {
+import com.google.gson.annotations.SerializedName
+
+enum class CategoryType {
     ALL,
-    FOOD,
-    NONFOOD,
-    CASHBACK,
+    @SerializedName("Food")FOOD,
+    @SerializedName("Non-food")NONFOOD,
+    @SerializedName("Cashback")CASHBACK,
     OTHER
 }

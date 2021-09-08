@@ -38,12 +38,12 @@ class SynchronizationManagerImpl(
         }
     }
 
-    override fun syncStateSubject(): Subject<SynchronizationState> {
+    override fun syncStateObservable(): Observable<SynchronizationState> {
         return syncStatePublishSubject
     }
 
-    override fun syncStateObservable(): Observable<SynchronizationState> {
-        return syncStatePublishSubject
+    override fun resetSyncState() {
+        syncStatePublishSubject.onNext(SynchronizationState.INIT)
     }
 
     companion object {

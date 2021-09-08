@@ -112,6 +112,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
     }
 
     override fun onPause() {
+        synchronizationManager.resetSyncState()
         successPlayer.release()
         errorPlayer.release()
         syncStateDisposable?.dispose()

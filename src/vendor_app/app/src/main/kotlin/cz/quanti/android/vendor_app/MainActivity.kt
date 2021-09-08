@@ -378,6 +378,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
                             mainVM.setToastMessage(getString(R.string.could_not_synchronize_data_with_server))
                         }
                     }
+                    else -> {}
                 }
             }, {
                 Log.e(TAG, it)

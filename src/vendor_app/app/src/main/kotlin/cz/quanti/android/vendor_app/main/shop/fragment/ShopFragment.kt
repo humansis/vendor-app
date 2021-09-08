@@ -230,9 +230,9 @@ class ShopFragment : Fragment(), OnTouchOutsideViewListener {
 
         vm.getProducts().toFlowable(BackpressureStrategy.LATEST)
             .toLiveData()
-            .observe(viewLifecycleOwner, {
-                productsAdapter.setData(it)
-                setMessageVisible(it.isEmpty())
+            .observe(viewLifecycleOwner, { products ->
+                productsAdapter.setData(chosenCurrency, products)
+                setMessageVisible(products.isEmpty())
             })
 
         vm.getSelectedProducts().observe(viewLifecycleOwner, { products ->
@@ -255,6 +255,10 @@ class ShopFragment : Fragment(), OnTouchOutsideViewListener {
 
         vm.getCurrency().observe(viewLifecycleOwner, {
             chosenCurrency = it
+            productsAdapter.setData(
+                it,
+                vm.getProducts().toFlowable(BackpressureStrategy.LATEST).toLiveData().value
+            )
         })
     }
 
@@ -348,14 +352,22 @@ class ShopFragment : Fragment(), OnTouchOutsideViewListener {
             Log.d(TAG, "Confirm product options clicked")
             try {
                 val price = priceEditText.text.toString().toDouble()
-                if (price <= INVALID_PRICE_VALUE) {
-                    mainVM.setToastMessage(getString(R.string.please_enter_price))
-                } else {
-                    addProductToCart(
-                        product,
-                        price
-                    )
-                    dialog.dismiss()
+                when {
+                    price <= INVALID_PRICE_VALUE -> {
+                        mainVM.setToastMessage(getString(R.string.please_enter_price))
+                    }
+                    !vm.getSelectedProducts().value?.filter {
+                        it.category.type == CategoryType.CASHBACK
+                    }.isNullOrEmpty() -> {
+                        mainVM.setToastMessage(getString(R.string.only_one_cashback_item_allowed))
+                    }
+                    else -> {
+                        addProductToCart(
+                            product,
+                            price
+                        )
+                        dialog.dismiss()
+                    }
                 }
             } catch (e: NumberFormatException) {
                 mainVM.setToastMessage(getString(R.string.please_enter_price))

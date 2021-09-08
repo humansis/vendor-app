@@ -33,7 +33,7 @@ class ProductsAdapter(
     }
 
     @SuppressLint("NotifyDataSetChanged")
-    fun setData(data: List<Product>) {
+    fun setFilteredData(data: List<Product>) {
         products.clear()
         products.addAll(data)
         productsFull.clear()
@@ -62,7 +62,7 @@ class ProductsAdapter(
                         filteredList.add(product)
                     }
                     // TODO filter products by category name
-                    if (product.category?.name?.lowercase(Locale.getDefault())?.contains(filterPattern) == true) {
+                    if (product.category.name.lowercase(Locale.getDefault()).contains(filterPattern)) {
                         filteredList.add(product)
                     }
                 }
@@ -94,6 +94,12 @@ class ProductsAdapter(
             Log.d(TAG, "Product $position clicked")
             shopFragment.openProduct(products[position])
         }
+    }
+
+    fun setData(chosenCurrency: String?, products: List<Product>?) {
+        products?.filter {
+            it.currency.isNullOrEmpty() || it.currency == chosenCurrency
+        }?.let { setFilteredData(it) }
     }
 
     companion object {

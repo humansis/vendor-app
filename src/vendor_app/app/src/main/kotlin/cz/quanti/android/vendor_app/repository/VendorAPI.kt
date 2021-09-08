@@ -22,7 +22,7 @@ interface VendorAPI {
     @POST("v1/login")
     fun postLogin(@Body vendor: VendorApiEntity): Single<Response<VendorApiEntity>>
 
-    @GET("v2/categories")
+    @GET("v1/product-categories")
     fun getCategories(
         @Query("filter[vendor][]") vendorId: Int
     ): Single<Response<List<CategoryApiEntity>>>

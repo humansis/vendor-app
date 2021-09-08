@@ -161,7 +161,10 @@ class ShopFragment : Fragment(), OnTouchOutsideViewListener {
     private fun initSearchBar() {
         shopBinding.shopSearchBar.setOnClickListener {
             Log.d(TAG, "SearchBar clicked")
-            shopBinding.shopSearchBar.isIconified = false
+            if (shopBinding.shopSearchBar.isIconified) {
+                shopBinding.shopSearchBar.isIconified = false
+                productsAdapter.filter.filter("")
+            }
             showCategories(false, null)
         }
         shopBinding.shopSearchBar.imeOptions = EditorInfo.IME_ACTION_DONE

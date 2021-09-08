@@ -41,8 +41,9 @@ String VERSION_FULL_NAME_FILE = "${APK_NAME}-${VERSION_NAME}.${gitVersionCode(tr
 
 
 repositories {
-    mavenCentral()
+    google()
     jcenter() // stays here because of com.budiyev.android:code-scanner:2.1.0.
+    mavenCentral()
     maven { url 'https://jitpack.io' }
 }
 

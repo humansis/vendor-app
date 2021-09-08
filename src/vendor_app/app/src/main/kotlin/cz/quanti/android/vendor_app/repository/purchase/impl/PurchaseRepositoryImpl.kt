@@ -179,7 +179,7 @@ class PurchaseRepositoryImpl(
 
     private fun savePurchasedProducts(
         purchaseId: Long,
-        products: List<SelectedProduct>
+        products: List<PurchasedProduct>
     ): Completable {
         return Observable.fromIterable(products).flatMapCompletable { purchasedProduct ->
             Completable.fromCallable {
@@ -213,27 +213,19 @@ class PurchaseRepositoryImpl(
         }
     }
 
-    private fun convert(purchasedProductDbEntity: PurchasedProductDbEntity): SelectedProduct {
-        val categoryDb = categoryDao.getCategoryById(purchasedProductDbEntity.categoryId)
-        return SelectedProduct(
+    private fun convert(purchasedProductDbEntity: PurchasedProductDbEntity): PurchasedProduct {
+        return PurchasedProduct(
             price = purchasedProductDbEntity.value,
             product = Product(
                 id = purchasedProductDbEntity.productId
-            ),
-            category = Category(
-                id = categoryDb.id,
-                name = categoryDb.name,
-                type = CategoryType.valueOf(categoryDb.type),
-                image = categoryDb.image
-            ),
-            currency = purchasedProductDbEntity.currency
+            )
         )
     }
 
-    private fun convertToApi(selectedProduct: SelectedProduct, currency: String): PurchasedProductApiEntity {
+    private fun convertToApi(purchased: PurchasedProduct, currency: String): PurchasedProductApiEntity {
         return PurchasedProductApiEntity(
-            id = selectedProduct.product.id,
-            value = selectedProduct.price,
+            id = purchased.product.id,
+            value = purchased.price,
             currency = currency
         )
     }
@@ -249,10 +241,10 @@ class PurchaseRepositoryImpl(
             }
     }
 
-    private fun convertToDb(selectedProduct: SelectedProduct, purchaseId: Long): PurchasedProductDbEntity {
+    private fun convertToDb(purchasedProduct: PurchasedProduct, purchaseId: Long): PurchasedProductDbEntity {
         return PurchasedProductDbEntity(
-            productId = selectedProduct.product.id,
-            value = selectedProduct.price,
+            productId = purchasedProduct.product.id,
+            value = purchasedProduct.price,
             purchaseId = purchaseId
         )
     }

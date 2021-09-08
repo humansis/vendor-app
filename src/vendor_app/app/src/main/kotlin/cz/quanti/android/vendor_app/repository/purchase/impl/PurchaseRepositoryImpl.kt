@@ -129,11 +129,21 @@ class PurchaseRepositoryImpl(
     }
 
     override fun addProductToCart(product: SelectedProduct) {
-        selectedProductDao.insert(convertToDb(product))
+        if (product.category.type == CategoryType.CASHBACK) {
+            if (selectedProductDao.getAll().none {
+                categoryDao.getCategoryById(it.categoryId).type == CategoryType.CASHBACK.name
+            }) {
+                selectedProductDao.insert(convertToDb(product))
+            } else {
+                Log.e(TAG, "One cashback item already in cart")
+            }
+        } else {
+            selectedProductDao.insert(convertToDb(product))
+        }
     }
 
     override fun getProductsFromCart(): Observable<List<SelectedProduct>> {
-        return selectedProductDao.getAll().map { products ->
+        return selectedProductDao.getAllObservable().map { products ->
             products.map {
                 convert(it)
             }

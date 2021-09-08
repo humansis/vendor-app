@@ -8,5 +8,5 @@ interface ProductFacade {
 
     fun getProducts(): Observable<List<Product>>
 
-    fun syncWithServer(): Completable
+    fun syncWithServer(vendorId: Int): Completable
 }

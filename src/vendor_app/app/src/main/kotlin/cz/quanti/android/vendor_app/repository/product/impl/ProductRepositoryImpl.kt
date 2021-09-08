@@ -16,8 +16,8 @@ class ProductRepositoryImpl(
 ) :
     ProductRepository {
 
-    override fun getProductsFromServer(): Single<Pair<Int, List<Product>>> {
-        return api.getProducts().map { response ->
+    override fun getProductsFromServer(vendorId: Int): Single<Pair<Int, List<Product>>> {
+        return api.getProducts(vendorId).map { response ->
             var products = response.body()
             if (products == null) {
                 products = listOf()

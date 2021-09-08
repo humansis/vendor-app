@@ -6,7 +6,6 @@ import cz.quanti.android.vendor_app.repository.category.CategoryFacade
 import cz.quanti.android.vendor_app.repository.invoice.InvoiceFacade
 import cz.quanti.android.vendor_app.repository.product.ProductFacade
 import cz.quanti.android.vendor_app.repository.purchase.PurchaseFacade
-import cz.quanti.android.vendor_app.repository.purchase.dto.Purchase
 import cz.quanti.android.vendor_app.repository.synchronization.SynchronizationFacade
 import cz.quanti.android.vendor_app.repository.transaction.TransactionFacade
 import io.reactivex.Completable
@@ -27,8 +26,8 @@ class SynchronizationFacadeImpl(
         return purchaseFacade.syncWithServer()
             .andThen(bookletFacade.syncWithServer())
             .andThen(cardFacade.syncWithServer())
-            .andThen(categoryFacade.syncWithServer())
-            .andThen(productFacade.syncWithServer())
+            .andThen(categoryFacade.syncWithServer(vendorId))
+            .andThen(productFacade.syncWithServer(vendorId))
             .andThen(transactionFacade.syncWithServer(vendorId))
             .andThen(invoiceFacade.syncWithServer(vendorId))
     }

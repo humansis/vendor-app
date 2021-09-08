@@ -119,12 +119,12 @@ abstract class VendorDb : RoomDatabase() {
             override fun migrate(database: SupportSQLiteDatabase) {
                 database.execSQL("DELETE FROM product")
                 database.execSQL("DELETE FROM selected_product")
-                database.execSQL("ALTER TABLE product ADD categoryId INTEGER")
-                database.execSQL("ALTER TABLE product ADD unitPrice INTEGER")
+                database.execSQL("ALTER TABLE product ADD categoryId INTEGER NOT NULL DEFAULT 0")
+                database.execSQL("ALTER TABLE product ADD unitPrice REAL")
                 database.execSQL("ALTER TABLE product ADD currency TEXT")
-                database.execSQL("ALTER TABLE selected_product ADD categoryId INTEGER")
+                database.execSQL("ALTER TABLE selected_product ADD categoryId INTEGER NOT NULL DEFAULT 0")
                 database.execSQL("ALTER TABLE selected_product ADD currency TEXT")
-                database.execSQL("ALTER TABLE purchased_product ADD categoryId INTEGER")
+                database.execSQL("ALTER TABLE purchased_product ADD categoryId INTEGER NOT NULL DEFAULT 0")
                 database.execSQL("ALTER TABLE purchased_product ADD currency TEXT")
                 database.execSQL("CREATE TABLE 'category' ('id' INTEGER NOT NULL, 'name' TEXT NOT NULL, 'type' TEXT NOT NULL, 'image' TEXT NOT NULL, PRIMARY KEY('id'))")
             }

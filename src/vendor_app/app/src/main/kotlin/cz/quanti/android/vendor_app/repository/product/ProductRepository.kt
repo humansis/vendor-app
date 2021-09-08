@@ -7,7 +7,7 @@ import io.reactivex.Single
 
 interface ProductRepository {
 
-    fun getProductsFromServer(): Single<Pair<Int, List<Product>>>
+    fun getProductsFromServer(vendorId: Int): Single<Pair<Int, List<Product>>>
 
     fun getProducts(): Observable<List<Product>>
 

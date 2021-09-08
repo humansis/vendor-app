@@ -6,7 +6,7 @@ import io.reactivex.Observable
 
 interface CategoryFacade {
 
-    fun syncWithServer(): Completable
+    fun syncWithServer(vendorId: Int): Completable
 
     fun getCategories(): Observable<List<Category>>
 }

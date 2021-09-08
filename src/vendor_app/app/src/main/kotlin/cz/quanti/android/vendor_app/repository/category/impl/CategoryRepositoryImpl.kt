@@ -16,8 +16,8 @@ class CategoryRepositoryImpl(
     private val api: VendorAPI
 ): CategoryRepository {
 
-    override fun getCategoriesFromServer(): Single<Pair<Int, List<Category>>> {
-        return api.getCategories().map { response ->
+    override fun getCategoriesFromServer(vendorId: Int): Single<Pair<Int, List<Category>>> {
+        return api.getCategories(vendorId).map { response ->
             var categories = response.body()
             if (categories == null) {
                 categories = listOf()

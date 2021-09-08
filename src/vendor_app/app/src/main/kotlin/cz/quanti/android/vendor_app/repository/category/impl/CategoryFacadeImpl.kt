@@ -12,12 +12,12 @@ class CategoryFacadeImpl(
     private val categoryRepo: CategoryRepository
 ): CategoryFacade {
 
-    override fun syncWithServer(): Completable {
-        return getCategoriesFromServer()
+    override fun syncWithServer(vendorId: Int): Completable {
+        return getCategoriesFromServer(vendorId)
     }
 
-    private fun getCategoriesFromServer(): Completable {
-        return categoryRepo.getCategoriesFromServer().flatMapCompletable { response ->
+    private fun getCategoriesFromServer(vendorId: Int): Completable {
+        return categoryRepo.getCategoriesFromServer(vendorId).flatMapCompletable { response ->
             val responseCode = response.first
             val categories = response.second.toMutableList()
             if (isPositiveResponseHttpCode(responseCode)) {

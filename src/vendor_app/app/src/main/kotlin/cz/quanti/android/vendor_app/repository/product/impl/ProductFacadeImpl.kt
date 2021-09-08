@@ -21,13 +21,13 @@ class ProductFacadeImpl(
         return productRepo.getProducts()
     }
 
-    override fun syncWithServer(): Completable {
-        return reloadProductFromServer()
+    override fun syncWithServer(vendorId: Int): Completable {
+        return reloadProductFromServer(vendorId)
     }
 
-    private fun reloadProductFromServer(): Completable {
+    private fun reloadProductFromServer(vendorId: Int): Completable {
         // Todo nejdriv mit kategorie a pak az brat produkty podle id kategorie
-        return productRepo.getProductsFromServer().flatMapCompletable { response ->
+        return productRepo.getProductsFromServer(vendorId).flatMapCompletable { response ->
             val responseCode = response.first
             val products = response.second.toMutableList()
             if (isPositiveResponseHttpCode(responseCode)) {

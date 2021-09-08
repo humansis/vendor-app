@@ -14,7 +14,7 @@ class SynchronizationManagerImpl(
     private val syncFacade: SynchronizationFacade
 ) : SynchronizationManager {
 
-    private val syncStatePublishSubject = BehaviorSubject.createDefault(SynchronizationState.SUCCESS)
+    private val syncStatePublishSubject = BehaviorSubject.createDefault(SynchronizationState.INIT)
 
     override fun synchronizeWithServer() {
         if (syncStatePublishSubject.value == SynchronizationState.STARTED) {
@@ -38,12 +38,12 @@ class SynchronizationManagerImpl(
         }
     }
 
-    override fun syncStateSubject(): Subject<SynchronizationState> {
+    override fun syncStateObservable(): Observable<SynchronizationState> {
         return syncStatePublishSubject
     }
 
-    override fun syncStateObservable(): Observable<SynchronizationState> {
-        return syncStatePublishSubject
+    override fun resetSyncState() {
+        syncStatePublishSubject.onNext(SynchronizationState.INIT)
     }
 
     companion object {

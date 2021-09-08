@@ -117,6 +117,8 @@ abstract class VendorDb : RoomDatabase() {
 
         val MIGRATION_7_8 = object : Migration(7, 8) {
             override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL("DELETE FROM product")
+                database.execSQL("DELETE FROM selected_product")
                 database.execSQL("ALTER TABLE product ADD categoryId INTEGER")
                 database.execSQL("ALTER TABLE product ADD unitPrice INTEGER")
                 database.execSQL("ALTER TABLE product ADD currency TEXT")

@@ -326,7 +326,7 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
     }
 
     private fun checkForCashbacks(products: List<SelectedProduct>) {
-        if (products.filter { it.category.type == CategoryType.CASHBACK }.size > 1) {
+        if (products.filter { it.product.category.type == CategoryType.CASHBACK }.size > 1) {
             checkoutBinding.scanButton.isEnabled = false
             checkoutBinding.payByCardButton.isEnabled = false
             mainVM.setToastMessage(getString(R.string.only_one_cashback_item_allowed))

@@ -1,8 +1,7 @@
 package cz.quanti.android.vendor_app.repository.purchase.impl
 
 import cz.quanti.android.vendor_app.repository.VendorAPI
-import cz.quanti.android.vendor_app.repository.category.dao.CategoryDao
-import cz.quanti.android.vendor_app.repository.category.dto.Category
+import cz.quanti.android.vendor_app.repository.category.CategoryRepository
 import cz.quanti.android.vendor_app.repository.category.dto.CategoryType
 import cz.quanti.android.vendor_app.repository.product.dao.ProductDao
 import cz.quanti.android.vendor_app.repository.product.dto.Product
@@ -21,7 +20,7 @@ class PurchaseRepositoryImpl(
     private val purchaseDao: PurchaseDao,
     private val cardPurchaseDao: CardPurchaseDao,
     private val voucherPurchaseDao: VoucherPurchaseDao,
-    private val categoryDao: CategoryDao,
+    private val categoryRepo: CategoryRepository,
     private val productDao: ProductDao,
     private val purchasedProductDao: PurchasedProductDao,
     private val selectedProductDao: SelectedProductDao,
@@ -130,9 +129,11 @@ class PurchaseRepositoryImpl(
     }
 
     override fun addProductToCart(product: SelectedProduct) {
-        if (product.category.type == CategoryType.CASHBACK) {
+        if (product.product.category.type == CategoryType.CASHBACK) {
             if (selectedProductDao.getAll().none {
-                categoryDao.getCategoryById(it.categoryId).type == CategoryType.CASHBACK.name
+                categoryRepo.getCategory(
+                    productDao.getProductById(it.productId).categoryId
+                ).type == CategoryType.CASHBACK
             }) {
                 selectedProductDao.insert(convertToDb(product))
             } else {
@@ -143,7 +144,15 @@ class PurchaseRepositoryImpl(
         }
     }
 
-    override fun getProductsFromCart(): Observable<List<SelectedProduct>> {
+    override fun getProductsFromCart(): Single<List<SelectedProduct>> {
+        return selectedProductDao.getAllSingle().map { products ->
+            products.map { product ->
+                convert(product)
+            }
+        }
+    }
+
+    override fun getProductsFromCartObservable(): Observable<List<SelectedProduct>> {
         return selectedProductDao.getAllObservable().map { products ->
             products.map {
                 convert(it)
@@ -200,18 +209,10 @@ class PurchaseRepositoryImpl(
     }
 
     private fun convert(dbEntity: SelectedProductDbEntity): SelectedProduct {
-        val categoryDb = categoryDao.getCategoryById(dbEntity.categoryId)
         return SelectedProduct(
             dbId = dbEntity.dbId,
             product = convert(productDao.getProductById(dbEntity.productId)),
-            price = dbEntity.value,
-            category = Category(
-                id = categoryDb.id,
-                name = categoryDb.name,
-                type = CategoryType.valueOf(categoryDb.type),
-                image = categoryDb.image
-            ),
-            currency = dbEntity.currency
+            price = dbEntity.value
         )
     }
 
@@ -221,6 +222,9 @@ class PurchaseRepositoryImpl(
             this.name = dbEntity.name
             this.image = dbEntity.image
             this.unit = dbEntity.unit
+            this.category = categoryRepo.getCategory(dbEntity.categoryId)
+            this.unitPrice = dbEntity.unitPrice
+            this.currency = dbEntity.currency
         }
     }
 
@@ -247,8 +251,6 @@ class PurchaseRepositoryImpl(
                 value = purchasedProduct.price,
             ).apply {
                 purchasedProduct.dbId?.let { this.dbId = it }
-                this.categoryId = purchasedProduct.category.id
-                this.currency = purchasedProduct.currency
             }
     }
 

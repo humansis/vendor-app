@@ -7,6 +7,7 @@ import cz.quanti.android.vendor_app.repository.booklet.dto.Voucher
 import cz.quanti.android.vendor_app.repository.purchase.PurchaseFacade
 import cz.quanti.android.vendor_app.repository.purchase.dto.SelectedProduct
 import io.reactivex.BackpressureStrategy
+import io.reactivex.Single
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -26,8 +27,12 @@ data class ShoppingHolder(
         }
     }
 
-    fun getProducts(): LiveData<List<SelectedProduct>> {
+    fun getProductsSingle(): Single<List<SelectedProduct>> {
         return purchaseFacade.getProductsFromCart()
+    }
+
+    fun getProductsLD(): LiveData<List<SelectedProduct>> {
+        return purchaseFacade.getProductsFromCartObservable()
             .toFlowable(BackpressureStrategy.LATEST)
             .toLiveData()
     }

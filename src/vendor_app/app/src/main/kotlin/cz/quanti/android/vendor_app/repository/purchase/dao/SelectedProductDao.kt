@@ -4,6 +4,7 @@ import androidx.room.*
 import cz.quanti.android.vendor_app.repository.VendorDb
 import cz.quanti.android.vendor_app.repository.purchase.dto.db.SelectedProductDbEntity
 import io.reactivex.Observable
+import io.reactivex.Single
 
 @Dao
 interface SelectedProductDao {
@@ -21,6 +22,9 @@ interface SelectedProductDao {
 
     @Query("SELECT * FROM " + VendorDb.TABLE_SELECTED_PRODUCT)
     fun getAll(): List<SelectedProductDbEntity>
+
+    @Query("SELECT * FROM " + VendorDb.TABLE_SELECTED_PRODUCT)
+    fun getAllSingle(): Single<List<SelectedProductDbEntity>>
 
     @Query("SELECT * FROM " + VendorDb.TABLE_SELECTED_PRODUCT)
     fun getAllObservable(): Observable<List<SelectedProductDbEntity>>

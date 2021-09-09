@@ -69,6 +69,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
     private var syncStateDisposable: Disposable? = null
     private var syncDisposable: Disposable? = null
     private var readBalanceDisposable: Disposable? = null
+    private var selectedProductsDisposable: Disposable? = null
     private var lastToast: Toast? = null
 
     private lateinit var activityBinding: ActivityMainBinding
@@ -490,18 +491,30 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
 
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                 shopVM.setCurrency(activityBinding.priceUnitSpinner.selectedItem as String)
-                removeCashbackFromCart()
+                checkForCashbacks(activityBinding.priceUnitSpinner.selectedItem as String)
             }
         }
     }
 
-    private fun removeCashbackFromCart() {
-        shopVM.getSelectedProducts().value?.find {
-            it.category.type == CategoryType.CASHBACK && it.currency != shopVM.getCurrency().value
-        }?.let {
-            shopVM.removeSelectedProduct(it)
-            mainVM.setToastMessage(getString(R.string.item_removed_from_cart, it.product.name))
-        }
+    private fun checkForCashbacks(currency: String) {
+        selectedProductsDisposable?.dispose()
+        selectedProductsDisposable = shopVM.getSelectedProducts()
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe { products ->
+                products.find {
+                    it.product.category.type == CategoryType.CASHBACK
+                        && it.product.currency != currency
+                }?.let {
+                    shopVM.removeSelectedProduct(it)
+                    mainVM.setToastMessage(
+                        getString(
+                            R.string.item_removed_from_cart,
+                            it.product.name
+                        )
+                    )
+                }
+            }
     }
 
     override fun onRequestPermissionsResult(

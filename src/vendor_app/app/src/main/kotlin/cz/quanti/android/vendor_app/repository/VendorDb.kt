@@ -122,8 +122,6 @@ abstract class VendorDb : RoomDatabase() {
                 database.execSQL("ALTER TABLE product ADD categoryId INTEGER NOT NULL DEFAULT 0")
                 database.execSQL("ALTER TABLE product ADD unitPrice REAL")
                 database.execSQL("ALTER TABLE product ADD currency TEXT")
-                database.execSQL("ALTER TABLE selected_product ADD categoryId INTEGER NOT NULL DEFAULT 0")
-                database.execSQL("ALTER TABLE selected_product ADD currency TEXT")
                 database.execSQL("CREATE TABLE 'category' ('id' INTEGER NOT NULL, 'name' TEXT NOT NULL, 'type' TEXT NOT NULL, 'image' TEXT, PRIMARY KEY('id'))")
             }
         }

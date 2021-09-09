@@ -98,8 +98,10 @@ class SelectedProductsAdapter(
             holder.price.visibility = View.GONE
             holder.remove.visibility = View.VISIBLE
             holder.close.visibility = View.VISIBLE
-            holder.editProduct.visibility = View.VISIBLE
-            loadOptions(holder, item)
+            if (item.product.category.type != CategoryType.CASHBACK) {
+                holder.editProduct.visibility = View.VISIBLE
+                loadOptions(holder, item)
+            }
         }
     }
 
@@ -113,7 +115,6 @@ class SelectedProductsAdapter(
 
     private fun loadOptions(holder: SelectedProductsViewHolder, item: SelectedProduct) {
         val price = BigDecimal.valueOf(item.price).stripTrailingZeros().toPlainString()
-        holder.priceEditText.isEnabled = item.category.type != CategoryType.CASHBACK
         holder.priceEditText.setText(price)
         holder.priceTextInputLayout.suffixText = chosenCurrency
         holder.confirm.text = context.getString(R.string.confirm)

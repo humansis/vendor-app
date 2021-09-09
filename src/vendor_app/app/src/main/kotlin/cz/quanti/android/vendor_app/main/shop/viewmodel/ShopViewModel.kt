@@ -13,6 +13,7 @@ import cz.quanti.android.vendor_app.utils.CurrentVendor
 import cz.quanti.android.vendor_app.utils.ShoppingHolder
 import cz.quanti.android.vendor_app.utils.getDefaultCurrency
 import io.reactivex.Observable
+import io.reactivex.Single
 
 class ShopViewModel(
     private val shoppingHolder: ShoppingHolder,
@@ -63,8 +64,12 @@ class ShopViewModel(
         return productFacade.getProducts()
     }
 
-    fun getSelectedProducts(): LiveData<List<SelectedProduct>> {
-        return shoppingHolder.getProducts()
+    fun getSelectedProducts(): Single<List<SelectedProduct>> {
+        return shoppingHolder.getProductsSingle()
+    }
+
+    fun getSelectedProductsLD(): LiveData<List<SelectedProduct>> {
+        return shoppingHolder.getProductsLD()
     }
 
     fun removeSelectedProduct(product: SelectedProduct) {

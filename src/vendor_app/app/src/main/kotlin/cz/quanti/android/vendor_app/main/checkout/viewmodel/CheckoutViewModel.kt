@@ -80,7 +80,7 @@ class CheckoutViewModel(
     }
 
     fun getSelectedProducts(): LiveData<List<SelectedProduct>> {
-        return shoppingHolder.getProducts()
+        return shoppingHolder.getProductsLD()
     }
 
     fun setProducts(products: List<SelectedProduct>) {

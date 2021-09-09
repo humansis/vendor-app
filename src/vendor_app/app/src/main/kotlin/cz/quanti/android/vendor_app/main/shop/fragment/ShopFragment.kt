@@ -57,6 +57,7 @@ class ShopFragment : Fragment(), OnTouchOutsideViewListener {
     private lateinit var shopBinding: FragmentShopBinding
     private lateinit var activityCallback: ActivityCallback
     private var syncStateDisposable: Disposable? = null
+    private var selectedProductsDisposable: Disposable? = null
     private var chosenCurrency: String = ""
     private var categoriesAllowed = MutableLiveData<Boolean>()
     private lateinit var appBarState: AppBarStateEnum
@@ -231,14 +232,28 @@ class ShopFragment : Fragment(), OnTouchOutsideViewListener {
                 Log.e(it)
             })
 
+        getProducts()
+        getSelectedProducts()
+
+        vm.getCurrency().observe(viewLifecycleOwner, {
+            chosenCurrency = it
+            getProducts()
+            getSelectedProducts()
+            showCategories(true, null)
+        })
+    }
+
+    private fun getProducts() {
         vm.getProducts().toFlowable(BackpressureStrategy.LATEST)
             .toLiveData()
             .observe(viewLifecycleOwner, { products ->
                 productsAdapter.setData(chosenCurrency, products)
                 setMessageVisible(products.isEmpty())
             })
+    }
 
-        vm.getSelectedProducts().observe(viewLifecycleOwner, { products ->
+    private fun getSelectedProducts() {
+        vm.getSelectedProductsLD().observe(viewLifecycleOwner, { products ->
             when (products.size) {
                 EMPTY_CART_SIZE -> {
                     shopBinding.totalTextView.visibility = View.GONE
@@ -254,14 +269,6 @@ class ShopFragment : Fragment(), OnTouchOutsideViewListener {
                     shopBinding.cartBadge.text = products.size.toString()
                 }
             }
-        })
-
-        vm.getCurrency().observe(viewLifecycleOwner, {
-            chosenCurrency = it
-            productsAdapter.setData(
-                it,
-                vm.getProducts().toFlowable(BackpressureStrategy.LATEST).toLiveData().value
-            )
         })
     }
 
@@ -338,11 +345,16 @@ class ShopFragment : Fragment(), OnTouchOutsideViewListener {
                 dialogBinding.editProduct.priceEditText.setText(price.toString())
             }
         }
-        vm.getSelectedProducts().value
-            ?.filter { it.category.type == CategoryType.CASHBACK }
-            ?.let {
-                confirmButton.isEnabled = false
-                mainVM.setToastMessage(getString(R.string.only_one_cashback_item_allowed))
+
+        selectedProductsDisposable?.dispose()
+        selectedProductsDisposable = vm.getSelectedProducts()
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe { products ->
+                products.find { it.product.category.type == CategoryType.CASHBACK }?.let {
+                    confirmButton.isEnabled = false
+                    mainVM.setToastMessage(getString(R.string.only_one_cashback_item_allowed))
+                }
             }
 
         dialogBinding.closeButton.setOnClickListener {
@@ -358,11 +370,6 @@ class ShopFragment : Fragment(), OnTouchOutsideViewListener {
                 when {
                     price <= INVALID_PRICE_VALUE -> {
                         mainVM.setToastMessage(getString(R.string.please_enter_price))
-                    }
-                    !vm.getSelectedProducts().value?.filter {
-                        it.category.type == CategoryType.CASHBACK
-                    }.isNullOrEmpty() -> {
-                        mainVM.setToastMessage(getString(R.string.only_one_cashback_item_allowed))
                     }
                     else -> {
                         addProductToCart(
@@ -381,9 +388,7 @@ class ShopFragment : Fragment(), OnTouchOutsideViewListener {
     private fun addProductToCart(product: Product, unitPrice: Double) {
         val selected = SelectedProduct(
             product = product,
-            price = product.unitPrice ?: unitPrice,
-            category = product.category,
-            currency = product.currency
+            price = product.unitPrice ?: unitPrice
         )
         vm.addToShoppingCart(selected)
     }

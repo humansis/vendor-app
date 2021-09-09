@@ -122,7 +122,7 @@ object KoinInitializer {
             db.purchaseDao(),
             db.cardPurchaseDao(),
             db.voucherPurchaseDao(),
-            db.categoryDao(),
+            categoryRepo,
             db.productDao(),
             db.purchasedProductDao(),
             db.selectedProductDao(),

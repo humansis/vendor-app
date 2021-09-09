@@ -13,7 +13,7 @@ class CardRepositoryImpl(
     private val api: VendorAPI
 ) : CardRepository {
 
-    override fun getBlockedCardsFromServer(): Single<Pair<Int, List<String>>> {
+    override fun loadBlockedCardsFromServer(): Single<Pair<Int, List<String>>> {
         return api.getBlockedCards().map { response ->
             Pair(response.code(), response.body() ?: listOf())
         }

@@ -13,11 +13,11 @@ class CategoryFacadeImpl(
 ): CategoryFacade {
 
     override fun syncWithServer(vendorId: Int): Completable {
-        return getCategoriesFromServer(vendorId)
+        return loadCategoriesFromServer(vendorId)
     }
 
-    private fun getCategoriesFromServer(vendorId: Int): Completable {
-        return categoryRepo.getCategoriesFromServer(vendorId).flatMapCompletable { response ->
+    private fun loadCategoriesFromServer(vendorId: Int): Completable {
+        return categoryRepo.loadCategoriesFromServer(vendorId).flatMapCompletable { response ->
             val responseCode = response.first
             val categories = response.second.toMutableList()
             if (isPositiveResponseHttpCode(responseCode)) {

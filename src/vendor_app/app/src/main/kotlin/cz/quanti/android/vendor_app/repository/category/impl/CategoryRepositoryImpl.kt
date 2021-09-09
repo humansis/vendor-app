@@ -16,7 +16,7 @@ class CategoryRepositoryImpl(
     private val api: VendorAPI
 ): CategoryRepository {
 
-    override fun getCategoriesFromServer(vendorId: Int): Single<Pair<Int, List<Category>>> {
+    override fun loadCategoriesFromServer(vendorId: Int): Single<Pair<Int, List<Category>>> {
         return api.getCategories(vendorId).map { response ->
             var categories = response.body()?.data
             if (categories == null) {
@@ -52,7 +52,7 @@ class CategoryRepositoryImpl(
         return Category(
             id = category.id,
             name = category.name,
-            type = CategoryType.values().find { it.backendName == category.type } ?: CategoryType.OTHER,
+            type = CategoryType.getByName(category.type),
             image = category.image
         )
     }

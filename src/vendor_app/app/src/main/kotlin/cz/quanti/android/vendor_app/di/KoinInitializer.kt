@@ -115,7 +115,7 @@ object KoinInitializer {
         // Repository
         val loginRepo = LoginRepositoryImpl(api)
         val categoryRepo = CategoryRepositoryImpl(db.categoryDao(), api)
-        val productRepo = ProductRepositoryImpl(db.productDao(), api)
+        val productRepo = ProductRepositoryImpl(categoryRepo, db.productDao(), api)
         val bookletRepo = BookletRepositoryImpl(db.bookletDao(), api)
         val cardRepo = CardRepositoryImpl(db.blockedCardDao(), api)
         val purchaseRepo = PurchaseRepositoryImpl(

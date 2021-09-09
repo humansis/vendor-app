@@ -6,6 +6,7 @@ import android.graphics.drawable.Drawable
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.ColorUtils
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
@@ -33,6 +34,7 @@ class CategoriesAdapter(
 
     @SuppressLint("NotifyDataSetChanged")
     fun setData(data: List<Category>) {
+        // TODO sort ?
         categories.clear()
         categories.addAll(data)
         notifyDataSetChanged()
@@ -86,7 +88,7 @@ class CategoriesAdapter(
                 ContextCompat.getDrawable(context, R.drawable.ic_all)
             }
             else -> {
-                null
+                ContextCompat.getDrawable(context, R.drawable.ic_nonfood)
             }
         }
     }
@@ -94,22 +96,30 @@ class CategoriesAdapter(
     override fun onBindViewHolder(holder: CategoryViewHolder, position: Int) {
         holder.categoryName.text = categories[position].name
 
-        if (categories[position].image.isEmpty()) {
+        val tintColor = getTintColor(categories[position].type)
+        holder.categoryLayout.background.setTint(tintColor.first)
+
+        if (categories[position].image.isNullOrEmpty()) {
             holder.categoryImage.setImageDrawable(getPlaceholderImage(categories[position].type))
+            holder.categoryImage.drawable.setTint(tintColor.second)
         } else {
             Glide
                 .with(context)
                 .load(categories[position].image)
                 .transition(DrawableTransitionOptions.withCrossFade())
                 .into(holder.categoryImage)
+            holder.categoryImage.setColorFilter(ColorUtils.setAlphaComponent(
+                tintColor.first,
+                OPACITY
+            ))
         }
-
-        val tintColor = getTintColor(categories[position].type)
-        holder.categoryLayout.background.setTint(tintColor.first)
-        holder.categoryImage.drawable.setTint(tintColor.second)
 
         holder.categoryLayout.setOnClickListener {
             shopFragment.openCategory(categories[position])
         }
+    }
+
+    companion object {
+        const val OPACITY = 127
     }
 }

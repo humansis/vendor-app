@@ -4,5 +4,10 @@ class CategoryApiEntity(
     var id: Long = 0,
     var name: String = "",
     var type: String = "",
-    var image: String = ""
+    var image: String? = ""
+)
+
+class CategoryPagedApiEntity(
+    var totalCount: Long = 0,
+    var data: List<CategoryApiEntity> = listOf()
 )

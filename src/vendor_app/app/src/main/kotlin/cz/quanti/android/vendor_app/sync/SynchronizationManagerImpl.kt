@@ -18,17 +18,17 @@ class SynchronizationManagerImpl(
 
     override fun synchronizeWithServer() {
         if (syncStatePublishSubject.value == SynchronizationState.STARTED) {
-            Log.e(TAG, "Synchronization already in progress")
+            Log.d(TAG, "Synchronization already in progress")
         } else {
             syncStatePublishSubject.onNext(SynchronizationState.STARTED)
-            syncFacade.synchronize(preferences.vendor.id.toInt())
+            syncFacade.synchronize(preferences.vendor)
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.io())
                 .subscribe(
                     {
                         preferences.lastSynced = Date().time
                         syncStatePublishSubject.onNext(SynchronizationState.SUCCESS)
-                        Log.e(TAG, "Synchronization finished successfully")
+                        Log.d(TAG, "Synchronization finished successfully")
                     },
                     { e ->
                         Log.e(TAG, e)

@@ -4,7 +4,6 @@ import androidx.lifecycle.*
 import cz.quanti.android.vendor_app.repository.AppPreferences
 import cz.quanti.android.vendor_app.repository.category.CategoryFacade
 import cz.quanti.android.vendor_app.repository.category.dto.Category
-import cz.quanti.android.vendor_app.repository.category.dto.CategoryType
 import cz.quanti.android.vendor_app.repository.product.ProductFacade
 import cz.quanti.android.vendor_app.repository.product.dto.Product
 import cz.quanti.android.vendor_app.repository.purchase.dto.SelectedProduct
@@ -84,7 +83,7 @@ class ShopViewModel(
         if (shoppingHolder.chosenCurrency.value == "") {
             val savedCurrency = preferences.currency
             if (savedCurrency.isNotEmpty()) {
-                shoppingHolder.chosenCurrency.postValue(savedCurrency)
+                shoppingHolder.chosenCurrency.value = savedCurrency
             } else {
                 setCurrency(getDefaultCurrency(currentVendor.vendor.country))
             }
@@ -94,6 +93,6 @@ class ShopViewModel(
 
     fun setCurrency(currency: String) {
         preferences.currency = currency
-        shoppingHolder.chosenCurrency.postValue(currency)
+        shoppingHolder.chosenCurrency.value = currency
     }
 }

@@ -61,7 +61,6 @@ class ProductsAdapter(
                     if (product.name.lowercase(Locale.getDefault()).contains(filterPattern)) {
                         filteredList.add(product)
                     }
-                    // TODO filter products by category name
                     if (product.category.name.lowercase(Locale.getDefault()).contains(filterPattern)) {
                         filteredList.add(product)
                     }

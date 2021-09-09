@@ -18,7 +18,7 @@ class CategoryRepositoryImpl(
 
     override fun getCategoriesFromServer(vendorId: Int): Single<Pair<Int, List<Category>>> {
         return api.getCategories(vendorId).map { response ->
-            var categories = response.body()
+            var categories = response.body()?.data
             if (categories == null) {
                 categories = listOf()
             }
@@ -52,7 +52,7 @@ class CategoryRepositoryImpl(
         return Category(
             id = category.id,
             name = category.name,
-            type = CategoryType.valueOf(category.type),
+            type = CategoryType.values().find { it.backendName == category.type } ?: CategoryType.OTHER,
             image = category.image
         )
     }

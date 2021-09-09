@@ -5,7 +5,12 @@ data class ProductApiEntity(
     var name: String = "",
     var image: String = "",
     var unit: String? = "",
-    var categoryId: Long = 0,
+    var productCategoryId: Long = 0,
     var unitPrice: Double? = 0.0,
     var currency: String? = ""
+)
+
+class ProductPagedApiEntity(
+    var totalCount: Long = 0,
+    var data: List<ProductApiEntity> = listOf()
 )

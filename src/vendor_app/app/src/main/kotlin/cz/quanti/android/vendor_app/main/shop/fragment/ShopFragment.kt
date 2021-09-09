@@ -162,7 +162,10 @@ class ShopFragment : Fragment(), OnTouchOutsideViewListener {
     private fun initSearchBar() {
         shopBinding.shopSearchBar.setOnClickListener {
             Log.d(TAG, "SearchBar clicked")
-            shopBinding.shopSearchBar.isIconified = false
+            if (shopBinding.shopSearchBar.isIconified) {
+                shopBinding.shopSearchBar.isIconified = false
+                productsAdapter.filter.filter("")
+            }
             showCategories(false, null)
         }
         shopBinding.shopSearchBar.imeOptions = EditorInfo.IME_ACTION_DONE
@@ -218,10 +221,10 @@ class ShopFragment : Fragment(), OnTouchOutsideViewListener {
             .subscribe({ syncState ->
                 when (syncState) {
                     SynchronizationState.STARTED -> {
-                        setMessage(requireContext().getString(R.string.loading))
+                        setMessage(getString(R.string.loading))
                     }
                     else -> {
-                        setMessage(requireContext().getString(R.string.no_products))
+                        setMessage(getString(R.string.no_products))
                     }
                 }
             }, {

@@ -29,34 +29,6 @@ class ShopViewModel(
 
     fun getCategories(): Observable<List<Category>> {
         return categoryFacade.getCategories()
-//        return Observable.just(listOf())
-//        return Observable.just(listOf(
-//            Category(
-//                1,
-//                "dry foods",
-//                CategoryType.FOOD
-//            ),
-//            Category(
-//                2,
-//                "wet foods",
-//                CategoryType.FOOD
-//            ),
-//            Category(
-//                3,
-//                "drugs",
-//                CategoryType.NONFOOD
-//            ),
-//            Category(
-//                4,
-//                "tools",
-//                CategoryType.NONFOOD
-//            ),
-//            Category(
-//                5,
-//                "cash",
-//                CategoryType.CASHBACK
-//            )
-//        ))
     }
 
     fun getProducts(): Observable<List<Product>> {

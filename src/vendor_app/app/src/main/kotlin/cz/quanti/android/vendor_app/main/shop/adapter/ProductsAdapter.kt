@@ -90,8 +90,9 @@ class ProductsAdapter(
             .into(holder.productImage)
 
         holder.productLayout.setOnClickListener {
+            it.isEnabled = false
             Log.d(TAG, "Product $position clicked")
-            shopFragment.openProduct(products[position])
+            shopFragment.openProduct(products[position], it)
         }
     }
 

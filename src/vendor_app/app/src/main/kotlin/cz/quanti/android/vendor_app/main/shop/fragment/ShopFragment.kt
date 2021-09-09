@@ -35,7 +35,6 @@ import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import com.google.android.material.appbar.AppBarLayout
 import androidx.coordinatorlayout.widget.CoordinatorLayout
-import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.appbar.AppBarLayout.OnOffsetChangedListener
 import cz.quanti.android.vendor_app.main.authorization.viewmodel.LoginViewModel
 import cz.quanti.android.vendor_app.sync.SynchronizationState
@@ -58,6 +57,7 @@ class ShopFragment : Fragment(), OnTouchOutsideViewListener {
     private lateinit var activityCallback: ActivityCallback
     private var syncStateDisposable: Disposable? = null
     private var selectedProductsDisposable: Disposable? = null
+    private var productsDisposable: Disposable? = null
     private var chosenCurrency: String = ""
     private var categoriesAllowed = MutableLiveData<Boolean>()
     private lateinit var appBarState: AppBarStateEnum
@@ -232,27 +232,13 @@ class ShopFragment : Fragment(), OnTouchOutsideViewListener {
                 Log.e(it)
             })
 
-        getProducts()
-        getSelectedProducts()
-
-        vm.getCurrency().observe(viewLifecycleOwner, {
-            chosenCurrency = it
-            getProducts()
-            getSelectedProducts()
-            showCategories(true, null)
-        })
-    }
-
-    private fun getProducts() {
         vm.getProducts().toFlowable(BackpressureStrategy.LATEST)
             .toLiveData()
             .observe(viewLifecycleOwner, { products ->
                 productsAdapter.setData(chosenCurrency, products)
                 setMessageVisible(products.isEmpty())
             })
-    }
 
-    private fun getSelectedProducts() {
         vm.getSelectedProductsLD().observe(viewLifecycleOwner, { products ->
             when (products.size) {
                 EMPTY_CART_SIZE -> {
@@ -269,6 +255,26 @@ class ShopFragment : Fragment(), OnTouchOutsideViewListener {
                     shopBinding.cartBadge.text = products.size.toString()
                 }
             }
+        })
+
+        vm.getCurrency().observe(viewLifecycleOwner, { currency ->
+            chosenCurrency = currency
+            productsDisposable?.dispose()
+            productsDisposable = vm.getProducts().firstOrError()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe { products ->
+                    productsAdapter.setData(currency, products)
+                    setMessageVisible(products.isEmpty())
+                }
+            selectedProductsDisposable?.dispose()
+            selectedProductsDisposable = vm.getSelectedProducts()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe { products ->
+                    actualizeTotal(products.map { it.price }.sum())
+                }
+            showCategories(true, null)
         })
     }
 
@@ -310,26 +316,41 @@ class ShopFragment : Fragment(), OnTouchOutsideViewListener {
         shopBinding.productsHeader.text = name ?: getString(R.string.all_products)
     }
 
-    fun openProduct(product: Product) {
-        val dialogBinding = DialogProductBinding.inflate(layoutInflater,null, false)
+    fun openProduct(product: Product, productLayout: View) {
+        selectedProductsDisposable?.dispose()
+        selectedProductsDisposable = vm.getSelectedProducts()
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe { products ->
+                val hasCashback = products.find { it.product.category.type == CategoryType.CASHBACK }
+                if (hasCashback != null && product.category.type == CategoryType.CASHBACK) {
+                    mainVM.setToastMessage(getString(R.string.only_one_cashback_item_allowed))
+                    productLayout.isEnabled = true
+                } else {
+                    val dialogBinding = DialogProductBinding.inflate(layoutInflater,null, false)
 
-        Glide
-            .with(requireContext())
-            .load(product.image)
-            .into(dialogBinding.productImage)
+                    Glide
+                        .with(requireContext())
+                        .load(product.image)
+                        .into(dialogBinding.productImage)
 
-        dialogBinding.productName.text = product.name
+                    dialogBinding.productName.text = product.name
 
-        val dialog = AlertDialog.Builder(activity)
-            .setView(dialogBinding.root)
-            .show()
-        if (!resources.getBoolean(R.bool.isTablet)) {
-            dialog.window?.setLayout(
-                resources.displayMetrics.widthPixels,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-            )
-        }
-        loadOptions(dialog, dialogBinding, product)
+                    val dialog = AlertDialog.Builder(activity)
+                        .setView(dialogBinding.root)
+                        .show()
+                    dialog.setOnDismissListener {
+                        productLayout.isEnabled = true
+                    }
+                    if (!resources.getBoolean(R.bool.isTablet)) {
+                        dialog.window?.setLayout(
+                            resources.displayMetrics.widthPixels,
+                            LinearLayout.LayoutParams.WRAP_CONTENT
+                        )
+                    }
+                    loadOptions(dialog, dialogBinding, product)
+                }
+            }
     }
 
     private fun loadOptions(dialog: AlertDialog, dialogBinding: DialogProductBinding, product: Product) {
@@ -345,17 +366,6 @@ class ShopFragment : Fragment(), OnTouchOutsideViewListener {
                 dialogBinding.editProduct.priceEditText.setText(price.toString())
             }
         }
-
-        selectedProductsDisposable?.dispose()
-        selectedProductsDisposable = vm.getSelectedProducts()
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe { products ->
-                products.find { it.product.category.type == CategoryType.CASHBACK }?.let {
-                    confirmButton.isEnabled = false
-                    mainVM.setToastMessage(getString(R.string.only_one_cashback_item_allowed))
-                }
-            }
 
         dialogBinding.closeButton.setOnClickListener {
             Log.d(TAG, "Close product options button clicked")

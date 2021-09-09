@@ -270,7 +270,7 @@ class ShopFragment : Fragment(), OnTouchOutsideViewListener {
 
         shopBinding.productsHeader.setOnClickListener {
             Log.d(TAG, "Cart products header clicked")
-            shopBinding.productsRecyclerView.setScrollState(RecyclerView.SCROLL_STATE_IDLE)
+            shopBinding.productsRecyclerView.stopScroll()
             clearQuery()
             showCategories(!shopBinding.categoriesAppBarLayout.isAppBarExpanded(), null)
         }
@@ -404,10 +404,4 @@ private fun List<Category>.addAllCategory(context: Context): List<Category> {
 private fun AppBarLayout.isAppBarExpanded(): Boolean {
     val behavior = (this.layoutParams as CoordinatorLayout.LayoutParams).behavior
     return if (behavior is AppBarLayout.Behavior) behavior.topAndBottomOffset == 0 else false
-}
-
-private fun RecyclerView.setScrollState(state: Int) {
-    val method = this::class.java.getDeclaredMethod("setScrollState", Int::class.java)
-    method.isAccessible = true
-    method.invoke(this, state)
 }

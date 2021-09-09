@@ -6,7 +6,7 @@ import io.reactivex.Observable
 import io.reactivex.Single
 
 interface CategoryRepository {
-    fun getCategoriesFromServer(vendorId: Int): Single<Pair<Int, List<Category>>>
+    fun loadCategoriesFromServer(vendorId: Int): Single<Pair<Int, List<Category>>>
     fun getCategories(): Observable<List<Category>>
     fun getCategory(categoryId: Long): Category
     fun saveCategory(category: Category): Completable

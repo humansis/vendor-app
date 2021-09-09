@@ -19,7 +19,7 @@ class ProductRepositoryImpl(
 ) :
     ProductRepository {
 
-    override fun getProductsFromServer(vendor: Vendor): Single<Pair<Int, List<Product>>> {
+    override fun loadProductsFromServer(vendor: Vendor): Single<Pair<Int, List<Product>>> {
         return api.getProducts(vendor.id.toInt(), vendor.country).map { response ->
             var products = response.body()?.data
             if (products == null) {

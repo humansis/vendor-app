@@ -14,7 +14,6 @@ import io.reactivex.Observable
 
 class ProductFacadeImpl(
     private val productRepo: ProductRepository,
-    private val categoryRepo: CategoryRepository,
     private val context: Context
 ) : ProductFacade {
 
@@ -27,7 +26,7 @@ class ProductFacadeImpl(
     }
 
     private fun reloadProductFromServer(vendor: Vendor): Completable {
-        return productRepo.getProductsFromServer(vendor).flatMapCompletable { response ->
+        return productRepo.loadProductsFromServer(vendor).flatMapCompletable { response ->
             val responseCode = response.first
             val products = response.second.toMutableList()
             if (isPositiveResponseHttpCode(responseCode)) {

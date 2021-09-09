@@ -5,7 +5,7 @@ import io.reactivex.Single
 
 interface CardRepository {
 
-    fun getBlockedCardsFromServer(): Single<Pair<Int, List<String>>>
+    fun loadBlockedCardsFromServer(): Single<Pair<Int, List<String>>>
 
     fun getBlockedCards(): Single<List<String>>
 

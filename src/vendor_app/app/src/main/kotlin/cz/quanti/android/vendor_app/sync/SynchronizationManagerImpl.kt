@@ -21,7 +21,7 @@ class SynchronizationManagerImpl(
             Log.d(TAG, "Synchronization already in progress")
         } else {
             syncStatePublishSubject.onNext(SynchronizationState.STARTED)
-            syncFacade.synchronize(preferences.vendor.id.toInt())
+            syncFacade.synchronize(preferences.vendor)
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.io())
                 .subscribe(

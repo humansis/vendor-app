@@ -220,10 +220,10 @@ class ShopFragment : Fragment(), OnTouchOutsideViewListener {
             .subscribe({ syncState ->
                 when (syncState) {
                     SynchronizationState.STARTED -> {
-                        setMessage(requireContext().getString(R.string.loading))
+                        setMessage(getString(R.string.loading))
                     }
                     else -> {
-                        setMessage(requireContext().getString(R.string.no_products))
+                        setMessage(getString(R.string.no_products))
                     }
                 }
             }, {

@@ -4,6 +4,7 @@ import cz.quanti.android.vendor_app.repository.booklet.BookletFacade
 import cz.quanti.android.vendor_app.repository.card.CardFacade
 import cz.quanti.android.vendor_app.repository.category.CategoryFacade
 import cz.quanti.android.vendor_app.repository.invoice.InvoiceFacade
+import cz.quanti.android.vendor_app.repository.login.dto.Vendor
 import cz.quanti.android.vendor_app.repository.product.ProductFacade
 import cz.quanti.android.vendor_app.repository.purchase.PurchaseFacade
 import cz.quanti.android.vendor_app.repository.synchronization.SynchronizationFacade
@@ -22,14 +23,14 @@ class SynchronizationFacadeImpl(
     private val invoiceFacade: InvoiceFacade
 ) : SynchronizationFacade {
 
-    override fun synchronize(vendorId: Int): Completable {
+    override fun synchronize(vendor: Vendor): Completable {
         return purchaseFacade.syncWithServer()
             .andThen(bookletFacade.syncWithServer())
             .andThen(cardFacade.syncWithServer())
-            .andThen(categoryFacade.syncWithServer(vendorId))
-            .andThen(productFacade.syncWithServer(vendorId))
-            .andThen(transactionFacade.syncWithServer(vendorId))
-            .andThen(invoiceFacade.syncWithServer(vendorId))
+            .andThen(categoryFacade.syncWithServer(vendor.id.toInt()))
+            .andThen(productFacade.syncWithServer(vendor))
+            .andThen(transactionFacade.syncWithServer(vendor.id.toInt()))
+            .andThen(invoiceFacade.syncWithServer(vendor.id.toInt()))
     }
 
     override fun isSyncNeeded(purchasesCount: Long): Single<Boolean> {

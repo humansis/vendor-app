@@ -124,7 +124,8 @@ class ShopFragment : Fragment(), OnTouchOutsideViewListener {
     }
 
     private fun clearQuery() {
-        productsAdapter.filter.filter("")
+        productsAdapter.filterByName("")
+        productsAdapter.filterByCategory("")
         shopBinding.shopSearchBar.clearFocus()
         shopBinding.shopSearchBar.setQuery("", true)
         shopBinding.shopSearchBar.isIconified = true
@@ -165,7 +166,7 @@ class ShopFragment : Fragment(), OnTouchOutsideViewListener {
             Log.d(TAG, "SearchBar clicked")
             if (shopBinding.shopSearchBar.isIconified) {
                 shopBinding.shopSearchBar.isIconified = false
-                productsAdapter.filter.filter("")
+                productsAdapter.filterByName("")
             }
             showCategories(false, null)
         }
@@ -176,7 +177,7 @@ class ShopFragment : Fragment(), OnTouchOutsideViewListener {
             }
 
             override fun onQueryTextChange(newText: String): Boolean {
-                productsAdapter.filter.filter(newText)
+                productsAdapter.filterByName(newText)
                 return false
             }
         })
@@ -185,19 +186,6 @@ class ShopFragment : Fragment(), OnTouchOutsideViewListener {
     }
 
     private fun initObservers() {
-        vm.getCategories().toFlowable(BackpressureStrategy.LATEST)
-            .toLiveData()
-            .observe(viewLifecycleOwner, { categories ->
-                if (categories.size > 1) {
-                    categoriesAllowed.value = true
-                    categoriesAdapter.setData(categories.addAllCategory(requireContext()))
-                    appBarState = AppBarStateEnum.EXPANDED
-                } else {
-                    categoriesAllowed.value = false
-                    appBarState = AppBarStateEnum.COLLAPSED
-                }
-            })
-
         categoriesAllowed.observe(viewLifecycleOwner, {
             setAppBarHidden(!it)
             showCategories(it, null)
@@ -291,9 +279,20 @@ class ShopFragment : Fragment(), OnTouchOutsideViewListener {
         }
     }
 
+    fun filterCategories(categories: List<Category>) {
+        if (categories.size > 1) {
+            categoriesAllowed.value = true
+            categoriesAdapter.setData(categories.addAllCategory(requireContext()))
+            appBarState = AppBarStateEnum.EXPANDED
+        } else {
+            categoriesAllowed.value = false
+            appBarState = AppBarStateEnum.COLLAPSED
+        }
+    }
+
     fun openCategory(category: Category) {
         if (category.type != CategoryType.ALL) {
-            productsAdapter.filter.filter(category.name)
+            productsAdapter.filterByCategory(category.name)
         } else {
             clearQuery()
         }
@@ -361,7 +360,7 @@ class ShopFragment : Fragment(), OnTouchOutsideViewListener {
             try {
                 val price = priceEditText.text.toString().toDouble()
                 when {
-                    price <= INVALID_PRICE_VALUE -> {
+                    price < INVALID_PRICE_VALUE -> {
                         mainVM.setToastMessage(getString(R.string.please_enter_price))
                     }
                     else -> {
@@ -406,7 +405,7 @@ class ShopFragment : Fragment(), OnTouchOutsideViewListener {
     companion object {
         private val TAG = ShopFragment::class.java.simpleName
         const val EMPTY_CART_SIZE = 0
-        const val INVALID_PRICE_VALUE = 0.0
+        const val INVALID_PRICE_VALUE = 0.01
         const val PORTRAIT_PHONE_COLUMNS = 3
         const val PORTRAIT_TABLET_COLUMNS = 4
         const val LANDSCAPE_TABLET_COLUMNS = 6

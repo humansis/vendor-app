@@ -8,7 +8,6 @@ import cz.quanti.android.vendor_app.repository.category.dto.CategoryType
 import cz.quanti.android.vendor_app.repository.category.dto.api.CategoryApiEntity
 import cz.quanti.android.vendor_app.repository.category.dto.db.CategoryDbEntity
 import io.reactivex.Completable
-import io.reactivex.Observable
 import io.reactivex.Single
 
 class CategoryRepositoryImpl(
@@ -25,14 +24,6 @@ class CategoryRepositoryImpl(
             Pair(response.code(), categories.map { categoryApiEntity ->
                 convert(categoryApiEntity)
             })
-        }
-    }
-
-    override fun getCategories(): Observable<List<Category>> {
-        return categoryDao.getAll().map { categories ->
-            categories.map {
-                convert(it)
-            }
         }
     }
 

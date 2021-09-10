@@ -67,7 +67,7 @@
     <string name="menu">меню</string>
     <string name="synchronize">синхронизировать</string>
     <string name="humansis">humansis</string>
-    <string name="loading">Загрузка...</string>
+    <string name="loading">Загрузка…</string>
     <string name="unknown">Неизвестно</string>
     <string name="scanning_card_balance">баланс по карте: %1$s</string>
     <string name="status">Статус</string>

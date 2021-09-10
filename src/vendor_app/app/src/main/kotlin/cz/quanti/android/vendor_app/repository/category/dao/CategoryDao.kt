@@ -11,14 +11,8 @@ interface CategoryDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(category: CategoryDbEntity)
 
-    @Delete
-    fun delete(category: CategoryDbEntity)
-
     @Query("DELETE FROM " + VendorDb.TABLE_CATEGORY)
     fun deleteAll()
-
-    @Query("SELECT * FROM " + VendorDb.TABLE_CATEGORY)
-    fun getAll(): Observable<List<CategoryDbEntity>>
 
     @Query("SELECT * FROM " + VendorDb.TABLE_CATEGORY + " WHERE id = :categoryId")
     fun getCategoryById(categoryId: Long): CategoryDbEntity

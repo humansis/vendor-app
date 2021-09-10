@@ -3,7 +3,6 @@ package cz.quanti.android.vendor_app.repository.invoice
 import cz.quanti.android.vendor_app.repository.invoice.dto.Invoice
 import io.reactivex.Completable
 import io.reactivex.Observable
-import io.reactivex.Single
 
 interface InvoiceFacade {
 

@@ -21,7 +21,7 @@ class ProductsAdapter(
     private val shopFragment: ShopFragment,
     private val context: Context
 ) :
-    RecyclerView.Adapter<ProductViewHolder>(), Filterable, KoinComponent {
+    RecyclerView.Adapter<ProductViewHolder>(), KoinComponent {
 
     private val products: MutableList<Product> = mutableListOf()
     private val productsFull: MutableList<Product> = mutableListOf()
@@ -45,11 +45,11 @@ class ProductsAdapter(
         return products.size
     }
 
-    override fun getFilter(): Filter {
-        return productFilter
+    fun filterByName(name: String) {
+        productFilterByName.filter(name)
     }
 
-    private val productFilter: Filter = object : Filter() {
+    private val productFilterByName: Filter = object : Filter() {
         override fun performFiltering(constraint: CharSequence): FilterResults {
             val filteredList: MutableList<Product> = ArrayList()
             if (constraint.isEmpty()) {
@@ -61,6 +61,39 @@ class ProductsAdapter(
                     if (product.name.lowercase(Locale.getDefault()).contains(filterPattern)) {
                         filteredList.add(product)
                     }
+                    if (product.category.name.lowercase(Locale.getDefault()).contains(filterPattern)
+                        && filteredList.none { it == product }) {
+                        filteredList.add(product)
+                    }
+                }
+            }
+            val results = FilterResults()
+            results.values = filteredList
+            return results
+        }
+
+        @SuppressLint("NotifyDataSetChanged")
+        @Suppress("UNCHECKED_CAST")
+        override fun publishResults(constraint: CharSequence, results: FilterResults) {
+            products.clear()
+            products.addAll(results.values as List<Product>)
+            notifyDataSetChanged()
+        }
+    }
+
+    fun filterByCategory(category: String) {
+        productFilterByCategory.filter(category)
+    }
+
+    private val productFilterByCategory: Filter = object : Filter() {
+        override fun performFiltering(constraint: CharSequence): FilterResults {
+            val filteredList: MutableList<Product> = ArrayList()
+            if (constraint.isEmpty()) {
+                filteredList.addAll(productsFull)
+            } else {
+                val filterPattern =
+                    constraint.toString().lowercase(Locale.getDefault()).trim { it <= ' ' }
+                productsFull.forEach { product ->
                     if (product.category.name.lowercase(Locale.getDefault()).contains(filterPattern)) {
                         filteredList.add(product)
                     }
@@ -99,7 +132,12 @@ class ProductsAdapter(
     fun setData(chosenCurrency: String?, products: List<Product>?) {
         products?.filter {
             it.currency.isNullOrEmpty() || it.currency == chosenCurrency
-        }?.let { setFilteredData(it) }
+        }?.let { filteredProducts ->
+            setFilteredData(filteredProducts)
+            shopFragment.filterCategories(filteredProducts.distinctBy { it.category }.map {
+                it.category
+            })
+        }
     }
 
     companion object {

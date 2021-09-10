@@ -195,7 +195,6 @@ object KoinInitializer {
             viewModel {
                 ShopViewModel(
                     shoppingHolder,
-                    categoryFacade,
                     productFacade,
                     currentVendor,
                     synchronizationManager,

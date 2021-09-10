@@ -44,8 +44,4 @@ class CategoryFacadeImpl(
                 })
         }
     }
-
-    override fun getCategories(): Observable<List<Category>> {
-        return categoryRepo.getCategories()
-    }
 }

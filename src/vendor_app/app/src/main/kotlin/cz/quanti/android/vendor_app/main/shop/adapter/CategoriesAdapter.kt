@@ -35,7 +35,7 @@ class CategoriesAdapter(
     @SuppressLint("NotifyDataSetChanged")
     fun setData(data: List<Category>) {
         categories.clear()
-        categories.addAll(data)
+        categories.addAll(data.sortedBy { it.type })
         notifyDataSetChanged()
     }
 

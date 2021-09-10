@@ -144,14 +144,6 @@ class PurchaseRepositoryImpl(
         }
     }
 
-    override fun getProductsFromCart(): Single<List<SelectedProduct>> {
-        return selectedProductDao.getAllSingle().map { products ->
-            products.map { product ->
-                convert(product)
-            }
-        }
-    }
-
     override fun getProductsFromCartObservable(): Observable<List<SelectedProduct>> {
         return selectedProductDao.getAllObservable().map { products ->
             products.map {

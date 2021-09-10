@@ -127,7 +127,7 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
             actualizeTotal()
         })
 
-        vm.getSelectedProducts().observe(viewLifecycleOwner, { products ->
+        vm.getSelectedProductsLD().observe(viewLifecycleOwner, { products ->
             selectedProductsAdapter.closeExpandedCard()
             selectedProductsAdapter.setData(products)
             vm.setProducts(products)

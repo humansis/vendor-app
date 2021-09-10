@@ -28,7 +28,7 @@ data class ShoppingHolder(
     }
 
     fun getProductsSingle(): Single<List<SelectedProduct>> {
-        return purchaseFacade.getProductsFromCart()
+        return purchaseFacade.getProductsFromCartSingle()
     }
 
     fun getProductsLD(): LiveData<List<SelectedProduct>> {

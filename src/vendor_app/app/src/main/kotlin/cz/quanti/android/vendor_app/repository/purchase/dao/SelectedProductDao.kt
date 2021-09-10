@@ -24,8 +24,5 @@ interface SelectedProductDao {
     fun getAll(): List<SelectedProductDbEntity>
 
     @Query("SELECT * FROM " + VendorDb.TABLE_SELECTED_PRODUCT)
-    fun getAllSingle(): Single<List<SelectedProductDbEntity>>
-
-    @Query("SELECT * FROM " + VendorDb.TABLE_SELECTED_PRODUCT)
     fun getAllObservable(): Observable<List<SelectedProductDbEntity>>
 }

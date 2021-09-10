@@ -79,7 +79,7 @@ class CheckoutViewModel(
         vouchers.clear()
     }
 
-    fun getSelectedProducts(): LiveData<List<SelectedProduct>> {
+    fun getSelectedProductsLD(): LiveData<List<SelectedProduct>> {
         return shoppingHolder.getProductsLD()
     }
 

@@ -109,6 +109,7 @@ class ShopFragment : Fragment(), OnTouchOutsideViewListener {
     }
 
     override fun onStop() {
+        syncStateDisposable?.dispose()
         // collapse searchbar after eventual screen rotation
         shopBinding.shopSearchBar.onActionViewCollapsed()
         super.onStop()

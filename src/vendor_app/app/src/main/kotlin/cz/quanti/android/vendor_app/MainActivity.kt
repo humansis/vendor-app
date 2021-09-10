@@ -63,7 +63,6 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
     private val loginVM: LoginViewModel by viewModel()
     private val shopVM: ShopViewModel by viewModel()
     private var displayedDialog: AlertDialog? = null
-    private var disposable: Disposable? = null
     private var environmentDisposable: Disposable? = null
     private var connectionDisposable: Disposable? = null
     private var syncStateDisposable: Disposable? = null
@@ -124,9 +123,12 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
     override fun onStop() {
         lastToast?.cancel()
         displayedDialog?.dismiss()
-        disposable?.dispose()
+        environmentDisposable?.dispose()
+        connectionDisposable?.dispose()
+        syncStateDisposable?.dispose()
         syncDisposable?.dispose()
         readBalanceDisposable?.dispose()
+        selectedProductsDisposable?.dispose()
         super.onStop()
     }
 

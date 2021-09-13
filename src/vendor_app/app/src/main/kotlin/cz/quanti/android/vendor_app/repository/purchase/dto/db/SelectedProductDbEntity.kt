@@ -9,5 +9,7 @@ data class SelectedProductDbEntity(
     @PrimaryKey(autoGenerate = true)
     var dbId: Long = 0,
     var productId: Long = 0,
-    var value: Double = 0.0
+    var value: Double = 0.0,
+    var categoryId: Long = 0,
+    var currency: String? = ""
 )

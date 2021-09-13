@@ -30,7 +30,7 @@ class BookletFacadeImpl(
 
     override fun syncWithServer(): Completable {
         return sendDataToServer()
-            .andThen(reloadDataFromServer())
+            .andThen(loadDataFromServer())
     }
 
     override fun isSyncNeeded(): Single<Boolean> {
@@ -41,7 +41,7 @@ class BookletFacadeImpl(
         return sendDeactivatedBooklets()
     }
 
-    private fun reloadDataFromServer(): Completable {
+    private fun loadDataFromServer(): Completable {
         return reloadDeactivatedBookletsFromServer()
             .andThen(reloadProtectedBookletsFromServer())
     }
@@ -67,7 +67,7 @@ class BookletFacadeImpl(
     }
 
     private fun reloadDeactivatedBookletsFromServer(): Completable {
-        return bookletRepo.getDeactivatedBookletsFromServer().flatMapCompletable { response ->
+        return bookletRepo.loadDeactivatedBookletsFromServer().flatMapCompletable { response ->
             val responseCode = response.responseCode
             if (isPositiveResponseHttpCode(responseCode)) {
                 val booklets = response.booklets
@@ -86,7 +86,7 @@ class BookletFacadeImpl(
     }
 
     private fun reloadProtectedBookletsFromServer(): Completable {
-        return bookletRepo.getProtectedBookletsFromServer().flatMapCompletable { response ->
+        return bookletRepo.loadProtectedBookletsFromServer().flatMapCompletable { response ->
             val responseCode = response.responseCode
 
             if (isPositiveResponseHttpCode(responseCode)) {

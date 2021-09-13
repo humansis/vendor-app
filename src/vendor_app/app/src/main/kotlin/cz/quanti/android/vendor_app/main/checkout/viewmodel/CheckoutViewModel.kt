@@ -14,6 +14,7 @@ import cz.quanti.android.vendor_app.repository.booklet.dto.Voucher
 import cz.quanti.android.vendor_app.repository.card.CardFacade
 import cz.quanti.android.vendor_app.repository.purchase.PurchaseFacade
 import cz.quanti.android.vendor_app.repository.purchase.dto.Purchase
+import cz.quanti.android.vendor_app.repository.purchase.dto.PurchasedProduct
 import cz.quanti.android.vendor_app.repository.purchase.dto.SelectedProduct
 import cz.quanti.android.vendor_app.utils.*
 import io.reactivex.Completable
@@ -179,7 +180,7 @@ class CheckoutViewModel(
 
     private fun createVoucherPurchase(): Purchase {
         return Purchase().apply {
-            products.addAll(shoppingHolder.cart)
+            products.addAll(convert(shoppingHolder.cart))
             vouchers.addAll(shoppingHolder.vouchers.map { it.id })
             vendorId = currentVendor.vendor.id
             createdAt = convertTimeForApiRequestBody(Date())
@@ -193,12 +194,21 @@ class CheckoutViewModel(
 
     private fun createCardPurchase(card: String, userBalance: UserBalance): Purchase {
         return Purchase().apply {
-            products.addAll(shoppingHolder.cart)
+            products.addAll(convert(shoppingHolder.cart))
             smartcard = card
             beneficiaryId = userBalance.userId.toLong()
             vendorId = currentVendor.vendor.id
             createdAt = convertTimeForApiRequestBody(Date())
             currency = userBalance.currencyCode
+        }
+    }
+
+    private fun convert(cart: MutableList<SelectedProduct>): Collection<PurchasedProduct> {
+        return cart.map {
+            PurchasedProduct (
+                product = it.product,
+                price = it.price
+            )
         }
     }
 

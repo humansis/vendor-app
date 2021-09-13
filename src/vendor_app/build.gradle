@@ -36,7 +36,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:7.0.1'
+        classpath 'com.android.tools.build:gradle:7.0.2'
         classpath "org.jacoco:org.jacoco.core:$jacoco_version"
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version" // Tools -> Kotlin -> plugin updates to match versions
         classpath "org.jlleitschuh.gradle:ktlint-gradle:$ktlint_version"

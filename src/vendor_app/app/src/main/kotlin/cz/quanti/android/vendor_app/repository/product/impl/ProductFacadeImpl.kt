@@ -2,6 +2,8 @@ package cz.quanti.android.vendor_app.repository.product.impl
 
 import android.content.Context
 import com.bumptech.glide.Glide
+import cz.quanti.android.vendor_app.repository.category.CategoryRepository
+import cz.quanti.android.vendor_app.repository.login.dto.Vendor
 import cz.quanti.android.vendor_app.repository.product.ProductFacade
 import cz.quanti.android.vendor_app.repository.product.ProductRepository
 import cz.quanti.android.vendor_app.repository.product.dto.Product
@@ -19,14 +21,14 @@ class ProductFacadeImpl(
         return productRepo.getProducts()
     }
 
-    override fun syncWithServer(): Completable {
-        return reloadProductFromServer()
+    override fun syncWithServer(vendor: Vendor): Completable {
+        return reloadProductFromServer(vendor)
     }
 
-    private fun reloadProductFromServer(): Completable {
-        return productRepo.getProductsFromServer().flatMapCompletable { response ->
+    private fun reloadProductFromServer(vendor: Vendor): Completable {
+        return productRepo.loadProductsFromServer(vendor).flatMapCompletable { response ->
             val responseCode = response.first
-            val products = response.second
+            val products = response.second.toMutableList()
             if (isPositiveResponseHttpCode(responseCode)) {
                 actualizeDatabase(products)
             } else {

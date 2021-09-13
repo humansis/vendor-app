@@ -11,9 +11,9 @@ interface BookletRepository {
 
     fun saveBooklet(booklet: Booklet): Completable
 
-    fun getDeactivatedBookletsFromServer(): Single<BookletsWithResponseCode>
+    fun loadDeactivatedBookletsFromServer(): Single<BookletsWithResponseCode>
 
-    fun getProtectedBookletsFromServer(): Single<BookletsWithResponseCode>
+    fun loadProtectedBookletsFromServer(): Single<BookletsWithResponseCode>
 
     fun getNewlyDeactivatedBooklets(): Single<List<Booklet>>
 

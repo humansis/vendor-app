@@ -2,6 +2,8 @@ package cz.quanti.android.vendor_app.main.shop.viewmodel
 
 import androidx.lifecycle.*
 import cz.quanti.android.vendor_app.repository.AppPreferences
+import cz.quanti.android.vendor_app.repository.category.CategoryFacade
+import cz.quanti.android.vendor_app.repository.category.dto.Category
 import cz.quanti.android.vendor_app.repository.product.ProductFacade
 import cz.quanti.android.vendor_app.repository.product.dto.Product
 import cz.quanti.android.vendor_app.repository.purchase.dto.SelectedProduct
@@ -14,6 +16,7 @@ import io.reactivex.Observable
 
 class ShopViewModel(
     private val shoppingHolder: ShoppingHolder,
+    private val categoryFacade: CategoryFacade,
     private val productFacade: ProductFacade,
     private val currentVendor: CurrentVendor,
     private val synchronizationManager: SynchronizationManager,
@@ -22,6 +25,10 @@ class ShopViewModel(
 
     fun syncStateObservable(): Observable<SynchronizationState> {
         return synchronizationManager.syncStateObservable()
+    }
+
+    fun getCategories(): Observable<List<Category>> {
+        return categoryFacade.getCategories()
     }
 
     fun getProducts(): Observable<List<Product>> {

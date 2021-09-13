@@ -7,7 +7,7 @@ interface SynchronizationManager {
 
     fun synchronizeWithServer()
 
-    fun syncStateSubject(): Subject<SynchronizationState>
-
     fun syncStateObservable(): Observable<SynchronizationState>
+
+    fun resetSyncState()
 }

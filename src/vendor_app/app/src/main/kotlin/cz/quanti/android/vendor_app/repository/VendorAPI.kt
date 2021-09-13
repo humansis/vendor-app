@@ -2,10 +2,11 @@ package cz.quanti.android.vendor_app.repository
 
 import cz.quanti.android.vendor_app.repository.booklet.dto.api.BookletApiEntity
 import cz.quanti.android.vendor_app.repository.booklet.dto.api.BookletCodesBody
+import cz.quanti.android.vendor_app.repository.category.dto.api.CategoryPagedApiEntity
 import cz.quanti.android.vendor_app.repository.invoice.dto.api.V2InvoiceApiEntity
 import cz.quanti.android.vendor_app.repository.login.dto.api.SaltApiEntity
 import cz.quanti.android.vendor_app.repository.login.dto.api.VendorApiEntity
-import cz.quanti.android.vendor_app.repository.product.dto.api.ProductApiEntity
+import cz.quanti.android.vendor_app.repository.product.dto.api.ProductPagedApiEntity
 import cz.quanti.android.vendor_app.repository.purchase.dto.api.*
 import cz.quanti.android.vendor_app.repository.transaction.dto.api.TransactionApiEntity
 import cz.quanti.android.vendor_app.repository.transaction.dto.api.TransactionPurchaseApiEntity
@@ -21,8 +22,16 @@ interface VendorAPI {
     @POST("v1/login")
     fun postLogin(@Body vendor: VendorApiEntity): Single<Response<VendorApiEntity>>
 
-    @GET("v1/products")
-    fun getProducts(): Single<Response<List<ProductApiEntity>>>
+    @GET("v1/product-categories")
+    fun getCategories(
+        @Query("filter[vendor][]") vendorId: Int
+    ): Single<Response<CategoryPagedApiEntity>>
+
+    @GET("v2/products")
+    fun getProducts(
+        @Query("filter[vendors][]") vendorId: Int,
+        @Header("country") country: String
+    ): Single<Response<ProductPagedApiEntity>>
 
     @GET("v1/deactivated-booklets")
     fun getDeactivatedBooklets(): Single<Response<List<BookletApiEntity>>>

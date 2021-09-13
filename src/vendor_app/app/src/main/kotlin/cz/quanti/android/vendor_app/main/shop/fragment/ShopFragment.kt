@@ -361,7 +361,7 @@ class ShopFragment : Fragment(), OnTouchOutsideViewListener {
             try {
                 val price = priceEditText.text.toString().toDouble()
                 when {
-                    price < INVALID_PRICE_VALUE -> {
+                    price < LOWEST_VALID_PRICE_VALUE -> {
                         mainVM.setToastMessage(getString(R.string.please_enter_price))
                     }
                     else -> {
@@ -406,7 +406,7 @@ class ShopFragment : Fragment(), OnTouchOutsideViewListener {
     companion object {
         private val TAG = ShopFragment::class.java.simpleName
         const val EMPTY_CART_SIZE = 0
-        const val INVALID_PRICE_VALUE = 0.01
+        const val LOWEST_VALID_PRICE_VALUE = 0.01
         const val PORTRAIT_PHONE_COLUMNS = 3
         const val PORTRAIT_TABLET_COLUMNS = 4
         const val LANDSCAPE_TABLET_COLUMNS = 6

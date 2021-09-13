@@ -12,7 +12,6 @@ import cz.quanti.android.vendor_app.utils.ShoppingHolder
 import cz.quanti.android.vendor_app.utils.getDefaultCurrency
 import io.reactivex.Observable
 import io.reactivex.Single
-import io.reactivex.subjects.BehaviorSubject
 
 class ShopViewModel(
     private val shoppingHolder: ShoppingHolder,
@@ -40,6 +39,10 @@ class ShopViewModel(
 
     fun removeSelectedProduct(product: SelectedProduct) {
         shoppingHolder.removeProductAt(product)
+    }
+
+    fun emptyCart() {
+        shoppingHolder.removeAllProducts()
     }
 
     fun addToShoppingCart(product: SelectedProduct) {

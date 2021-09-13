@@ -284,6 +284,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
             .setPositiveButton(
                 android.R.string.ok
             ) { _, _ ->
+                shopVM.emptyCart()
                 loginFacade.logout()
                 findNavController(R.id.nav_host_fragment).popBackStack(R.id.loginFragment, false)
             }

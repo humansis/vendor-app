@@ -125,7 +125,7 @@ class ShopFragment : Fragment(), OnTouchOutsideViewListener {
     }
 
     private fun clearQuery() {
-        productsAdapter.filterByName("")
+        productsAdapter.search("")
         productsAdapter.filterByCategory("")
         shopBinding.shopSearchBar.clearFocus()
         shopBinding.shopSearchBar.setQuery("", true)
@@ -167,7 +167,7 @@ class ShopFragment : Fragment(), OnTouchOutsideViewListener {
             Log.d(TAG, "SearchBar clicked")
             if (shopBinding.shopSearchBar.isIconified) {
                 shopBinding.shopSearchBar.isIconified = false
-                productsAdapter.filterByName("")
+                productsAdapter.search("")
             }
             showCategories(false)
         }
@@ -178,7 +178,7 @@ class ShopFragment : Fragment(), OnTouchOutsideViewListener {
             }
 
             override fun onQueryTextChange(newText: String): Boolean {
-                productsAdapter.filterByName(newText)
+                productsAdapter.search(newText)
                 return false
             }
         })

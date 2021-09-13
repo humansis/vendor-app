@@ -45,11 +45,11 @@ class ProductsAdapter(
         return products.size
     }
 
-    fun filterByName(name: String) {
-        productFilterByName.filter(name)
+    fun search(name: String) {
+        productFilter.filter(name)
     }
 
-    private val productFilterByName: Filter = object : Filter() {
+    private val productFilter: Filter = object : Filter() {
         override fun performFiltering(constraint: CharSequence): FilterResults {
             val filteredList: MutableList<Product> = ArrayList()
             if (constraint.isEmpty()) {

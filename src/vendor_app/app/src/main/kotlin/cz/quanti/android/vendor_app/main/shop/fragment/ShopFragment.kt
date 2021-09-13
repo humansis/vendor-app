@@ -80,7 +80,7 @@ class ShopFragment : Fragment(), OnTouchOutsideViewListener {
                 override fun handleOnBackPressed() {
                     if (!shopBinding.categoriesAppBarLayout.isAppBarExpanded() && categoriesAllowed.value == true) {
                         clearQuery()
-                        showCategories(true, null)
+                        showCategories(true)
                     } else {
                         requireActivity().finish()
                     }
@@ -169,7 +169,7 @@ class ShopFragment : Fragment(), OnTouchOutsideViewListener {
                 shopBinding.shopSearchBar.isIconified = false
                 productsAdapter.filterByName("")
             }
-            showCategories(false, null)
+            showCategories(false)
         }
         shopBinding.shopSearchBar.imeOptions = EditorInfo.IME_ACTION_DONE
         shopBinding.shopSearchBar.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
@@ -189,7 +189,7 @@ class ShopFragment : Fragment(), OnTouchOutsideViewListener {
     private fun initObservers() {
         categoriesAllowed.observe(viewLifecycleOwner, {
             setAppBarHidden(!it)
-            showCategories(it, null)
+            showCategories(it)
             if (it) {
                 shopBinding.categoriesAppBarLayout.addOnOffsetChangedListener( OnOffsetChangedListener { appBarLayout, verticalOffset ->
                     if (abs(verticalOffset) >= appBarLayout.totalScrollRange) {
@@ -252,7 +252,7 @@ class ShopFragment : Fragment(), OnTouchOutsideViewListener {
             chosenCurrency = currency
             productsAdapter.setData(currency, allProducts)
             actualizeTotal(selectedProducts.map { it.price }.sum())
-            showCategories(true, null)
+            showCategories(true)
         })
     }
 
@@ -268,7 +268,7 @@ class ShopFragment : Fragment(), OnTouchOutsideViewListener {
             Log.d(TAG, "Cart products header clicked")
             shopBinding.productsRecyclerView.stopScroll()
             clearQuery()
-            showCategories(!shopBinding.categoriesAppBarLayout.isAppBarExpanded(), null)
+            showCategories(!shopBinding.categoriesAppBarLayout.isAppBarExpanded())
         }
     }
 
@@ -300,9 +300,9 @@ class ShopFragment : Fragment(), OnTouchOutsideViewListener {
         showCategories(false, category.name)
     }
 
-    private fun showCategories(boolean: Boolean, name: String?) {
+    private fun showCategories(boolean: Boolean, name: String = getString(R.string.all_products)) {
         shopBinding.categoriesAppBarLayout.setExpanded(boolean)
-        shopBinding.productsHeader.text = name ?: getString(R.string.all_products)
+        shopBinding.productsHeader.text = name
     }
 
     fun openProduct(product: Product, productLayout: View) {
@@ -378,10 +378,10 @@ class ShopFragment : Fragment(), OnTouchOutsideViewListener {
         }
     }
 
-    private fun addProductToCart(product: Product, unitPrice: Double) {
+    private fun addProductToCart(product: Product, price: Double) {
         val selected = SelectedProduct(
             product = product,
-            price = product.unitPrice ?: unitPrice
+            price = product.unitPrice ?: price
         )
         vm.addToShoppingCart(selected)
     }

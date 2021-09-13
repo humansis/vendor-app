@@ -58,6 +58,7 @@ class ShopFragment : Fragment(), ShopFragmentCallback, OnTouchOutsideViewListene
     private var syncStateDisposable: Disposable? = null
     private var productsDisposable: Disposable? = null
     private var categoriesAllowed = MutableLiveData<Boolean>()
+    private var selectedProducts = listOf<SelectedProduct>()
     private lateinit var appBarState: AppBarStateEnum
 
     override fun onCreateView(
@@ -239,6 +240,7 @@ class ShopFragment : Fragment(), ShopFragmentCallback, OnTouchOutsideViewListene
             })
 
         vm.getSelectedProductsLD().observe(viewLifecycleOwner, { products ->
+            selectedProducts = products
             if (products.isEmpty()) {
                 shopBinding.totalTextView.visibility = View.GONE
                 shopBinding.cartFAB.visibility = View.GONE
@@ -310,7 +312,7 @@ class ShopFragment : Fragment(), ShopFragmentCallback, OnTouchOutsideViewListene
     }
 
     override fun openProduct(product: Product, productLayout: View) {
-        val hasCashback = vm.getSelectedProductsLD().value?.find { it.product.category.type == CategoryType.CASHBACK }
+        val hasCashback = selectedProducts.find { it.product.category.type == CategoryType.CASHBACK }
         if (hasCashback != null && product.category.type == CategoryType.CASHBACK) {
             mainVM.setToastMessage(getString(R.string.only_one_cashback_item_allowed))
             productLayout.isEnabled = true
@@ -403,11 +405,9 @@ class ShopFragment : Fragment(), ShopFragmentCallback, OnTouchOutsideViewListene
     }
 
     private fun actualizeTotal() {
-        vm.getSelectedProductsLD().value?.let{ selectedProducts ->
-            val total = selectedProducts.map { it.price }.sum()
-            val totalText = "${getString(R.string.total)}: ${getStringFromDouble(total)} ${vm.getCurrency()}"
-            shopBinding.totalTextView.text = totalText
-        }
+        val total = selectedProducts.map { it.price }.sum()
+        val totalText = "${getString(R.string.total)}: ${getStringFromDouble(total)} ${vm.getCurrency()}"
+        shopBinding.totalTextView.text = totalText
     }
 
     companion object {

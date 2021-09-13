@@ -36,7 +36,8 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
     private val vm: CheckoutViewModel by viewModel()
     private lateinit var selectedProductsAdapter: SelectedProductsAdapter
     private val scannedVoucherAdapter = ScannedVoucherAdapter()
-    private var disposable: Disposable? = null
+    private var proceedDisposable: Disposable? = null
+    private var currencyDisposable: Disposable? = null
     private lateinit var activityCallback: ActivityCallback
 
     private lateinit var checkoutBinding: FragmentCheckoutBinding
@@ -83,12 +84,13 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
     }
 
     override fun onStop() {
-        disposable?.dispose()
+        currencyDisposable?.dispose()
+        proceedDisposable?.dispose()
         super.onStop()
     }
 
     override fun onDestroy() {
-        disposable?.dispose()
+        proceedDisposable?.dispose()
         super.onDestroy()
     }
 
@@ -121,11 +123,17 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
 
     @SuppressLint("NotifyDataSetChanged")
     private fun initObservers() {
-        vm.getCurrency().observe(viewLifecycleOwner, {
-            selectedProductsAdapter.chosenCurrency = vm.getCurrency().value.toString()
-            selectedProductsAdapter.notifyDataSetChanged()
-            actualizeTotal()
-        })
+        currencyDisposable?.dispose()
+        currencyDisposable = vm.getCurrency()
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({
+                selectedProductsAdapter.chosenCurrency = vm.getCurrency().value.toString()
+                selectedProductsAdapter.notifyDataSetChanged()
+                actualizeTotal()
+            }, {
+                Log.e(TAG, it)
+            })
 
         vm.getSelectedProductsLD().observe(viewLifecycleOwner, { products ->
             selectedProductsAdapter.closeExpandedCard()
@@ -181,8 +189,8 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
 
     override fun proceed() {
         if (vm.getTotal() <= 0) {
-            disposable?.dispose()
-            disposable = vm.proceed().subscribeOn(Schedulers.io())
+            proceedDisposable?.dispose()
+            proceedDisposable = vm.proceed().subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread()).subscribe(
                     {
                         vm.clearCart()
@@ -192,10 +200,9 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
                             .setTitle(getString(R.string.success))
                             .setPositiveButton(android.R.string.ok, null)
                             .show()
-                    },
-                    {
+                    }, {
                         mainVM.setToastMessage(getString(R.string.error_while_proceeding))
-                        Log.e(it)
+                        Log.e(TAG, it)
                     }
                 )
         } else {

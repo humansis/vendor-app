@@ -9,7 +9,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import cz.quanti.android.vendor_app.databinding.ItemProductBinding
-import cz.quanti.android.vendor_app.main.shop.fragment.ShopFragment
+import cz.quanti.android.vendor_app.main.shop.ShopFragmentCallback
 import cz.quanti.android.vendor_app.main.shop.viewholder.ProductViewHolder
 import cz.quanti.android.vendor_app.repository.product.dto.Product
 import java.util.*
@@ -18,7 +18,7 @@ import org.koin.core.component.KoinComponent
 import quanti.com.kotlinlog.Log
 
 class ProductsAdapter(
-    private val shopFragment: ShopFragment,
+    private val shopFragmentCallback: ShopFragmentCallback,
     private val context: Context
 ) :
     RecyclerView.Adapter<ProductViewHolder>(), KoinComponent {
@@ -33,7 +33,7 @@ class ProductsAdapter(
     }
 
     @SuppressLint("NotifyDataSetChanged")
-    fun setFilteredData(data: List<Product>) {
+    fun setData(data: List<Product>) {
         products.clear()
         products.addAll(data)
         productsFull.clear()
@@ -125,18 +125,7 @@ class ProductsAdapter(
         holder.productLayout.setOnClickListener {
             it.isEnabled = false
             Log.d(TAG, "Product $position clicked")
-            shopFragment.openProduct(products[position], it)
-        }
-    }
-
-    fun setData(chosenCurrency: String?, products: List<Product>?) {
-        products?.filter {
-            it.currency.isNullOrEmpty() || it.currency == chosenCurrency
-        }?.let { filteredProducts ->
-            setFilteredData(filteredProducts)
-            shopFragment.filterCategories(filteredProducts.distinctBy { it.category }.map {
-                it.category
-            })
+            shopFragmentCallback.openProduct(products[position], it)
         }
     }
 

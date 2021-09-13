@@ -98,7 +98,7 @@ class InvoicesFragment : Fragment() {
                     }
                 }
             }, {
-                Log.e(it)
+                Log.e(TAG, it)
             })
     }
 

@@ -12,6 +12,7 @@ import cz.quanti.android.vendor_app.utils.ShoppingHolder
 import cz.quanti.android.vendor_app.utils.getDefaultCurrency
 import io.reactivex.Observable
 import io.reactivex.Single
+import io.reactivex.subjects.BehaviorSubject
 
 class ShopViewModel(
     private val shoppingHolder: ShoppingHolder,
@@ -49,20 +50,24 @@ class ShopViewModel(
         return listOf("USD", "EUR", "SYP", "KHR", "UAH", "AMD", "MNT", "ETB", "ZMW")
     }
 
-    fun getCurrency(): LiveData<String> {
-        if (shoppingHolder.chosenCurrency.value == "") {
+    fun getCurrency(): String? {
+        return shoppingHolder.currency.value
+    }
+
+    fun getCurrencyObservable(): Observable<String> {
+        if (shoppingHolder.currency.value == "") {
             val savedCurrency = preferences.currency
             if (savedCurrency.isNotEmpty()) {
-                shoppingHolder.chosenCurrency.value = savedCurrency
+                shoppingHolder.currency.onNext(savedCurrency)
             } else {
                 setCurrency(getDefaultCurrency(currentVendor.vendor.country))
             }
         }
-        return shoppingHolder.chosenCurrency
+        return shoppingHolder.currency
     }
 
     fun setCurrency(currency: String) {
         preferences.currency = currency
-        shoppingHolder.chosenCurrency.value = currency
+        shoppingHolder.currency.onNext(currency)
     }
 }

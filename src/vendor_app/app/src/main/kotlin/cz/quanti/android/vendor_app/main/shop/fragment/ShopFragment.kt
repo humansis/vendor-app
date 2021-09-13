@@ -10,7 +10,6 @@ import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.toLiveData
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -30,15 +29,16 @@ import cz.quanti.android.vendor_app.repository.category.dto.CategoryType
 import cz.quanti.android.vendor_app.repository.product.dto.Product
 import cz.quanti.android.vendor_app.repository.purchase.dto.SelectedProduct
 import cz.quanti.android.vendor_app.utils.getStringFromDouble
-import io.reactivex.BackpressureStrategy
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import com.google.android.material.appbar.AppBarLayout
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import com.google.android.material.appbar.AppBarLayout.OnOffsetChangedListener
 import cz.quanti.android.vendor_app.main.authorization.viewmodel.LoginViewModel
+import cz.quanti.android.vendor_app.main.shop.ShopFragmentCallback
 import cz.quanti.android.vendor_app.sync.SynchronizationState
 import cz.quanti.android.vendor_app.utils.getBackgroundColor
+import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
@@ -46,7 +46,7 @@ import quanti.com.kotlinlog.Log
 import java.math.BigDecimal
 import kotlin.math.abs
 
-class ShopFragment : Fragment(), OnTouchOutsideViewListener {
+class ShopFragment : Fragment(), ShopFragmentCallback, OnTouchOutsideViewListener {
 
     private val loginVM: LoginViewModel by viewModel()
     private val mainVM: MainViewModel by sharedViewModel()
@@ -56,11 +56,9 @@ class ShopFragment : Fragment(), OnTouchOutsideViewListener {
     private lateinit var shopBinding: FragmentShopBinding
     private lateinit var activityCallback: ActivityCallback
     private var syncStateDisposable: Disposable? = null
+    private var productsDisposable: Disposable? = null
     private var categoriesAllowed = MutableLiveData<Boolean>()
     private lateinit var appBarState: AppBarStateEnum
-    private var chosenCurrency: String = ""
-    private var allProducts: List<Product> = listOf()
-    private var selectedProducts: List<SelectedProduct> = listOf()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -109,6 +107,7 @@ class ShopFragment : Fragment(), OnTouchOutsideViewListener {
     }
 
     override fun onStop() {
+        productsDisposable?.dispose()
         syncStateDisposable?.dispose()
         // collapse searchbar after eventual screen rotation
         shopBinding.shopSearchBar.onActionViewCollapsed()
@@ -218,41 +217,40 @@ class ShopFragment : Fragment(), OnTouchOutsideViewListener {
                     }
                 }
             }, {
-                Log.e(it)
+                Log.e(TAG, it)
             })
 
-        vm.getProducts().toFlowable(BackpressureStrategy.LATEST)
-            .toLiveData()
-            .observe(viewLifecycleOwner, { products ->
-                allProducts = products
-                productsAdapter.setData(chosenCurrency, products)
+        productsDisposable?.dispose()
+        productsDisposable = Observable
+            .combineLatest(vm.getProducts(), vm.getCurrencyObservable(), { products, currency ->
+                filterProducts(products, currency)
+            }).subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({ products ->
+                filterCategories(products.distinctBy { it.category }.map {
+                    it.category
+                })
+                productsAdapter.setData(products)
                 setMessageVisible(products.isEmpty())
+                actualizeTotal()
+                showCategories(true)
+            }, {
+                Log.e(TAG, it)
             })
 
         vm.getSelectedProductsLD().observe(viewLifecycleOwner, { products ->
-            selectedProducts = products
-            when (products.size) {
-                EMPTY_CART_SIZE -> {
-                    shopBinding.totalTextView.visibility = View.GONE
-                    shopBinding.cartFAB.visibility = View.GONE
-                    shopBinding.cartBadge.visibility = View.GONE
-
-                }
-                else -> {
-                    actualizeTotal(products.map { it.price }.sum())
-                    shopBinding.totalTextView.visibility = View.VISIBLE
-                    shopBinding.cartFAB.visibility = View.VISIBLE
-                    shopBinding.cartBadge.visibility = View.VISIBLE
-                    shopBinding.cartBadge.text = products.size.toString()
-                }
+            if (products.isEmpty()) {
+                shopBinding.totalTextView.visibility = View.GONE
+                shopBinding.cartFAB.visibility = View.GONE
+                shopBinding.cartBadge.visibility = View.GONE
             }
-        })
-
-        vm.getCurrency().observe(viewLifecycleOwner, { currency ->
-            chosenCurrency = currency
-            productsAdapter.setData(currency, allProducts)
-            actualizeTotal(selectedProducts.map { it.price }.sum())
-            showCategories(true)
+            else {
+                actualizeTotal()
+                shopBinding.totalTextView.visibility = View.VISIBLE
+                shopBinding.cartFAB.visibility = View.VISIBLE
+                shopBinding.cartBadge.visibility = View.VISIBLE
+                shopBinding.cartBadge.text = products.size.toString()
+            }
         })
     }
 
@@ -280,7 +278,13 @@ class ShopFragment : Fragment(), OnTouchOutsideViewListener {
         }
     }
 
-    fun filterCategories(categories: List<Category>) {
+    private fun filterProducts(products: List<Product>, currency: String): List<Product> {
+        return products.filter {
+            it.currency.isNullOrEmpty() || it.currency == currency
+        }
+    }
+
+    private fun filterCategories(categories: List<Category>) {
         if (categories.size > 1) {
             categoriesAllowed.value = true
             categoriesAdapter.setData(categories.addAllCategory(requireContext()))
@@ -291,7 +295,7 @@ class ShopFragment : Fragment(), OnTouchOutsideViewListener {
         }
     }
 
-    fun openCategory(category: Category) {
+    override fun openCategory(category: Category) {
         if (category.type != CategoryType.ALL) {
             productsAdapter.filterByCategory(category.name)
         } else {
@@ -305,8 +309,8 @@ class ShopFragment : Fragment(), OnTouchOutsideViewListener {
         shopBinding.productsHeader.text = name
     }
 
-    fun openProduct(product: Product, productLayout: View) {
-        val hasCashback = selectedProducts.find { it.product.category.type == CategoryType.CASHBACK }
+    override fun openProduct(product: Product, productLayout: View) {
+        val hasCashback = vm.getSelectedProductsLD().value?.find { it.product.category.type == CategoryType.CASHBACK }
         if (hasCashback != null && product.category.type == CategoryType.CASHBACK) {
             mainVM.setToastMessage(getString(R.string.only_one_cashback_item_allowed))
             productLayout.isEnabled = true
@@ -340,7 +344,7 @@ class ShopFragment : Fragment(), OnTouchOutsideViewListener {
         val priceEditText = dialogBinding.editProduct.priceEditText
         val confirmButton = dialogBinding.editProduct.confirmButton
         priceEditText.hint = requireContext().getString(R.string.price)
-        dialogBinding.editProduct.priceTextInputLayout.suffixText = chosenCurrency
+        dialogBinding.editProduct.priceTextInputLayout.suffixText = vm.getCurrency()
 
         if (product.category.type == CategoryType.CASHBACK) {
             dialogBinding.editProduct.priceEditText.isEnabled = false
@@ -398,14 +402,16 @@ class ShopFragment : Fragment(), OnTouchOutsideViewListener {
         }
     }
 
-    private fun actualizeTotal(total: Double) {
-        val totalText = "${getString(R.string.total)}: ${getStringFromDouble(total)} ${vm.getCurrency().value}"
-        shopBinding.totalTextView.text = totalText
+    private fun actualizeTotal() {
+        vm.getSelectedProductsLD().value?.let{ selectedProducts ->
+            val total = selectedProducts.map { it.price }.sum()
+            val totalText = "${getString(R.string.total)}: ${getStringFromDouble(total)} ${vm.getCurrency()}"
+            shopBinding.totalTextView.text = totalText
+        }
     }
 
     companion object {
         private val TAG = ShopFragment::class.java.simpleName
-        const val EMPTY_CART_SIZE = 0
         const val LOWEST_VALID_PRICE_VALUE = 0.01
         const val PORTRAIT_PHONE_COLUMNS = 3
         const val PORTRAIT_TABLET_COLUMNS = 4

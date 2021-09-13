@@ -69,6 +69,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
     private var syncDisposable: Disposable? = null
     private var readBalanceDisposable: Disposable? = null
     private var selectedProductsDisposable: Disposable? = null
+    private var currencyDisposable: Disposable? = null
     private var lastToast: Toast? = null
 
     private lateinit var activityBinding: ActivityMainBinding
@@ -129,6 +130,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
         syncDisposable?.dispose()
         readBalanceDisposable?.dispose()
         selectedProductsDisposable?.dispose()
+        currencyDisposable?.dispose()
         super.onStop()
     }
 
@@ -236,7 +238,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
                     activityBinding.appBar.contentMain.navHostFragment.setBackgroundColor(color)
                 },
                 {
-                    Log.e(it)
+                    Log.e(TAG, it)
                 }
             )
     }
@@ -482,11 +484,19 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
         currencyAdapter.init(shopVM.getCurrencies())
         currencyAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         activityBinding.priceUnitSpinner.adapter = currencyAdapter
-        shopVM.getCurrency().observe(this, {
-            activityBinding.priceUnitSpinner.setSelection(
-                currencyAdapter.getPosition(it)
-            )
-        })
+
+        currencyDisposable?.dispose()
+        currencyDisposable = shopVM.getCurrencyObservable()
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({
+                activityBinding.priceUnitSpinner.setSelection(
+                    currencyAdapter.getPosition(it)
+                )
+            }, {
+                Log.e(TAG, it)
+            })
+
         activityBinding.priceUnitSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onNothingSelected(parent: AdapterView<*>?) {
             }
@@ -503,7 +513,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
         selectedProductsDisposable = shopVM.getSelectedProducts()
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribe { products ->
+            .subscribe ({ products ->
                 products.find {
                     it.product.category.type == CategoryType.CASHBACK
                         && it.product.currency != currency
@@ -516,7 +526,9 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
                         )
                     )
                 }
-            }
+            }, {
+                Log.e(TAG, it)
+            })
     }
 
     override fun onRequestPermissionsResult(

@@ -22,6 +22,7 @@ import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
+import io.reactivex.subjects.BehaviorSubject
 import java.util.*
 
 class CheckoutViewModel(
@@ -100,8 +101,8 @@ class CheckoutViewModel(
         shoppingHolder.removeAllProducts()
     }
 
-    fun getCurrency(): LiveData<String> {
-        return shoppingHolder.chosenCurrency
+    fun getCurrency(): BehaviorSubject<String> {
+        return shoppingHolder.currency
     }
 
     fun getPin(): String? {

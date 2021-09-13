@@ -12,14 +12,14 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import cz.quanti.android.vendor_app.R
 import cz.quanti.android.vendor_app.databinding.ItemCategoryBinding
-import cz.quanti.android.vendor_app.main.shop.fragment.ShopFragment
+import cz.quanti.android.vendor_app.main.shop.ShopFragmentCallback
 import cz.quanti.android.vendor_app.main.shop.viewholder.CategoryViewHolder
 import cz.quanti.android.vendor_app.repository.category.dto.Category
 import cz.quanti.android.vendor_app.repository.category.dto.CategoryType
 import org.koin.core.component.KoinComponent
 
 class CategoriesAdapter(
-    private val shopFragment: ShopFragment,
+    private val shopFragmentCallback: ShopFragmentCallback,
     private val context: Context
 ) :
     RecyclerView.Adapter<CategoryViewHolder>(), KoinComponent {
@@ -114,7 +114,7 @@ class CategoriesAdapter(
         }
 
         holder.categoryLayout.setOnClickListener {
-            shopFragment.openCategory(categories[position])
+            shopFragmentCallback.openCategory(categories[position])
         }
     }
 

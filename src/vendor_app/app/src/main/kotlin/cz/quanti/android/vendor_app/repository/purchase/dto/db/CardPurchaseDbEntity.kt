@@ -22,5 +22,6 @@ data class CardPurchaseDbEntity(
     @PrimaryKey(autoGenerate = true)
     var dbId: Long = 0,
     var card: String? = "",
-    var purchaseId: Long = 0
+    var purchaseId: Long = 0,
+    var beneficiaryId: Long? = null
 )

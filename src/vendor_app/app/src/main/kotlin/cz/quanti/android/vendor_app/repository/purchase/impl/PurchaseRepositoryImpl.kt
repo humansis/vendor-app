@@ -42,7 +42,8 @@ class PurchaseRepositoryImpl(
                 cardPurchaseDao.insert(
                     CardPurchaseDbEntity(
                         purchaseId = id,
-                        card = purchase.smartcard
+                        card = purchase.smartcard,
+                        beneficiaryId = purchase.beneficiaryId
                     )
                 )
             }
@@ -109,11 +110,13 @@ class PurchaseRepositoryImpl(
                                             val purchase = Purchase(
                                                 smartcard = cardPurchaseDb.card,
                                                 createdAt = purchaseDb.createdAt,
-                                                dbId = purchaseDb.dbId
+                                                dbId = purchaseDb.dbId,
+                                                vendorId = purchaseDb.vendorId,
+                                                beneficiaryId = cardPurchaseDb.beneficiaryId,
+                                                currency = purchaseDb.currency
                                             )
                                             purchase.products.addAll(productsDb.map { convert(it) })
                                             purchase.vouchers.addAll(voucherPurchasesDb.map { it.voucher })
-                                            purchase.vendorId = purchaseDb.vendorId
                                             Single.just(purchase)
                                         }
                                 }
@@ -206,10 +209,11 @@ class PurchaseRepositoryImpl(
         )
     }
 
-    private fun convertToApi(selectedProduct: SelectedProduct): PurchasedProductApiEntity {
+    private fun convertToApi(selectedProduct: SelectedProduct, currency: String): PurchasedProductApiEntity {
         return PurchasedProductApiEntity(
             id = selectedProduct.product.id,
-            value = selectedProduct.price
+            value = selectedProduct.price,
+            currency = currency
         )
     }
 
@@ -241,15 +245,16 @@ class PurchaseRepositoryImpl(
 
     private fun convertToCardApi(purchase: Purchase): CardPurchaseApiEntity {
         return CardPurchaseApiEntity(
-            products = purchase.products.map { convertToApi(it) },
+            products = purchase.products.map { convertToApi(it, purchase.currency) },
             createdAt = purchase.createdAt,
-            vendorId = purchase.vendorId
+            vendorId = purchase.vendorId,
+            beneficiaryId = purchase.beneficiaryId,
         )
     }
 
     private fun convertToVoucherApi(purchase: Purchase): VoucherPurchaseApiEntity {
         return VoucherPurchaseApiEntity(
-            products = purchase.products.map { convertToApi(it) },
+            products = purchase.products.map { convertToApi(it, purchase.currency) },
             vouchers = purchase.vouchers,
             createdAt = purchase.createdAt,
             vendorId = purchase.vendorId

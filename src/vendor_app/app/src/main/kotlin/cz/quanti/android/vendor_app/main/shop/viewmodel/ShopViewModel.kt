@@ -20,9 +20,8 @@ class ShopViewModel(
     private val preferences: AppPreferences
 ) : ViewModel() {
 
-    fun syncNeededObservable(): Observable<SynchronizationState> {
+    fun syncStateObservable(): Observable<SynchronizationState> {
         return synchronizationManager.syncStateObservable()
-            .filter { it == SynchronizationState.SUCCESS }
     }
 
     fun getProducts(): Observable<List<Product>> {
@@ -45,7 +44,7 @@ class ShopViewModel(
         if (shoppingHolder.chosenCurrency.value == "") {
             val savedCurrency = preferences.currency
             if (savedCurrency.isNotEmpty()) {
-                shoppingHolder.chosenCurrency.postValue(savedCurrency)
+                shoppingHolder.chosenCurrency.value = savedCurrency
             } else {
                 setCurrency(getDefaultCurrency(currentVendor.vendor.country))
             }
@@ -55,6 +54,6 @@ class ShopViewModel(
 
     fun setCurrency(currency: String) {
         preferences.currency = currency
-        shoppingHolder.chosenCurrency.postValue(currency)
+        shoppingHolder.chosenCurrency.value = currency
     }
 }

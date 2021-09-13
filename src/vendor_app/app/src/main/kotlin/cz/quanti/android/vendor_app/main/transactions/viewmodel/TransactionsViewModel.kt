@@ -18,7 +18,7 @@ class TransactionsViewModel(
     private val synchronizationFacade: SynchronizationFacade
 ) : ViewModel() {
 
-    fun getTransactions(): Single<List<Transaction>> {
+    fun getTransactions(): Observable<List<Transaction>> {
         return transactionFacade.getTransactions()
     }
 

@@ -12,9 +12,11 @@ import cz.quanti.android.vendor_app.ActivityCallback
 import cz.quanti.android.vendor_app.MainNavigationDirections
 import cz.quanti.android.vendor_app.R
 import cz.quanti.android.vendor_app.databinding.FragmentTransactionsBinding
+import cz.quanti.android.vendor_app.main.authorization.viewmodel.LoginViewModel
 import cz.quanti.android.vendor_app.main.transactions.adapter.TransactionsAdapter
 import cz.quanti.android.vendor_app.main.transactions.viewmodel.TransactionsViewModel
 import cz.quanti.android.vendor_app.sync.SynchronizationState
+import cz.quanti.android.vendor_app.utils.getBackgroundColor
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
@@ -22,7 +24,7 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 import quanti.com.kotlinlog.Log
 
 class TransactionsFragment : Fragment() {
-
+    private val loginVM: LoginViewModel by viewModel()
     private val vm: TransactionsViewModel by viewModel()
     private lateinit var transactionsAdapter: TransactionsAdapter
     private lateinit var transactionsBinding: FragmentTransactionsBinding
@@ -62,13 +64,16 @@ class TransactionsFragment : Fragment() {
         transactionsBinding.transactionsRecyclerView.adapter = transactionsAdapter
         transactionsBinding.unsyncedWarning.root.visibility = View.GONE
         transactionsBinding.unsyncedWarning.warningButton.setOnClickListener {
+            Log.d(TAG, "Sync button clicked")
             vm.sync()
         }
+        val color = getBackgroundColor(requireContext(), loginVM.getApiHost())
+        transactionsBinding.shadowTop.background.setTint(color)
+        transactionsBinding.shadowBottom.background.setTint(color)
     }
 
     override fun onStart() {
         super.onStart()
-        setMessage(getString(R.string.no_transactions_to_reimburse))
         initObservers()
     }
 
@@ -82,42 +87,34 @@ class TransactionsFragment : Fragment() {
             }
         })
 
+        transactionsDisposable?.dispose()
+        transactionsDisposable = vm.getTransactions()
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({ transactions ->
+                transactionsAdapter.setData(transactions)
+                setMessageVisible(transactions.isEmpty())
+            }, {
+                Log.e(TAG, it)
+            })
+
         syncStateDisposable?.dispose()
         syncStateDisposable = vm.syncStateObservable()
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({ syncState ->
                 when (syncState) {
-                    SynchronizationState.SUCCESS -> {
-                        getTransactions()
-                    }
-                    SynchronizationState.ERROR -> {
-                        transactionsBinding.unsyncedWarning.warningButton.isEnabled = true
-                        setMessage(getString(R.string.no_transactions_to_reimburse))
-                    }
                     SynchronizationState.STARTED -> {
                         transactionsBinding.unsyncedWarning.warningButton.isEnabled = false
                         setMessage(getString(R.string.loading))
                     }
                     else -> {
-
+                        transactionsBinding.unsyncedWarning.warningButton.isEnabled = true
+                        setMessage(getString(R.string.no_transactions_to_reimburse))
                     }
                 }
             }, {
-                Log.e(it)
-            })
-    }
-
-    private fun getTransactions() {
-        transactionsDisposable?.dispose()
-        transactionsDisposable = vm.getTransactions()
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe({
-                transactionsAdapter.setData(it)
-                setMessage(getString(R.string.no_transactions_to_reimburse))
-            }, {
-                Log.e(it)
+                Log.e(TAG, it)
             })
     }
 
@@ -129,10 +126,17 @@ class TransactionsFragment : Fragment() {
 
     private fun setMessage(message: String) {
         transactionsBinding.transactionsMessage.text = message
-        if (transactionsAdapter.itemCount == 0) {
+    }
+
+    private fun setMessageVisible (visible: Boolean) {
+        if (visible) {
             transactionsBinding.transactionsMessage.visibility = View.VISIBLE
         } else {
             transactionsBinding.transactionsMessage.visibility = View.GONE
         }
+    }
+
+    companion object {
+        private val TAG = TransactionsFragment::class.java.simpleName
     }
 }

@@ -41,6 +41,7 @@ import cz.quanti.android.vendor_app.utils.*
 import cz.quanti.android.vendor_app.utils.ConnectionObserver
 import cz.quanti.android.vendor_app.utils.NfcTagPublisher
 import cz.quanti.android.vendor_app.utils.PermissionRequestResult
+import cz.quanti.android.vendor_app.utils.SendLogDialogFragment
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
@@ -62,6 +63,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
     private val shopVM: ShopViewModel by viewModel()
     private var displayedDialog: AlertDialog? = null
     private var disposable: Disposable? = null
+    private var environmentDisposable: Disposable? = null
     private var connectionDisposable: Disposable? = null
     private var syncStateDisposable: Disposable? = null
     private var syncDisposable: Disposable? = null
@@ -92,32 +94,12 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
         connectionObserver = ConnectionObserver(this)
         connectionObserver.registerCallback()
 
-        setUpToolbar()
-        setUpNavigationMenu()
-
         mainVM.initNfcAdapter(this)
 
-        mainVM.successSLE.observe(this, {
-            vibrate(this)
-            successPlayer.start()
-        })
-        mainVM.errorSLE.observe(this, {
-            vibrate(this)
-            errorPlayer.start()
-        })
-
-        mainVM.getToastMessage().observe(this, { message ->
-            lastToast?.cancel()
-            message?.let {
-                lastToast = Toast.makeText(
-                    this,
-                    message,
-                    Toast.LENGTH_LONG
-                ).apply {
-                    show()
-                }
-            }
-        })
+        setUpToolbar()
+        setUpNavigationMenu()
+        setUpBackground()
+        initObservers()
     }
 
     override fun onResume() {
@@ -223,6 +205,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
         })
 
         activityBinding.appBar.syncButton.setOnClickListener {
+            Log.d(TAG, "Sync button clicked.")
             synchronizationManager.synchronizeWithServer()
         }
     }
@@ -230,9 +213,51 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
     private fun setUpNavigationMenu() {
         initPriceUnitSpinner()
         activityBinding.btnLogout.setOnClickListener {
+            Log.d(TAG, "Logout button clicked.")
             logout()
             activityBinding.drawerLayout.closeDrawer(GravityCompat.START)
         }
+    }
+
+    private fun setUpBackground() {
+        environmentDisposable?.dispose()
+        environmentDisposable = mainVM.getCurrentEnvironment()
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(
+                { environment ->
+                    val color = getBackgroundColor(this, environment)
+                    activityBinding.appBar.toolbar.setBackgroundColor(color)
+                    activityBinding.appBar.contentMain.navHostFragment.setBackgroundColor(color)
+                },
+                {
+                    Log.e(it)
+                }
+            )
+    }
+
+    private fun initObservers() {
+        mainVM.successSLE.observe(this, {
+            vibrate(this)
+            successPlayer.start()
+        })
+        mainVM.errorSLE.observe(this, {
+            vibrate(this)
+            errorPlayer.start()
+        })
+
+        mainVM.getToastMessage().observe(this, { message ->
+            lastToast?.cancel()
+            message?.let {
+                lastToast = Toast.makeText(
+                    this,
+                    message,
+                    Toast.LENGTH_LONG
+                ).apply {
+                    show()
+                }
+            }
+        })
     }
 
     @Suppress("DEPRECATION")
@@ -300,7 +325,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
                 mainVM.successSLE.call()
                 displayedDialog = cardResultDialog
             }, {
-                Log.e(this.javaClass.simpleName, it)
+                Log.e(TAG, it)
                 mainVM.setToastMessage(getString(R.string.card_error))
                 mainVM.errorSLE.call()
                 displayedDialog?.dismiss()
@@ -355,7 +380,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
                     }
                 }
             }, {
-                Log.e(it)
+                Log.e(TAG, it)
             })
     }
 
@@ -369,7 +394,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
                     loginVM.isNetworkConnected(available)
                 },
                 {
-                    Log.e(it)
+                    Log.e(TAG, it)
                 }
             )
     }
@@ -531,5 +556,9 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
          * @param event The MotionEvent object containing full information about the event.
          */
         fun onTouchOutside(view: View?, event: MotionEvent?)
+    }
+
+    companion object {
+        private val TAG = MainActivity::class.java.simpleName
     }
 }

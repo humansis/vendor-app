@@ -75,7 +75,7 @@ class ScannerFragment : Fragment() {
                     startScanner()
                 },
                 {
-                    Log.e(it)
+                    Log.e(TAG, it)
                 }
             ))
     }
@@ -128,7 +128,7 @@ class ScannerFragment : Fragment() {
             if (grantResults[index] == PackageManager.PERMISSION_GRANTED) {
                     runScanner()
                 } else {
-                    Log.d("Permission not granted")
+                    Log.d(TAG, "Permission not granted")
                 }
         }
     }
@@ -179,7 +179,7 @@ class ScannerFragment : Fragment() {
                     try {
                         clearCachedTimer.cancel()
                     } catch (e: Exception) {
-                        Log.d(e)
+                        Log.d(TAG, e)
                     }
                     clearCachedTimer = Timer()
                     lastScanned = it.text
@@ -241,7 +241,7 @@ class ScannerFragment : Fragment() {
                     navigateBack()
                 },
                 {
-                    Log.e(it)
+                    Log.e(TAG, it)
                 }
             ))
         } else {
@@ -305,5 +305,6 @@ class ScannerFragment : Fragment() {
 
     companion object {
         const val DEFAULT_ANIMATION_LENGTH: Long = 300
+        private val TAG = ScannerFragment::class.java.simpleName
     }
 }

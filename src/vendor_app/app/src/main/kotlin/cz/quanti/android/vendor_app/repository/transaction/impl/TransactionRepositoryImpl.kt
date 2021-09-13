@@ -20,23 +20,21 @@ class TransactionRepositoryImpl(
     private val api: VendorAPI
 ) : TransactionRepository {
 
-    override fun getTransactions(): Single<List<Transaction>> {
-        return transactionDao.getAll().flatMap { transactionsDb ->
-            Observable.fromIterable(transactionsDb)
-                .flatMapSingle { transactionDb ->
-                    getTransactionPurchasesById(
-                        getTransactionPurchaseIdsForTransaction(transactionDb.dbId)
-                    ).flatMap { transactionPurchases ->
-                        val transaction = Transaction(
-                            // todo dodelat api request na endpoint aby se misto cisla projektu ukazoval jeho nazev
-                            projectId = transactionDb.projectId,
-                            purchases = transactionPurchases,
-                            value = transactionDb.value,
-                            currency = transactionDb.currency
-                        )
-                        Single.just(transaction)
-                    }
-                }.toList()
+    override fun getTransactions(): Observable<List<Transaction>> {
+        return transactionDao.getAll().map { transactions ->
+            transactions.map { transactionDb ->
+                val purchases = getTransactionPurchasesById(
+                    getTransactionPurchaseIdsForTransaction(transactionDb.dbId)
+                )
+                val transaction = Transaction(
+                    // todo dodelat api request na endpoint aby se misto cisla projektu ukazoval jeho nazev
+                    projectId = transactionDb.projectId,
+                    purchases = purchases,
+                    value = transactionDb.value,
+                    currency = transactionDb.currency
+                )
+                transaction
+            }
         }
     }
 
@@ -48,7 +46,7 @@ class TransactionRepositoryImpl(
         return transactionPurchaseIds
     }
 
-    private fun getTransactionPurchasesById(purchaseIds: List<Long>): Single<List<TransactionPurchase>> {
+    private fun getTransactionPurchasesById(purchaseIds: List<Long>): List<TransactionPurchase> {
         val transactionPurchases = mutableListOf<TransactionPurchase>()
         purchaseIds.forEach {
             val transactionPurchaseDb = transactionPurchaseDao.getTransactionPurchasesById(it)
@@ -63,7 +61,7 @@ class TransactionRepositoryImpl(
                 )
             )
         }
-        return Single.just(transactionPurchases)
+        return transactionPurchases
     }
 
     override fun retrieveTransactions(vendorId: Int): Single<Pair<Int, List<TransactionApiEntity>>> {

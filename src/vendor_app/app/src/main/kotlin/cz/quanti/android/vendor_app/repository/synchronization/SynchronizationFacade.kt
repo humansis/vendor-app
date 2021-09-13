@@ -1,6 +1,5 @@
 package cz.quanti.android.vendor_app.repository.synchronization
 
-import cz.quanti.android.vendor_app.repository.purchase.dto.Purchase
 import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.Single

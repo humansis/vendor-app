@@ -5,8 +5,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/screenBackgroundColor"
-    android:paddingVertical="@dimen/dimen_16dp">
+    android:paddingVertical="@dimen/dimen_16dp"
+    tools:background="@color/screenBackgroundColor">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/checkoutSelectedProductsConstraintLayout"

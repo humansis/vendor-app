@@ -35,7 +35,7 @@ import com.google.android.material.appbar.AppBarLayout
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import com.google.android.material.appbar.AppBarLayout.OnOffsetChangedListener
 import cz.quanti.android.vendor_app.main.authorization.viewmodel.LoginViewModel
-import cz.quanti.android.vendor_app.main.shop.ShopFragmentCallback
+import cz.quanti.android.vendor_app.main.shop.callback.ShopFragmentCallback
 import cz.quanti.android.vendor_app.sync.SynchronizationState
 import cz.quanti.android.vendor_app.utils.getBackgroundColor
 import io.reactivex.Observable
@@ -58,7 +58,6 @@ class ShopFragment : Fragment(), ShopFragmentCallback, OnTouchOutsideViewListene
     private var syncStateDisposable: Disposable? = null
     private var productsDisposable: Disposable? = null
     private var categoriesAllowed = MutableLiveData<Boolean>()
-    private var selectedProducts = listOf<SelectedProduct>()
     private lateinit var appBarState: AppBarStateEnum
 
     override fun onCreateView(
@@ -240,7 +239,7 @@ class ShopFragment : Fragment(), ShopFragmentCallback, OnTouchOutsideViewListene
             })
 
         vm.getSelectedProductsLD().observe(viewLifecycleOwner, { products ->
-            selectedProducts = products
+            vm.setProducts(products)
             if (products.isEmpty()) {
                 shopBinding.totalTextView.visibility = View.GONE
                 shopBinding.cartFAB.visibility = View.GONE
@@ -312,8 +311,7 @@ class ShopFragment : Fragment(), ShopFragmentCallback, OnTouchOutsideViewListene
     }
 
     override fun openProduct(product: Product, productLayout: View) {
-        val hasCashback = selectedProducts.find { it.product.category.type == CategoryType.CASHBACK }
-        if (hasCashback != null && product.category.type == CategoryType.CASHBACK) {
+        if (vm.hasCashback() != null && product.category.type == CategoryType.CASHBACK) {
             mainVM.setToastMessage(getString(R.string.only_one_cashback_item_allowed))
             productLayout.isEnabled = true
         } else {
@@ -405,7 +403,7 @@ class ShopFragment : Fragment(), ShopFragmentCallback, OnTouchOutsideViewListene
     }
 
     private fun actualizeTotal() {
-        val total = selectedProducts.map { it.price }.sum()
+        val total = vm.getTotal()
         val totalText = "${getString(R.string.total)}: ${getStringFromDouble(total)} ${vm.getCurrency()}"
         shopBinding.totalTextView.text = totalText
     }

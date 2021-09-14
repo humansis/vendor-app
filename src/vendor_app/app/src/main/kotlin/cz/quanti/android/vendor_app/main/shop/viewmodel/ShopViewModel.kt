@@ -2,6 +2,7 @@ package cz.quanti.android.vendor_app.main.shop.viewmodel
 
 import androidx.lifecycle.*
 import cz.quanti.android.vendor_app.repository.AppPreferences
+import cz.quanti.android.vendor_app.repository.category.dto.CategoryType
 import cz.quanti.android.vendor_app.repository.product.ProductFacade
 import cz.quanti.android.vendor_app.repository.product.dto.Product
 import cz.quanti.android.vendor_app.repository.purchase.dto.SelectedProduct
@@ -35,6 +36,19 @@ class ShopViewModel(
 
     fun getSelectedProductsLD(): LiveData<List<SelectedProduct>> {
         return shoppingHolder.getProductsLD()
+    }
+
+    fun setProducts(products: List<SelectedProduct>) {
+        shoppingHolder.cart.clear()
+        shoppingHolder.cart.addAll(products)
+    }
+
+    fun hasCashback(): SelectedProduct? {
+        return shoppingHolder.cart.find { it.product.category.type == CategoryType.CASHBACK }
+    }
+
+    fun getTotal(): Double {
+        return shoppingHolder.cart.map { it.price }.sum()
     }
 
     fun removeSelectedProduct(product: SelectedProduct) {

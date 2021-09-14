@@ -9,7 +9,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import cz.quanti.android.vendor_app.databinding.ItemProductBinding
-import cz.quanti.android.vendor_app.main.shop.ShopFragmentCallback
+import cz.quanti.android.vendor_app.main.shop.callback.ShopFragmentCallback
 import cz.quanti.android.vendor_app.main.shop.viewholder.ProductViewHolder
 import cz.quanti.android.vendor_app.repository.product.dto.Product
 import java.util.*
@@ -59,10 +59,6 @@ class ProductsAdapter(
                     constraint.toString().lowercase(Locale.getDefault()).trim { it <= ' ' }
                 productsFull.forEach { product ->
                     if (product.name.lowercase(Locale.getDefault()).contains(filterPattern)) {
-                        filteredList.add(product)
-                    }
-                    if (product.category.name.lowercase(Locale.getDefault()).contains(filterPattern)
-                        && filteredList.none { it == product }) {
                         filteredList.add(product)
                     }
                 }

@@ -1,4 +1,4 @@
-package cz.quanti.android.vendor_app.main.shop
+package cz.quanti.android.vendor_app.main.shop.callback
 
 import android.view.View
 import cz.quanti.android.vendor_app.repository.category.dto.Category

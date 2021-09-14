@@ -12,7 +12,7 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import cz.quanti.android.vendor_app.R
 import cz.quanti.android.vendor_app.databinding.ItemCategoryBinding
-import cz.quanti.android.vendor_app.main.shop.ShopFragmentCallback
+import cz.quanti.android.vendor_app.main.shop.callback.ShopFragmentCallback
 import cz.quanti.android.vendor_app.main.shop.viewholder.CategoryViewHolder
 import cz.quanti.android.vendor_app.repository.category.dto.Category
 import cz.quanti.android.vendor_app.repository.category.dto.CategoryType

@@ -11,7 +11,6 @@ import cz.quanti.android.vendor_app.R
 import cz.quanti.android.vendor_app.databinding.ItemShoppingCartBinding
 import cz.quanti.android.vendor_app.main.checkout.callback.CheckoutFragmentCallback
 import cz.quanti.android.vendor_app.main.checkout.viewholder.SelectedProductsViewHolder
-import cz.quanti.android.vendor_app.main.shop.fragment.ProductsFragment
 import cz.quanti.android.vendor_app.repository.purchase.dto.SelectedProduct
 import cz.quanti.android.vendor_app.utils.getStringFromDouble
 import cz.quanti.android.vendor_app.utils.round

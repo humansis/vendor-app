@@ -35,7 +35,8 @@ import com.google.android.material.appbar.AppBarLayout
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import com.google.android.material.appbar.AppBarLayout.OnOffsetChangedListener
 import cz.quanti.android.vendor_app.main.authorization.viewmodel.LoginViewModel
-import cz.quanti.android.vendor_app.main.shop.callback.ShopFragmentCallback
+import cz.quanti.android.vendor_app.main.shop.callback.CategoryAdapterCallback
+import cz.quanti.android.vendor_app.main.shop.callback.ProductAdapterCallback
 import cz.quanti.android.vendor_app.sync.SynchronizationState
 import cz.quanti.android.vendor_app.utils.getBackgroundColor
 import io.reactivex.Observable
@@ -46,7 +47,7 @@ import quanti.com.kotlinlog.Log
 import java.math.BigDecimal
 import kotlin.math.abs
 
-class ShopFragment : Fragment(), ShopFragmentCallback, OnTouchOutsideViewListener {
+class ShopFragment : Fragment(), CategoryAdapterCallback, ProductAdapterCallback, OnTouchOutsideViewListener {
 
     private val loginVM: LoginViewModel by viewModel()
     private val mainVM: MainViewModel by sharedViewModel()
@@ -296,7 +297,7 @@ class ShopFragment : Fragment(), ShopFragmentCallback, OnTouchOutsideViewListene
         }
     }
 
-    override fun openCategory(category: Category) {
+    override fun onCategoryClicked(category: Category) {
         if (category.type != CategoryType.ALL) {
             productsAdapter.filterByCategory(category.name)
         } else {
@@ -310,10 +311,9 @@ class ShopFragment : Fragment(), ShopFragmentCallback, OnTouchOutsideViewListene
         shopBinding.productsHeader.text = name
     }
 
-    override fun openProduct(product: Product, productLayout: View) {
+    override fun onProductClicked(product: Product) {
         if (vm.hasCashback() != null && product.category.type == CategoryType.CASHBACK) {
             mainVM.setToastMessage(getString(R.string.only_one_cashback_item_allowed))
-            productLayout.isEnabled = true
         } else {
             val dialogBinding = DialogProductBinding.inflate(layoutInflater,null, false)
 
@@ -327,9 +327,6 @@ class ShopFragment : Fragment(), ShopFragmentCallback, OnTouchOutsideViewListene
             val dialog = AlertDialog.Builder(activity)
                 .setView(dialogBinding.root)
                 .show()
-            dialog.setOnDismissListener {
-                productLayout.isEnabled = true
-            }
             if (!resources.getBoolean(R.bool.isTablet)) {
                 dialog.window?.setLayout(
                     resources.displayMetrics.widthPixels,

@@ -2,6 +2,7 @@ package cz.quanti.android.vendor_app.main.shop.adapter
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.os.SystemClock
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.*
@@ -9,7 +10,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import cz.quanti.android.vendor_app.databinding.ItemProductBinding
-import cz.quanti.android.vendor_app.main.shop.callback.ShopFragmentCallback
+import cz.quanti.android.vendor_app.main.shop.callback.ProductAdapterCallback
 import cz.quanti.android.vendor_app.main.shop.viewholder.ProductViewHolder
 import cz.quanti.android.vendor_app.repository.product.dto.Product
 import java.util.*
@@ -18,13 +19,15 @@ import org.koin.core.component.KoinComponent
 import quanti.com.kotlinlog.Log
 
 class ProductsAdapter(
-    private val shopFragmentCallback: ShopFragmentCallback,
+    private val productAdapterCallback: ProductAdapterCallback,
     private val context: Context
 ) :
     RecyclerView.Adapter<ProductViewHolder>(), KoinComponent {
 
     private val products: MutableList<Product> = mutableListOf()
     private val productsFull: MutableList<Product> = mutableListOf()
+
+    private var mLastClickTime: Long = 0
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ProductViewHolder {
         val inflater = LayoutInflater.from(parent.context)
@@ -119,9 +122,11 @@ class ProductsAdapter(
             .into(holder.productImage)
 
         holder.productLayout.setOnClickListener {
-            it.isEnabled = false
-            Log.d(TAG, "Product $position clicked")
-            shopFragmentCallback.openProduct(products[position], it)
+            if (SystemClock.elapsedRealtime() - mLastClickTime > 500) {
+                mLastClickTime = SystemClock.elapsedRealtime()
+                Log.d(TAG, "Product $position clicked")
+                productAdapterCallback.onProductClicked(products[position])
+            }
         }
     }
 

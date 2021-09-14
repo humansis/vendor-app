@@ -24,7 +24,7 @@ interface VendorAPI {
 
     @GET("v1/product-categories")
     fun getCategories(
-        @Query("filter[vendor][]") vendorId: Int
+        @Query("filter[vendors][]") vendorId: Int
     ): Single<Response<CategoryPagedApiEntity>>
 
     @GET("v2/products")

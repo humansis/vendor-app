@@ -1,12 +1,13 @@
 package cz.quanti.android.vendor_app.utils
 
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.toLiveData
 import cz.quanti.android.vendor_app.repository.booklet.dto.Voucher
 import cz.quanti.android.vendor_app.repository.purchase.PurchaseFacade
 import cz.quanti.android.vendor_app.repository.purchase.dto.SelectedProduct
 import io.reactivex.BackpressureStrategy
+import io.reactivex.Single
+import io.reactivex.subjects.BehaviorSubject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -16,7 +17,7 @@ import org.koin.core.component.inject
 data class ShoppingHolder(
     val cart: MutableList<SelectedProduct> = mutableListOf(),
     val vouchers: MutableList<Voucher> = mutableListOf(),
-    val chosenCurrency: MutableLiveData<String> = MutableLiveData("")
+    val currency: BehaviorSubject<String> = BehaviorSubject.createDefault("")
 ) : KoinComponent {
     private val purchaseFacade: PurchaseFacade by inject()
 
@@ -26,8 +27,12 @@ data class ShoppingHolder(
         }
     }
 
-    fun getProducts(): LiveData<List<SelectedProduct>> {
-        return purchaseFacade.getProductsFromCart()
+    fun getProductsSingle(): Single<List<SelectedProduct>> {
+        return purchaseFacade.getProductsFromCartSingle()
+    }
+
+    fun getProductsLD(): LiveData<List<SelectedProduct>> {
+        return purchaseFacade.getProductsFromCartObservable()
             .toFlowable(BackpressureStrategy.LATEST)
             .toLiveData()
     }

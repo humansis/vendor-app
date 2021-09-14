@@ -21,6 +21,7 @@ import cz.quanti.android.vendor_app.main.checkout.adapter.ScannedVoucherAdapter
 import cz.quanti.android.vendor_app.main.checkout.adapter.SelectedProductsAdapter
 import cz.quanti.android.vendor_app.main.checkout.callback.CheckoutFragmentCallback
 import cz.quanti.android.vendor_app.main.checkout.viewmodel.CheckoutViewModel
+import cz.quanti.android.vendor_app.repository.category.dto.CategoryType
 import cz.quanti.android.vendor_app.repository.purchase.dto.SelectedProduct
 import cz.quanti.android.vendor_app.utils.getStringFromDouble
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -35,7 +36,8 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
     private val vm: CheckoutViewModel by viewModel()
     private lateinit var selectedProductsAdapter: SelectedProductsAdapter
     private val scannedVoucherAdapter = ScannedVoucherAdapter()
-    private var disposable: Disposable? = null
+    private var proceedDisposable: Disposable? = null
+    private var currencyDisposable: Disposable? = null
     private lateinit var activityCallback: ActivityCallback
 
     private lateinit var checkoutBinding: FragmentCheckoutBinding
@@ -82,12 +84,13 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
     }
 
     override fun onStop() {
-        disposable?.dispose()
+        currencyDisposable?.dispose()
+        proceedDisposable?.dispose()
         super.onStop()
     }
 
     override fun onDestroy() {
-        disposable?.dispose()
+        proceedDisposable?.dispose()
         super.onDestroy()
     }
 
@@ -120,23 +123,29 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
 
     @SuppressLint("NotifyDataSetChanged")
     private fun initObservers() {
-        vm.getCurrency().observe(viewLifecycleOwner, {
-            selectedProductsAdapter.chosenCurrency = vm.getCurrency().value.toString()
-            selectedProductsAdapter.notifyDataSetChanged()
-            actualizeTotal()
-        })
+        currencyDisposable?.dispose()
+        currencyDisposable = vm.getCurrencyObservable()
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({ currency ->
+                selectedProductsAdapter.chosenCurrency = currency
+                selectedProductsAdapter.notifyDataSetChanged()
+                actualizeTotal()
+            }, {
+                Log.e(TAG, it)
+            })
 
-        vm.getSelectedProducts().observe(viewLifecycleOwner, {
+        vm.getSelectedProductsLD().observe(viewLifecycleOwner, { products ->
             selectedProductsAdapter.closeExpandedCard()
-            selectedProductsAdapter.setData(it)
-            vm.setProducts(it)
-            showIfCartEmpty(it.isNotEmpty())
+            selectedProductsAdapter.setData(products)
+            vm.setProducts(products)
+            showIfCartEmpty(products.isNotEmpty())
             actualizeTotal()
+            checkForCashbacks(products)
         })
     }
 
     private fun initOnClickListeners() {
-
         checkoutBinding.checkoutFooter.backButton.setOnClickListener {
             Log.d(TAG, "Back button clicked.")
             cancel()
@@ -180,8 +189,8 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
 
     override fun proceed() {
         if (vm.getTotal() <= 0) {
-            disposable?.dispose()
-            disposable = vm.proceed().subscribeOn(Schedulers.io())
+            proceedDisposable?.dispose()
+            proceedDisposable = vm.proceed().subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread()).subscribe(
                     {
                         vm.clearCart()
@@ -191,10 +200,9 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
                             .setTitle(getString(R.string.success))
                             .setPositiveButton(android.R.string.ok, null)
                             .show()
-                    },
-                    {
+                    }, {
                         mainVM.setToastMessage(getString(R.string.error_while_proceeding))
-                        Log.e(it)
+                        Log.e(TAG, it)
                     }
                 )
         } else {
@@ -274,7 +282,7 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
     private fun showPinDialogAndPayByCard() {
         if (mainVM.enableNfc(requireActivity())) {
             val dialogBinding = DialogCardPinBinding.inflate(layoutInflater,null, false)
-            dialogBinding.pinTitle.text = getString(R.string.total_price, vm.getTotal(), vm.getCurrency().value)
+            dialogBinding.pinTitle.text = getString(R.string.total_price, vm.getTotal(), vm.getCurrency())
             val dialog = AlertDialog.Builder(requireContext(), R.style.DialogTheme)
                 .setView(dialogBinding.root)
                 .setCancelable(false)
@@ -307,7 +315,7 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
     private fun actualizeTotal() {
         val total = vm.getTotal()
         val totalText = "${getString(R.string.total)}:"
-        val totalPrice = "${getStringFromDouble(total)} ${vm.getCurrency().value}"
+        val totalPrice = "${getStringFromDouble(total)} ${vm.getCurrency()}"
         checkoutBinding.totalTextView.text = totalText
         checkoutBinding.totalPriceTextView.text = totalPrice
 
@@ -321,6 +329,17 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
                 checkoutBinding.totalTextView.setTextColor(red)
                 checkoutBinding.totalPriceTextView.setTextColor(red)
             }
+        }
+    }
+
+    private fun checkForCashbacks(products: List<SelectedProduct>) {
+        if (products.filter { it.product.category.type == CategoryType.CASHBACK }.size > 1) {
+            checkoutBinding.scanButton.isEnabled = false
+            checkoutBinding.payByCardButton.isEnabled = false
+            mainVM.setToastMessage(getString(R.string.only_one_cashback_item_allowed))
+        } else {
+            checkoutBinding.scanButton.isEnabled = true
+            checkoutBinding.payByCardButton.isEnabled = true
         }
     }
 

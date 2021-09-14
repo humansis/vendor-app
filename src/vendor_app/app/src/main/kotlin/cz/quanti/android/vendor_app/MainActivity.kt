@@ -34,6 +34,7 @@ import cz.quanti.android.vendor_app.main.authorization.viewmodel.LoginViewModel
 import cz.quanti.android.vendor_app.main.shop.adapter.CurrencyAdapter
 import cz.quanti.android.vendor_app.main.shop.viewmodel.ShopViewModel
 import cz.quanti.android.vendor_app.repository.AppPreferences
+import cz.quanti.android.vendor_app.repository.category.dto.CategoryType
 import cz.quanti.android.vendor_app.repository.login.LoginFacade
 import cz.quanti.android.vendor_app.sync.SynchronizationManager
 import cz.quanti.android.vendor_app.sync.SynchronizationState
@@ -62,12 +63,13 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
     private val loginVM: LoginViewModel by viewModel()
     private val shopVM: ShopViewModel by viewModel()
     private var displayedDialog: AlertDialog? = null
-    private var disposable: Disposable? = null
     private var environmentDisposable: Disposable? = null
     private var connectionDisposable: Disposable? = null
     private var syncStateDisposable: Disposable? = null
     private var syncDisposable: Disposable? = null
     private var readBalanceDisposable: Disposable? = null
+    private var selectedProductsDisposable: Disposable? = null
+    private var currencyDisposable: Disposable? = null
     private var lastToast: Toast? = null
 
     private lateinit var activityBinding: ActivityMainBinding
@@ -122,9 +124,13 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
     override fun onStop() {
         lastToast?.cancel()
         displayedDialog?.dismiss()
-        disposable?.dispose()
+        environmentDisposable?.dispose()
+        connectionDisposable?.dispose()
+        syncStateDisposable?.dispose()
         syncDisposable?.dispose()
         readBalanceDisposable?.dispose()
+        selectedProductsDisposable?.dispose()
+        currencyDisposable?.dispose()
         super.onStop()
     }
 
@@ -232,7 +238,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
                     activityBinding.appBar.contentMain.navHostFragment.setBackgroundColor(color)
                 },
                 {
-                    Log.e(it)
+                    Log.e(TAG, it)
                 }
             )
     }
@@ -278,6 +284,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
             .setPositiveButton(
                 android.R.string.ok
             ) { _, _ ->
+                shopVM.emptyCart()
                 loginFacade.logout()
                 findNavController(R.id.nav_host_fragment).popBackStack(R.id.loginFragment, false)
             }
@@ -478,19 +485,51 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
         currencyAdapter.init(shopVM.getCurrencies())
         currencyAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         activityBinding.priceUnitSpinner.adapter = currencyAdapter
-        shopVM.getCurrency().observe(this, {
-            activityBinding.priceUnitSpinner.setSelection(
-                currencyAdapter.getPosition(it)
-            )
-        })
+
+        currencyDisposable?.dispose()
+        currencyDisposable = shopVM.getCurrencyObservable()
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({
+                activityBinding.priceUnitSpinner.setSelection(
+                    currencyAdapter.getPosition(it)
+                )
+            }, {
+                Log.e(TAG, it)
+            })
+
         activityBinding.priceUnitSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onNothingSelected(parent: AdapterView<*>?) {
             }
 
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                 shopVM.setCurrency(activityBinding.priceUnitSpinner.selectedItem as String)
+                checkForCashbacks(activityBinding.priceUnitSpinner.selectedItem as String)
             }
         }
+    }
+
+    private fun checkForCashbacks(currency: String) {
+        selectedProductsDisposable?.dispose()
+        selectedProductsDisposable = shopVM.getSelectedProducts()
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe ({ products ->
+                products.find {
+                    it.product.category.type == CategoryType.CASHBACK
+                        && it.product.currency != currency
+                }?.let {
+                    shopVM.removeSelectedProduct(it)
+                    mainVM.setToastMessage(
+                        getString(
+                            R.string.item_removed_from_cart,
+                            it.product.name
+                        )
+                    )
+                }
+            }, {
+                Log.e(TAG, it)
+            })
     }
 
     override fun onRequestPermissionsResult(

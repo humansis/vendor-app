@@ -20,5 +20,8 @@ interface SelectedProductDao {
     fun update(dbId: Long?, value: Double)
 
     @Query("SELECT * FROM " + VendorDb.TABLE_SELECTED_PRODUCT)
-    fun getAll(): Observable<List<SelectedProductDbEntity>>
+    fun getAll(): List<SelectedProductDbEntity>
+
+    @Query("SELECT * FROM " + VendorDb.TABLE_SELECTED_PRODUCT)
+    fun getAllObservable(): Observable<List<SelectedProductDbEntity>>
 }

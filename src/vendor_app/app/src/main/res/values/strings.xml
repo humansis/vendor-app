@@ -67,7 +67,7 @@
     <string name="menu">menu</string>
     <string name="synchronize">synchronize</string>
     <string name="humansis">humansis</string>
-    <string name="loading">Loading...</string>
+    <string name="loading">Loading…</string>
     <string name="unknown">Unknown</string>
     <string name="read_balance">Read balance</string>
     <string name="home">Home</string>
@@ -103,4 +103,5 @@
     <string name="no_products">No products</string>
     <string name="all_products">All products</string>
     <string name="only_one_cashback_item_allowed">There can be only one cashback item in the shopping cart</string>
+    <string name="item_removed_from_cart">%1$s removed from cart</string>
 </resources>

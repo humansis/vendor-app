@@ -43,8 +43,12 @@ class PurchaseFacadeImpl(
         purchaseRepo.addProductToCart(product)
     }
 
-    override fun getProductsFromCart(): Observable<List<SelectedProduct>> {
-        return purchaseRepo.getProductsFromCart()
+    override fun getProductsFromCartSingle(): Single<List<SelectedProduct>> {
+        return purchaseRepo.getProductsFromCartObservable().firstOrError()
+    }
+
+    override fun getProductsFromCartObservable(): Observable<List<SelectedProduct>> {
+        return purchaseRepo.getProductsFromCartObservable()
     }
 
     override fun updateProductInCart(product: SelectedProduct) {

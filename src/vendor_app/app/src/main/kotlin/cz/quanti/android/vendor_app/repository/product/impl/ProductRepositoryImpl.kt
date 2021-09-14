@@ -1,6 +1,8 @@
 package cz.quanti.android.vendor_app.repository.product.impl
 
 import cz.quanti.android.vendor_app.repository.VendorAPI
+import cz.quanti.android.vendor_app.repository.category.CategoryRepository
+import cz.quanti.android.vendor_app.repository.login.dto.Vendor
 import cz.quanti.android.vendor_app.repository.product.ProductRepository
 import cz.quanti.android.vendor_app.repository.product.dao.ProductDao
 import cz.quanti.android.vendor_app.repository.product.dto.Product
@@ -11,14 +13,15 @@ import io.reactivex.Observable
 import io.reactivex.Single
 
 class ProductRepositoryImpl(
+    private val categoryRepository: CategoryRepository,
     private val productDao: ProductDao,
     private val api: VendorAPI
 ) :
     ProductRepository {
 
-    override fun getProductsFromServer(): Single<Pair<Int, List<Product>>> {
-        return api.getProducts().map { response ->
-            var products = response.body()
+    override fun loadProductsFromServer(vendor: Vendor): Single<Pair<Int, List<Product>>> {
+        return api.getProducts(vendor.id.toInt(), vendor.country).map { response ->
+            var products = response.body()?.data
             if (products == null) {
                 products = listOf()
             }
@@ -50,16 +53,22 @@ class ProductRepositoryImpl(
             this.name = dbEntity.name
             this.image = dbEntity.image
             this.unit = dbEntity.unit
+            this.category = categoryRepository.getCategory(dbEntity.categoryId)
+            this.unitPrice = dbEntity.unitPrice
+            this.currency = dbEntity.currency
         }
     }
 
-    private fun convert(entity: Product): ProductDbEntity {
+    private fun convert(product: Product): ProductDbEntity {
         return ProductDbEntity()
             .apply {
-                this.id = entity.id
-                this.name = entity.name
-                this.image = entity.image
-                this.unit = entity.unit
+                this.id = product.id
+                this.name = product.name
+                this.image = product.image
+                this.unit = product.unit
+                this.categoryId = product.category.id
+                this.unitPrice = product.unitPrice
+                this.currency = product.currency
             }
     }
 
@@ -69,6 +78,9 @@ class ProductRepositoryImpl(
             this.name = apiEntity.name
             this.image = apiEntity.image
             this.unit = apiEntity.unit ?: ""
+            this.category = categoryRepository.getCategory(apiEntity.productCategoryId)
+            this.unitPrice = apiEntity.unitPrice
+            this.currency = apiEntity.currency
         }
     }
 }

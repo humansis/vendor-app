@@ -19,7 +19,7 @@ class CardFacadeImpl(private val cardRepo: CardRepository) : CardFacade {
     }
 
     private fun actualizeBlockedCardsFromServer(): Completable {
-        return cardRepo.getBlockedCardsFromServer().flatMapCompletable { response ->
+        return cardRepo.loadBlockedCardsFromServer().flatMapCompletable { response ->
             val responseCode = response.first
             if (isPositiveResponseHttpCode(responseCode)) {
                 val blockedCards = response.second

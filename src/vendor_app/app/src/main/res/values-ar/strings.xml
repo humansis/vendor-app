@@ -100,4 +100,6 @@
     <string name="payment_in_progress">جاري الدفع\\n\\n لا تقم بإزالة البطاقة</string>
     <string name="error_service_unavailable">الخدمة غير موفرة</string>
     <string name="no_products">لا يوجد منتجات</string>
+    <string name="all_products">كل المنتجات</string>
+    <string name="only_one_cashback_item_allowed">من المحتمل ان يكون هناك عنصرمسترد في بطاقة التسوق</string>
 </resources>

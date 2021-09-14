@@ -4,10 +4,11 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:animateLayoutChanges="true"
     tools:background="@color/screenBackgroundColor">
 
     <androidx.appcompat.widget.SearchView
-        android:id="@+id/productsSearchBar"
+        android:id="@+id/shopSearchBar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="@dimen/dimen_8dp"
@@ -16,29 +17,69 @@
         android:elevation="@dimen/cardview_default_elevation"
         app:theme="@style/SearchView"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/productsRecyclerView" />
+        app:layout_constraintBottom_toTopOf="@+id/shopCoordinatorLayout" />
 
     <TextView
-        android:id="@+id/productsMessage"
+        android:id="@+id/shopMessage"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textColor="@color/black"
         android:textSize="@dimen/fragment_title"
         android:gravity="center"
-        app:layout_constraintTop_toBottomOf="@id/productsSearchBar"
+        app:layout_constraintTop_toBottomOf="@id/shopSearchBar"
         app:layout_constraintBottom_toTopOf="@+id/totalTextView" />
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/productsRecyclerView"
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
+        android:id="@+id/shopCoordinatorLayout"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_marginHorizontal="@dimen/dimen_4dp"
-        android:overScrollMode="never"
-        android:scrollbars="none"
-        android:transcriptMode="alwaysScroll"
-        android:splitMotionEvents="false"
-        app:layout_constraintTop_toBottomOf="@id/productsSearchBar"
-        app:layout_constraintBottom_toTopOf="@+id/totalTextView" />
+        app:layout_constraintTop_toBottomOf="@+id/shopSearchBar"
+        app:layout_constraintBottom_toTopOf="@+id/totalTextView">
+
+        <com.google.android.material.appbar.AppBarLayout
+            android:id="@+id/categoriesAppBarLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fitsSystemWindows="true"
+            tools:background="@color/screenBackgroundColor"
+            app:elevation="0dp">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/categoriesRecyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:scrollbars="none"
+                android:splitMotionEvents="false"
+                android:transcriptMode="alwaysScroll"
+                app:fastScrollEnabled="false"
+                app:layout_scrollFlags="scroll|snap"/>
+
+            <TextView
+                android:id="@+id/productsHeader"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="@dimen/dimen_4dp"
+                android:layout_marginBottom="@dimen/dimen_4dp"
+                android:text="@string/all_products"
+                android:textColor="@color/colorPrimary"
+                android:textStyle="bold"
+                android:lines="1"
+                app:drawableStartCompat="@drawable/ic_down"
+                app:drawableTint="@color/colorPrimary" />
+
+        </com.google.android.material.appbar.AppBarLayout>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/productsRecyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scrollbars="none"
+            android:transcriptMode="alwaysScroll"
+            android:splitMotionEvents="false"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
+
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
     <TextView
         android:id="@+id/totalTextView"

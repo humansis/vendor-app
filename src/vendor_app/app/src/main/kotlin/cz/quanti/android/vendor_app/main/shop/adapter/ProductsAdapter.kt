@@ -9,27 +9,27 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import cz.quanti.android.vendor_app.databinding.ItemProductBinding
-import cz.quanti.android.vendor_app.main.shop.fragment.ProductsFragment
-import cz.quanti.android.vendor_app.main.shop.viewholder.ShopViewHolder
+import cz.quanti.android.vendor_app.main.shop.fragment.ShopFragment
+import cz.quanti.android.vendor_app.main.shop.viewholder.ProductViewHolder
 import cz.quanti.android.vendor_app.repository.product.dto.Product
 import java.util.*
 import kotlin.collections.ArrayList
 import org.koin.core.component.KoinComponent
 import quanti.com.kotlinlog.Log
 
-class ShopAdapter(
-    private val productsFragment: ProductsFragment,
+class ProductsAdapter(
+    private val shopFragment: ShopFragment,
     private val context: Context
 ) :
-    RecyclerView.Adapter<ShopViewHolder>(), Filterable, KoinComponent {
+    RecyclerView.Adapter<ProductViewHolder>(), Filterable, KoinComponent {
 
     private val products: MutableList<Product> = mutableListOf()
     private val productsFull: MutableList<Product> = mutableListOf()
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ShopViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ProductViewHolder {
         val inflater = LayoutInflater.from(parent.context)
         val productBinding = ItemProductBinding.inflate(inflater, parent, false)
-        return ShopViewHolder(productBinding)
+        return ProductViewHolder(productBinding)
     }
 
     @SuppressLint("NotifyDataSetChanged")
@@ -61,6 +61,9 @@ class ShopAdapter(
                     if (product.name.lowercase(Locale.getDefault()).contains(filterPattern)) {
                         filteredList.add(product)
                     }
+                    if (product.category.name.lowercase(Locale.getDefault()).contains(filterPattern)) {
+                        filteredList.add(product)
+                    }
                 }
             }
             val results = FilterResults()
@@ -77,7 +80,7 @@ class ShopAdapter(
         }
     }
 
-    override fun onBindViewHolder(holder: ShopViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: ProductViewHolder, position: Int) {
         holder.productName.text = products[position].name
 
         Glide
@@ -88,11 +91,11 @@ class ShopAdapter(
 
         holder.productLayout.setOnClickListener {
             Log.d(TAG, "Product $position clicked")
-            productsFragment.openProduct(products[position])
+            shopFragment.openProduct(products[position])
         }
     }
 
     companion object {
-        private val TAG = ShopAdapter::class.java.simpleName
+        private val TAG = ProductsAdapter::class.java.simpleName
     }
 }

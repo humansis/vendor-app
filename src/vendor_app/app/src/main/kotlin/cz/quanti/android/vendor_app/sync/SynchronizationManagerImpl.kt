@@ -14,21 +14,21 @@ class SynchronizationManagerImpl(
     private val syncFacade: SynchronizationFacade
 ) : SynchronizationManager {
 
-    private val syncStatePublishSubject = BehaviorSubject.createDefault(SynchronizationState.SUCCESS)
+    private val syncStatePublishSubject = BehaviorSubject.createDefault(SynchronizationState.INIT)
 
     override fun synchronizeWithServer() {
         if (syncStatePublishSubject.value == SynchronizationState.STARTED) {
-            Log.e(TAG, "Synchronization already in progress")
+            Log.d(TAG, "Synchronization already in progress")
         } else {
             syncStatePublishSubject.onNext(SynchronizationState.STARTED)
-            syncFacade.synchronize(preferences.vendor.id.toInt())
+            syncFacade.synchronize(preferences.vendor)
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.io())
                 .subscribe(
                     {
                         preferences.lastSynced = Date().time
                         syncStatePublishSubject.onNext(SynchronizationState.SUCCESS)
-                        Log.e(TAG, "Synchronization finished successfully")
+                        Log.d(TAG, "Synchronization finished successfully")
                     },
                     { e ->
                         Log.e(TAG, e)
@@ -38,12 +38,12 @@ class SynchronizationManagerImpl(
         }
     }
 
-    override fun syncStateSubject(): Subject<SynchronizationState> {
+    override fun syncStateObservable(): Observable<SynchronizationState> {
         return syncStatePublishSubject
     }
 
-    override fun syncStateObservable(): Observable<SynchronizationState> {
-        return syncStatePublishSubject
+    override fun resetSyncState() {
+        syncStatePublishSubject.onNext(SynchronizationState.INIT)
     }
 
     companion object {

@@ -24,8 +24,8 @@
 
     <fragment
         android:id="@+id/productsFragment"
-        android:name="cz.quanti.android.vendor_app.main.shop.fragment.ProductsFragment"
-        tools:layout="@layout/fragment_products">
+        android:name="cz.quanti.android.vendor_app.main.shop.fragment.ShopFragment"
+        tools:layout="@layout/fragment_shop">
         <action
             android:id="@+id/action_productsFragment_to_checkoutFragment"
             app:destination="@id/checkoutFragment"

@@ -32,7 +32,7 @@ class BookletRepositoryImpl(
         return Completable.fromCallable { bookletDao.insert(convert(booklet)) }
     }
 
-    override fun getProtectedBookletsFromServer(): Single<BookletsWithResponseCode> {
+    override fun loadProtectedBookletsFromServer(): Single<BookletsWithResponseCode> {
         return api.getProtectedBooklets().map { response ->
             var booklets = response.body()
             if (booklets == null) {
@@ -49,7 +49,7 @@ class BookletRepositoryImpl(
         }
     }
 
-    override fun getDeactivatedBookletsFromServer(): Single<BookletsWithResponseCode> {
+    override fun loadDeactivatedBookletsFromServer(): Single<BookletsWithResponseCode> {
         return api.getDeactivatedBooklets().map { response ->
             var booklets = response.body()
             if (booklets == null) {

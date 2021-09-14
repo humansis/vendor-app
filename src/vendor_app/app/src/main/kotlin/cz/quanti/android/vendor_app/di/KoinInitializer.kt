@@ -24,6 +24,9 @@ import cz.quanti.android.vendor_app.repository.booklet.impl.BookletRepositoryImp
 import cz.quanti.android.vendor_app.repository.card.CardFacade
 import cz.quanti.android.vendor_app.repository.card.impl.CardFacadeImpl
 import cz.quanti.android.vendor_app.repository.card.impl.CardRepositoryImpl
+import cz.quanti.android.vendor_app.repository.category.CategoryFacade
+import cz.quanti.android.vendor_app.repository.category.impl.CategoryFacadeImpl
+import cz.quanti.android.vendor_app.repository.category.impl.CategoryRepositoryImpl
 import cz.quanti.android.vendor_app.repository.invoice.InvoiceFacade
 import cz.quanti.android.vendor_app.repository.invoice.impl.InvoiceFacadeImpl
 import cz.quanti.android.vendor_app.repository.invoice.impl.InvoiceRepositoryImpl
@@ -104,19 +107,22 @@ object KoinInitializer {
                 VendorDb.MIGRATION_3_4,
                 VendorDb.MIGRATION_4_5,
                 VendorDb.MIGRATION_5_6,
-                VendorDb.MIGRATION_6_7
+                VendorDb.MIGRATION_6_7,
+                VendorDb.MIGRATION_7_8
             )
             .build()
 
         // Repository
         val loginRepo = LoginRepositoryImpl(api)
-        val productRepo = ProductRepositoryImpl(db.productDao(), api)
+        val categoryRepo = CategoryRepositoryImpl(db.categoryDao(), api)
+        val productRepo = ProductRepositoryImpl(categoryRepo, db.productDao(), api)
         val bookletRepo = BookletRepositoryImpl(db.bookletDao(), api)
         val cardRepo = CardRepositoryImpl(db.blockedCardDao(), api)
         val purchaseRepo = PurchaseRepositoryImpl(
             db.purchaseDao(),
             db.cardPurchaseDao(),
             db.voucherPurchaseDao(),
+            db.categoryDao(),
             db.productDao(),
             db.purchasedProductDao(),
             db.selectedProductDao(),
@@ -134,6 +140,7 @@ object KoinInitializer {
 
         // Facade
         val loginFacade: LoginFacade = LoginFacadeImpl(loginRepo, loginManager, currentVendor)
+        val categoryFacade: CategoryFacade = CategoryFacadeImpl(categoryRepo)
         val productFacade: ProductFacade = ProductFacadeImpl(productRepo, app.applicationContext)
         val bookletFacade: BookletFacade = BookletFacadeImpl(bookletRepo)
         val cardFacade: CardFacade = CardFacadeImpl(cardRepo)
@@ -141,7 +148,7 @@ object KoinInitializer {
         val transactionFacade: TransactionFacade = TransactionFacadeImpl(transactionRepo)
         val invoiceFacade: InvoiceFacade = InvoiceFacadeImpl(invoiceRepo)
         val syncFacade: SynchronizationFacade =
-            SynchronizationFacadeImpl(bookletFacade, cardFacade, productFacade, purchaseFacade, transactionFacade, invoiceFacade)
+            SynchronizationFacadeImpl(bookletFacade, cardFacade, categoryFacade, productFacade, purchaseFacade, transactionFacade, invoiceFacade)
         val synchronizationManager: SynchronizationManager =
             SynchronizationManagerImpl(preferences, syncFacade)
         val nfcFacade: VendorFacade = PINFacade(
@@ -188,6 +195,7 @@ object KoinInitializer {
             viewModel {
                 ShopViewModel(
                     shoppingHolder,
+                    categoryFacade,
                     productFacade,
                     currentVendor,
                     synchronizationManager,

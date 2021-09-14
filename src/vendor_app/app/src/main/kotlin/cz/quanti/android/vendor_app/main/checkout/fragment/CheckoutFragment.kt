@@ -124,11 +124,11 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
     @SuppressLint("NotifyDataSetChanged")
     private fun initObservers() {
         currencyDisposable?.dispose()
-        currencyDisposable = vm.getCurrency()
+        currencyDisposable = vm.getCurrencyObservable()
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribe({
-                selectedProductsAdapter.chosenCurrency = vm.getCurrency().value.toString()
+            .subscribe({ currency ->
+                selectedProductsAdapter.chosenCurrency = currency
                 selectedProductsAdapter.notifyDataSetChanged()
                 actualizeTotal()
             }, {
@@ -282,7 +282,7 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
     private fun showPinDialogAndPayByCard() {
         if (mainVM.enableNfc(requireActivity())) {
             val dialogBinding = DialogCardPinBinding.inflate(layoutInflater,null, false)
-            dialogBinding.pinTitle.text = getString(R.string.total_price, vm.getTotal(), vm.getCurrency().value)
+            dialogBinding.pinTitle.text = getString(R.string.total_price, vm.getTotal(), vm.getCurrency())
             val dialog = AlertDialog.Builder(requireContext(), R.style.DialogTheme)
                 .setView(dialogBinding.root)
                 .setCancelable(false)
@@ -315,7 +315,7 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
     private fun actualizeTotal() {
         val total = vm.getTotal()
         val totalText = "${getString(R.string.total)}:"
-        val totalPrice = "${getStringFromDouble(total)} ${vm.getCurrency().value}"
+        val totalPrice = "${getStringFromDouble(total)} ${vm.getCurrency()}"
         checkoutBinding.totalTextView.text = totalText
         checkoutBinding.totalPriceTextView.text = totalPrice
 

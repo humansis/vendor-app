@@ -12,14 +12,14 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import cz.quanti.android.vendor_app.R
 import cz.quanti.android.vendor_app.databinding.ItemCategoryBinding
-import cz.quanti.android.vendor_app.main.shop.fragment.ShopFragment
+import cz.quanti.android.vendor_app.main.shop.callback.CategoryAdapterCallback
 import cz.quanti.android.vendor_app.main.shop.viewholder.CategoryViewHolder
 import cz.quanti.android.vendor_app.repository.category.dto.Category
 import cz.quanti.android.vendor_app.repository.category.dto.CategoryType
 import org.koin.core.component.KoinComponent
 
 class CategoriesAdapter(
-    private val shopFragment: ShopFragment,
+    private val categoryAdapterCallback: CategoryAdapterCallback,
     private val context: Context
 ) :
     RecyclerView.Adapter<CategoryViewHolder>(), KoinComponent {
@@ -35,7 +35,7 @@ class CategoriesAdapter(
     @SuppressLint("NotifyDataSetChanged")
     fun setData(data: List<Category>) {
         categories.clear()
-        categories.addAll(data)
+        categories.addAll(data.sortedBy { it.type })
         notifyDataSetChanged()
     }
 
@@ -97,7 +97,6 @@ class CategoriesAdapter(
 
         val tintColor = getTintColor(categories[position].type)
         holder.categoryLayout.background.setTint(tintColor.first)
-
         if (categories[position].image.isNullOrEmpty()) {
             holder.categoryImage.setImageDrawable(getPlaceholderImage(categories[position].type))
             holder.categoryImage.drawable.setTint(tintColor.second)
@@ -107,6 +106,7 @@ class CategoriesAdapter(
                 .load(categories[position].image)
                 .transition(DrawableTransitionOptions.withCrossFade())
                 .into(holder.categoryImage)
+
             holder.categoryImage.setColorFilter(ColorUtils.setAlphaComponent(
                 tintColor.first,
                 OPACITY
@@ -114,11 +114,11 @@ class CategoriesAdapter(
         }
 
         holder.categoryLayout.setOnClickListener {
-            shopFragment.openCategory(categories[position])
+            categoryAdapterCallback.onCategoryClicked(categories[position])
         }
     }
 
     companion object {
-        const val OPACITY = 127
+        const val OPACITY = 153
     }
 }

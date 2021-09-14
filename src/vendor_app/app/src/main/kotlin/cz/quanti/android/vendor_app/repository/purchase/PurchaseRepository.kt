@@ -27,7 +27,7 @@ interface PurchaseRepository {
     // --- cart---
     fun addProductToCart(product: SelectedProduct)
 
-    fun getProductsFromCart(): Observable<List<SelectedProduct>>
+    fun getProductsFromCartObservable(): Observable<List<SelectedProduct>>
 
     fun updateProductInCart(product: SelectedProduct)
 

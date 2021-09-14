@@ -18,6 +18,7 @@ import cz.quanti.android.vendor_app.repository.purchase.dto.PurchasedProduct
 import cz.quanti.android.vendor_app.repository.purchase.dto.SelectedProduct
 import cz.quanti.android.vendor_app.utils.*
 import io.reactivex.Completable
+import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
@@ -79,8 +80,8 @@ class CheckoutViewModel(
         vouchers.clear()
     }
 
-    fun getSelectedProducts(): LiveData<List<SelectedProduct>> {
-        return shoppingHolder.getProducts()
+    fun getSelectedProductsLD(): LiveData<List<SelectedProduct>> {
+        return shoppingHolder.getProductsLD()
     }
 
     fun setProducts(products: List<SelectedProduct>) {
@@ -100,8 +101,12 @@ class CheckoutViewModel(
         shoppingHolder.removeAllProducts()
     }
 
-    fun getCurrency(): LiveData<String> {
-        return shoppingHolder.chosenCurrency
+    fun getCurrencyObservable(): Observable<String> {
+        return shoppingHolder.currency
+    }
+
+    fun getCurrency(): String? {
+        return shoppingHolder.currency.value
     }
 
     fun getPin(): String? {
@@ -112,7 +117,7 @@ class CheckoutViewModel(
     }
 
     fun payByCard(pin: String): Disposable {
-        return subtractMoneyFromCard(pin, getTotal(), getCurrency().value.toString()).flatMap {
+        return subtractMoneyFromCard(pin, getTotal(), getCurrency().toString()).flatMap {
             val tag = it.first
             val userBalance = it.second
             saveCardPurchaseToDb(convertTagToString(tag), userBalance)
@@ -184,7 +189,7 @@ class CheckoutViewModel(
             vouchers.addAll(shoppingHolder.vouchers.map { it.id })
             vendorId = currentVendor.vendor.id
             createdAt = convertTimeForApiRequestBody(Date())
-            currency = getCurrency().value.toString()
+            currency = getCurrency().toString()
         }
     }
 

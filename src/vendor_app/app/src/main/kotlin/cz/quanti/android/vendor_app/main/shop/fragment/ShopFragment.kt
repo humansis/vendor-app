@@ -10,7 +10,6 @@ import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.toLiveData
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -30,23 +29,25 @@ import cz.quanti.android.vendor_app.repository.category.dto.CategoryType
 import cz.quanti.android.vendor_app.repository.product.dto.Product
 import cz.quanti.android.vendor_app.repository.purchase.dto.SelectedProduct
 import cz.quanti.android.vendor_app.utils.getStringFromDouble
-import io.reactivex.BackpressureStrategy
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import com.google.android.material.appbar.AppBarLayout
 import androidx.coordinatorlayout.widget.CoordinatorLayout
-import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.appbar.AppBarLayout.OnOffsetChangedListener
 import cz.quanti.android.vendor_app.main.authorization.viewmodel.LoginViewModel
+import cz.quanti.android.vendor_app.main.shop.callback.CategoryAdapterCallback
+import cz.quanti.android.vendor_app.main.shop.callback.ProductAdapterCallback
 import cz.quanti.android.vendor_app.sync.SynchronizationState
 import cz.quanti.android.vendor_app.utils.getBackgroundColor
+import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import quanti.com.kotlinlog.Log
+import java.math.BigDecimal
 import kotlin.math.abs
 
-class ShopFragment : Fragment(), OnTouchOutsideViewListener {
+class ShopFragment : Fragment(), CategoryAdapterCallback, ProductAdapterCallback, OnTouchOutsideViewListener {
 
     private val loginVM: LoginViewModel by viewModel()
     private val mainVM: MainViewModel by sharedViewModel()
@@ -56,7 +57,7 @@ class ShopFragment : Fragment(), OnTouchOutsideViewListener {
     private lateinit var shopBinding: FragmentShopBinding
     private lateinit var activityCallback: ActivityCallback
     private var syncStateDisposable: Disposable? = null
-    private var chosenCurrency: String = ""
+    private var productsDisposable: Disposable? = null
     private var categoriesAllowed = MutableLiveData<Boolean>()
     private lateinit var appBarState: AppBarStateEnum
 
@@ -78,7 +79,7 @@ class ShopFragment : Fragment(), OnTouchOutsideViewListener {
                 override fun handleOnBackPressed() {
                     if (!shopBinding.categoriesAppBarLayout.isAppBarExpanded() && categoriesAllowed.value == true) {
                         clearQuery()
-                        showCategories(true, null)
+                        showCategories(true)
                     } else {
                         requireActivity().finish()
                     }
@@ -107,6 +108,8 @@ class ShopFragment : Fragment(), OnTouchOutsideViewListener {
     }
 
     override fun onStop() {
+        productsDisposable?.dispose()
+        syncStateDisposable?.dispose()
         // collapse searchbar after eventual screen rotation
         shopBinding.shopSearchBar.onActionViewCollapsed()
         super.onStop()
@@ -122,7 +125,8 @@ class ShopFragment : Fragment(), OnTouchOutsideViewListener {
     }
 
     private fun clearQuery() {
-        productsAdapter.filter.filter("")
+        productsAdapter.search("")
+        productsAdapter.filterByCategory("")
         shopBinding.shopSearchBar.clearFocus()
         shopBinding.shopSearchBar.setQuery("", true)
         shopBinding.shopSearchBar.isIconified = true
@@ -163,9 +167,9 @@ class ShopFragment : Fragment(), OnTouchOutsideViewListener {
             Log.d(TAG, "SearchBar clicked")
             if (shopBinding.shopSearchBar.isIconified) {
                 shopBinding.shopSearchBar.isIconified = false
-                productsAdapter.filter.filter("")
+                productsAdapter.search("")
             }
-            showCategories(false, null)
+            showCategories(false)
         }
         shopBinding.shopSearchBar.imeOptions = EditorInfo.IME_ACTION_DONE
         shopBinding.shopSearchBar.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
@@ -174,7 +178,7 @@ class ShopFragment : Fragment(), OnTouchOutsideViewListener {
             }
 
             override fun onQueryTextChange(newText: String): Boolean {
-                productsAdapter.filter.filter(newText)
+                productsAdapter.search(newText)
                 return false
             }
         })
@@ -183,22 +187,9 @@ class ShopFragment : Fragment(), OnTouchOutsideViewListener {
     }
 
     private fun initObservers() {
-        vm.getCategories().toFlowable(BackpressureStrategy.LATEST)
-            .toLiveData()
-            .observe(viewLifecycleOwner, { categories ->
-                if (categories.size > 1) {
-                    categoriesAllowed.value = true
-                    categoriesAdapter.setData(categories.addAllCategory(requireContext()))
-                    appBarState = AppBarStateEnum.EXPANDED
-                } else {
-                    categoriesAllowed.value = false
-                    appBarState = AppBarStateEnum.COLLAPSED
-                }
-            })
-
         categoriesAllowed.observe(viewLifecycleOwner, {
             setAppBarHidden(!it)
-            showCategories(it, null)
+            showCategories(it)
             if (it) {
                 shopBinding.categoriesAppBarLayout.addOnOffsetChangedListener( OnOffsetChangedListener { appBarLayout, verticalOffset ->
                     if (abs(verticalOffset) >= appBarLayout.totalScrollRange) {
@@ -227,36 +218,41 @@ class ShopFragment : Fragment(), OnTouchOutsideViewListener {
                     }
                 }
             }, {
-                Log.e(it)
+                Log.e(TAG, it)
             })
 
-        vm.getProducts().toFlowable(BackpressureStrategy.LATEST)
-            .toLiveData()
-            .observe(viewLifecycleOwner, {
-                productsAdapter.setData(it)
-                setMessageVisible(it.isEmpty())
+        productsDisposable?.dispose()
+        productsDisposable = Observable
+            .combineLatest(vm.getProducts(), vm.getCurrencyObservable(), { products, currency ->
+                filterProducts(products, currency)
+            }).subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({ products ->
+                filterCategories(products.distinctBy { it.category }.map {
+                    it.category
+                })
+                productsAdapter.setData(products)
+                setMessageVisible(products.isEmpty())
+                actualizeTotal()
+                showCategories(true)
+            }, {
+                Log.e(TAG, it)
             })
 
-        vm.getSelectedProducts().observe(viewLifecycleOwner, { products ->
-            when (products.size) {
-                EMPTY_CART_SIZE -> {
-                    shopBinding.totalTextView.visibility = View.GONE
-                    shopBinding.cartFAB.visibility = View.GONE
-                    shopBinding.cartBadge.visibility = View.GONE
-
-                }
-                else -> {
-                    actualizeTotal(products.map { it.price }.sum())
-                    shopBinding.totalTextView.visibility = View.VISIBLE
-                    shopBinding.cartFAB.visibility = View.VISIBLE
-                    shopBinding.cartBadge.visibility = View.VISIBLE
-                    shopBinding.cartBadge.text = products.size.toString()
-                }
+        vm.getSelectedProductsLD().observe(viewLifecycleOwner, { products ->
+            vm.setProducts(products)
+            if (products.isEmpty()) {
+                shopBinding.totalTextView.visibility = View.GONE
+                shopBinding.cartFAB.visibility = View.GONE
+                shopBinding.cartBadge.visibility = View.GONE
             }
-        })
-
-        vm.getCurrency().observe(viewLifecycleOwner, {
-            chosenCurrency = it
+            else {
+                actualizeTotal()
+                shopBinding.totalTextView.visibility = View.VISIBLE
+                shopBinding.cartFAB.visibility = View.VISIBLE
+                shopBinding.cartBadge.visibility = View.VISIBLE
+                shopBinding.cartBadge.text = products.size.toString()
+            }
         })
     }
 
@@ -272,7 +268,7 @@ class ShopFragment : Fragment(), OnTouchOutsideViewListener {
             Log.d(TAG, "Cart products header clicked")
             shopBinding.productsRecyclerView.stopScroll()
             clearQuery()
-            showCategories(!shopBinding.categoriesAppBarLayout.isAppBarExpanded(), null)
+            showCategories(!shopBinding.categoriesAppBarLayout.isAppBarExpanded())
         }
     }
 
@@ -284,47 +280,76 @@ class ShopFragment : Fragment(), OnTouchOutsideViewListener {
         }
     }
 
-    fun openCategory(category: Category) {
+    private fun filterProducts(products: List<Product>, currency: String): List<Product> {
+        return products.filter {
+            it.currency.isNullOrEmpty() || it.currency == currency
+        }
+    }
+
+    private fun filterCategories(categories: List<Category>) {
+        if (categories.size > 1) {
+            categoriesAllowed.value = true
+            categoriesAdapter.setData(categories.addAllCategory(requireContext()))
+            appBarState = AppBarStateEnum.EXPANDED
+        } else {
+            categoriesAllowed.value = false
+            appBarState = AppBarStateEnum.COLLAPSED
+        }
+    }
+
+    override fun onCategoryClicked(category: Category) {
         if (category.type != CategoryType.ALL) {
-            productsAdapter.filter.filter(category.name)
+            productsAdapter.filterByCategory(category.name)
         } else {
             clearQuery()
         }
         showCategories(false, category.name)
     }
 
-    private fun showCategories(boolean: Boolean, name: String?) {
+    private fun showCategories(boolean: Boolean, name: String = getString(R.string.all_products)) {
         shopBinding.categoriesAppBarLayout.setExpanded(boolean)
-        shopBinding.productsHeader.text = name ?: getString(R.string.all_products)
+        shopBinding.productsHeader.text = name
     }
 
-    fun openProduct(product: Product) {
-        val dialogBinding = DialogProductBinding.inflate(layoutInflater,null, false)
+    override fun onProductClicked(product: Product) {
+        if (vm.hasCashback() != null && product.category.type == CategoryType.CASHBACK) {
+            mainVM.setToastMessage(getString(R.string.only_one_cashback_item_allowed))
+        } else {
+            val dialogBinding = DialogProductBinding.inflate(layoutInflater,null, false)
 
-        Glide
-            .with(requireContext())
-            .load(product.image)
-            .into(dialogBinding.productImage)
+            Glide
+                .with(requireContext())
+                .load(product.image)
+                .into(dialogBinding.productImage)
 
-        dialogBinding.productName.text = product.name
+            dialogBinding.productName.text = product.name
 
-        val dialog = AlertDialog.Builder(activity)
-            .setView(dialogBinding.root)
-            .show()
-        if (!resources.getBoolean(R.bool.isTablet)) {
-            dialog.window?.setLayout(
-                resources.displayMetrics.widthPixels,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-            )
+            val dialog = AlertDialog.Builder(activity)
+                .setView(dialogBinding.root)
+                .show()
+            if (!resources.getBoolean(R.bool.isTablet)) {
+                dialog.window?.setLayout(
+                    resources.displayMetrics.widthPixels,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+                )
+            }
+            loadOptions(dialog, dialogBinding, product)
         }
-        loadOptions(dialog, dialogBinding, product)
     }
 
     private fun loadOptions(dialog: AlertDialog, dialogBinding: DialogProductBinding, product: Product) {
         val priceEditText = dialogBinding.editProduct.priceEditText
         val confirmButton = dialogBinding.editProduct.confirmButton
         priceEditText.hint = requireContext().getString(R.string.price)
-        dialogBinding.editProduct.priceTextInputLayout.suffixText = chosenCurrency
+        dialogBinding.editProduct.priceTextInputLayout.suffixText = vm.getCurrency()
+
+        if (product.category.type == CategoryType.CASHBACK) {
+            dialogBinding.editProduct.priceEditText.isEnabled = false
+            product.unitPrice?.let {
+                val price = BigDecimal.valueOf(it).stripTrailingZeros().toPlainString()
+                dialogBinding.editProduct.priceEditText.setText(price.toString())
+            }
+        }
 
         dialogBinding.closeButton.setOnClickListener {
             Log.d(TAG, "Close product options button clicked")
@@ -336,14 +361,17 @@ class ShopFragment : Fragment(), OnTouchOutsideViewListener {
             Log.d(TAG, "Confirm product options clicked")
             try {
                 val price = priceEditText.text.toString().toDouble()
-                if (price <= INVALID_PRICE_VALUE) {
-                    mainVM.setToastMessage(getString(R.string.please_enter_price))
-                } else {
-                    addProductToCart(
-                        product,
-                        price
-                    )
-                    dialog.dismiss()
+                when {
+                    price < LOWEST_VALID_PRICE_VALUE -> {
+                        mainVM.setToastMessage(getString(R.string.please_enter_price))
+                    }
+                    else -> {
+                        addProductToCart(
+                            product,
+                            price
+                        )
+                        dialog.dismiss()
+                    }
                 }
             } catch (e: NumberFormatException) {
                 mainVM.setToastMessage(getString(R.string.please_enter_price))
@@ -351,12 +379,10 @@ class ShopFragment : Fragment(), OnTouchOutsideViewListener {
         }
     }
 
-    private fun addProductToCart(product: Product, unitPrice: Double) {
+    private fun addProductToCart(product: Product, price: Double) {
         val selected = SelectedProduct(
             product = product,
-            price = product.unitPrice ?: unitPrice,
-            category = product.category,
-            currency = product.currency
+            price = product.unitPrice ?: price
         )
         vm.addToShoppingCart(selected)
     }
@@ -373,15 +399,15 @@ class ShopFragment : Fragment(), OnTouchOutsideViewListener {
         }
     }
 
-    private fun actualizeTotal(total: Double) {
-        val totalText = "${getString(R.string.total)}: ${getStringFromDouble(total)} ${vm.getCurrency().value}"
+    private fun actualizeTotal() {
+        val total = vm.getTotal()
+        val totalText = "${getString(R.string.total)}: ${getStringFromDouble(total)} ${vm.getCurrency()}"
         shopBinding.totalTextView.text = totalText
     }
 
     companion object {
         private val TAG = ShopFragment::class.java.simpleName
-        const val EMPTY_CART_SIZE = 0
-        const val INVALID_PRICE_VALUE = 0.0
+        const val LOWEST_VALID_PRICE_VALUE = 0.01
         const val PORTRAIT_PHONE_COLUMNS = 3
         const val PORTRAIT_TABLET_COLUMNS = 4
         const val LANDSCAPE_TABLET_COLUMNS = 6

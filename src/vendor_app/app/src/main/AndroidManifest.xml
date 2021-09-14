@@ -22,6 +22,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:allowBackup="false"
+        android:testOnly="false"
         tools:replace="android:allowBackup">
         <activity android:name="cz.quanti.android.vendor_app.MainActivity"
             android:theme="@style/AppTheme.NoActionBar"

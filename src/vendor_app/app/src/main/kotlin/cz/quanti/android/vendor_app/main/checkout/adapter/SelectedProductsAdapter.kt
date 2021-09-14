@@ -11,6 +11,7 @@ import cz.quanti.android.vendor_app.R
 import cz.quanti.android.vendor_app.databinding.ItemShoppingCartBinding
 import cz.quanti.android.vendor_app.main.checkout.callback.CheckoutFragmentCallback
 import cz.quanti.android.vendor_app.main.checkout.viewholder.SelectedProductsViewHolder
+import cz.quanti.android.vendor_app.repository.category.dto.CategoryType
 import cz.quanti.android.vendor_app.repository.purchase.dto.SelectedProduct
 import cz.quanti.android.vendor_app.utils.getStringFromDouble
 import cz.quanti.android.vendor_app.utils.round
@@ -97,8 +98,10 @@ class SelectedProductsAdapter(
             holder.price.visibility = View.GONE
             holder.remove.visibility = View.VISIBLE
             holder.close.visibility = View.VISIBLE
-            holder.editProduct.visibility = View.VISIBLE
-            loadOptions(holder, item)
+            if (item.product.category.type != CategoryType.CASHBACK) {
+                holder.editProduct.visibility = View.VISIBLE
+                loadOptions(holder, item)
+            }
         }
     }
 

@@ -128,8 +128,8 @@ class PurchaseRepositoryImpl(
         }
     }
 
-    override fun addProductToCart(product: SelectedProduct) {
-        if (product.product.category.type == CategoryType.CASHBACK) {
+    override fun addProductToCart(product: SelectedProduct): Completable {
+        return if (product.product.category.type == CategoryType.CASHBACK) {
             if (selectedProductDao.getAll().none {
                 categoryRepo.getCategory(
                     productDao.getProductById(it.productId).categoryId
@@ -138,6 +138,7 @@ class PurchaseRepositoryImpl(
                 selectedProductDao.insert(convertToDb(product))
             } else {
                 Log.e(TAG, "One cashback item already in cart")
+                Completable.complete()
             }
         } else {
             selectedProductDao.insert(convertToDb(product))
@@ -152,16 +153,16 @@ class PurchaseRepositoryImpl(
         }
     }
 
-    override fun updateProductInCart(product: SelectedProduct) {
-        selectedProductDao.update(product.dbId, product.price)
+    override fun updateProductInCart(product: SelectedProduct): Completable {
+        return selectedProductDao.update(product.dbId, product.price)
     }
 
-    override fun removeProductFromCartAt(product: SelectedProduct) {
-        selectedProductDao.delete(convertToDb(product))
+    override fun removeProductFromCartAt(product: SelectedProduct): Completable {
+        return selectedProductDao.delete(convertToDb(product))
     }
 
-    override fun deleteAllProductsInCart() {
-        selectedProductDao.deleteAll()
+    override fun deleteAllProductsInCart(): Completable {
+        return selectedProductDao.deleteAll()
     }
 
     override fun deletePurchasedProducts(): Completable {

@@ -40,11 +40,11 @@ class ProductRepositoryImpl(
     }
 
     override fun deleteProducts(): Completable {
-        return Completable.fromCallable { productDao.deleteAll() }
+        return productDao.deleteAll()
     }
 
     override fun saveProduct(product: Product): Completable {
-        return Completable.fromCallable { productDao.insert(convert(product)) }
+        return productDao.insert(convert(product))
     }
 
     private fun convert(dbEntity: ProductDbEntity): Product {

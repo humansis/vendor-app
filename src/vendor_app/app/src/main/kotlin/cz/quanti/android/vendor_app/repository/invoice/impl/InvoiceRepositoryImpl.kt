@@ -24,11 +24,11 @@ class InvoiceRepositoryImpl(
     }
 
     override fun deleteInvoices(): Completable {
-        return Completable.fromCallable { invoiceDao.deleteAll() }
+        return invoiceDao.deleteAll()
     }
 
     override fun saveInvoice(invoice: InvoiceApiEntity): Single<Long> {
-        return Single.fromCallable { invoiceDao.insert(convertToDb(invoice)) }
+        return invoiceDao.insert(convertToDb(invoice))
     }
 
     override fun getInvoices(): Observable<List<Invoice>> {

@@ -228,9 +228,7 @@ class ShopFragment : Fragment(), CategoryAdapterCallback, ProductAdapterCallback
             }).subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({ products ->
-                filterCategories(products.distinctBy { it.category }.map {
-                    it.category
-                })
+                filterCategories(products)
                 productsAdapter.setData(products)
                 setMessageVisible(products.isEmpty())
                 actualizeTotal()
@@ -286,11 +284,14 @@ class ShopFragment : Fragment(), CategoryAdapterCallback, ProductAdapterCallback
         }
     }
 
-    private fun filterCategories(categories: List<Category>) {
+    private fun filterCategories(products: List<Product>) {
+        val categories = products.distinctBy { it.category }.map {
+            it.category
+        }
         if (categories.size > 1) {
             categoriesAllowed.value = true
-            categoriesAdapter.setData(categories.addAllCategory(requireContext()))
             appBarState = AppBarStateEnum.EXPANDED
+            categoriesAdapter.setData(categories.addAllCategory(requireContext()))
         } else {
             categoriesAllowed.value = false
             appBarState = AppBarStateEnum.COLLAPSED

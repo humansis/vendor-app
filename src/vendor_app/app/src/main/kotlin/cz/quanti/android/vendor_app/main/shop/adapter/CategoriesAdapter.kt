@@ -43,31 +43,19 @@ class CategoriesAdapter(
         return categories.size
     }
 
-    private fun getTintColor(type: CategoryType): Pair<Int, Int> {
+    private fun getTintColor(type: CategoryType): Int {
         return when (type) {
             CategoryType.FOOD -> {
-                Pair(
-                    ContextCompat.getColor(context, R.color.lighterOrange),
-                    ContextCompat.getColor(context, R.color.lightOrange)
-                )
+                ContextCompat.getColor(context, R.color.lightOrange)
             }
             CategoryType.NONFOOD -> {
-                Pair(
-                    ContextCompat.getColor(context, R.color.lighterBlue),
-                    ContextCompat.getColor(context, R.color.lightBlue)
-                )
+                ContextCompat.getColor(context, R.color.lightBlue)
             }
             CategoryType.CASHBACK -> {
-                Pair(
-                    ContextCompat.getColor(context, R.color.lighterGreen),
-                    ContextCompat.getColor(context, R.color.lightGreen)
-                )
+                ContextCompat.getColor(context, R.color.lightGreen)
             }
             else -> {
-                Pair(
-                    ContextCompat.getColor(context, R.color.white),
-                    ContextCompat.getColor(context, R.color.lighterGrey)
-                )
+                ContextCompat.getColor(context, R.color.white)
             }
         }
     }
@@ -76,9 +64,6 @@ class CategoriesAdapter(
         return when (type) {
             CategoryType.FOOD -> {
                 ContextCompat.getDrawable(context, R.drawable.ic_food)
-            }
-            CategoryType.NONFOOD -> {
-                ContextCompat.getDrawable(context, R.drawable.ic_nonfood)
             }
             CategoryType.CASHBACK -> {
                 ContextCompat.getDrawable(context, R.drawable.ic_cashback)
@@ -95,23 +80,19 @@ class CategoriesAdapter(
     override fun onBindViewHolder(holder: CategoryViewHolder, position: Int) {
         holder.categoryName.text = categories[position].name
 
-        val tintColor = getTintColor(categories[position].type)
-        holder.categoryLayout.background.setTint(tintColor.first)
         if (categories[position].image.isNullOrEmpty()) {
             holder.categoryImage.setImageDrawable(getPlaceholderImage(categories[position].type))
-            holder.categoryImage.drawable.setTint(tintColor.second)
         } else {
             Glide
                 .with(context)
                 .load(categories[position].image)
                 .transition(DrawableTransitionOptions.withCrossFade())
                 .into(holder.categoryImage)
-
-            holder.categoryImage.setColorFilter(ColorUtils.setAlphaComponent(
-                tintColor.first,
-                OPACITY
-            ))
         }
+        holder.categoryForeground.background.setTint(ColorUtils.setAlphaComponent(
+            getTintColor(categories[position].type),
+            OPACITY
+        ))
 
         holder.categoryLayout.setOnClickListener {
             categoryAdapterCallback.onCategoryClicked(categories[position])

@@ -10,4 +10,6 @@ interface ProductFacade {
     fun getProducts(): Observable<List<Product>>
 
     fun syncWithServer(vendor: Vendor): Completable
+
+    fun deleteProducts(): Completable
 }

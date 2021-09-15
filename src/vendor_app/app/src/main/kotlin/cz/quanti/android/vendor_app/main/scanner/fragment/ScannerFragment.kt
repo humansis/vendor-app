@@ -66,8 +66,10 @@ class ScannerFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        disposables.add(scannerVM.getDeactivatedAndProtectedBooklets().subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread()).subscribe(
+        disposables.add(scannerVM.getDeactivatedAndProtectedBooklets()
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(
                 {
                     deactivated = it.first
                     protected = it.second
@@ -230,9 +232,10 @@ class ScannerFragment : Fragment() {
 
     private fun showPasswordDialog(tries: Int, voucher: Voucher) {
         if (tries < 1) {
-            disposables.add(scannerVM.deactivate(voucher).subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread()).subscribe(
-                {
+            disposables.add(scannerVM.deactivate(voucher)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe({
                     AlertDialog.Builder(requireContext(), R.style.DialogTheme)
                         .setTitle(getString(R.string.booklet_deactivated))
                         .setMessage(getString(R.string.tries_exceeded_booklet_deactivated))
@@ -242,8 +245,8 @@ class ScannerFragment : Fragment() {
                 },
                 {
                     Log.e(TAG, it)
-                }
-            ))
+                })
+            )
         } else {
             val dialogView: View = layoutInflater.inflate(R.layout.dialog_voucher_password, null)
             val limitedTriesTextView = dialogView.findViewById<TextView>(R.id.limitedTriesTextView)

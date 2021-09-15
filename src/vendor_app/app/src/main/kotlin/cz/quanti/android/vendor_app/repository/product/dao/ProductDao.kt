@@ -3,19 +3,20 @@ package cz.quanti.android.vendor_app.repository.product.dao
 import androidx.room.*
 import cz.quanti.android.vendor_app.repository.VendorDb
 import cz.quanti.android.vendor_app.repository.product.dto.db.ProductDbEntity
+import io.reactivex.Completable
 import io.reactivex.Observable
 
 @Dao
 interface ProductDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insert(product: ProductDbEntity)
+    fun insert(product: ProductDbEntity): Completable
 
     @Delete
-    fun delete(product: ProductDbEntity)
+    fun delete(product: ProductDbEntity): Completable
 
     @Query("DELETE FROM " + VendorDb.TABLE_PRODUCT)
-    fun deleteAll()
+    fun deleteAll(): Completable
 
     @Query("SELECT * FROM " + VendorDb.TABLE_PRODUCT)
     fun getAll(): Observable<List<ProductDbEntity>>

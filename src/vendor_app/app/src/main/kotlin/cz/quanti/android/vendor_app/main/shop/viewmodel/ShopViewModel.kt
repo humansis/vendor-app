@@ -11,6 +11,7 @@ import cz.quanti.android.vendor_app.sync.SynchronizationState
 import cz.quanti.android.vendor_app.utils.CurrentVendor
 import cz.quanti.android.vendor_app.utils.ShoppingHolder
 import cz.quanti.android.vendor_app.utils.getDefaultCurrency
+import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.Single
 
@@ -28,6 +29,10 @@ class ShopViewModel(
 
     fun getProducts(): Observable<List<Product>> {
         return productFacade.getProducts()
+    }
+
+    fun deleteProducts(): Completable {
+        return productFacade.deleteProducts()
     }
 
     fun getSelectedProducts(): Single<List<SelectedProduct>> {
@@ -51,16 +56,16 @@ class ShopViewModel(
         return shoppingHolder.cart.map { it.price }.sum()
     }
 
-    fun removeSelectedProduct(product: SelectedProduct) {
-        shoppingHolder.removeProductAt(product)
+    fun removeSelectedProduct(product: SelectedProduct): Completable {
+        return shoppingHolder.removeProductAt(product)
     }
 
-    fun emptyCart() {
-        shoppingHolder.removeAllProducts()
+    fun emptyCart(): Completable {
+        return shoppingHolder.removeAllProducts()
     }
 
-    fun addToShoppingCart(product: SelectedProduct) {
-        shoppingHolder.addProduct(product)
+    fun addToShoppingCart(product: SelectedProduct): Completable {
+        return shoppingHolder.addProduct(product)
     }
 
     fun getCurrencies(): List<String> {

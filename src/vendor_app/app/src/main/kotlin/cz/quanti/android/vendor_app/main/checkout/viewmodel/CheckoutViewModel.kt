@@ -1,6 +1,7 @@
 package cz.quanti.android.vendor_app.main.checkout.viewmodel
 
 import android.nfc.Tag
+import android.os.CpuUsageInfo
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -23,6 +24,7 @@ import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
+import quanti.com.kotlinlog.Log
 import java.util.*
 
 class CheckoutViewModel(
@@ -89,16 +91,16 @@ class CheckoutViewModel(
         shoppingHolder.cart.addAll(products)
     }
 
-    fun updateSelectedProduct(product: SelectedProduct) {
-        shoppingHolder.updateProduct(product)
+    fun updateSelectedProduct(product: SelectedProduct): Completable {
+        return shoppingHolder.updateProduct(product)
     }
 
-    fun removeFromCart(product: SelectedProduct) {
-        shoppingHolder.removeProductAt(product)
+    fun removeFromCart(product: SelectedProduct): Completable {
+        return shoppingHolder.removeProductAt(product)
     }
 
-    fun clearCart() {
-        shoppingHolder.removeAllProducts()
+    fun clearCart(): Completable {
+        return shoppingHolder.removeAllProducts()
     }
 
     fun getCurrencyObservable(): Observable<String> {

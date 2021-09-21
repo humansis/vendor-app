@@ -2,7 +2,6 @@ package cz.quanti.android.vendor_app.repository.product.impl
 
 import android.content.Context
 import com.bumptech.glide.Glide
-import cz.quanti.android.vendor_app.repository.category.CategoryRepository
 import cz.quanti.android.vendor_app.repository.login.dto.Vendor
 import cz.quanti.android.vendor_app.repository.product.ProductFacade
 import cz.quanti.android.vendor_app.repository.product.ProductRepository
@@ -23,6 +22,10 @@ class ProductFacadeImpl(
 
     override fun syncWithServer(vendor: Vendor): Completable {
         return reloadProductFromServer(vendor)
+    }
+
+    override fun deleteProducts(): Completable {
+        return productRepo.deleteProducts()
     }
 
     private fun reloadProductFromServer(vendor: Vendor): Completable {

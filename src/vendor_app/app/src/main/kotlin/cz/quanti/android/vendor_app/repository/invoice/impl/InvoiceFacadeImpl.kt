@@ -8,7 +8,6 @@ import cz.quanti.android.vendor_app.utils.VendorAppException
 import cz.quanti.android.vendor_app.utils.isPositiveResponseHttpCode
 import io.reactivex.Completable
 import io.reactivex.Observable
-import io.reactivex.Single
 import quanti.com.kotlinlog.Log
 
 class InvoiceFacadeImpl(
@@ -22,6 +21,10 @@ class InvoiceFacadeImpl(
 
     override fun getInvoices(): Observable<List<Invoice>> {
         return invoiceRepo.getInvoices()
+    }
+
+    override fun deleteInvoices(): Completable {
+        return invoiceRepo.deleteInvoices()
     }
 
     private fun retrieveInvoices(vendorId: Int): Completable {

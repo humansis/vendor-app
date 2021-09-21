@@ -80,10 +80,8 @@ class SelectedProductsAdapter(
             if (newPrice <= 0.0) {
                 checkoutFragmentCallback.showInvalidPriceEnteredMessage()
             } else {
-                checkoutFragmentCallback.updateItem(
-                    item,
-                    round(newPrice, 3)
-                )
+                item.price = round(newPrice, 3)
+                checkoutFragmentCallback.updateItem(item)
                 closeCard(holder)
             }
         } catch (e: NumberFormatException) {

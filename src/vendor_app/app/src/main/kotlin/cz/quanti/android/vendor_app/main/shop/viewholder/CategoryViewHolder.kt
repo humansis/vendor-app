@@ -1,5 +1,6 @@
 package cz.quanti.android.vendor_app.main.shop.viewholder
 
+import android.view.View
 import android.widget.*
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.RecyclerView
@@ -9,4 +10,5 @@ class CategoryViewHolder(categoryBinding: ItemCategoryBinding) : RecyclerView.Vi
     var categoryName: TextView = categoryBinding.categoryName
     var categoryImage: ImageView = categoryBinding.categoryImage
     var categoryLayout: ConstraintLayout = categoryBinding.categoryLayout
+    var categoryForeground: View = categoryBinding.categoryForeground
 }

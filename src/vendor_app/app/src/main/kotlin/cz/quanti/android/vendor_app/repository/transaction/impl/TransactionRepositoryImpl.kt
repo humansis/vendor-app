@@ -93,11 +93,11 @@ class TransactionRepositoryImpl(
     }
 
     override fun deleteTransactionPurchases(): Completable {
-        return Completable.fromCallable { transactionPurchaseDao.deleteAll() }
+        return transactionPurchaseDao.deleteAll()
     }
 
     override fun saveTransactionPurchase(transactionPurchase: TransactionPurchaseApiEntity, transactionId: Long): Single<Long> {
-        return Single.fromCallable { transactionPurchaseDao.insert(convertToDb(transactionPurchase, transactionId)) }
+        return transactionPurchaseDao.insert(convertToDb(transactionPurchase, transactionId))
     }
 
     private fun convertToDb(transaction: TransactionApiEntity, transactionId: Long): TransactionDbEntity {

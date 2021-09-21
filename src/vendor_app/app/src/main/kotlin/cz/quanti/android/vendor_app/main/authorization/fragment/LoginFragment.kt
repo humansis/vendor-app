@@ -9,11 +9,11 @@ import android.view.animation.Animation
 import android.view.animation.RotateAnimation
 import android.view.inputmethod.EditorInfo
 import android.widget.PopupMenu
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import cz.quanti.android.vendor_app.ActivityCallback
 import cz.quanti.android.vendor_app.BuildConfig
+import cz.quanti.android.vendor_app.MainViewModel
 import cz.quanti.android.vendor_app.R
 import cz.quanti.android.vendor_app.databinding.FragmentLoginBinding
 import cz.quanti.android.vendor_app.main.authorization.viewmodel.LoginViewModel
@@ -27,10 +27,11 @@ import io.reactivex.schedulers.Schedulers
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import quanti.com.kotlinlog.Log
 import cz.quanti.android.vendor_app.utils.hideKeyboard
-
+import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 
 class LoginFragment : Fragment() {
 
+    private val mainVM: MainViewModel by sharedViewModel()
     private val vm: LoginViewModel by viewModel()
     private var disposable: Disposable? = null
 
@@ -134,56 +135,46 @@ class LoginFragment : Fragment() {
                     disposable?.dispose()
                     disposable =
                         vm.login(loginBinding.usernameEditText.text.toString(), loginBinding.passwordEditText.text.toString())
-                            .subscribeOn(
-                                Schedulers.io()
-                            ).observeOn(AndroidSchedulers.mainThread())
-                            .subscribe(
-                                {
-                                    vm.onLogin(requireActivity() as (ActivityCallback))
-                                    loginBinding.loadingImageView.animation.repeatCount = 0
+                            .subscribeOn(Schedulers.io())
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .subscribe({
+                                vm.onLogin(requireActivity() as (ActivityCallback))
+                                loginBinding.loadingImageView.animation.repeatCount = 0
+                                loginBinding.usernameEditText.error = null
+                                loginBinding.passwordEditText.error = null
+                                findNavController().navigate(
+                                    LoginFragmentDirections.actionLoginFragmentToProductsFragment()
+                                )
+                            }, {
+                                loginBinding.loadingImageView.clearAnimation()
+                                loginBinding.loadingImageView.visibility = View.INVISIBLE
+                                loginBinding.loginButton.visibility = View.VISIBLE
+                                loginBinding.loginButton.isEnabled = true
+                                Log.e(TAG, it)
+                                if (it is LoginException) {
+                                    Log.d(TAG, it.message.toString())
+                                    when (it.state) {
+                                        LoginExceptionState.NO_CONNECTION -> {
+                                            mainVM.setToastMessage(
+                                                if (vm.isNetworkConnected().value == true) {
+                                                    getString(R.string.error_service_unavailable)
+                                                } else {
+                                                    getString(R.string.no_internet_connection)
+                                                }
+                                            )
+                                        }
+                                        LoginExceptionState.INVALID_USER,
+                                        LoginExceptionState.INVALID_PASSWORD -> {
+                                            loginBinding.usernameEditText.error = getString(R.string.wrong_password)
+                                            loginBinding.passwordEditText.error = getString(R.string.wrong_password)
+                                        }
+                                    }
+                                } else {
                                     loginBinding.usernameEditText.error = null
                                     loginBinding.passwordEditText.error = null
-                                    findNavController().navigate(
-                                        LoginFragmentDirections.actionLoginFragmentToProductsFragment()
-                                    )
-                                },
-                                {
-                                    loginBinding.loadingImageView.clearAnimation()
-                                    loginBinding.loadingImageView.visibility = View.INVISIBLE
-                                    loginBinding.loginButton.visibility = View.VISIBLE
-                                    loginBinding.loginButton.isEnabled = true
-                                    Log.e(TAG, it)
-                                    if (it is LoginException) {
-                                        Log.d(TAG, it.message.toString())
-                                        when (it.state) {
-                                            LoginExceptionState.NO_CONNECTION -> {
-                                                Toast.makeText(
-                                                    context,
-                                                    if (vm.isNetworkConnected().value == false) {
-                                                        getString(R.string.no_internet_connection)
-                                                    } else {
-                                                        getString(R.string.error_service_unavailable)
-                                                    },
-                                                    Toast.LENGTH_LONG
-                                                ).show()
-                                            }
-                                            LoginExceptionState.INVALID_USER,
-                                            LoginExceptionState.INVALID_PASSWORD -> {
-                                                loginBinding.usernameEditText.error = getString(R.string.wrong_password)
-                                                loginBinding.passwordEditText.error = getString(R.string.wrong_password)
-                                            }
-                                        }
-                                    } else {
-                                        loginBinding.usernameEditText.error = null
-                                        loginBinding.passwordEditText.error = null
-                                        Toast.makeText(
-                                            context,
-                                            getString(R.string.no_internet_connection),
-                                            Toast.LENGTH_LONG
-                                        ).show()
-                                    }
+                                    mainVM.setToastMessage(getString(R.string.no_internet_connection))
                                 }
-                            )
+                            })
                 }
             }
         }

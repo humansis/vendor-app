@@ -6,11 +6,9 @@ import cz.quanti.android.vendor_app.repository.booklet.dto.Voucher
 import cz.quanti.android.vendor_app.repository.purchase.PurchaseFacade
 import cz.quanti.android.vendor_app.repository.purchase.dto.SelectedProduct
 import io.reactivex.BackpressureStrategy
+import io.reactivex.Completable
 import io.reactivex.Single
 import io.reactivex.subjects.BehaviorSubject
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
@@ -21,10 +19,8 @@ data class ShoppingHolder(
 ) : KoinComponent {
     private val purchaseFacade: PurchaseFacade by inject()
 
-    fun addProduct(product: SelectedProduct) {
-        CoroutineScope(Dispatchers.IO).launch {
-            purchaseFacade.addProductToCart(product)
-        }
+    fun addProduct(product: SelectedProduct): Completable {
+        return purchaseFacade.addProductToCart(product)
     }
 
     fun getProductsSingle(): Single<List<SelectedProduct>> {
@@ -37,21 +33,15 @@ data class ShoppingHolder(
             .toLiveData()
     }
 
-    fun updateProduct(product: SelectedProduct) {
-        CoroutineScope(Dispatchers.IO).launch {
-            purchaseFacade.updateProductInCart(product)
-        }
+    fun updateProduct(product: SelectedProduct): Completable {
+        return purchaseFacade.updateProductInCart(product)
     }
 
-    fun removeProductAt(product: SelectedProduct) {
-        CoroutineScope(Dispatchers.IO).launch {
-            purchaseFacade.removeProductFromCartAt(product)
-        }
+    fun removeProductAt(product: SelectedProduct): Completable {
+        return purchaseFacade.removeProductFromCartAt(product)
     }
 
-    fun removeAllProducts() {
-        CoroutineScope(Dispatchers.IO).launch {
-            purchaseFacade.deleteAllProductsInCart()
-        }
+    fun removeAllProducts(): Completable {
+        return purchaseFacade.deleteAllProductsInCart()
     }
 }

@@ -9,8 +9,10 @@ import cz.quanti.android.vendor_app.repository.transaction.dto.Transaction
 import cz.quanti.android.vendor_app.sync.SynchronizationManager
 import cz.quanti.android.vendor_app.sync.SynchronizationState
 import io.reactivex.BackpressureStrategy
+import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.Single
+import io.reactivex.schedulers.Schedulers
 
 class TransactionsViewModel(
     private val transactionFacade: TransactionFacade,
@@ -32,5 +34,9 @@ class TransactionsViewModel(
 
     fun sync() {
         synchronizationManager.synchronizeWithServer()
+    }
+
+    fun deleteTransactions(): Completable {
+        return transactionFacade.deleteTransactions()
     }
 }

@@ -20,7 +20,9 @@ import cz.quanti.android.vendor_app.databinding.DialogSuccessBinding
 import cz.quanti.android.vendor_app.databinding.FragmentScanCardBinding
 import cz.quanti.android.vendor_app.main.checkout.viewmodel.CheckoutViewModel
 import cz.quanti.android.vendor_app.main.checkout.viewmodel.CheckoutViewModel.PaymentStateEnum
+import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
+import io.reactivex.schedulers.Schedulers
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import quanti.com.kotlinlog.Log
@@ -29,6 +31,7 @@ class ScanCardFragment : Fragment() {
     private val mainVM: MainViewModel by sharedViewModel()
     private val vm: CheckoutViewModel by viewModel()
     private var paymentDisposable: Disposable? = null
+    private var clearCartDisposable: Disposable? = null
     private var pinDialog: AlertDialog? = null
     private lateinit var activityCallback: ActivityCallback
 
@@ -74,7 +77,7 @@ class ScanCardFragment : Fragment() {
 
     override fun onStop() {
         paymentDisposable?.dispose()
-        paymentDisposable = null
+        clearCartDisposable?.dispose()
         super.onStop()
     }
 
@@ -194,11 +197,23 @@ class ScanCardFragment : Fragment() {
             setPositiveButton(android.R.string.ok, null)
         }.show()
         vm.setOriginalCardData(null, null)
-        vm.clearCart()
         vm.clearVouchers()
+        clearCart()
         findNavController().navigate(
             ScanCardFragmentDirections.actionScanCardFragmentToProductsFragment()
         )
+    }
+
+    private fun clearCart() {
+        clearCartDisposable?.dispose()
+        clearCartDisposable = vm.clearCart()
+        .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({
+                Log.d(TAG, "Shopping cart emptied successfully")
+            }, {
+                Log.e(it)
+            })
     }
 
     private fun onPaymentFailed(throwable: Throwable) {

@@ -25,13 +25,13 @@ interface PurchaseRepository {
     fun getPurchasesCount(): Observable<Long>
 
     // --- cart---
-    fun addProductToCart(product: SelectedProduct)
+    fun addProductToCart(product: SelectedProduct): Completable
 
     fun getProductsFromCartObservable(): Observable<List<SelectedProduct>>
 
-    fun updateProductInCart(product: SelectedProduct)
+    fun updateProductInCart(product: SelectedProduct): Completable
 
-    fun removeProductFromCartAt(product: SelectedProduct)
+    fun removeProductFromCartAt(product: SelectedProduct): Completable
 
-    fun deleteAllProductsInCart()
+    fun deleteAllProductsInCart(): Completable
 }

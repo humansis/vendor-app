@@ -25,6 +25,12 @@ class TransactionFacadeImpl(
         return transactionRepo.getTransactions()
     }
 
+    override fun deleteTransactions(): Completable {
+        return deleteAllTransactions().andThen(
+            deleteAllTransactionPurchases()
+        )
+    }
+
     private fun retrieveTransactions(vendorId: Int): Completable {
         return transactionRepo.retrieveTransactions(vendorId).flatMapCompletable {
             val responseCode = it.first

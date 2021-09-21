@@ -39,8 +39,8 @@ class PurchaseFacadeImpl(
         return purchaseRepo.getPurchasesCount()
     }
 
-    override fun addProductToCart(product: SelectedProduct) {
-        purchaseRepo.addProductToCart(product)
+    override fun addProductToCart(product: SelectedProduct): Completable {
+        return purchaseRepo.addProductToCart(product)
     }
 
     override fun getProductsFromCartSingle(): Single<List<SelectedProduct>> {
@@ -51,15 +51,15 @@ class PurchaseFacadeImpl(
         return purchaseRepo.getProductsFromCartObservable()
     }
 
-    override fun updateProductInCart(product: SelectedProduct) {
-        purchaseRepo.updateProductInCart(product)
+    override fun updateProductInCart(product: SelectedProduct): Completable {
+        return purchaseRepo.updateProductInCart(product)
     }
 
-    override fun removeProductFromCartAt(product: SelectedProduct) {
-        purchaseRepo.removeProductFromCartAt(product)
+    override fun removeProductFromCartAt(product: SelectedProduct): Completable {
+        return purchaseRepo.removeProductFromCartAt(product)
     }
 
-    override fun deleteAllProductsInCart() {
+    override fun deleteAllProductsInCart(): Completable {
         return purchaseRepo.deleteAllProductsInCart()
     }
 

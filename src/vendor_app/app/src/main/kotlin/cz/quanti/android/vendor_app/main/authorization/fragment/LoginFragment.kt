@@ -134,9 +134,8 @@ class LoginFragment : Fragment() {
                     disposable?.dispose()
                     disposable =
                         vm.login(loginBinding.usernameEditText.text.toString(), loginBinding.passwordEditText.text.toString())
-                            .subscribeOn(
-                                Schedulers.io()
-                            ).observeOn(AndroidSchedulers.mainThread())
+                            .subscribeOn(Schedulers.io())
+                            .observeOn(AndroidSchedulers.mainThread())
                             .subscribe(
                                 {
                                     vm.onLogin(requireActivity() as (ActivityCallback))

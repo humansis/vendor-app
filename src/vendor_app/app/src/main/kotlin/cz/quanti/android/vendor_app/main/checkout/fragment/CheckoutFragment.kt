@@ -38,6 +38,9 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
     private val scannedVoucherAdapter = ScannedVoucherAdapter()
     private var proceedDisposable: Disposable? = null
     private var currencyDisposable: Disposable? = null
+    private var updateProductDisposable: Disposable? = null
+    private var removeProductDisposable: Disposable? = null
+    private var clearCartDisposable: Disposable? = null
     private lateinit var activityCallback: ActivityCallback
 
     private lateinit var checkoutBinding: FragmentCheckoutBinding
@@ -86,12 +89,10 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
     override fun onStop() {
         currencyDisposable?.dispose()
         proceedDisposable?.dispose()
+        updateProductDisposable?.dispose()
+        removeProductDisposable?.dispose()
+        clearCartDisposable?.dispose()
         super.onStop()
-    }
-
-    override fun onDestroy() {
-        proceedDisposable?.dispose()
-        super.onDestroy()
     }
 
     private fun initSelectedProductsAdapter() {
@@ -190,12 +191,13 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
     override fun proceed() {
         if (vm.getTotal() <= 0) {
             proceedDisposable?.dispose()
-            proceedDisposable = vm.proceed().subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread()).subscribe(
+            proceedDisposable = vm.proceed()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
                     {
-                        vm.clearCart()
+                        clearCart()
                         vm.clearVouchers()
-                        navigateBack()
                         AlertDialog.Builder(requireContext(), R.style.SuccessDialogTheme)
                             .setTitle(getString(R.string.success))
                             .setPositiveButton(android.R.string.ok, null)
@@ -220,9 +222,16 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
         )
     }
 
-    override fun updateItem(item: SelectedProduct, newPrice: Double) {
-        item.price = newPrice
-        vm.updateSelectedProduct(item)
+    override fun updateItem(item: SelectedProduct) {
+        updateProductDisposable?.dispose()
+        updateProductDisposable = vm.updateSelectedProduct(item)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({
+                Log.d(TAG, "Item $item updated successfully")
+            }, {
+                Log.e(it)
+            })
     }
 
     override fun removeItemFromCart(product: SelectedProduct) {
@@ -235,7 +244,15 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
                 if (selectedProductsAdapter.itemCount == 1) {
                     clearCart()
                 } else {
-                    vm.removeFromCart(product)
+                    removeProductDisposable?.dispose()
+                    removeProductDisposable = vm.removeFromCart(product)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe({
+                            Log.d(TAG, "$product removed successfully")
+                        }, {
+                            Log.e(it)
+                        })
                 }
             }
             .setNegativeButton(android.R.string.cancel, null)
@@ -247,8 +264,16 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
     }
 
     private fun clearCart() {
-        vm.clearCart()
-        navigateBack()
+        clearCartDisposable?.dispose()
+        clearCartDisposable = vm.clearCart()
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({
+                Log.d(TAG, "Shopping cart emptied successfully")
+                navigateBack()
+            }, {
+                Log.e(it)
+            })
     }
 
     private fun showIfCartEmpty(notEmpty: Boolean) {

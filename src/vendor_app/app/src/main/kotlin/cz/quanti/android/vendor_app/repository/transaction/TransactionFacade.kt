@@ -9,4 +9,6 @@ interface TransactionFacade {
     fun syncWithServer(vendorId: Int): Completable
 
     fun getTransactions(): Observable<List<Transaction>>
+
+    fun deleteTransactions(): Completable
 }

@@ -10,14 +10,12 @@ import cz.quanti.android.vendor_app.utils.isPositiveResponseHttpCode
 import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.Single
-import quanti.com.kotlinlog.Log
 
 class TransactionFacadeImpl(
     private val transactionRepo: TransactionRepository
 ) : TransactionFacade {
 
     override fun syncWithServer(vendorId: Int): Completable {
-        Log.d(TAG, "Sync started")
         return retrieveTransactions(vendorId)
     }
 
@@ -84,9 +82,5 @@ class TransactionFacadeImpl(
         return Observable.fromIterable(transactionPurchases).flatMapCompletable { transactionPurchase ->
             Completable.fromSingle(transactionRepo.saveTransactionPurchase(transactionPurchase, transactionId))
         }
-    }
-
-    companion object {
-        private val TAG = TransactionFacadeImpl::class.java.simpleName
     }
 }

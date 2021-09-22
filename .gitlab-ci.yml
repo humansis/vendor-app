@@ -2,12 +2,17 @@ include:
   - project: 'humansis/gitlab-ci-templates'
     ref: 'mobile/docker-ci'
     file: 'src/mobile/gradle.template.yml'
+  - project: 'humansis/gitlab-ci-templates'
+    ref: 'mobile/docker-ci'
+    file: 'src/mobile/aws-upload.template.yml'
 
 image: artifactory.quanti.cz/docker/devel-settings:jdk-11
 
 # todo: versioning
 variables:
   ARTIFACT_PATH: ./src/vendor_app/app/build/outputs/apk/*/vendor-app-*.apk
+  ARTIFACT_DEBUG_PATH: ./src/vendor_app/app/build/outputs/apk/*/vendor-app-*debug.apk
+  ARTIFACT_RELEASE_PATH: ./src/vendor_app/app/build/outputs/apk/*/vendor-app-*release.apk
   EMULATOR_TIMEOUT: "60"
 
 stages:
@@ -16,6 +21,7 @@ stages:
   - upload
   - firebase
   - publish
+  - upload_aws
 
 .gradle_build:
   before_script:
@@ -30,19 +36,19 @@ stages:
       export GOOGLE_APPLICATION_CREDENTIALS=./app/adc.json;
     - ./gradlew clean
 
-# Just build application 
+# Just build application
 build_debug_job:
   stage: build
   extends: .gradle_build
   script:
-    - ./gradlew assembleDebug 
-# Just build application 
+    - ./gradlew assembleDebug
+# Just build application
 
 build_release_job:
   stage: build
   extends: .gradle_build
   script:
-    - ./gradlew assembleRelease 
+    - ./gradlew assembleRelease
 
 # Build debug and archive apk
 archive_debug_job:
@@ -143,4 +149,28 @@ publish_to_playstore:
     - rm -rf $PLAYSTORE_API_KEY_PATH
   when: manual
   only:
+    - tags
+
+upload_release_candidate:
+  stage: upload_aws
+  variables:
+    APP_NAME: user-app
+    APK: $ARTIFACT_DEBUG_PATH
+  extends: .release_rc
+  when: manual
+  environment:
+    name: aws-rc
+  except:
+    - tags
+
+upload_stable:
+  stage: upload_aws
+  variables:
+    APP_NAME: user-app
+    APK: $ARTIFACT_RELEASE_PATH
+  extends: .release_stable
+  when: manual
+  environment:
+    name: aws-stable
+  except:
     - tags

@@ -23,6 +23,12 @@
         app:layout_constraintBottom_toBottomOf="parent"
         tools:src="@drawable/ic_launcher_foreground"/>
 
+    <View
+        android:id="@+id/categoryForeground"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/foreground_cardviewlike_category"/>
+
     <TextView
         android:id="@+id/categoryName"
         android:layout_height="wrap_content"

@@ -31,11 +31,14 @@ import cz.quanti.android.nfc.dto.UserBalance
 import cz.quanti.android.vendor_app.databinding.ActivityMainBinding
 import cz.quanti.android.vendor_app.databinding.NavHeaderBinding
 import cz.quanti.android.vendor_app.main.authorization.viewmodel.LoginViewModel
+import cz.quanti.android.vendor_app.main.invoices.viewmodel.InvoicesViewModel
 import cz.quanti.android.vendor_app.main.shop.adapter.CurrencyAdapter
 import cz.quanti.android.vendor_app.main.shop.viewmodel.ShopViewModel
+import cz.quanti.android.vendor_app.main.transactions.viewmodel.TransactionsViewModel
 import cz.quanti.android.vendor_app.repository.AppPreferences
 import cz.quanti.android.vendor_app.repository.category.dto.CategoryType
 import cz.quanti.android.vendor_app.repository.login.LoginFacade
+import cz.quanti.android.vendor_app.repository.purchase.dto.SelectedProduct
 import cz.quanti.android.vendor_app.sync.SynchronizationManager
 import cz.quanti.android.vendor_app.sync.SynchronizationState
 import cz.quanti.android.vendor_app.utils.*
@@ -62,11 +65,15 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
     private val mainVM: MainViewModel by viewModel()
     private val loginVM: LoginViewModel by viewModel()
     private val shopVM: ShopViewModel by viewModel()
+    private val transactionsVM: TransactionsViewModel by viewModel()
+    private val invoiceVM: InvoicesViewModel by viewModel()
     private var displayedDialog: AlertDialog? = null
     private var environmentDisposable: Disposable? = null
     private var connectionDisposable: Disposable? = null
     private var syncStateDisposable: Disposable? = null
     private var syncDisposable: Disposable? = null
+    private var removeProductDisposable: Disposable? = null
+    private var emptyDataDisposable: Disposable? = null
     private var readBalanceDisposable: Disposable? = null
     private var selectedProductsDisposable: Disposable? = null
     private var currencyDisposable: Disposable? = null
@@ -128,6 +135,8 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
         connectionDisposable?.dispose()
         syncStateDisposable?.dispose()
         syncDisposable?.dispose()
+        removeProductDisposable?.dispose()
+        emptyDataDisposable?.dispose()
         readBalanceDisposable?.dispose()
         selectedProductsDisposable?.dispose()
         currencyDisposable?.dispose()
@@ -284,12 +293,28 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
             .setPositiveButton(
                 android.R.string.ok
             ) { _, _ ->
-                shopVM.emptyCart()
+                emptyData()
                 loginFacade.logout()
                 findNavController(R.id.nav_host_fragment).popBackStack(R.id.loginFragment, false)
             }
             .setNegativeButton(android.R.string.cancel, null)
             .show()
+    }
+
+    private fun emptyData() {
+        this.cacheDir.deleteRecursively()
+        emptyDataDisposable?.dispose()
+        emptyDataDisposable = shopVM.emptyCart()
+            .andThen(shopVM.deleteProducts())
+            .andThen(transactionsVM.deleteTransactions())
+            .andThen(invoiceVM.deleteInvoices())
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe({
+                    Log.d(TAG, "Sensitive data deleted successfully")
+                }, {
+                    Log.e(it)
+                })
     }
 
     private fun showReadBalanceDialog() {
@@ -311,7 +336,9 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
     private fun showReadBalanceResult() {
         readBalanceDisposable?.dispose()
         readBalanceDisposable = readBalance()
-            .subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe({
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({
                 displayedDialog?.dismiss()
                 val cardContent = it
                 val cardResultDialog = AlertDialog.Builder(this, R.style.DialogTheme)
@@ -519,16 +546,28 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
                     it.product.category.type == CategoryType.CASHBACK
                         && it.product.currency != currency
                 }?.let {
-                    shopVM.removeSelectedProduct(it)
-                    mainVM.setToastMessage(
-                        getString(
-                            R.string.item_removed_from_cart,
-                            it.product.name
-                        )
-                    )
+                    removeProductFromCart(it)
                 }
             }, {
                 Log.e(TAG, it)
+            })
+    }
+
+    private fun removeProductFromCart(selectedProduct: SelectedProduct) {
+        removeProductDisposable?.dispose()
+        removeProductDisposable = shopVM.removeSelectedProduct(selectedProduct)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({
+                Log.d(TAG, "$selectedProduct removed successfully")
+                mainVM.setToastMessage(
+                    getString(
+                        R.string.item_removed_from_cart,
+                        selectedProduct.product.name
+                    )
+                )
+            }, {
+                Log.e(it)
             })
     }
 

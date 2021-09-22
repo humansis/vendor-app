@@ -58,6 +58,7 @@ class ShopFragment : Fragment(), CategoryAdapterCallback, ProductAdapterCallback
     private lateinit var activityCallback: ActivityCallback
     private var syncStateDisposable: Disposable? = null
     private var productsDisposable: Disposable? = null
+    private var addToCartDisposable: Disposable? = null
     private var categoriesAllowed = MutableLiveData<Boolean>()
     private lateinit var appBarState: AppBarStateEnum
 
@@ -110,6 +111,7 @@ class ShopFragment : Fragment(), CategoryAdapterCallback, ProductAdapterCallback
     override fun onStop() {
         productsDisposable?.dispose()
         syncStateDisposable?.dispose()
+        addToCartDisposable?.dispose()
         // collapse searchbar after eventual screen rotation
         shopBinding.shopSearchBar.onActionViewCollapsed()
         super.onStop()
@@ -228,9 +230,7 @@ class ShopFragment : Fragment(), CategoryAdapterCallback, ProductAdapterCallback
             }).subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({ products ->
-                filterCategories(products.distinctBy { it.category }.map {
-                    it.category
-                })
+                filterCategories(products)
                 productsAdapter.setData(products)
                 setMessageVisible(products.isEmpty())
                 actualizeTotal()
@@ -286,11 +286,14 @@ class ShopFragment : Fragment(), CategoryAdapterCallback, ProductAdapterCallback
         }
     }
 
-    private fun filterCategories(categories: List<Category>) {
+    private fun filterCategories(products: List<Product>) {
+        val categories = products.distinctBy { it.category }.map {
+            it.category
+        }
         if (categories.size > 1) {
             categoriesAllowed.value = true
-            categoriesAdapter.setData(categories.addAllCategory(requireContext()))
             appBarState = AppBarStateEnum.EXPANDED
+            categoriesAdapter.setData(categories.addAllCategory(requireContext()))
         } else {
             categoriesAllowed.value = false
             appBarState = AppBarStateEnum.COLLAPSED
@@ -384,7 +387,15 @@ class ShopFragment : Fragment(), CategoryAdapterCallback, ProductAdapterCallback
             product = product,
             price = product.unitPrice ?: price
         )
-        vm.addToShoppingCart(selected)
+        addToCartDisposable?.dispose()
+        addToCartDisposable = vm.addToShoppingCart(selected)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({
+                Log.d(TAG, "$selected added to cart successfully")
+            }, {
+                Log.e(it)
+            })
     }
 
     private fun setMessage(message: String) {

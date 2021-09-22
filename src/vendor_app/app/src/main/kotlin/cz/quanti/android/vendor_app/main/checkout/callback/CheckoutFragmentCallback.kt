@@ -6,7 +6,7 @@ interface CheckoutFragmentCallback {
     fun cancel()
     fun proceed()
     fun scanVoucher()
-    fun updateItem(item: SelectedProduct, newPrice: Double)
+    fun updateItem(item: SelectedProduct)
     fun removeItemFromCart(product: SelectedProduct)
     fun showInvalidPriceEnteredMessage()
 }

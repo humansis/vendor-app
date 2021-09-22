@@ -9,4 +9,6 @@ interface InvoiceFacade {
     fun syncWithServer(vendorId: Int): Completable
 
     fun getInvoices(): Observable<List<Invoice>>
+
+    fun deleteInvoices(): Completable
 }

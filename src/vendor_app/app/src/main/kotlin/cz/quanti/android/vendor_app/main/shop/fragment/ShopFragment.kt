@@ -385,7 +385,7 @@ class ShopFragment : Fragment(), CategoryAdapterCallback, ProductAdapterCallback
     private fun addProductToCart(product: Product, price: Double) {
         val selected = SelectedProduct(
             product = product,
-            price = product.unitPrice ?: price
+            price = price
         )
         addToCartDisposable?.dispose()
         addToCartDisposable = vm.addToShoppingCart(selected)

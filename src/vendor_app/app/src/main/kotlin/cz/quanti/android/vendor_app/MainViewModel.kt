@@ -32,7 +32,7 @@ class MainViewModel(
         return currentVendor.getEnvironment()
     }
 
-    fun initNfcAdapter(activity: Activity){
+    fun initNfcAdapter(activity: Activity) {
         nfcAdapter = NfcAdapter.getDefaultAdapter(activity)
         if (nfcAdapter == null) {
             setToastMessage(activity.getString(R.string.no_nfc_available))

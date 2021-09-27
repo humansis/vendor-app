@@ -5,6 +5,7 @@ import cz.quanti.android.vendor_app.repository.VendorDb
 import cz.quanti.android.vendor_app.repository.purchase.dto.db.SelectedProductDbEntity
 import io.reactivex.Completable
 import io.reactivex.Observable
+import io.reactivex.Single
 
 @Dao
 interface SelectedProductDao {
@@ -21,7 +22,7 @@ interface SelectedProductDao {
     fun update(dbId: Long?, value: Double): Completable
 
     @Query("SELECT * FROM " + VendorDb.TABLE_SELECTED_PRODUCT)
-    fun getAll(): List<SelectedProductDbEntity>
+    fun getAll(): Single<List<SelectedProductDbEntity>>
 
     @Query("SELECT * FROM " + VendorDb.TABLE_SELECTED_PRODUCT)
     fun getAllObservable(): Observable<List<SelectedProductDbEntity>>

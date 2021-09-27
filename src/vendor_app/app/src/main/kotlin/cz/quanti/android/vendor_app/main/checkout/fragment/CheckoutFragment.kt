@@ -362,9 +362,6 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
             checkoutBinding.scanButton.isEnabled = false
             checkoutBinding.payByCardButton.isEnabled = false
             mainVM.setToastMessage(getString(R.string.only_one_cashback_item_allowed))
-        } else {
-            checkoutBinding.scanButton.isEnabled = true
-            checkoutBinding.payByCardButton.isEnabled = true
         }
     }
 

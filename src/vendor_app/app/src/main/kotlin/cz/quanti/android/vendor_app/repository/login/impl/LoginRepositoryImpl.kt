@@ -7,11 +7,7 @@ import cz.quanti.android.vendor_app.repository.login.dto.Vendor
 import cz.quanti.android.vendor_app.repository.login.dto.api.*
 import cz.quanti.android.vendor_app.repository.utils.exceptions.LoginException
 import cz.quanti.android.vendor_app.repository.utils.exceptions.LoginExceptionState
-import cz.quanti.android.vendor_app.utils.VendorAppException
-import io.reactivex.Completable
 import io.reactivex.Single
-import io.reactivex.internal.operators.completable.CompletableError
-import quanti.com.kotlinlog.Log
 import java.io.IOException
 import java.net.UnknownHostException
 

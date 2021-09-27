@@ -102,6 +102,10 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
         connectionObserver.registerCallback()
 
         initNfc()
+    }
+
+    override fun onStart() {
+        super.onStart()
         setUpToolbar()
         setUpNavigationMenu()
         setUpBackground()

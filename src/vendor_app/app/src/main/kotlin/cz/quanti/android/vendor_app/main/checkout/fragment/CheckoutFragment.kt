@@ -140,9 +140,9 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
             selectedProductsAdapter.closeExpandedCard()
             selectedProductsAdapter.setData(products)
             vm.setProducts(products)
+            checkForCashbacks(products)
             showIfCartEmpty(products.isNotEmpty())
             actualizeTotal()
-            checkForCashbacks(products)
         })
     }
 
@@ -174,12 +174,21 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
 
         checkoutBinding.scanButton.setOnClickListener {
             Log.d(TAG, "Scan button clicked.")
-            scanVoucher()
+            if (it.isActivated) {
+                scanVoucher()
+            } else {
+                mainVM.setToastMessage("Cashback cannot be purchased with a Voucher")
+                // TODO sehnat resource string
+            }
         }
 
         checkoutBinding.payByCardButton.setOnClickListener {
             Log.d(TAG, "Pay by card button clicked.")
-            showPinDialogAndPayByCard()
+            if (it.isActivated) {
+                showPinDialogAndPayByCard()
+            } else {
+                mainVM.setToastMessage(getString(R.string.only_one_cashback_item_allowed))
+            }
         }
     }
 
@@ -358,13 +367,20 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
     }
 
     private fun checkForCashbacks(products: List<SelectedProduct>) {
-        if (products.filter { it.product.category.type == CategoryType.CASHBACK }.size > 1) {
-            checkoutBinding.scanButton.isEnabled = false
-            checkoutBinding.payByCardButton.isEnabled = false
-            mainVM.setToastMessage(getString(R.string.only_one_cashback_item_allowed))
-        } else {
-            checkoutBinding.scanButton.isEnabled = true
-            checkoutBinding.payByCardButton.isEnabled = true
+        val cashbacks = products.filter { it.product.category.type == CategoryType.CASHBACK }.size
+        when {
+            cashbacks == 0 -> {
+                checkoutBinding.scanButton.isActivated = true
+                checkoutBinding.payByCardButton.isActivated = true
+            }
+            cashbacks == 1 -> {
+                checkoutBinding.scanButton.isActivated = false
+                checkoutBinding.payByCardButton.isActivated = true
+            }
+            cashbacks > 1 -> {
+                checkoutBinding.scanButton.isActivated = false
+                checkoutBinding.payByCardButton.isActivated = false
+            }
         }
     }
 

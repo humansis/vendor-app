@@ -104,4 +104,5 @@
     <string name="all_products">All products</string>
     <string name="only_one_cashback_item_allowed">There can be only one cashback item in the shopping cart</string>
     <string name="item_removed_from_cart">%1$s removed from cart</string>
+    <string name="cashback_with_voucher">Cashback cannot be purchased with a Voucher</string>
 </resources>

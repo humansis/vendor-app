@@ -177,8 +177,8 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
             if (it.isActivated) {
                 scanVoucher()
             } else {
-                mainVM.setToastMessage("Cashback cannot be purchased with a Voucher")
-                // TODO sehnat resource string
+                mainVM.setToastMessage(getString(R.string.cashback_with_voucher))
+                // TODO dodat překlady
             }
         }
 

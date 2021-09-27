@@ -154,7 +154,7 @@ publish_to_playstore:
 upload_release_candidate:
   stage: upload_aws
   variables:
-    APP_NAME: user-app
+    APP_NAME: vendor-app
     APK: $ARTIFACT_DEBUG_PATH
   extends: .release_rc
   when: manual
@@ -166,7 +166,7 @@ upload_release_candidate:
 upload_stable:
   stage: upload_aws
   variables:
-    APP_NAME: user-app
+    APP_NAME: vendor-app
     APK: $ARTIFACT_RELEASE_PATH
   extends: .release_stable
   when: manual

@@ -130,15 +130,17 @@ class PurchaseRepositoryImpl(
 
     override fun addProductToCart(product: SelectedProduct): Completable {
         return if (product.product.category.type == CategoryType.CASHBACK) {
-            if (selectedProductDao.getAll().none {
-                categoryRepo.getCategory(
-                    productDao.getProductById(it.productId).categoryId
-                ).type == CategoryType.CASHBACK
-            }) {
-                selectedProductDao.insert(convertToDb(product))
-            } else {
-                Log.e(TAG, "One cashback item already in cart")
-                Completable.complete()
+            selectedProductDao.getAll().flatMapCompletable { selectedProducts ->
+                if (selectedProducts.none {
+                        categoryRepo.getCategory(
+                            productDao.getProductById(it.productId).categoryId
+                        ).type == CategoryType.CASHBACK
+                    }) {
+                    selectedProductDao.insert(convertToDb(product))
+                } else {
+                    Log.e(TAG, "One cashback item already in cart")
+                    Completable.complete()
+                }
             }
         } else {
             selectedProductDao.insert(convertToDb(product))

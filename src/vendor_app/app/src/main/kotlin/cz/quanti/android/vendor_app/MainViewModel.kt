@@ -7,7 +7,6 @@ import android.content.Intent
 import android.nfc.NfcAdapter
 import android.provider.Settings
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.toLiveData
 import cz.quanti.android.vendor_app.repository.synchronization.SynchronizationFacade
@@ -25,19 +24,16 @@ class MainViewModel(
     val cameraPermissionsGrantedSLE = SingleLiveEvent<PermissionRequestResult>()
     val successSLE = SingleLiveEvent<Unit>()
     val errorSLE = SingleLiveEvent<Unit>()
-
-    private val toastMessageLD = MutableLiveData<String?>(null)
+    val toastMessageSLE = SingleLiveEvent<String>()
 
     fun getCurrentEnvironment(): Observable<ApiEnvironments> {
         return currentVendor.getEnvironment()
     }
 
-    fun initNfcAdapter(activity: Activity) {
+    fun initNfcAdapter(activity: Activity): NfcAdapter? {
         nfcAdapter = NfcAdapter.getDefaultAdapter(activity)
-        if (nfcAdapter == null) {
-            setToastMessage(activity.getString(R.string.no_nfc_available))
-        }
         enableNfc(activity)
+        return nfcAdapter
     }
 
     fun enableNfc(activity: Activity): Boolean {
@@ -80,17 +76,13 @@ class MainViewModel(
     }
 
     fun showDot(): LiveData<Boolean> {
-        return syncFacade.getPurchasesCount().flatMap { purchasesCount ->
-            syncFacade.isSyncNeeded(purchasesCount).toObservable()
+        return syncFacade.getPurchasesCount().flatMapSingle { purchasesCount ->
+            syncFacade.isSyncNeeded(purchasesCount)
         }.toFlowable(BackpressureStrategy.LATEST).toLiveData()
     }
 
-    fun setToastMessage(message: String?) {
-        toastMessageLD.postValue(message)
-    }
-
-    fun getToastMessage(): LiveData<String?> {
-        return toastMessageLD
+    fun setToastMessage(message: String) {
+        toastMessageSLE.postValue(message)
     }
 
     companion object {

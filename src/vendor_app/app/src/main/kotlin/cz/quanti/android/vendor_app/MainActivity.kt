@@ -262,7 +262,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
             errorPlayer.start()
         })
 
-        mainVM.getToastMessage().observe(this, { message ->
+        mainVM.toastMessageSLE.observe(this, { message ->
             lastToast?.cancel()
             message?.let {
                 lastToast = Toast.makeText(

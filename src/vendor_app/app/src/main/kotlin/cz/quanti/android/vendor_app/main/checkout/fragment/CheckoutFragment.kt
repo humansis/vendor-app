@@ -139,9 +139,9 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
             selectedProductsAdapter.closeExpandedCard()
             selectedProductsAdapter.setData(products)
             vm.setProducts(products)
+            checkForCashbacks(products)
             showIfCartEmpty(products.isNotEmpty())
             actualizeTotal()
-            checkForCashbacks(products)
         })
     }
 
@@ -286,6 +286,7 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
             checkoutBinding.payByCardButton.isEnabled = false
             checkoutBinding.scanButton.isEnabled = false
             checkoutBinding.checkoutFooter.clearAllButton.isEnabled = false
+            navigateBack()
         }
     }
 
@@ -363,7 +364,7 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
             mainVM.setToastMessage(getString(R.string.only_one_cashback_item_allowed))
         } else {
             checkoutBinding.scanButton.isEnabled = true
-            checkoutBinding.payByCardButton.isEnabled = mainVM.hasNfcAdapter()
+            checkoutBinding.payByCardButton.isEnabled = true
         }
     }
 

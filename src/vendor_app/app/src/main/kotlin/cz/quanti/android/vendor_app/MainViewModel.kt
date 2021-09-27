@@ -30,10 +30,9 @@ class MainViewModel(
         return currentVendor.getEnvironment()
     }
 
-    fun initNfcAdapter(activity: Activity): NfcAdapter? {
+    fun initNfcAdapter(activity: Activity) {
         nfcAdapter = NfcAdapter.getDefaultAdapter(activity)
         enableNfc(activity)
-        return nfcAdapter
     }
 
     fun enableNfc(activity: Activity): Boolean {

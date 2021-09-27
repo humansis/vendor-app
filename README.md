@@ -50,3 +50,5 @@ It's very important to use properly versioning in user app in file `app/build.gr
 	- https://artifactory.quanti.cz:443/artifactory/vendor_app-gradle-local/
 
 Name and password are LDAP (so same as JIRA / Gitlab / Nextclous)
+- **AWS**
+	- http://apks.humansis.org.s3-website.eu-central-1.amazonaws.com/vendor-app/

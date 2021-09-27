@@ -3,6 +3,8 @@ package cz.quanti.android.vendor_app.main.shop.fragment
 import android.app.AlertDialog
 import android.content.Context
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.*
 import android.view.inputmethod.EditorInfo
 import android.widget.*
@@ -33,6 +35,8 @@ import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import com.google.android.material.appbar.AppBarLayout
 import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import com.google.android.material.appbar.AppBarLayout.OnOffsetChangedListener
 import cz.quanti.android.vendor_app.main.authorization.viewmodel.LoginViewModel
 import cz.quanti.android.vendor_app.main.shop.callback.CategoryAdapterCallback
@@ -248,12 +252,20 @@ class ShopFragment : Fragment(), CategoryAdapterCallback, ProductAdapterCallback
             }
             else {
                 actualizeTotal()
-                shopBinding.totalTextView.visibility = View.VISIBLE
-                shopBinding.cartFAB.visibility = View.VISIBLE
-                shopBinding.cartBadge.visibility = View.VISIBLE
-                shopBinding.cartBadge.text = products.size.toString()
+                // wait for keyboard to hide to prevent weird animation
+                Handler(Looper.getMainLooper()).postDelayed({
+                    shopBinding.totalTextView.visibility = View.VISIBLE
+                    shopBinding.cartFAB.visibility = View.VISIBLE
+                    shopBinding.cartBadge.visibility = View.VISIBLE
+                    shopBinding.cartBadge.text = products.size.toString()
+                }, if (isKeyboardVisible()) KEYBOARD_ANIMATION_DURATION else ZERO )
             }
         })
+    }
+
+    private fun isKeyboardVisible(): Boolean {
+        return ViewCompat.getRootWindowInsets(requireView())
+            ?.isVisible(WindowInsetsCompat.Type.ime()) == true
     }
 
     private fun initOnClickListeners() {
@@ -385,7 +397,7 @@ class ShopFragment : Fragment(), CategoryAdapterCallback, ProductAdapterCallback
     private fun addProductToCart(product: Product, price: Double) {
         val selected = SelectedProduct(
             product = product,
-            price = product.unitPrice ?: price
+            price = price
         )
         addToCartDisposable?.dispose()
         addToCartDisposable = vm.addToShoppingCart(selected)
@@ -422,6 +434,8 @@ class ShopFragment : Fragment(), CategoryAdapterCallback, ProductAdapterCallback
         const val PORTRAIT_PHONE_COLUMNS = 3
         const val PORTRAIT_TABLET_COLUMNS = 4
         const val LANDSCAPE_TABLET_COLUMNS = 6
+        const val ZERO: Long = 0
+        const val KEYBOARD_ANIMATION_DURATION: Long = 100
     }
 }
 

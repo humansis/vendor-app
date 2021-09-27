@@ -278,7 +278,7 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
     private fun showIfCartEmpty(notEmpty: Boolean) {
         if (notEmpty) {
             checkoutBinding.emptyCartTextView.visibility = View.GONE
-            checkoutBinding.payByCardButton.isEnabled = mainVM.getNfcAdapter() != null
+            checkoutBinding.payByCardButton.isEnabled = mainVM.hasNfcAdapter()
             checkoutBinding.scanButton.isEnabled = true
             checkoutBinding.checkoutFooter.clearAllButton.isEnabled = true
         } else {
@@ -363,7 +363,7 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
             mainVM.setToastMessage(getString(R.string.only_one_cashback_item_allowed))
         } else {
             checkoutBinding.scanButton.isEnabled = true
-            checkoutBinding.payByCardButton.isEnabled = mainVM.getNfcAdapter() != null
+            checkoutBinding.payByCardButton.isEnabled = mainVM.hasNfcAdapter()
         }
     }
 

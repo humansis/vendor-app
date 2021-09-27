@@ -41,8 +41,8 @@ class MainViewModel(
         return nfcAdapter
     }
 
-    fun getNfcAdapter(): NfcAdapter? {
-        return nfcAdapter
+    fun hasNfcAdapter(): Boolean {
+        return nfcAdapter != null
     }
 
     fun enableNfc(activity: Activity): Boolean {

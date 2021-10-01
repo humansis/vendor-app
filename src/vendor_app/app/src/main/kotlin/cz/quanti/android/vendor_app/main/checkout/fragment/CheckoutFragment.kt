@@ -74,7 +74,6 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
         super.onStart()
 
         vm.init()
-
         initSelectedProductsAdapter()
         initScannedVouchersAdapter()
         initObservers()
@@ -279,7 +278,7 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
     private fun showIfCartEmpty(notEmpty: Boolean) {
         if (notEmpty) {
             checkoutBinding.emptyCartTextView.visibility = View.GONE
-            checkoutBinding.payByCardButton.isEnabled = true
+            checkoutBinding.payByCardButton.isEnabled = mainVM.hasNfcAdapter()
             checkoutBinding.scanButton.isEnabled = true
             checkoutBinding.checkoutFooter.clearAllButton.isEnabled = true
         } else {

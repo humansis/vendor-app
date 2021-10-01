@@ -8,6 +8,7 @@ import cz.quanti.android.vendor_app.repository.login.dto.api.SaltApiEntity
 import cz.quanti.android.vendor_app.repository.login.dto.api.VendorApiEntity
 import cz.quanti.android.vendor_app.repository.product.dto.api.ProductPagedApiEntity
 import cz.quanti.android.vendor_app.repository.purchase.dto.api.*
+import cz.quanti.android.vendor_app.repository.transaction.dto.api.IncompleteTransactionPurchaseApiEntity
 import cz.quanti.android.vendor_app.repository.transaction.dto.api.TransactionApiEntity
 import cz.quanti.android.vendor_app.repository.transaction.dto.api.TransactionPurchaseApiEntity
 import io.reactivex.Single
@@ -74,4 +75,9 @@ interface VendorAPI {
         @Path("projectId") projectId: Long,
         @Path("curr") currency: String
     ): Single<Response<List<TransactionPurchaseApiEntity>>>
+
+    @GET("v1/vendors/{id}/smartcard-incomplete-purchases")
+    fun getIncompleteTransactionPurchases(
+        @Path("id") vendorId: Int
+    ): Single<Response<List<IncompleteTransactionPurchaseApiEntity>>>
 }

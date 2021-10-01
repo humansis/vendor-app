@@ -29,7 +29,6 @@ class PurchaseFacadeImpl(
     }
 
     override fun syncWithServer(): Completable {
-        Log.d(TAG, "Sync started")
         return preparePurchases()
             .andThen(sendPurchasesToServer())
             .andThen(deletePurchasedProducts())

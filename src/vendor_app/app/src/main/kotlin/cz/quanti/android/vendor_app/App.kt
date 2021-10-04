@@ -21,6 +21,8 @@ class App : BaseApp() {
     override fun onCreate() {
         super.onCreate()
 
+        Log.d(TAG, "onCreate")
+
         initLogger()
 
         KoinInitializer.init(this)
@@ -72,5 +74,9 @@ class App : BaseApp() {
         override fun e(tag: String, message: String) {
             Log.e(tag, message)
         }
+    }
+
+    companion object {
+        private val TAG = App::class.java.simpleName
     }
 }

@@ -434,6 +434,14 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
             .subscribe(
                 { available ->
                     loginVM.isNetworkConnected(available)
+                    mainVM.setToastMessage(
+                        getString(
+                            if (available)
+                                R.string.network_connection_lost
+                            else
+                                R.string.connected_to_network
+                        )
+                    )
                 },
                 {
                     Log.e(TAG, it)

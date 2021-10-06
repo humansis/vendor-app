@@ -51,7 +51,7 @@ class SelectedProductsAdapter(
         holder.price.text = price
 
         holder.itemView.setOnClickListener {
-            Log.d(TAG, "Product clicked")
+            Log.d(TAG, "Product $item clicked")
             expandCard(holder, item)
         }
 

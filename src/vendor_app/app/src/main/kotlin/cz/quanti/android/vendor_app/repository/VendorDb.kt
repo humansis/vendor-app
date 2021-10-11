@@ -68,6 +68,9 @@ abstract class VendorDb : RoomDatabase() {
         const val TABLE_INVOICE = "invoice"
         const val TABLE_TRANSACTION_BATCH = "transaction_batch"
         const val TABLE_TRANSACTION_PURCHASE = "transaction_purchase"
+        const val TABLE_REMOTE_DEPOSIT = "remote_deposit"
+        const val TABLE_ASSISTANCE_BENEFICIARY = "assistance_beneficiary"
+        const val TABLE_SMARTCARD_DEPOSIT = "smartcard_deposit"
 
         val MIGRATION_2_3 = object : Migration(2, 3) {
             override fun migrate(database: SupportSQLiteDatabase) {
@@ -124,5 +127,7 @@ abstract class VendorDb : RoomDatabase() {
                 database.execSQL("CREATE TABLE 'category' ('id' INTEGER NOT NULL, 'name' TEXT NOT NULL, 'type' TEXT NOT NULL, 'image' TEXT, PRIMARY KEY('id'))")
             }
         }
+
+        // TODO migrace add table 3x
     }
 }

@@ -3,6 +3,9 @@ package cz.quanti.android.vendor_app.repository
 import cz.quanti.android.vendor_app.repository.booklet.dto.api.BookletApiEntity
 import cz.quanti.android.vendor_app.repository.booklet.dto.api.BookletCodesBody
 import cz.quanti.android.vendor_app.repository.category.dto.api.CategoryPagedApiEntity
+import cz.quanti.android.vendor_app.repository.deposit.dto.api.AssistanceBeneficiaryApiEntity
+import cz.quanti.android.vendor_app.repository.deposit.dto.api.RemoteDepositApiEntity
+import cz.quanti.android.vendor_app.repository.deposit.dto.api.SmartcardDepositApiEntity
 import cz.quanti.android.vendor_app.repository.invoice.dto.api.V2InvoiceApiEntity
 import cz.quanti.android.vendor_app.repository.login.dto.api.SaltApiEntity
 import cz.quanti.android.vendor_app.repository.login.dto.api.VendorApiEntity
@@ -74,4 +77,20 @@ interface VendorAPI {
         @Path("projectId") projectId: Long,
         @Path("curr") currency: String
     ): Single<Response<List<TransactionPurchaseApiEntity>>>
+
+    @GET("v1/vendors/{id}/remote-smartcard-deposits")
+    fun getRemoteDeposits(
+        @Path("id") vendorId: Int
+    ): Single<Response<List<RemoteDepositApiEntity>>>
+
+    @GET("v1/assistances/{id}/assistances-beneficiaries")
+    fun getAssistanceBeneficiaries(
+        @Path("id") assistanceId: Int
+    ): Single<Response<List<AssistanceBeneficiaryApiEntity>>>
+
+    @POST("/v1/smartcards/{serialNumber}/deposit")
+    fun postDeposit(
+        @Path("serialNumber") tagId: String,
+        @Body smartcardDeposit: SmartcardDepositApiEntity
+    ): Single<Response<Unit>>
 }

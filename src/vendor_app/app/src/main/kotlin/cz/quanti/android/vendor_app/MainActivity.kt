@@ -192,8 +192,9 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
     private fun initNfc() {
         mainVM.initNfcAdapter(this)
         activityBinding.navView.menu.findItem(R.id.read_balance_button).apply {
-            isEnabled = mainVM.hasNfcAdapter()
-            isVisible = mainVM.hasNfcAdapter()
+            val hasNfcAdapter = mainVM.hasNfcAdapter()
+            isEnabled = hasNfcAdapter
+            isVisible = hasNfcAdapter
         }
     }
 

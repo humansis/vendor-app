@@ -74,7 +74,6 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
         super.onStart()
 
         vm.init()
-
         initSelectedProductsAdapter()
         initScannedVouchersAdapter()
         initObservers()
@@ -288,7 +287,7 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
     private fun showIfCartEmpty(notEmpty: Boolean) {
         if (notEmpty) {
             checkoutBinding.emptyCartTextView.visibility = View.GONE
-            checkoutBinding.payByCardButton.isEnabled = true
+            checkoutBinding.payByCardButton.isEnabled = mainVM.hasNfcAdapter()
             checkoutBinding.scanButton.isEnabled = true
             checkoutBinding.checkoutFooter.clearAllButton.isEnabled = true
         } else {
@@ -296,6 +295,7 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
             checkoutBinding.payByCardButton.isEnabled = false
             checkoutBinding.scanButton.isEnabled = false
             checkoutBinding.checkoutFooter.clearAllButton.isEnabled = false
+            navigateBack()
         }
     }
 
@@ -380,6 +380,7 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
             cashbacks > 1 -> {
                 checkoutBinding.scanButton.isActivated = false
                 checkoutBinding.payByCardButton.isActivated = false
+                mainVM.setToastMessage(getString(R.string.only_one_cashback_item_allowed))
             }
         }
     }

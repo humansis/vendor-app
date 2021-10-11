@@ -80,7 +80,6 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
     private var lastToast: Toast? = null
 
     private lateinit var activityBinding: ActivityMainBinding
-    private lateinit var navHeaderBinding: NavHeaderBinding
 
     private lateinit var connectionObserver: ConnectionObserver
 
@@ -96,15 +95,13 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
         }
 
         activityBinding = ActivityMainBinding.inflate(layoutInflater)
-        navHeaderBinding = NavHeaderBinding.bind(activityBinding.navView.getHeaderView(0))
 
         setContentView(activityBinding.root)
 
         connectionObserver = ConnectionObserver(this)
         connectionObserver.registerCallback()
 
-        mainVM.initNfcAdapter(this)
-
+        initNfc()
         setUpToolbar()
         setUpNavigationMenu()
         setUpBackground()
@@ -169,7 +166,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
                     MainNavigationDirections.actionToInvoicesFragment()
                 )
             }
-            R.id.read_balance_button -> { // TODO hide if mainVM.getNfcAdapter() == null
+            R.id.read_balance_button -> {
                     showReadBalanceDialog()
             }
             R.id.share_logs_button -> {
@@ -187,6 +184,16 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
             super.onBackPressed()
         }
     }
+
+    private fun initNfc() {
+        mainVM.initNfcAdapter(this)
+        activityBinding.navView.menu.findItem(R.id.read_balance_button).apply {
+            val hasNfcAdapter = mainVM.hasNfcAdapter()
+            isEnabled = hasNfcAdapter
+            isVisible = hasNfcAdapter
+        }
+    }
+
 
     private fun setUpToolbar() {
         activityBinding.navView.setNavigationItemSelectedListener(this)
@@ -482,6 +489,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
     }
 
     override fun loadNavHeader(currentVendorName: String) {
+        val navHeaderBinding = NavHeaderBinding.bind(activityBinding.navView.getHeaderView(0))
         val metrics: DisplayMetrics = resources.displayMetrics
         navHeaderBinding.ivAppIcon.layoutParams.height = if ((metrics.heightPixels / metrics.density) > 640) {
             resources.getDimensionPixelSize(R.dimen.nav_header_image_height_tall)

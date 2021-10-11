@@ -5,7 +5,6 @@ import cz.quanti.android.vendor_app.repository.synchronization.SynchronizationFa
 import io.reactivex.Observable
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.BehaviorSubject
-import io.reactivex.subjects.Subject
 import quanti.com.kotlinlog.Log
 import java.util.Date
 
@@ -20,6 +19,7 @@ class SynchronizationManagerImpl(
         if (syncStatePublishSubject.value == SynchronizationState.STARTED) {
             Log.d(TAG, "Synchronization already in progress")
         } else {
+            Log.d(TAG, "Synchronization started")
             syncStatePublishSubject.onNext(SynchronizationState.STARTED)
             syncFacade.synchronize(preferences.vendor)
                 .subscribeOn(Schedulers.io())

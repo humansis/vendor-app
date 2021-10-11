@@ -8,14 +8,11 @@ import cz.quanti.android.vendor_app.utils.VendorAppException
 import cz.quanti.android.vendor_app.utils.isPositiveResponseHttpCode
 import io.reactivex.Completable
 import io.reactivex.Observable
-import quanti.com.kotlinlog.Log
-
 class InvoiceFacadeImpl(
     private val invoiceRepo: InvoiceRepository
 ) : InvoiceFacade {
 
     override fun syncWithServer(vendorId: Int): Completable {
-        Log.d(TAG, "Sync started")
         return retrieveInvoices(vendorId)
     }
 
@@ -48,9 +45,5 @@ class InvoiceFacadeImpl(
             Observable.fromIterable(invoices).flatMapCompletable { invoice ->
                 Completable.fromSingle(invoiceRepo.saveInvoice(invoice))
             })
-    }
-
-    companion object {
-        private val TAG = InvoiceFacadeImpl::class.java.simpleName
     }
 }

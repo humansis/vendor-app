@@ -43,6 +43,7 @@ import cz.quanti.android.vendor_app.main.shop.callback.CategoryAdapterCallback
 import cz.quanti.android.vendor_app.main.shop.callback.ProductAdapterCallback
 import cz.quanti.android.vendor_app.sync.SynchronizationState
 import cz.quanti.android.vendor_app.utils.getBackgroundColor
+import cz.quanti.android.vendor_app.utils.inputFilterDecimal
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
@@ -356,13 +357,14 @@ class ShopFragment : Fragment(), CategoryAdapterCallback, ProductAdapterCallback
         val priceEditText = dialogBinding.editProduct.priceEditText
         val confirmButton = dialogBinding.editProduct.confirmButton
         priceEditText.hint = requireContext().getString(R.string.price)
+        priceEditText.inputFilterDecimal(maxDigitsIncludingPoint = 10, maxDecimalPlaces = 2)
         dialogBinding.editProduct.priceTextInputLayout.suffixText = vm.getCurrency()
 
         if (product.category.type == CategoryType.CASHBACK) {
-            dialogBinding.editProduct.priceEditText.isEnabled = false
+            priceEditText.isEnabled = false
             product.unitPrice?.let {
                 val price = BigDecimal.valueOf(it).stripTrailingZeros().toPlainString()
-                dialogBinding.editProduct.priceEditText.setText(price.toString())
+                priceEditText.setText(price.toString())
             }
         }
 

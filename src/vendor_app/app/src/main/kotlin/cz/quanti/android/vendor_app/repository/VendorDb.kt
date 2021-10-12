@@ -11,6 +11,12 @@ import cz.quanti.android.vendor_app.repository.card.dao.BlockedCardDao
 import cz.quanti.android.vendor_app.repository.card.dto.db.BlockedCardDbEntity
 import cz.quanti.android.vendor_app.repository.category.dao.CategoryDao
 import cz.quanti.android.vendor_app.repository.category.dto.db.CategoryDbEntity
+import cz.quanti.android.vendor_app.repository.deposit.dao.AssistanceBeneficiaryDao
+import cz.quanti.android.vendor_app.repository.deposit.dao.RemoteDepositDao
+import cz.quanti.android.vendor_app.repository.deposit.dao.SmartcardDepositDao
+import cz.quanti.android.vendor_app.repository.deposit.dto.db.AssistanceBeneficiaryDbEntity
+import cz.quanti.android.vendor_app.repository.deposit.dto.db.RemoteDepositDbEntity
+import cz.quanti.android.vendor_app.repository.deposit.dto.db.SmartcardDepositDbEntity
 import cz.quanti.android.vendor_app.repository.invoice.dao.InvoiceDao
 import cz.quanti.android.vendor_app.repository.invoice.dto.db.InvoiceDbEntity
 import cz.quanti.android.vendor_app.repository.product.dao.ProductDao
@@ -36,8 +42,11 @@ import cz.quanti.android.vendor_app.repository.utils.typeconverter.DateTypeConve
         BlockedCardDbEntity::class,
         InvoiceDbEntity::class,
         TransactionDbEntity::class,
-        TransactionPurchaseDbEntity::class
-    ], version = 8, exportSchema = false
+        TransactionPurchaseDbEntity::class,
+        RemoteDepositDbEntity::class,
+        AssistanceBeneficiaryDbEntity::class,
+        SmartcardDepositDbEntity::class
+    ], version = 9, exportSchema = false
 )
 @TypeConverters(DateTypeConverter::class)
 abstract class VendorDb : RoomDatabase() {
@@ -53,6 +62,9 @@ abstract class VendorDb : RoomDatabase() {
     abstract fun invoiceDao(): InvoiceDao
     abstract fun transactionDao(): TransactionDao
     abstract fun transactionPurchaseDao(): TransactionPurchaseDao
+    abstract fun remoteDepositDao(): RemoteDepositDao
+    abstract fun assistanceBeneficiaryDao(): AssistanceBeneficiaryDao
+    abstract fun smartcardDepositDao(): SmartcardDepositDao
 
     companion object {
         const val DB_NAME = "cz.quanti.android.pin.vendor_app.database"
@@ -128,6 +140,12 @@ abstract class VendorDb : RoomDatabase() {
             }
         }
 
-        // TODO migrace add table 3x
+        val MIGRATION_8_9 = object : Migration(8, 9) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL("CREATE TABLE remote_deposit (assistanceId INTEGER NOT NULL, dateDistribution TEXT NOT NULL, expirationDate TEXT NOT NULL, foodLimit REAL, nonfoodLimit REAL, cashbackLimit REAL)")
+                database.execSQL("CREATE TABLE assistance_beneficiary (id INTEGER NOT NULL, assistanceId INTEGER NOT NULL, beneficiaryId INTEGER NOT NULL, smartcardSN TEXT NOT NULL)")
+                database.execSQL("CREATE TABLE smartcard_deposit (dbId INTEGER NOT NULL, assistanceId INTEGER NOT NULL, value REAL NOT NULL, createdAt TEXT NOT NULL, beneficiaryId INTEGER NOT NULL, balanceBefore REAL NOT NULL, balanceAfter REAL NOT NULL)")
+            }
+        }
     }
 }

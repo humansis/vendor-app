@@ -4,7 +4,7 @@ class RemoteDepositApiEntity(
     val assistanceId: Long,
     val dateDistribution: String,
     val expirationDate: String,
-    val foodLimit: Double,
-    val nonfoodLimit: Double,
-    val cashbackLimit: Double
+    val foodLimit: Double?,
+    val nonfoodLimit: Double?,
+    val cashbackLimit: Double?
 )

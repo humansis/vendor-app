@@ -236,6 +236,9 @@ class ScanCardFragment : Fragment() {
                         }
                         payByCard()
                     }
+                    PINExceptionEnum.LIMIT_EXCEEDED -> {
+                        // TODO
+                    }
                     else -> {
                         payByCard()
                     }

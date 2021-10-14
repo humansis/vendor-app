@@ -7,9 +7,11 @@ import cz.quanti.android.vendor_app.repository.VendorDb
 @Entity(tableName = VendorDb.TABLE_REMOTE_DEPOSIT)
 class RemoteDepositDbEntity(
     @PrimaryKey(autoGenerate = false)
-    val assistanceId: Long,
+    val assistanceId: Int,
     val dateDistribution: String,
     val expirationDate: String,
+    val amount: Double,
+    val currency: String,
     val foodLimit: Double?,
     val nonfoodLimit: Double?,
     val cashbackLimit: Double?

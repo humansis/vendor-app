@@ -1,7 +1,6 @@
 package cz.quanti.android.vendor_app.main.checkout.viewmodel
 
 import android.nfc.Tag
-import android.os.CpuUsageInfo
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -13,6 +12,8 @@ import cz.quanti.android.nfc.logger.NfcLogger
 import cz.quanti.android.nfc_io_libray.types.NfcUtil
 import cz.quanti.android.vendor_app.repository.booklet.dto.Voucher
 import cz.quanti.android.vendor_app.repository.card.CardFacade
+import cz.quanti.android.vendor_app.repository.deposit.DepositFacade
+import cz.quanti.android.vendor_app.repository.deposit.dto.Deposit
 import cz.quanti.android.vendor_app.repository.purchase.PurchaseFacade
 import cz.quanti.android.vendor_app.repository.purchase.dto.Purchase
 import cz.quanti.android.vendor_app.repository.purchase.dto.PurchasedProduct
@@ -24,7 +25,6 @@ import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
-import quanti.com.kotlinlog.Log
 import java.util.*
 
 class CheckoutViewModel(
@@ -32,6 +32,7 @@ class CheckoutViewModel(
     private val purchaseFacade: PurchaseFacade,
     private val nfcFacade: VendorFacade,
     private val cardFacade: CardFacade,
+    private val depositFacade: DepositFacade,
     private val currentVendor: CurrentVendor,
     private val nfcTagPublisher: NfcTagPublisher
 ) : ViewModel() {
@@ -157,28 +158,40 @@ class CheckoutViewModel(
                 setPaymentState(PaymentStateEnum.IN_PROGRESS)
                 cardFacade.getBlockedCards()
                     .subscribeOn(Schedulers.io())
-                    .flatMap {
-                        if(it.contains(convertTagToString(tag))) {
+                    .flatMap { blockedCards ->
+                        if(blockedCards.contains(convertTagToString(tag))) {
                             throw PINException(PINExceptionEnum.CARD_LOCKED, tag.id)
                         } else {
-                            NfcLogger.d(
-                                TAG,
-                                "subtractBalanceFromCard: value: $value, currencyCode: $currency, originalBalance: ${originalCardData.balance}"
-                            )
-                            if (originalCardData.tagId == null || originalCardData.tagId.contentEquals( tag.id )) {
-                                nfcFacade.subtractFromBalance(tag, pin, value, currency, originalCardData.balance).map { userBalance ->
-                                    NfcLogger.d(
-                                        TAG,
-                                        "subtractedBalanceFromCard: balance: ${userBalance.balance}, beneficiaryId: ${userBalance.userId}, currencyCode: ${userBalance.currencyCode}"
-                                    )
-                                    Pair(tag, userBalance)
+                            depositFacade.getAssistanceBeneficiaries()
+                                .subscribeOn(Schedulers.io())
+                                .flatMap { assistanceBeneficiaries ->
+                                    var deposit: Deposit? = null
+                                    assistanceBeneficiaries.find { ab ->
+                                        ab.smartcardSN == convertTagToString(tag)
+                                    }?.let { depositFacade.getDeposit(it.assistanceId, it.beneficiaryId) }?.map {
+                                        //if (it.expirationDate)
+                                        // todo overit jestli je deposit expirovany, pokud jo tak ho smazat z db a jinak deposit = it
+                                    }
+                                    if (originalCardData.tagId == null || originalCardData.tagId.contentEquals( tag.id )) {
+                                        NfcLogger.d(
+                                            TAG,
+                                            "subtractBalanceFromCard: value: $, currencyCode: $currency, originalBalance: ${originalCardData.balance}"
+                                        )
+                                        nfcFacade.subtractFromBalance(tag, pin, amounts, currency, originalCardData.preserveBalance, deposit).map { userBalance ->
+                                            NfcLogger.d(
+                                                TAG,
+                                                "subtractedBalanceFromCard: balance: ${userBalance.balance}, beneficiaryId: ${userBalance.userId}, currencyCode: ${userBalance.currencyCode}"
+                                            )
+                                            Pair(tag, userBalance)
+                                        }
+                                    } else {
+                                        throw PINException(PINExceptionEnum.INVALID_DATA, tag.id)
+                                    }
                                 }
-                            } else {
-                                throw PINException(PINExceptionEnum.INVALID_DATA, tag.id)
-                            }
                         }
-                }
-        })
+                    }
+            }
+        )
     }
 
     private fun saveVoucherPurchaseToDb(): Completable {

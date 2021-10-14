@@ -5,6 +5,7 @@ import cz.quanti.android.vendor_app.repository.VendorDb
 import cz.quanti.android.vendor_app.repository.deposit.dto.db.AssistanceBeneficiaryDbEntity
 import io.reactivex.Completable
 import io.reactivex.Observable
+import io.reactivex.Single
 
 @Dao
 interface AssistanceBeneficiaryDao {
@@ -18,8 +19,8 @@ interface AssistanceBeneficiaryDao {
     fun deleteAll(): Completable
 
     @Query("SELECT * FROM " + VendorDb.TABLE_ASSISTANCE_BENEFICIARY)
-    fun getAll(): Observable<List<AssistanceBeneficiaryDbEntity>>
+    fun getAll(): Single<List<AssistanceBeneficiaryDbEntity>>
 
     @Query("SELECT * FROM " + VendorDb.TABLE_ASSISTANCE_BENEFICIARY + " WHERE id = :assistanceBeneficiaryId")
-    fun getAssistanceBeneficiaryById(assistanceBeneficiaryId: Long): AssistanceBeneficiaryDbEntity
+    fun getAssistanceBeneficiaryById(assistanceBeneficiaryId: Long): Single<AssistanceBeneficiaryDbEntity>
 }

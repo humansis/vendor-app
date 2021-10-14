@@ -98,6 +98,8 @@ object KoinInitializer {
 
         if (BuildConfig.DEBUG) {
             builder.baseUrl("https://" + BuildConfig.STAGE_API_URL + "/api/wsse/vendor-app/")
+            // uncomment to use apiary https://app.apiary.io/pinvendor
+            // builder.baseUrl("https://private-b3387-pinvendor.apiary-mock.com")
         } else {
             builder.baseUrl("https://" + BuildConfig.RELEASE_API_URL + "/api/wsse/vendor-app/")
         }
@@ -219,6 +221,7 @@ object KoinInitializer {
                     purchaseFacade,
                     nfcFacade,
                     cardFacade,
+                    depositFacade,
                     currentVendor,
                     nfcTagPublisher
                 )

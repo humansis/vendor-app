@@ -4,7 +4,7 @@ import androidx.room.*
 import cz.quanti.android.vendor_app.repository.VendorDb
 import cz.quanti.android.vendor_app.repository.deposit.dto.db.SmartcardDepositDbEntity
 import io.reactivex.Completable
-import io.reactivex.Observable
+import io.reactivex.Single
 
 @Dao
 interface SmartcardDepositDao {
@@ -18,8 +18,8 @@ interface SmartcardDepositDao {
     fun deleteAll(): Completable
 
     @Query("SELECT * FROM " + VendorDb.TABLE_SMARTCARD_DEPOSIT)
-    fun getAll(): Observable<List<SmartcardDepositDbEntity>>
+    fun getAll(): Single<List<SmartcardDepositDbEntity>>
 
     @Query("SELECT * FROM " + VendorDb.TABLE_SMARTCARD_DEPOSIT + " WHERE dbId = :smartcardDepositId")
-    fun getSmartcardDepositById(smartcardDepositId: Long): SmartcardDepositDbEntity
+    fun getSmartcardDepositById(smartcardDepositId: Long): Single<SmartcardDepositDbEntity>
 }

@@ -8,7 +8,7 @@ import cz.quanti.android.vendor_app.repository.VendorDb
 class AssistanceBeneficiaryDbEntity(
     @PrimaryKey(autoGenerate = false)
     val id: Long,
-    val assistanceId: Long,
-    val beneficiaryId: Long,
+    val assistanceId: Int,
+    val beneficiaryId: Int,
     val smartcardSN: String
 )

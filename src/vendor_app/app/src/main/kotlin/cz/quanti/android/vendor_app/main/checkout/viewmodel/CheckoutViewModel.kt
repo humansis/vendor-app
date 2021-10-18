@@ -52,7 +52,13 @@ class CheckoutViewModel(
     fun getTotal(): Double {
         val total = shoppingHolder.cart.map { it.price }.sum()
         val paid = vouchers.map { it.value }.sum()
-        return round(total - paid, 3)
+        return round(total - paid, 2)
+    }
+
+    private fun getAmounts(): Map<Int, Double?> {
+        shoppingHolder.cart.map {
+            // TODO
+        }
     }
 
     fun setPaymentState(paymentState: PaymentStateEnum) {
@@ -120,7 +126,7 @@ class CheckoutViewModel(
     }
 
     fun payByCard(pin: String): Disposable {
-        return subtractMoneyFromCard(pin, getTotal(), getCurrency().toString()).flatMap {
+        return subtractMoneyFromCard(pin, getAmounts(), getCurrency().toString()).flatMap {
             val tag = it.first
             val userBalance = it.second
             saveCardPurchaseToDb(convertTagToString(tag), userBalance)
@@ -150,7 +156,7 @@ class CheckoutViewModel(
 
     private fun subtractMoneyFromCard(
         pin: String,
-        value: Double,
+        amounts: Map<Int, Double?>,
         currency: String
     ): Single<Pair<Tag, UserBalance>> {
         return Single.fromObservable(

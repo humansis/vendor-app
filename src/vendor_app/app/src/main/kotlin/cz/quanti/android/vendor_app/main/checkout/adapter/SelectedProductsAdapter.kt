@@ -81,7 +81,7 @@ class SelectedProductsAdapter(
             if (newPrice <= 0.0) {
                 checkoutFragmentCallback.showInvalidPriceEnteredMessage()
             } else {
-                item.price = round(newPrice, 3)
+                item.price = round(newPrice, 2)
                 checkoutFragmentCallback.updateItem(item)
                 closeCard(holder)
             }

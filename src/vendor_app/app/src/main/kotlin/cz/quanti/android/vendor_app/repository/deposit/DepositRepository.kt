@@ -1,28 +1,24 @@
 package cz.quanti.android.vendor_app.repository.deposit
 
-import cz.quanti.android.vendor_app.repository.deposit.dto.AssistanceBeneficiary
-import cz.quanti.android.vendor_app.repository.deposit.dto.RemoteDeposit
-import cz.quanti.android.vendor_app.repository.deposit.dto.SmartcardDeposit
+import cz.quanti.android.vendor_app.repository.deposit.dto.ReliefPackage
 import io.reactivex.Completable
 import io.reactivex.Single
 
 interface DepositRepository {
 
-    fun downloadRemoteDeposits(vendorId: Int): Single<Pair<Int,List<RemoteDeposit>>>
+    fun downloadReliefPackages(vendorId: Int): Single<Pair<Int, List<ReliefPackage>>>
 
-    fun saveRemoteDepositToDB(remoteDeposit: RemoteDeposit): Completable
+    fun saveReliefPackagesToDB(reliefPackages: List<ReliefPackage>): Completable
 
-    fun getRemoteDepositFromDB(assistanceId: Int): Single<RemoteDeposit>
+    fun getReliefPackageFromDB(tagId: String): Single<ReliefPackage?>
 
-    fun downloadAssistanceBeneficiaries(assistanceId: Int): Single<Pair<Int, List<AssistanceBeneficiary>>>
+    fun deleteReliefPackagesFromDB(): Completable
 
-    fun saveAssistanceBeneficiesToDB(assistanceBeneficiaries: List<AssistanceBeneficiary>): Completable
+    fun deleteReliefPackageFromDB(id: Int): Completable
 
-    fun getAssistanceBeneficiariesFromDB(): Single<List<AssistanceBeneficiary>>
+    fun updateReliefPackageInDB(reliefPackage: ReliefPackage): Completable
 
-    fun saveSmartcardDepositToDB(): Completable
+    fun getDistributedReliefPackages(): Single<List<ReliefPackage>>
 
-    fun getSmartcardDepositsFromDB(): Single<List<SmartcardDeposit>>
-
-    fun uploadSmartcardDeposits(): Single<Int>
+    fun patchReliefPackage(reliefPackage: ReliefPackage): Single<Int>
 }

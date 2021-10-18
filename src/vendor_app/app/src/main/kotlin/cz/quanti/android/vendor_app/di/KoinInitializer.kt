@@ -135,9 +135,7 @@ object KoinInitializer {
             api
         )
         val depositRepo = DepositRepositoryImpl(
-            db.remoteDepositDao(),
-            db.assistanceBeneficiaryDao(),
-            db.smartcardDepositDao(),
+            db.reliefPackageDao(),
             api
         )
         val transactionRepo = TransactionRepositoryImpl(

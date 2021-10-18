@@ -14,6 +14,7 @@ import cz.quanti.android.vendor_app.repository.booklet.dto.Voucher
 import cz.quanti.android.vendor_app.repository.card.CardFacade
 import cz.quanti.android.vendor_app.repository.deposit.DepositFacade
 import cz.quanti.android.vendor_app.repository.deposit.dto.Deposit
+import cz.quanti.android.vendor_app.repository.deposit.dto.ReliefPackage
 import cz.quanti.android.vendor_app.repository.purchase.PurchaseFacade
 import cz.quanti.android.vendor_app.repository.purchase.dto.Purchase
 import cz.quanti.android.vendor_app.repository.purchase.dto.PurchasedProduct
@@ -168,15 +169,16 @@ class CheckoutViewModel(
                         if(blockedCards.contains(convertTagToString(tag))) {
                             throw PINException(PINExceptionEnum.CARD_LOCKED, tag.id)
                         } else {
-                            depositFacade.getAssistanceBeneficiaries()
+                            depositFacade.getDepositByTag(convertTagToString(tag))
                                 .subscribeOn(Schedulers.io())
-                                .flatMap { assistanceBeneficiaries ->
-                                    var deposit: Deposit? = null
-                                    assistanceBeneficiaries.find { ab ->
-                                        ab.smartcardSN == convertTagToString(tag)
-                                    }?.let { depositFacade.getDeposit(it.assistanceId, it.beneficiaryId) }?.map {
-                                        //if (it.expirationDate)
-                                        // todo overit jestli je deposit expirovany, pokud jo tak ho smazat z db a jinak deposit = it
+                                .flatMap { reliefPackage ->
+                                    val expirationDate = convertStringToDate(reliefPackage.expirationDate)
+                                    val deposit = if (expirationDate != null && expirationDate > Date() ) {
+                                        convert(reliefPackage)
+                                    } else {
+                                        depositFacade.deleteReliefPackageFromDB(reliefPackage.id)
+                                        NfcLogger.d(TAG, "removed invalid RD")
+                                        null
                                     }
                                     if (originalCardData.tagId == null || originalCardData.tagId.contentEquals( tag.id )) {
                                         NfcLogger.d(
@@ -188,6 +190,11 @@ class CheckoutViewModel(
                                                 TAG,
                                                 "subtractedBalanceFromCard: balance: ${userBalance.balance}, beneficiaryId: ${userBalance.userId}, currencyCode: ${userBalance.currencyCode}"
                                             )
+                                            depositFacade.updateReliefPackageInDB(reliefPackage.apply {
+                                                createdAt = convertTimeForApiRequestBody(Date())
+                                                balanceBefore = userBalance.balanceBefore
+                                                balanceAfter = userBalance.balanceAfter
+                                            })
                                             Pair(tag, userBalance)
                                         }
                                     } else {
@@ -236,6 +243,21 @@ class CheckoutViewModel(
                 price = it.price
             )
         }
+    }
+
+    private fun convert(reliefPackage: ReliefPackage): Deposit {
+        return Deposit(
+            beneficiaryId = reliefPackage.beneficiaryId,
+            depositId = reliefPackage.assistanceId,
+            expirationDate = convertStringToDate(reliefPackage.expirationDate),
+            limits = mapOf(
+                0 to reliefPackage.foodLimit,
+                1 to reliefPackage.nonfoodLimit,
+                2 to reliefPackage.cashbackLimit
+            ),
+            amount = reliefPackage.amount,
+            currency = reliefPackage.currency
+        )
     }
 
     class PaymentResult(

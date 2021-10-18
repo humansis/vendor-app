@@ -41,13 +41,17 @@ fun convertTimeForApiRequestBody(date: Date): String {
         .format(date)
 }
 
-fun convertStringToDate(context: Context, date: String): String? {
+fun convertStringToDateFormattedString(context: Context, date: String): String? {
     val df = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ", Locale.US).parse(date)
     return if (df != null) {
         "${getDateFormat(context).format(df)}  ${getTimeFormat(context).format(df)}"
     } else {
         null
     }
+}
+
+fun convertStringToDate(date: String): Date? {
+    return SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ", Locale.US).parse(date)
 }
 
 fun getDefaultCurrency(country: String): String {

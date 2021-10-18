@@ -2,9 +2,7 @@ package cz.quanti.android.vendor_app.repository.deposit.impl
 
 import cz.quanti.android.vendor_app.repository.deposit.DepositFacade
 import cz.quanti.android.vendor_app.repository.deposit.DepositRepository
-import cz.quanti.android.vendor_app.repository.deposit.dto.AssistanceBeneficiary
-import cz.quanti.android.vendor_app.repository.deposit.dto.Deposit
-import cz.quanti.android.vendor_app.repository.deposit.dto.RemoteDeposit
+import cz.quanti.android.vendor_app.repository.deposit.dto.ReliefPackage
 import cz.quanti.android.vendor_app.utils.VendorAppException
 import cz.quanti.android.vendor_app.utils.isPositiveResponseHttpCode
 import io.reactivex.Completable
@@ -21,26 +19,30 @@ class DepositFacadeImpl(
             .andThen(loadDataFromServer(vendorId))
     }
 
-    override fun getAssistanceBeneficiaries(): Single<List<AssistanceBeneficiary>> {
-        return depositRepo.getAssistanceBeneficiariesFromDB()
+    override fun getDepositByTag(tagId: String): Single<ReliefPackage?> {
+        return depositRepo.getReliefPackageFromDB(tagId)
     }
 
-    override fun getDeposit(assistanceId: Int, beneficiaryId: Int): Single<Deposit> {
-        return depositRepo.getRemoteDepositFromDB(assistanceId).map {
-            convert(it, beneficiaryId)
-        }
+    override fun deleteReliefPackageFromDB(id: Int): Completable {
+        return depositRepo.deleteReliefPackageFromDB(id)
+    }
+
+    override fun updateReliefPackageInDB(reliefPackage: ReliefPackage): Completable {
+        return depositRepo.updateReliefPackageInDB(reliefPackage)
     }
 
     private fun sendDataToServer(): Completable {
-        return depositRepo.getSmartcardDepositsFromDB().flatMapCompletable { deposits ->
+        return depositRepo.getDistributedReliefPackages().flatMapCompletable { deposits ->
             if (deposits.isNotEmpty()) {
-                depositRepo.uploadSmartcardDeposits().flatMapCompletable { responseCode ->
-                    if (isPositiveResponseHttpCode(responseCode)) {
-                        Completable.complete()
-                    } else {
-                        throw VendorAppException("Could not upload RD").apply {
-                            this.apiResponseCode = responseCode
-                            this.apiError = true
+                Observable.fromIterable(deposits).flatMapCompletable { reliefPackage ->
+                    depositRepo.patchReliefPackage(reliefPackage).flatMapCompletable { responseCode ->
+                        if (isPositiveResponseHttpCode(responseCode)) {
+                            depositRepo.deleteReliefPackageFromDB(reliefPackage.id)
+                        } else {
+                            throw VendorAppException("Could not upload RD").apply {
+                                this.apiResponseCode = responseCode
+                                this.apiError = true
+                            }
                         }
                     }
                 }
@@ -51,25 +53,14 @@ class DepositFacadeImpl(
     }
 
     private fun loadDataFromServer(vendorId: Int): Completable {
-        return depositRepo.downloadRemoteDeposits(vendorId).flatMapCompletable { response ->
+        return depositRepo.downloadReliefPackages(vendorId).flatMapCompletable { response ->
             val responseCode = response.first
             when {
                 isPositiveResponseHttpCode(responseCode) -> {
-                    Observable.fromIterable(response.second).flatMapCompletable {
-                        depositRepo.saveRemoteDepositToDB(it).andThen(
-                            depositRepo.downloadAssistanceBeneficiaries(it.assistanceId)
-                                .flatMapCompletable { abResponse ->
-                                    if (isPositiveResponseHttpCode(abResponse.first)) {
-                                        Log.d(TAG, "RD sync successful")
-                                        depositRepo.saveAssistanceBeneficiesToDB(abResponse.second)
-                                    } else {
-                                        throw VendorAppException("Could not download RD").apply {
-                                            this.apiResponseCode = responseCode
-                                            this.apiError = true
-                                        }
-                                    }
-                                }
-                        )
+                    if (response.second.isEmpty()) {
+                        throw VendorAppException("RD returned from server were empty.")
+                    } else {
+                        actualizeDatabase(response.second)
                     }
                 }
                 responseCode == 403 -> {
@@ -86,18 +77,9 @@ class DepositFacadeImpl(
         }
     }
 
-    private fun convert(remoteDeposit: RemoteDeposit, beneficiaryId: Int): Deposit {
-        return Deposit(
-            beneficiaryId = beneficiaryId,
-            depositId = remoteDeposit.assistanceId,
-            expirationDate = remoteDeposit.expirationDate,
-            limits = mapOf(
-                0 to remoteDeposit.foodLimit,
-                1 to remoteDeposit.nonfoodLimit,
-                2 to remoteDeposit.cashbackLimit
-            ),
-            amount = remoteDeposit.amount,
-            currency = remoteDeposit.currency
+    private fun actualizeDatabase(reliefPackages: List<ReliefPackage>): Completable {
+        return depositRepo.deleteReliefPackagesFromDB().andThen(
+            depositRepo.saveReliefPackagesToDB(reliefPackages)
         )
     }
 

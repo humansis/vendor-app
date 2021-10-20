@@ -370,7 +370,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
                     .setMessage(
                         getString(
                             R.string.scanning_card_balance,
-                            "${cardContent.balance} ${cardContent.currencyCode}"
+                            "${cardContent.balance} ${cardContent.currencyCode}, ${cardContent.expirationDate}, ${getLimits(cardContent)}"
                         )
                     )
                     .setCancelable(true)

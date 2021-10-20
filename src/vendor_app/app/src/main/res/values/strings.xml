@@ -76,7 +76,7 @@
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="utilities">Utilities</string>
     <string name="status">Status</string>
-    <string name="scanning_card_balance">Card Balance: %1$s</string>
+    <string name="scanning_card_balance">Card Balance: %1$s\nValid until: %2$s\nPurchase Limits: %3$s</string>
     <string name="close">Close</string>
     <string name="empty_cart">Your shopping cart is empty</string>
     <string name="transactions_to_reimburse">Transactions to reimburse</string>

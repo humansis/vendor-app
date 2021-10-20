@@ -14,6 +14,4 @@ class ReliefPackage (
     var createdAt: String? = null,
     var balanceBefore: Double? = null,
     var balanceAfter: Double? = null
-) {
-
-}
+)

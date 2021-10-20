@@ -108,7 +108,7 @@
     <string name="multiple_limits_exceeded">Multiple limits exceeded:</string>
     <string name="commodity_type_not_allowed">You are not allowed to purchase %1$s or your balance reserved for %1$s is 0.</string>
     <string name="commodity_type_not_allowed_remove">You are not allowed to purchase %1$s or your balance reserved for %1$s is 0.\n Remove all %1$s products from cart?</string>
-    <string name="commodity_type_exceeded">%1$s products in your cart exceed your balance by %2$f.</string>
+    <string name="commodity_type_exceeded">%1$s products in your cart exceed your balance by %2$.2f.</string>
     <string name="please_update_cart">Please update your cart accordingly.</string>
     <string name="remove_restricted_products">Remove restricted products</string>
 </resources>

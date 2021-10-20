@@ -4,9 +4,7 @@ import cz.quanti.android.vendor_app.repository.booklet.dto.api.BookletApiEntity
 import cz.quanti.android.vendor_app.repository.booklet.dto.api.BookletCodesBody
 import cz.quanti.android.vendor_app.repository.category.dto.api.CategoryPagedApiEntity
 import cz.quanti.android.vendor_app.repository.deposit.dto.ReliefPackageState
-import cz.quanti.android.vendor_app.repository.deposit.dto.api.AssistanceBeneficiaryApiEntity
 import cz.quanti.android.vendor_app.repository.deposit.dto.api.ReliefPackageApiEntity
-import cz.quanti.android.vendor_app.repository.deposit.dto.api.RemoteDepositApiEntity
 import cz.quanti.android.vendor_app.repository.deposit.dto.api.SmartcardDepositApiEntity
 import cz.quanti.android.vendor_app.repository.invoice.dto.api.V2InvoiceApiEntity
 import cz.quanti.android.vendor_app.repository.login.dto.api.SaltApiEntity

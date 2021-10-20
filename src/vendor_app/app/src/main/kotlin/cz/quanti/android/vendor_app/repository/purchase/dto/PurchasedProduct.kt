@@ -1,6 +1,5 @@
 package cz.quanti.android.vendor_app.repository.purchase.dto
 
-import cz.quanti.android.vendor_app.repository.category.dto.Category
 import cz.quanti.android.vendor_app.repository.product.dto.Product
 
 data class PurchasedProduct(

@@ -130,13 +130,9 @@ abstract class VendorDb : RoomDatabase() {
             }
         }
 
-
-        // TODO PREPSAT
         val MIGRATION_8_9 = object : Migration(8, 9) {
             override fun migrate(database: SupportSQLiteDatabase) {
-                database.execSQL("CREATE TABLE remote_deposit (assistanceId INTEGER NOT NULL, dateDistribution TEXT NOT NULL, expirationDate TEXT NOT NULL, foodLimit REAL, nonfoodLimit REAL, cashbackLimit REAL)")
-                database.execSQL("CREATE TABLE assistance_beneficiary (id INTEGER NOT NULL, assistanceId INTEGER NOT NULL, beneficiaryId INTEGER NOT NULL, smartcardSN TEXT NOT NULL)")
-                database.execSQL("CREATE TABLE smartcard_deposit (dbId INTEGER NOT NULL, assistanceId INTEGER NOT NULL, value REAL NOT NULL, createdAt TEXT NOT NULL, beneficiaryId INTEGER NOT NULL, balanceBefore REAL NOT NULL, balanceAfter REAL NOT NULL)")
+                database.execSQL("CREATE TABLE relief_package (id INTEGER NOT NULL, assistanceId INTEGER NOT NULL, beneficiaryId INTEGER NOT NULL, amount REAL NOT NULL, currency TEXT NOT NULL, tagID TEXT NOT NULL, foodLimit REAL, nonfoodLimit REAL, cashbackLimit REAL, expirationDate TEXT NOT NULL, createdAt TEXT, balanceBefore REAL, balanceAfter REAL, PRIMARY KEY('id'))")
             }
         }
     }

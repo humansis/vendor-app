@@ -12,6 +12,7 @@ import cz.quanti.android.nfc.logger.NfcLogger
 import cz.quanti.android.nfc_io_libray.types.NfcUtil
 import cz.quanti.android.vendor_app.repository.booklet.dto.Voucher
 import cz.quanti.android.vendor_app.repository.card.CardFacade
+import cz.quanti.android.vendor_app.repository.category.dto.CategoryType
 import cz.quanti.android.vendor_app.repository.deposit.DepositFacade
 import cz.quanti.android.vendor_app.repository.deposit.dto.Deposit
 import cz.quanti.android.vendor_app.repository.deposit.dto.ReliefPackage
@@ -41,6 +42,7 @@ class CheckoutViewModel(
     private var pin: String? = null
     private var originalCardData = OriginalCardData(null, null)
     private val paymentStateLD = MutableLiveData<Pair<PaymentStateEnum, PaymentResult?>>(Pair(PaymentStateEnum.READY, null))
+    private val limitExceededSLE = SingleLiveEvent<List<LimitExceeded>>()
 
     fun init() {
         this.vouchers = shoppingHolder.vouchers
@@ -57,9 +59,16 @@ class CheckoutViewModel(
     }
 
     private fun getAmounts(): Map<Int, Double?> {
-        shoppingHolder.cart.map {
-            // TODO
+        val amounts = mutableMapOf<Int, Double>()
+        shoppingHolder.cart.forEach { selectedProduct ->
+            val typeId = selectedProduct.product.category.type.typeId
+            if (amounts.containsKey(typeId)) {
+                amounts[typeId]?.plus(selectedProduct.price)
+            } else {
+                amounts[typeId] = selectedProduct.price
+            }
         }
+        return amounts
     }
 
     fun setPaymentState(paymentState: PaymentStateEnum) {
@@ -80,6 +89,14 @@ class CheckoutViewModel(
 
     fun getOriginalCardData(): OriginalCardData {
         return originalCardData
+    }
+
+    fun setLimitsExceeded(limitsExceeded: List<LimitExceeded>) {
+        limitExceededSLE.value = limitsExceeded
+    }
+
+    fun getLimitsExceeded(): SingleLiveEvent<List<LimitExceeded>> {
+        return limitExceededSLE
     }
 
     fun getVouchers(): List<Voucher> {
@@ -172,14 +189,8 @@ class CheckoutViewModel(
                             depositFacade.getDepositByTag(convertTagToString(tag))
                                 .subscribeOn(Schedulers.io())
                                 .flatMap { reliefPackage ->
-                                    val expirationDate = convertStringToDate(reliefPackage.expirationDate)
-                                    val deposit = if (expirationDate != null && expirationDate > Date() ) {
-                                        convert(reliefPackage)
-                                    } else {
-                                        depositFacade.deleteReliefPackageFromDB(reliefPackage.id)
-                                        NfcLogger.d(TAG, "removed invalid RD")
-                                        null
-                                    }
+                                    // TODO přijímat list a řadit je podle expiration date?
+                                    val deposit = getDeposit(reliefPackage) // TODO přijímat list jako parametr?
                                     if (originalCardData.tagId == null || originalCardData.tagId.contentEquals( tag.id )) {
                                         NfcLogger.d(
                                             TAG,
@@ -245,15 +256,26 @@ class CheckoutViewModel(
         }
     }
 
+    private fun getDeposit(reliefPackage: ReliefPackage): Deposit? {
+        val expirationDate = convertStringToDate(reliefPackage.expirationDate)
+        return if (expirationDate != null && expirationDate > Date() ) {
+            convert(reliefPackage)
+        } else {
+            depositFacade.deleteReliefPackageFromDB(reliefPackage.id)
+            NfcLogger.d(TAG, "removed invalid RD")
+            null
+        }
+    }
+
     private fun convert(reliefPackage: ReliefPackage): Deposit {
         return Deposit(
             beneficiaryId = reliefPackage.beneficiaryId,
             depositId = reliefPackage.assistanceId,
             expirationDate = convertStringToDate(reliefPackage.expirationDate),
             limits = mapOf(
-                0 to reliefPackage.foodLimit,
-                1 to reliefPackage.nonfoodLimit,
-                2 to reliefPackage.cashbackLimit
+                CategoryType.FOOD.typeId to reliefPackage.foodLimit,
+                CategoryType.NONFOOD.typeId to reliefPackage.nonfoodLimit,
+                CategoryType.CASHBACK.typeId to reliefPackage.cashbackLimit
             ),
             amount = reliefPackage.amount,
             currency = reliefPackage.currency

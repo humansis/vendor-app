@@ -9,13 +9,20 @@ import android.provider.Settings
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.toLiveData
+import cz.quanti.android.nfc.logger.NfcLogger
+import cz.quanti.android.vendor_app.repository.category.dto.CategoryType
+import cz.quanti.android.vendor_app.repository.deposit.DepositFacade
+import cz.quanti.android.vendor_app.repository.deposit.dto.Deposit
+import cz.quanti.android.vendor_app.repository.deposit.dto.ReliefPackage
 import cz.quanti.android.vendor_app.repository.synchronization.SynchronizationFacade
 import cz.quanti.android.vendor_app.utils.*
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Observable
+import java.util.*
 
 class MainViewModel(
     private val syncFacade: SynchronizationFacade,
+    private val depositFacade: DepositFacade,
     private val currentVendor: CurrentVendor
 ) : ViewModel() {
 
@@ -88,7 +95,34 @@ class MainViewModel(
         toastMessageSLE.postValue(message)
     }
 
+    fun getDeposit(reliefPackage: ReliefPackage): Deposit? {
+        val expirationDate = convertStringToDate(reliefPackage.expirationDate)
+        return if (expirationDate != null && expirationDate > Date() ) {
+            convert(reliefPackage)
+        } else {
+            depositFacade.deleteReliefPackageFromDB(reliefPackage.id)
+            NfcLogger.d(TAG, "removed invalid RD")
+            null
+        }
+    }
+
+    private fun convert(reliefPackage: ReliefPackage): Deposit {
+        return Deposit(
+            beneficiaryId = reliefPackage.beneficiaryId,
+            depositId = reliefPackage.assistanceId,
+            expirationDate = convertStringToDate(reliefPackage.expirationDate),
+            limits = mapOf(
+                CategoryType.FOOD.typeId to reliefPackage.foodLimit,
+                CategoryType.NONFOOD.typeId to reliefPackage.nonfoodLimit,
+                CategoryType.CASHBACK.typeId to reliefPackage.cashbackLimit
+            ),
+            amount = reliefPackage.amount,
+            currency = reliefPackage.currency
+        )
+    }
+
     companion object {
+        private val TAG = MainViewModel::class.java.simpleName
         private const val FLAGS = NfcAdapter.FLAG_READER_NFC_A or
             NfcAdapter.FLAG_READER_NFC_B or
             NfcAdapter.FLAG_READER_NFC_F or

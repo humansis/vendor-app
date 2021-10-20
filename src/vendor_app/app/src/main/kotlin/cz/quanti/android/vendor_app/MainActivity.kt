@@ -28,6 +28,7 @@ import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.navigation.NavigationView
 import cz.quanti.android.nfc.VendorFacade
 import cz.quanti.android.nfc.dto.UserBalance
+import cz.quanti.android.nfc_io_libray.types.NfcUtil
 import cz.quanti.android.vendor_app.databinding.ActivityMainBinding
 import cz.quanti.android.vendor_app.databinding.NavHeaderBinding
 import cz.quanti.android.vendor_app.main.authorization.viewmodel.LoginViewModel
@@ -37,6 +38,7 @@ import cz.quanti.android.vendor_app.main.shop.viewmodel.ShopViewModel
 import cz.quanti.android.vendor_app.main.transactions.viewmodel.TransactionsViewModel
 import cz.quanti.android.vendor_app.repository.AppPreferences
 import cz.quanti.android.vendor_app.repository.category.dto.CategoryType
+import cz.quanti.android.vendor_app.repository.deposit.DepositFacade
 import cz.quanti.android.vendor_app.repository.login.LoginFacade
 import cz.quanti.android.vendor_app.repository.purchase.dto.SelectedProduct
 import cz.quanti.android.vendor_app.sync.SynchronizationManager
@@ -53,12 +55,14 @@ import io.reactivex.schedulers.Schedulers
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import quanti.com.kotlinlog.Log
+import java.util.*
 
 class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCallback,
     NavigationView.OnNavigationItemSelectedListener {
 
     private val loginFacade: LoginFacade by inject()
     private val nfcFacade: VendorFacade by inject()
+    private val depositFacade: DepositFacade by inject()
     private val nfcTagPublisher: NfcTagPublisher by inject()
     private val synchronizationManager: SynchronizationManager by inject()
     private val preferences: AppPreferences by inject()
@@ -389,7 +393,18 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
 
     private fun readBalance(): Single<UserBalance> {
         return nfcTagPublisher.getTagObservable().firstOrError().flatMap { tag ->
-            nfcFacade.readUserBalance(tag)
+            depositFacade.getDepositByTag(NfcUtil.toHexString(tag.id).uppercase(Locale.US))
+                .subscribeOn(Schedulers.io())
+                .flatMap { reliefPackage ->
+                    nfcFacade.readUserBalance(tag, mainVM.getDeposit(reliefPackage)).map { userBalance ->
+                        depositFacade.updateReliefPackageInDB(reliefPackage.apply {
+                            createdAt = convertTimeForApiRequestBody(Date())
+                            balanceBefore = userBalance.balanceBefore
+                            balanceAfter = userBalance.balanceAfter
+                        })
+                        userBalance
+                    }
+                }
         }
     }
 

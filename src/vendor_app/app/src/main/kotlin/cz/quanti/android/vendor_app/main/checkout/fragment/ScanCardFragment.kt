@@ -231,13 +231,15 @@ class ScanCardFragment : Fragment() {
                         showPinDialogAndPayByCard()
                     }
                     PINExceptionEnum.PRESERVE_BALANCE -> {
+                        // TODO throwable.reconstructPerserveBalance()
                         throwable.extraData?.let { originalBalance ->
                             vm.setOriginalCardData(originalBalance.toDouble(), throwable.tagId)
                         }
                         payByCard()
                     }
                     PINExceptionEnum.LIMIT_EXCEEDED -> {
-                        // TODO
+                        vm.setLimitsExceeded(throwable.reconstructLimitExceeded())
+                        navigateBack()
                     }
                     else -> {
                         payByCard()

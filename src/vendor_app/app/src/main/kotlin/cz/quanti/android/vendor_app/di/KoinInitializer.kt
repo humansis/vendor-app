@@ -192,6 +192,7 @@ object KoinInitializer {
             viewModel {
                 MainViewModel(
                     syncFacade,
+                    depositFacade,
                     currentVendor
                 )
             }

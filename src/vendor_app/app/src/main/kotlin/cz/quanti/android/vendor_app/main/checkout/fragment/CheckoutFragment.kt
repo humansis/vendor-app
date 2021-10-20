@@ -143,6 +143,80 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
             showIfCartEmpty(products.isNotEmpty())
             actualizeTotal()
         })
+
+        vm.getLimitsExceeded().observe(viewLifecycleOwner, { limitsExceeded ->
+            // commodityType: Int, limit: Double, amount: Double
+            when {
+                limitsExceeded.size == 1 -> {
+                    val limitExceeded = limitsExceeded[0]
+                    if (limitExceeded.limit == 0) {
+                        val message = getString(
+                            R.string.commodity_type_not_allowed_remove,
+                            CategoryType.getById(limitExceeded.commodityType).backendName
+                        )
+                        showLimitsExceededDialog(
+                            title = getString(R.string.limit_exceeded),
+                            message = message,
+                            leftBtnMsg = getString(R.string.remove_restricted_products),
+                            typesToRemove = listOf(CategoryType.getById(limitExceeded.commodityType)),
+                            rightBtnMsg = getString(R.string.cancel)
+                        )
+                    } else if (limitExceeded.limit > 0) {
+                        val message = getString(
+                            R.string.commodity_type_exceeded,
+                            CategoryType.getById(limitExceeded.commodityType).backendName,
+                            (limitExceeded.amount - limitExceeded.limit).toFloat()
+                        ) + "\n\n" + getString(
+                            R.string.please_update_cart
+                        )
+                        showLimitsExceededDialog(
+                            title = getString(R.string.limit_exceeded),
+                            message = message,
+                            rightBtnMsg = getString(android.R.string.ok)
+                        )
+                    }
+                }
+                limitsExceeded.size > 1 -> {
+                    val exceeded = MutableList<LimitExceeded>
+                    val notAllowed = MutableList<LimitExceeded>
+                    val typesToRemove = MutableList<CategoryType>
+                    limitsExceeded.forEach {
+                        if (it.limit == 0) {
+                            notAllowed.add(it)
+                            typesToRemove.add(CategoryType.getById(it.commodityType))
+                        } else {
+                            exceeded.add(it)
+                        }
+                    }
+                    var message = ""
+                    exceeded.forEach {
+                        message += getString(
+                            R.string.commodity_type_exceeded,
+                            CategoryType.getById(it.commodityType).backendName,
+                            (it.amount - it.limit).toFloat()
+                        )
+                    }
+                    notAllowed.forEach {
+                        message += getString(
+                            R.string.commodity_type_not_allowed,
+                            CategoryType.getById(it.commodityType).backendName
+                        )
+                    }
+                    message += "\n\n" + getString(R.string.please_update_cart)
+                    showLimitsExceededDialog(
+                        title = getString(R.string.multiple_limits_exceeded),
+                        message = message,
+                        leftBtnMsg = getString(R.string.remove_restricted_products),
+                        typesToRemove = typesToRemove,
+                        rightBtnMsg = getString(android.R.string.ok)
+                    )
+                }
+            }
+        })
+    }
+
+    private fun showLimitsExceededDialog(title: String, message: String, leftBtnMsg: String? = null, typesToRemove: List<CategoryType>? = null, rightBtnMsg: String) {
+        TODO ("not implemented yet")
     }
 
     private fun initOnClickListeners() {

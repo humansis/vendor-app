@@ -206,7 +206,11 @@ class CheckoutViewModel(
                                                 balanceBefore = userBalance.originalBalance
                                                 balanceAfter = reliefPackage.amount
                                             })
-                                            Pair(tag, userBalance)
+                                            Pair(tag, userBalance.apply {
+                                                if (userBalance.depositDone) {
+                                                    this.originalBalance = reliefPackage.amount
+                                                }
+                                            })
                                         }
                                     } else {
                                         throw PINException(PINExceptionEnum.INVALID_DATA, tag.id)
@@ -244,9 +248,8 @@ class CheckoutViewModel(
             vendorId = currentVendor.vendor.id
             createdAt = convertTimeForApiRequestBody(Date())
             currency = userBalance.currencyCode
-            // TODO add balanceBefore from userBalance.originalBalance, pokud userBalance.depositDone == false. Pokud byl, tak ho potrebuju z reliefPackage.amount
-            // TODO add balanceAfter from userbalance.balance
-
+            balanceBefore = userBalance.originalBalance
+            balanceAfter = userbalance.balance
         }
     }
 

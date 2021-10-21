@@ -203,8 +203,8 @@ class CheckoutViewModel(
                                             )
                                             depositFacade.updateReliefPackageInDB(reliefPackage.apply {
                                                 createdAt = convertTimeForApiRequestBody(Date())
-                                                balanceBefore = userBalance.balanceBefore
-                                                balanceAfter = userBalance.balanceAfter
+                                                balanceBefore = userBalance.originalBalance
+                                                balanceAfter = reliefPackage.amount
                                             })
                                             Pair(tag, userBalance)
                                         }
@@ -244,6 +244,9 @@ class CheckoutViewModel(
             vendorId = currentVendor.vendor.id
             createdAt = convertTimeForApiRequestBody(Date())
             currency = userBalance.currencyCode
+            // TODO add balanceBefore from userBalance.originalBalance, pokud userBalance.depositDone == false. Pokud byl, tak ho potrebuju z reliefPackage.amount
+            // TODO add balanceAfter from userbalance.balance
+
         }
     }
 

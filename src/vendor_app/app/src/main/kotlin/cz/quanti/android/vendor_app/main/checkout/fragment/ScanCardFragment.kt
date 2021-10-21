@@ -263,6 +263,7 @@ class ScanCardFragment : Fragment() {
             PINExceptionEnum.INSUFFICIENT_FUNDS -> getString(R.string.not_enough_money_on_card)
             PINExceptionEnum.TAG_LOST -> getString(R.string.tag_lost_card_error)
             PINExceptionEnum.PRESERVE_BALANCE -> getString(R.string.tag_lost_card_error)
+            PINExceptionEnum.BALANCE_EXPIRED -> getString(R.string.not_enough_money_on_card)
             else -> getString(R.string.card_error)
         }
     }

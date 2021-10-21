@@ -189,14 +189,12 @@ class CheckoutViewModel(
                             depositFacade.getDepositByTag(convertTagToString(tag))
                                 .subscribeOn(Schedulers.io())
                                 .flatMap { reliefPackages ->
-                                    // TODO přijímat list a řadit je podle expiration date?
-                                    val deposit = getDeposit(reliefPackages) // TODO přijímat list jako parametr?
                                     if (originalCardData.tagId == null || originalCardData.tagId.contentEquals( tag.id )) {
                                         NfcLogger.d(
                                             TAG,
                                             "subtractBalanceFromCard: value: $, currencyCode: $currency, originalBalance: ${originalCardData.balance}"
                                         )
-                                        nfcFacade.subtractFromBalance(tag, pin, amounts, currency, originalCardData.preserveBalance, deposit).map { userBalance ->
+                                        nfcFacade.subtractFromBalance(tag, pin, amounts, currency, originalCardData.preserveBalance, getDeposit(reliefPackages)).map { userBalance ->
                                             NfcLogger.d(
                                                 TAG,
                                                 "subtractedBalanceFromCard: balance: ${userBalance.balance}, beneficiaryId: ${userBalance.userId}, currencyCode: ${userBalance.currencyCode}"
@@ -272,7 +270,7 @@ class CheckoutViewModel(
                 NfcLogger.d(TAG, "removed invalid RD")
                 null
             }
-        }.sortedBy { it?.expirationDate }.firstOrNull()
+        }.sortedBy { it?.expirationDate }.firstOrNull() // TODO otestovat jestli to vrati nejblizsi nebo nejvzdalenejsi
     }
 
     private fun convert(reliefPackage: ReliefPackage): Deposit? {

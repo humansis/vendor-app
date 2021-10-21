@@ -10,7 +10,7 @@ interface DepositRepository {
 
     fun saveReliefPackagesToDB(reliefPackages: List<ReliefPackage>): Completable
 
-    fun getReliefPackageFromDB(tagId: String): Single<ReliefPackage?>
+    fun getReliefPackageFromDB(tagId: String): Single<List<ReliefPackage?>>
 
     fun deleteReliefPackagesFromDB(): Completable
 

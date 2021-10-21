@@ -30,5 +30,5 @@ interface ReliefPackageDao {
     fun getReliefPackageById(reliefPackageId: Int): Single<ReliefPackageDbEntity?>
 
     @Query("SELECT * FROM " + VendorDb.TABLE_RELIEF_PACKAGE + " WHERE tagId = :tagId")
-    fun getReliefPackageByTagId(tagId: String): Single<ReliefPackageDbEntity?> // TODO vracet List?
+    fun getReliefPackagesByTagId(tagId: String): Single<List<ReliefPackageDbEntity?>>
 }

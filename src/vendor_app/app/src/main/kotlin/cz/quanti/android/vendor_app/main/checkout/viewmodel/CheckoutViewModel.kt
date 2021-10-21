@@ -188,15 +188,13 @@ class CheckoutViewModel(
                         } else {
                             depositFacade.getDepositByTag(convertTagToString(tag))
                                 .subscribeOn(Schedulers.io())
-                                .flatMap { reliefPackage ->
-                                    // TODO přijímat list a řadit je podle expiration date?
-                                    val deposit = getDeposit(reliefPackage) // TODO přijímat list jako parametr?
+                                .flatMap { reliefPackages ->
                                     if (originalCardData.tagId == null || originalCardData.tagId.contentEquals( tag.id )) {
                                         NfcLogger.d(
                                             TAG,
                                             "subtractBalanceFromCard: value: $, currencyCode: $currency, originalBalance: ${originalCardData.balance}"
                                         )
-                                        nfcFacade.subtractFromBalance(tag, pin, amounts, currency, originalCardData.preserveBalance, deposit).map { userBalance ->
+                                        nfcFacade.subtractFromBalance(tag, pin, amounts, currency, originalCardData.preserveBalance, getDeposit(reliefPackages)).map { userBalance ->
                                             NfcLogger.d(
                                                 TAG,
                                                 "subtractedBalanceFromCard: balance: ${userBalance.balance}, beneficiaryId: ${userBalance.userId}, currencyCode: ${userBalance.currencyCode}"
@@ -262,30 +260,34 @@ class CheckoutViewModel(
         }
     }
 
-    private fun getDeposit(reliefPackage: ReliefPackage): Deposit? {
-        val expirationDate = convertStringToDate(reliefPackage.expirationDate)
-        return if (expirationDate != null && expirationDate > Date() ) {
-            convert(reliefPackage)
-        } else {
-            depositFacade.deleteReliefPackageFromDB(reliefPackage.id)
-            NfcLogger.d(TAG, "removed invalid RD")
-            null
-        }
+    private fun getDeposit(reliefPackages: List<ReliefPackage?>): Deposit? {
+        return reliefPackages.filterNotNull().map { reliefPackage ->
+            val expirationDate = convertStringToDate(reliefPackage.expirationDate)
+            if (expirationDate != null && expirationDate > Date()) {
+                convert(reliefPackage)
+            } else {
+                depositFacade.deleteReliefPackageFromDB(reliefPackage.id)
+                NfcLogger.d(TAG, "removed invalid RD")
+                null
+            }
+        }.sortedBy { it?.expirationDate }.firstOrNull() // TODO otestovat jestli to vrati nejblizsi nebo nejvzdalenejsi
     }
 
-    private fun convert(reliefPackage: ReliefPackage): Deposit {
-        return Deposit(
-            beneficiaryId = reliefPackage.beneficiaryId,
-            depositId = reliefPackage.assistanceId,
-            expirationDate = convertStringToDate(reliefPackage.expirationDate),
-            limits = mapOf(
-                CategoryType.FOOD.typeId to reliefPackage.foodLimit,
-                CategoryType.NONFOOD.typeId to reliefPackage.nonfoodLimit,
-                CategoryType.CASHBACK.typeId to reliefPackage.cashbackLimit
-            ),
-            amount = reliefPackage.amount,
-            currency = reliefPackage.currency
-        )
+    private fun convert(reliefPackage: ReliefPackage): Deposit? {
+        return convertStringToDate(reliefPackage.expirationDate)?.let { date ->
+            Deposit(
+                beneficiaryId = reliefPackage.beneficiaryId,
+                depositId = reliefPackage.assistanceId,
+                expirationDate = date,
+                limits = mapOf(
+                    CategoryType.FOOD.typeId to reliefPackage.foodLimit,
+                    CategoryType.NONFOOD.typeId to reliefPackage.nonfoodLimit,
+                    CategoryType.CASHBACK.typeId to reliefPackage.cashbackLimit
+                ),
+                amount = reliefPackage.amount,
+                currency = reliefPackage.currency
+            )
+        }
     }
 
     class PaymentResult(

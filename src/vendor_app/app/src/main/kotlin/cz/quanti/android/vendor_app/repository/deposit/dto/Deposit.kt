@@ -5,7 +5,7 @@ import java.util.*
 class Deposit(
     val beneficiaryId: Int,
     val depositId: Int,
-    val expirationDate: Date?,
+    val expirationDate: Date,
     val limits: Map<Int, Double?>,
     val amount: Double,
     val currency: String

@@ -36,9 +36,11 @@ class DepositRepositoryImpl(
         return reliefPackageDao.insert(convert(reliefPackage))
     }
 
-    override fun getReliefPackageFromDB(tagId: String): Single<ReliefPackage?> {
-        return reliefPackageDao.getReliefPackageByTagId(tagId).map {
-            convert(it)
+    override fun getReliefPackageFromDB(tagId: String): Single<List<ReliefPackage?>> {
+        return reliefPackageDao.getReliefPackagesByTagId(tagId).map { list ->
+            list.map { reliefPackage ->
+                reliefPackage?.let { convert(it) }
+            }
         }
     }
 

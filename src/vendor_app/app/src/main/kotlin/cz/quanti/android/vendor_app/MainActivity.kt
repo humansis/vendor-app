@@ -395,8 +395,8 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
         return nfcTagPublisher.getTagObservable().firstOrError().flatMap { tag ->
             depositFacade.getDepositByTag(NfcUtil.toHexString(tag.id).uppercase(Locale.US))
                 .subscribeOn(Schedulers.io())
-                .flatMap { reliefPackage ->
-                    nfcFacade.readUserBalance(tag, mainVM.getDeposit(reliefPackage)).map { userBalance ->
+                .flatMap { reliefPackages ->
+                    nfcFacade.readUserBalance(tag, mainVM.getDeposit(reliefPackages)).map { userBalance ->
                         depositFacade.updateReliefPackageInDB(reliefPackage.apply {
                             createdAt = convertTimeForApiRequestBody(Date())
                             balanceBefore = userBalance.balanceBefore

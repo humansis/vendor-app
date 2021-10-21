@@ -19,7 +19,7 @@ class DepositFacadeImpl(
             .andThen(loadDataFromServer(vendorId))
     }
 
-    override fun getDepositByTag(tagId: String): Single<ReliefPackage?> {
+    override fun getDepositByTag(tagId: String): Single<List<ReliefPackage?>> {
         return depositRepo.getReliefPackageFromDB(tagId)
     }
 

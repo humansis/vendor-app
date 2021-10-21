@@ -7,7 +7,7 @@ import io.reactivex.Single
 interface DepositFacade {
     fun syncWithServer(vendorId: Int): Completable
 
-    fun getDepositByTag(tagId: String): Single<ReliefPackage?>
+    fun getDepositByTag(tagId: String): Single<List<ReliefPackage?>>
 
     fun deleteReliefPackageFromDB(id: Int): Completable
 

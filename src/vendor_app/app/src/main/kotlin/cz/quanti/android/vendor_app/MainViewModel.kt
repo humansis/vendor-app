@@ -95,30 +95,34 @@ class MainViewModel(
         toastMessageSLE.postValue(message)
     }
 
-    fun getDeposit(reliefPackage: ReliefPackage): Deposit? {
-        val expirationDate = convertStringToDate(reliefPackage.expirationDate)
-        return if (expirationDate != null && expirationDate > Date() ) {
-            convert(reliefPackage)
-        } else {
-            depositFacade.deleteReliefPackageFromDB(reliefPackage.id)
-            NfcLogger.d(TAG, "removed invalid RD")
-            null
-        }
+   fun getDeposit(reliefPackages: List<ReliefPackage?>): Deposit? {
+        return reliefPackages.filterNotNull().map { reliefPackage ->
+            val expirationDate = convertStringToDate(reliefPackage.expirationDate)
+            if (expirationDate != null && expirationDate > Date()) {
+                convert(reliefPackage)
+            } else {
+                depositFacade.deleteReliefPackageFromDB(reliefPackage.id)
+                NfcLogger.d(TAG, "removed invalid RD")
+                null
+            }
+        }.sortedBy { it?.expirationDate }.firstOrNull()
     }
 
-    private fun convert(reliefPackage: ReliefPackage): Deposit {
-        return Deposit(
-            beneficiaryId = reliefPackage.beneficiaryId,
-            depositId = reliefPackage.assistanceId,
-            expirationDate = convertStringToDate(reliefPackage.expirationDate),
-            limits = mapOf(
-                CategoryType.FOOD.typeId to reliefPackage.foodLimit,
-                CategoryType.NONFOOD.typeId to reliefPackage.nonfoodLimit,
-                CategoryType.CASHBACK.typeId to reliefPackage.cashbackLimit
-            ),
-            amount = reliefPackage.amount,
-            currency = reliefPackage.currency
-        )
+    private fun convert(reliefPackage: ReliefPackage): Deposit? {
+        return convertStringToDate(reliefPackage.expirationDate)?.let { date ->
+            Deposit(
+                beneficiaryId = reliefPackage.beneficiaryId,
+                depositId = reliefPackage.assistanceId,
+                expirationDate = date,
+                limits = mapOf(
+                    CategoryType.FOOD.typeId to reliefPackage.foodLimit,
+                    CategoryType.NONFOOD.typeId to reliefPackage.nonfoodLimit,
+                    CategoryType.CASHBACK.typeId to reliefPackage.cashbackLimit
+                ),
+                amount = reliefPackage.amount,
+                currency = reliefPackage.currency
+            )
+        }
     }
 
     companion object {

@@ -40,6 +40,7 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
     private var currencyDisposable: Disposable? = null
     private var updateProductDisposable: Disposable? = null
     private var removeProductDisposable: Disposable? = null
+    private var removeProductsDisposable: Disposable? = null
     private var clearCartDisposable: Disposable? = null
     private lateinit var activityCallback: ActivityCallback
 
@@ -90,6 +91,7 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
         proceedDisposable?.dispose()
         updateProductDisposable?.dispose()
         removeProductDisposable?.dispose()
+        removeProductsDisposable?.dispose()
         clearCartDisposable?.dispose()
         super.onStop()
     }
@@ -150,6 +152,7 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
     }
 
     private fun processLimitsExceeded(limitsExceeded: List<LimitExceeded>) {
+        // TODO pridat nejaky logovani
         when {
             limitsExceeded.size == 1 -> {
                 val limitExceeded = limitsExceeded.single() // TODO nebo .first() ?
@@ -161,7 +164,6 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
                     showLimitsExceededDialog(
                         title = getString(R.string.limit_exceeded),
                         message = message,
-                        leftBtnMsg = getString(R.string.remove_restricted_products),
                         typesToRemove = listOf(CategoryType.getById(limitExceeded.commodityType)),
                         rightBtnMsg = getString(R.string.cancel)
                     )
@@ -193,7 +195,6 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
                 showLimitsExceededDialog(
                     title = getString(R.string.multiple_limits_exceeded),
                     message = constructLimitsExceededMessage(exceeded, notAllowed),
-                    leftBtnMsg = getString(R.string.remove_restricted_products),
                     typesToRemove = exceeded.map { CategoryType.getById(it.commodityType) },
                     rightBtnMsg = getString(android.R.string.ok)
                 )
@@ -220,8 +221,35 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
         return message
     }
 
-    override fun showLimitsExceededDialog(title: String, message: String, leftBtnMsg: String? = null, typesToRemove: List<CategoryType>? = null, rightBtnMsg: String) {
-        TODO ("not implemented yet")
+    private fun showLimitsExceededDialog(title: String, message: String, typesToRemove: List<CategoryType>? = null, rightBtnMsg: String) {
+        AlertDialog.Builder(requireContext(), R.style.DialogTheme)
+            .setTitle(title)
+            .setMessage(message)
+            .setPositiveButton(
+                rightBtnMsg
+            ) { _, _ ->
+                Log.d(TAG, "Positive button clicked.")
+            }
+            .show()
+            .apply {
+                typesToRemove?.let {
+                    val negativeButton = this.getButton(AlertDialog.BUTTON_NEGATIVE)
+                    negativeButton.text = getString(R.string.remove_restricted_products)
+                    negativeButton.setOnClickListener {
+                        removeProductsDisposable?.dispose()
+                        removeProductsDisposable = vm.removeFromCartByTypes(typesToRemove)
+                            .subscribeOn(Schedulers.io())
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .subscribe({
+                                Log.d(TAG, "Affected products removed successfully")
+                                navigateBack()
+                            }, {
+                                Log.e(it)
+                            })
+                    }
+                }
+            }
+
     }
 
     private fun initOnClickListeners() {

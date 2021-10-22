@@ -124,6 +124,10 @@ class CheckoutViewModel(
         return shoppingHolder.removeProductAt(product)
     }
 
+    fun removeFromCartByTypes(typesToRemove: List<CategoryType>): Completable {
+        return shoppingHolder.removeProductsByType(typesToRemove)
+    }
+
     fun clearCart(): Completable {
         return shoppingHolder.removeAllProducts()
     }

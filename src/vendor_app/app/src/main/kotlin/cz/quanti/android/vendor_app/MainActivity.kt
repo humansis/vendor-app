@@ -89,6 +89,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
     @SuppressLint("SourceLockedOrientationActivity")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        Log.d(TAG, "onCreate")
 
         if (!this.resources.getBoolean(R.bool.isTablet)) {
             requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
@@ -108,8 +109,14 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
         initObservers()
     }
 
+    override fun onStart() {
+        super.onStart()
+        Log.d(TAG, "onStart")
+    }
+
     override fun onResume() {
         super.onResume()
+        Log.d(TAG, "onResume")
         loadNavHeader(loginVM.getCurrentVendorName())
         checkConnection()
         syncState()
@@ -118,6 +125,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
     }
 
     override fun onPause() {
+        Log.d(TAG, "onPause")
         synchronizationManager.resetSyncState()
         successPlayer.release()
         errorPlayer.release()
@@ -126,6 +134,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
     }
 
     override fun onStop() {
+        Log.d(TAG, "onStop")
         lastToast?.cancel()
         displayedDialog?.dismiss()
         environmentDisposable?.dispose()
@@ -141,15 +150,18 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
     }
 
     override fun onDestroy() {
+        Log.d(TAG, "onDestroy")
         connectionObserver.unregisterCallback()
         super.onDestroy()
     }
 
     override fun onTagDiscovered(tag: Tag) {
+        Log.d(TAG, "onTagDiscovered")
         nfcTagPublisher.getTagSubject().onNext(tag)
     }
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
+        Log.d(TAG, "onNavigationItemSelected $item")
         when (item.itemId) {
             R.id.shop_button -> {
                 findNavController(R.id.nav_host_fragment).navigate(
@@ -178,6 +190,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
     }
 
     override fun onBackPressed() {
+        Log.d(TAG, "onBackPressed")
         if (activityBinding.drawerLayout.isDrawerOpen(GravityCompat.START)) {
             activityBinding.drawerLayout.closeDrawer(GravityCompat.START)
         } else {
@@ -435,6 +448,14 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
             .subscribe(
                 { available ->
                     loginVM.isNetworkConnected(available)
+                    mainVM.setToastMessage(
+                        getString(
+                            if (available)
+                                R.string.network_connection_lost
+                            else
+                                R.string.connected_to_network
+                        )
+                    )
                 },
                 {
                     Log.e(TAG, it)

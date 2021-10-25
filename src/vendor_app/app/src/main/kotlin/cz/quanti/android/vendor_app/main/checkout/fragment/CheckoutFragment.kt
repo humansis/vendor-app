@@ -12,6 +12,7 @@ import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import cz.quanti.android.nfc.dto.v2.LimitExceeded
 import cz.quanti.android.vendor_app.ActivityCallback
 import cz.quanti.android.vendor_app.MainViewModel
 import cz.quanti.android.vendor_app.R
@@ -156,7 +157,7 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
         when {
             limitsExceeded.size == 1 -> {
                 val limitExceeded = limitsExceeded.single() // TODO nebo .first() ?
-                if (limitExceeded.limit == 0) {
+                if (limitExceeded.limit == 0.0) {
                     val message = getString(
                         R.string.commodity_type_not_allowed_remove,
                         CategoryType.getById(limitExceeded.commodityType).backendName
@@ -183,10 +184,10 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
                 }
             }
             limitsExceeded.size > 1 -> {
-                val exceeded = MutableList<LimitExceeded>
-                val notAllowed = MutableList<LimitExceeded>
+                val exceeded = mutableListOf<LimitExceeded>()
+                val notAllowed = mutableListOf<LimitExceeded>()
                 limitsExceeded.forEach {
-                    if (it.limit == 0) {
+                    if (it.limit == 0.0) {
                         notAllowed.add(it)
                     } else {
                         exceeded.add(it)
@@ -433,7 +434,7 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
                 } else {
                     dialog?.dismiss()
                     findNavController().navigate(
-                       CheckoutFragmentDirections.actionCheckoutFragmentToScanCardFragment(pin)
+                       CheckoutFragmentDirections.actionCheckoutFragmentToScanCardFragment(pin.toInt())
                     )
                 }
             }

@@ -8,5 +8,7 @@ data class Purchase(
     var createdAt: String = "",
     var vendorId: Long = 0,
     var dbId: Long = 0,
-    var currency: String = ""
+    var currency: String = "",
+    var balanceBefore: Double? = null,
+    var balanceAfter: Double? = null
 )

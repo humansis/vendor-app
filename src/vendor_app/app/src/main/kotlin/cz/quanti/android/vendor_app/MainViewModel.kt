@@ -10,9 +10,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.toLiveData
 import cz.quanti.android.nfc.logger.NfcLogger
-import cz.quanti.android.vendor_app.repository.category.dto.CategoryType
 import cz.quanti.android.vendor_app.repository.deposit.DepositFacade
-import cz.quanti.android.vendor_app.repository.deposit.dto.Deposit
 import cz.quanti.android.vendor_app.repository.deposit.dto.ReliefPackage
 import cz.quanti.android.vendor_app.repository.synchronization.SynchronizationFacade
 import cz.quanti.android.vendor_app.utils.*
@@ -95,34 +93,17 @@ class MainViewModel(
         toastMessageSLE.postValue(message)
     }
 
-   fun getDeposit(reliefPackages: List<ReliefPackage?>): Deposit? {
+    fun getRelevantReliefPackage(reliefPackages: List<ReliefPackage?>): ReliefPackage? {
         return reliefPackages.filterNotNull().map { reliefPackage ->
             val expirationDate = convertStringToDate(reliefPackage.expirationDate)
             if (expirationDate != null && expirationDate > Date()) {
-                convert(reliefPackage)
+                reliefPackage
             } else {
                 depositFacade.deleteReliefPackageFromDB(reliefPackage.id)
                 NfcLogger.d(TAG, "removed invalid RD")
                 null
             }
-        }.sortedBy { it?.expirationDate }.firstOrNull()
-    }
-
-    private fun convert(reliefPackage: ReliefPackage): Deposit? {
-        return convertStringToDate(reliefPackage.expirationDate)?.let { date ->
-            Deposit(
-                beneficiaryId = reliefPackage.beneficiaryId,
-                depositId = reliefPackage.assistanceId,
-                expirationDate = date,
-                limits = mapOf(
-                    CategoryType.FOOD.typeId to reliefPackage.foodLimit,
-                    CategoryType.NONFOOD.typeId to reliefPackage.nonfoodLimit,
-                    CategoryType.CASHBACK.typeId to reliefPackage.cashbackLimit
-                ),
-                amount = reliefPackage.amount,
-                currency = reliefPackage.currency
-            )
-        }
+        }.minByOrNull { it?.expirationDate.toString() } // TODO otestovat jestli to vrati nejblizsi nebo nejvzdalenejsi
     }
 
     companion object {

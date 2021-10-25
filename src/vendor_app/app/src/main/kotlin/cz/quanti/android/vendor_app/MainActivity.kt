@@ -27,7 +27,7 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.navigation.NavigationView
 import cz.quanti.android.nfc.VendorFacade
-import cz.quanti.android.nfc.dto.UserBalance
+import cz.quanti.android.nfc.dto.v2.UserBalance
 import cz.quanti.android.nfc_io_libray.types.NfcUtil
 import cz.quanti.android.vendor_app.databinding.ActivityMainBinding
 import cz.quanti.android.vendor_app.databinding.NavHeaderBinding
@@ -357,6 +357,26 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
         }
     }
 
+    private fun readBalance(): Single<UserBalance> {
+        return nfcTagPublisher.getTagObservable().firstOrError().flatMap { tag ->
+            depositFacade.getDepositByTag(NfcUtil.toHexString(tag.id).uppercase(Locale.US))
+                .subscribeOn(Schedulers.io())
+                .flatMap { reliefPackages ->
+                    val reliefPackage = mainVM.getRelevantReliefPackage(reliefPackages)
+                    nfcFacade.readUserBalance(tag, reliefPackage?.convertToDeposit()).map { userBalance ->
+                        reliefPackage?.let {
+                            depositFacade.updateReliefPackageInDB(reliefPackage.apply {
+                                createdAt = convertTimeForApiRequestBody(Date())
+                                balanceBefore = userBalance.originalBalance
+                                balanceAfter = userBalance.balance
+                            })
+                        }
+                        userBalance
+                    }
+                }
+        }
+    }
+
     private fun showReadBalanceResult() {
         readBalanceDisposable?.dispose()
         readBalanceDisposable = readBalance()
@@ -370,7 +390,11 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
                     .setMessage(
                         getString(
                             R.string.scanning_card_balance,
-                            "${cardContent.balance} ${cardContent.currencyCode}, ${cardContent.expirationDate}, ${getLimits(cardContent)}"
+                            if (cardContent.expirationDate >= Date()) {
+                                "${cardContent.balance} ${cardContent.currencyCode}\n${cardContent.expirationDate}\n${getLimitsAsText(cardContent)}"
+                            } else {
+                                "0.0 ${cardContent.currencyCode}"
+                            }
                         )
                     )
                     .setCancelable(true)
@@ -391,21 +415,13 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
             })
     }
 
-    private fun readBalance(): Single<UserBalance> {
-        return nfcTagPublisher.getTagObservable().firstOrError().flatMap { tag ->
-            depositFacade.getDepositByTag(NfcUtil.toHexString(tag.id).uppercase(Locale.US))
-                .subscribeOn(Schedulers.io())
-                .flatMap { reliefPackages ->
-                    nfcFacade.readUserBalance(tag, mainVM.getDeposit(reliefPackages)).map { userBalance ->
-                        depositFacade.updateReliefPackageInDB(reliefPackage.apply {
-                            createdAt = convertTimeForApiRequestBody(Date())
-                            balanceBefore = userBalance.balanceBefore
-                            balanceAfter = userBalance.balanceAfter
-                        })
-                        userBalance
-                    }
-                }
+    private fun getLimitsAsText(cardContent: UserBalance): String {
+        var limits = ""
+        cardContent.limits.map {
+            limits += "${CategoryType.getById(it.key).backendName}: ${it.value} ${cardContent.currencyCode} remaining" // TODO preklad? nebo dat pryc?
         }
+
+        return limits
     }
 
     private fun shareLogsDialog() {

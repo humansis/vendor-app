@@ -221,7 +221,7 @@ class ScanCardFragment : Fragment() {
         vm.setPaymentState(PaymentStateEnum.READY)
         when (throwable) {
             is PINException -> {
-                Log.e(this.javaClass.simpleName, throwable.pinExceptionEnum.name)
+                Log.e(TAG, throwable.pinExceptionEnum.name + " TagId: ${throwable.tagId}")
                 mainVM.setToastMessage(getNfcCardErrorMessage(throwable.pinExceptionEnum))
                 when (throwable.pinExceptionEnum) {
                     PINExceptionEnum.INCORRECT_PIN -> {
@@ -231,10 +231,12 @@ class ScanCardFragment : Fragment() {
                         showPinDialogAndPayByCard()
                     }
                     PINExceptionEnum.PRESERVE_BALANCE -> {
+                        Log.d(TAG, "Preserve Balance ${throwable.reconstructPreserveBalance()}.")
                         vm.setOriginalCardData(throwable.reconstructPreserveBalance(), throwable.tagId)
                         payByCard()
                     }
                     PINExceptionEnum.LIMIT_EXCEEDED -> {
+                        Log.d(TAG, "Limit exceeded ${throwable.reconstructLimitExceeded()}.")
                         vm.setLimitsExceeded(throwable.reconstructLimitExceeded())
                         navigateBack()
                     }

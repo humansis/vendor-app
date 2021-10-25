@@ -45,9 +45,6 @@ repositories {
     jcenter() // stays here because of com.budiyev.android:code-scanner:2.1.0.
     mavenCentral()
     maven { url 'https://jitpack.io' }
-    flatDir { // TODO comment before release
-        dirs 'libs'
-    }
 }
 
 configurations {

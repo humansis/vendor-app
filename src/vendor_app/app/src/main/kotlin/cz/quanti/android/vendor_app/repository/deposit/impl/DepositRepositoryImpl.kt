@@ -17,7 +17,7 @@ class DepositRepositoryImpl(
 ) : DepositRepository {
 
     override fun downloadReliefPackages(vendorId: Int): Single<Pair<Int, List<ReliefPackage>>> {
-        return api.getReliefPackages(vendorId, ReliefPackageState.TO_DISTRIBUTE).map { response ->
+        return api.getReliefPackages(vendorId, PACKAGE_STATE_TO_DISTRIBUTE).map { response ->
             response.body()?.let { body ->
                 Pair(response.code(), body.map {
                     convert(it)
@@ -136,5 +136,9 @@ class DepositRepositoryImpl(
             balanceBefore = reliefPackage.balanceBefore,
             balanceAfter = reliefPackage.balanceAfter
         )
+    }
+
+    companion object {
+        const val PACKAGE_STATE_TO_DISTRIBUTE = "To distribute"
     }
 }

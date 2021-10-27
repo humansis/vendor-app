@@ -20,5 +20,5 @@ interface DepositRepository {
 
     fun getDistributedReliefPackages(): Single<List<ReliefPackage>>
 
-    fun patchReliefPackage(reliefPackage: ReliefPackage): Single<Int>
+    fun postReliefPackages(reliefPackages: List<ReliefPackage>): Single<Int>
 }

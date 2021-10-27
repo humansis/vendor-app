@@ -32,17 +32,15 @@ class DepositFacadeImpl(
     }
 
     private fun sendDataToServer(): Completable {
-        return depositRepo.getDistributedReliefPackages().flatMapCompletable { deposits ->
-            if (deposits.isNotEmpty()) {
-                Observable.fromIterable(deposits).flatMapCompletable { reliefPackage ->
-                    depositRepo.patchReliefPackage(reliefPackage).flatMapCompletable { responseCode ->
-                        if (isPositiveResponseHttpCode(responseCode)) {
-                            depositRepo.deleteReliefPackageFromDB(reliefPackage.id)
-                        } else {
-                            throw VendorAppException("Could not upload RD").apply {
-                                this.apiResponseCode = responseCode
-                                this.apiError = true
-                            }
+        return depositRepo.getDistributedReliefPackages().flatMapCompletable { reliefPackages ->
+            if (reliefPackages.isNotEmpty()) {
+                depositRepo.postReliefPackages(reliefPackages).flatMapCompletable { responseCode ->
+                    if (isPositiveResponseHttpCode(responseCode)) {
+                        depositRepo.deleteReliefPackagesFromDB()
+                    } else {
+                        throw VendorAppException("Could not upload RD").apply {
+                            this.apiResponseCode = responseCode
+                            this.apiError = true
                         }
                     }
                 }

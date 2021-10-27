@@ -71,8 +71,10 @@ class DepositRepositoryImpl(
         }
     }
 
-    override fun patchReliefPackage(reliefPackage: ReliefPackage): Single<Int> {
-        return api.patchReliefPackage(reliefPackage.id, convertForPatch(reliefPackage)).map {
+    override fun postReliefPackages(reliefPackages: List<ReliefPackage>): Single<Int> {
+        return api.postReliefPackages(reliefPackages.map {
+            convertForPost(it)
+        }).map {
             it.code()
         }
     }
@@ -126,10 +128,11 @@ class DepositRepositoryImpl(
         )
     }
 
-    private fun convertForPatch(reliefPackage: ReliefPackage): SmartcardDepositApiEntity {
+    private fun convertForPost(reliefPackage: ReliefPackage): SmartcardDepositApiEntity {
         return SmartcardDepositApiEntity(
-            state = ReliefPackageState.DISTRIBUTED,
+            reliefPackageId = reliefPackage.id,
             createdAt = reliefPackage.createdAt,
+            smartcardSerialNumber = reliefPackage.tagId,
             balanceBefore = reliefPackage.balanceBefore,
             balanceAfter = reliefPackage.balanceAfter
         )

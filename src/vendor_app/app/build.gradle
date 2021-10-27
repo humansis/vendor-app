@@ -150,7 +150,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-analytics:19.0.0'
 
     // Artifactory
-    implementation "cz.quanti.android:nfc:$nfc_library_version"
+    // implementation "cz.quanti.android:nfc:$nfc_library_version" // TODO uncomment before release
 
     // Logger
     implementation "com.github.Qase:KotlinLogger:$kotlin_logger_version"

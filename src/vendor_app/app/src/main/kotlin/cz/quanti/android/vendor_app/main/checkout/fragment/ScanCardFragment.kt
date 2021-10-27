@@ -9,7 +9,7 @@ import androidx.core.widget.doOnTextChanged
 import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
-import cz.quanti.android.nfc.dto.UserBalance
+import cz.quanti.android.nfc.dto.v2.UserBalance
 import cz.quanti.android.nfc.exception.PINException
 import cz.quanti.android.nfc.exception.PINExceptionEnum
 import cz.quanti.android.vendor_app.ActivityCallback
@@ -60,7 +60,7 @@ class ScanCardFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         if (arguments?.isEmpty == false) {
-            vm.setPin(arguments?.get(PIN_KEY).toString())
+            vm.setPin((arguments?.get(PIN_KEY) as Int).toShort())
             arguments?.clear()
         }
         if (paymentDisposable == null) {
@@ -99,7 +99,7 @@ class ScanCardFragment : Fragment() {
             when (state) {
                 PaymentStateEnum.READY -> {
                     scanCardBinding.scanningProgressBar.visibility = View.GONE
-                    if (vm.getOriginalCardData().balance == null) {
+                    if (vm.getOriginalCardData().preserveBalance == null) {
                         scanCardBinding.price.visibility = View.VISIBLE
                         scanCardBinding.message.text = getString(R.string.scan_card)
                     } else {
@@ -123,7 +123,7 @@ class ScanCardFragment : Fragment() {
             }
 
             // prevent leaving ScanCardFragment when theres scanning in progress or when card got broken during previous payment
-            val enableLeaving = state!= PaymentStateEnum.IN_PROGRESS && vm.getOriginalCardData().balance == null
+            val enableLeaving = state!= PaymentStateEnum.IN_PROGRESS && vm.getOriginalCardData().preserveBalance == null
             activityCallback.setBackButtonEnabled(enableLeaving)
             scanCardBinding.backButton.isEnabled = (enableLeaving)
             requireActivity().onBackPressedDispatcher.addCallback(
@@ -162,7 +162,7 @@ class ScanCardFragment : Fragment() {
                 if (pin.isEmpty()) {
                     mainVM.setToastMessage(getString(R.string.please_enter_pin))
                 } else {
-                    vm.setPin(pin)
+                    vm.setPin(pin.toShort())
                     payByCard()
                     dialog.dismiss()
                 }
@@ -221,7 +221,7 @@ class ScanCardFragment : Fragment() {
         vm.setPaymentState(PaymentStateEnum.READY)
         when (throwable) {
             is PINException -> {
-                Log.e(this.javaClass.simpleName, throwable.pinExceptionEnum.name)
+                Log.e(TAG, throwable.pinExceptionEnum.name + " TagId: ${throwable.tagId}")
                 mainVM.setToastMessage(getNfcCardErrorMessage(throwable.pinExceptionEnum))
                 when (throwable.pinExceptionEnum) {
                     PINExceptionEnum.INCORRECT_PIN -> {
@@ -231,13 +231,12 @@ class ScanCardFragment : Fragment() {
                         showPinDialogAndPayByCard()
                     }
                     PINExceptionEnum.PRESERVE_BALANCE -> {
-                        // TODO throwable.reconstructPerserveBalance()
-                        throwable.extraData?.let { originalBalance ->
-                            vm.setOriginalCardData(originalBalance.toDouble(), throwable.tagId)
-                        }
+                        Log.d(TAG, "Preserve Balance ${throwable.reconstructPreserveBalance()}.")
+                        vm.setOriginalCardData(throwable.reconstructPreserveBalance(), throwable.tagId)
                         payByCard()
                     }
                     PINExceptionEnum.LIMIT_EXCEEDED -> {
+                        Log.d(TAG, "Limit exceeded ${throwable.reconstructLimitExceeded()}.")
                         vm.setLimitsExceeded(throwable.reconstructLimitExceeded())
                         navigateBack()
                     }

@@ -5,7 +5,9 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import cz.quanti.android.nfc.VendorFacade
-import cz.quanti.android.nfc.dto.UserBalance
+import cz.quanti.android.nfc.dto.v2.UserBalance
+import cz.quanti.android.nfc.dto.v2.LimitExceeded
+import cz.quanti.android.nfc.dto.v2.PreserveBalance
 import cz.quanti.android.nfc.exception.PINException
 import cz.quanti.android.nfc.exception.PINExceptionEnum
 import cz.quanti.android.nfc.logger.NfcLogger
@@ -14,7 +16,6 @@ import cz.quanti.android.vendor_app.repository.booklet.dto.Voucher
 import cz.quanti.android.vendor_app.repository.card.CardFacade
 import cz.quanti.android.vendor_app.repository.category.dto.CategoryType
 import cz.quanti.android.vendor_app.repository.deposit.DepositFacade
-import cz.quanti.android.vendor_app.repository.deposit.dto.Deposit
 import cz.quanti.android.vendor_app.repository.deposit.dto.ReliefPackage
 import cz.quanti.android.vendor_app.repository.purchase.PurchaseFacade
 import cz.quanti.android.vendor_app.repository.purchase.dto.Purchase
@@ -39,7 +40,7 @@ class CheckoutViewModel(
     private val nfcTagPublisher: NfcTagPublisher
 ) : ViewModel() {
     private var vouchers: MutableList<Voucher> = mutableListOf()
-    private var pin: String? = null
+    private var pin: Short? = null
     private var originalCardData = OriginalCardData(null, null)
     private val paymentStateLD = MutableLiveData<Pair<PaymentStateEnum, PaymentResult?>>(Pair(PaymentStateEnum.READY, null))
     private val limitExceededSLE = SingleLiveEvent<List<LimitExceeded>>()
@@ -58,7 +59,7 @@ class CheckoutViewModel(
         return round(total - paid, 2)
     }
 
-    private fun getAmounts(): Map<Int, Double?> {
+    private fun getAmounts(): Map<Int, Double> {
         val amounts = mutableMapOf<Int, Double>()
         shoppingHolder.cart.forEach { selectedProduct ->
             val typeId = selectedProduct.product.category.type.typeId
@@ -83,8 +84,8 @@ class CheckoutViewModel(
         return paymentStateLD
     }
 
-    fun setOriginalCardData(originalBalance: Double?, originalTagId: ByteArray?) {
-        this.originalCardData = OriginalCardData(originalBalance, originalTagId)
+    fun setOriginalCardData(preserveBalance: PreserveBalance?, originalTagId: ByteArray?) {
+        this.originalCardData = OriginalCardData(preserveBalance, originalTagId)
     }
 
     fun getOriginalCardData(): OriginalCardData {
@@ -124,6 +125,10 @@ class CheckoutViewModel(
         return shoppingHolder.removeProductAt(product)
     }
 
+    fun removeFromCartByTypes(typesToRemove: List<CategoryType>): Completable {
+        return shoppingHolder.removeProductsByType(typesToRemove)
+    }
+
     fun clearCart(): Completable {
         return shoppingHolder.removeAllProducts()
     }
@@ -136,14 +141,14 @@ class CheckoutViewModel(
         return shoppingHolder.currency.value
     }
 
-    fun getPin(): String? {
+    fun getPin(): Short? {
         return pin
     }
-    fun setPin(string: String?) {
+    fun setPin(string: Short?) {
         this.pin = string
     }
 
-    fun payByCard(pin: String): Disposable {
+    fun payByCard(pin: Short): Disposable {
         return subtractMoneyFromCard(pin, getAmounts(), getCurrency().toString()).flatMap {
             val tag = it.first
             val userBalance = it.second
@@ -173,8 +178,8 @@ class CheckoutViewModel(
     }
 
     private fun subtractMoneyFromCard(
-        pin: String,
-        amounts: Map<Int, Double?>,
+        pin: Short,
+        amounts: Map<Int, Double>,
         currency: String
     ): Single<Pair<Tag, UserBalance>> {
         return Single.fromObservable(
@@ -189,25 +194,37 @@ class CheckoutViewModel(
                             depositFacade.getDepositByTag(convertTagToString(tag))
                                 .subscribeOn(Schedulers.io())
                                 .flatMap { reliefPackages ->
+                                    val reliefPackage = getRelevantReliefPackage(reliefPackages)
                                     if (originalCardData.tagId == null || originalCardData.tagId.contentEquals( tag.id )) {
                                         NfcLogger.d(
                                             TAG,
-                                            "subtractBalanceFromCard: value: $, currencyCode: $currency, originalBalance: ${originalCardData.balance}"
+                                            "subtractBalanceFromCard: value: ${amounts}, currencyCode: $currency, originalBalance: ${originalCardData.preserveBalance?.totalBalance}" // TODO podívat se jak to loguje amounts když je to Map
                                         )
-                                        nfcFacade.subtractFromBalance(tag, pin, amounts, currency, originalCardData.preserveBalance, getDeposit(reliefPackages)).map { userBalance ->
+                                        nfcFacade.subtractFromBalance(tag, pin, amounts, currency, originalCardData.preserveBalance, reliefPackage?.convertToDeposit()).map { userBalance ->
                                             NfcLogger.d(
                                                 TAG,
                                                 "subtractedBalanceFromCard: balance: ${userBalance.balance}, beneficiaryId: ${userBalance.userId}, currencyCode: ${userBalance.currencyCode}"
                                             )
-                                            depositFacade.updateReliefPackageInDB(reliefPackage.apply {
-                                                createdAt = convertTimeForApiRequestBody(Date())
-                                                balanceBefore = userBalance.originalBalance
-                                                balanceAfter = reliefPackage.amount
-                                            })
-                                            Pair(tag, userBalance.apply {
-                                                if (userBalance.depositDone) {
-                                                    this.originalBalance = reliefPackage.amount
-                                                }
+                                            reliefPackage?.let {
+                                                depositFacade.updateReliefPackageInDB(it.apply {
+                                                    createdAt = convertTimeForApiRequestBody(Date())
+                                                    balanceBefore = userBalance.originalBalance
+                                                    balanceAfter = it.amount
+                                                })
+                                            }
+                                            Pair(tag, if (userBalance.depositDone) {
+                                                UserBalance(
+                                                    userBalance.userId,
+                                                    userBalance.distributionId,
+                                                    userBalance.expirationDate,
+                                                    userBalance.currencyCode,
+                                                    reliefPackage?.amount,
+                                                    userBalance.balance,
+                                                    userBalance.limits,
+                                                    userBalance.depositDone
+                                                )
+                                            } else {
+                                                userBalance
                                             })
                                         }
                                     } else {
@@ -247,7 +264,7 @@ class CheckoutViewModel(
             createdAt = convertTimeForApiRequestBody(Date())
             currency = userBalance.currencyCode
             balanceBefore = userBalance.originalBalance
-            balanceAfter = userbalance.balance
+            balanceAfter = userBalance.balance
         }
     }
 
@@ -260,34 +277,17 @@ class CheckoutViewModel(
         }
     }
 
-    private fun getDeposit(reliefPackages: List<ReliefPackage?>): Deposit? {
+    private fun getRelevantReliefPackage(reliefPackages: List<ReliefPackage?>): ReliefPackage? {
         return reliefPackages.filterNotNull().map { reliefPackage ->
             val expirationDate = convertStringToDate(reliefPackage.expirationDate)
             if (expirationDate != null && expirationDate > Date()) {
-                convert(reliefPackage)
+                reliefPackage
             } else {
                 depositFacade.deleteReliefPackageFromDB(reliefPackage.id)
                 NfcLogger.d(TAG, "removed invalid RD")
                 null
             }
-        }.sortedBy { it?.expirationDate }.firstOrNull() // TODO otestovat jestli to vrati nejblizsi nebo nejvzdalenejsi
-    }
-
-    private fun convert(reliefPackage: ReliefPackage): Deposit? {
-        return convertStringToDate(reliefPackage.expirationDate)?.let { date ->
-            Deposit(
-                beneficiaryId = reliefPackage.beneficiaryId,
-                depositId = reliefPackage.assistanceId,
-                expirationDate = date,
-                limits = mapOf(
-                    CategoryType.FOOD.typeId to reliefPackage.foodLimit,
-                    CategoryType.NONFOOD.typeId to reliefPackage.nonfoodLimit,
-                    CategoryType.CASHBACK.typeId to reliefPackage.cashbackLimit
-                ),
-                amount = reliefPackage.amount,
-                currency = reliefPackage.currency
-            )
-        }
+        }.minByOrNull { it?.expirationDate.toString() } // TODO otestovat jestli to vrati nejblizsi nebo nejvzdalenejsi
     }
 
     class PaymentResult(

@@ -84,9 +84,8 @@ interface VendorAPI {
         @Query("filter[states][]") state: ReliefPackageState
     ): Single<Response<List<ReliefPackageApiEntity>>>
 
-    @PATCH("/v1/relief-packages/{id}")
-    fun patchReliefPackage(
-        @Path("id") id: Int,
-        @Body smartcardDeposit: SmartcardDepositApiEntity
+    @POST("/v1/syncs/deposit")
+    fun postReliefPackages(
+        @Body smartcardDeposits: List<SmartcardDepositApiEntity>
     ): Single<Response<Unit>>
 }

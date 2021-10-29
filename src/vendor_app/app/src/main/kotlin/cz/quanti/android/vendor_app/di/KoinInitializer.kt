@@ -244,6 +244,8 @@ object KoinInitializer {
             .connectTimeout(5, TimeUnit.MINUTES)
             .callTimeout(5, TimeUnit.MINUTES)
             .readTimeout(5, TimeUnit.MINUTES)
+            .addInterceptor(logging)
+            .addInterceptor(hostUrlInterceptor)
             .addInterceptor { chain ->
                 val oldRequest = chain.request()
                 val headersBuilder = oldRequest.headers().newBuilder()
@@ -254,8 +256,6 @@ object KoinInitializer {
                 val request = oldRequest.newBuilder().headers(headersBuilder.build()).build()
                 chain.proceed(request)
             }
-            .addInterceptor(logging)
-            .addInterceptor(hostUrlInterceptor)
             .build()
     }
 

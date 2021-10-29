@@ -19,7 +19,7 @@ class DepositRepositoryImpl(
     override fun downloadReliefPackages(vendorId: Int): Single<Pair<Int, List<ReliefPackage>>> {
         return api.getReliefPackages(vendorId, PACKAGE_STATE_TO_DISTRIBUTE).map { response ->
             response.body()?.let { body ->
-                Pair(response.code(), body.map {
+                Pair(response.code(), body.data.map {
                     convert(it)
                 })
             }

@@ -56,7 +56,8 @@ class DepositFacadeImpl(
             when {
                 isPositiveResponseHttpCode(responseCode) -> {
                     if (response.second.isEmpty()) {
-                        throw VendorAppException("RD returned from server were empty.")
+                        Log.d("RD returned from server were empty.")
+                        Completable.complete()
                     } else {
                         actualizeDatabase(response.second)
                     }

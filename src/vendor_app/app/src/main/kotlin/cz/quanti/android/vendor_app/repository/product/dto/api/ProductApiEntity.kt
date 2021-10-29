@@ -9,8 +9,3 @@ data class ProductApiEntity(
     var unitPrice: Double? = 0.0,
     var currency: String? = ""
 )
-
-class ProductPagedApiEntity(
-    var totalCount: Long = 0,
-    var data: List<ProductApiEntity> = listOf()
-)

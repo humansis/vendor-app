@@ -151,7 +151,7 @@ class LoginFragment : Fragment() {
                                 loginBinding.loginButton.visibility = View.VISIBLE
                                 loginBinding.loginButton.isEnabled = true
                                 if (it is LoginException) {
-                                    Log.d(TAG, it.message.toString())
+                                    Log.e(TAG, it.state.toString())
                                     when (it.state) {
                                         LoginExceptionState.NO_CONNECTION -> {
                                             mainVM.setToastMessage(

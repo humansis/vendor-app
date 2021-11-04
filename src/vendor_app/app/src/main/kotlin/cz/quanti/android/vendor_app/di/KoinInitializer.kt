@@ -192,8 +192,10 @@ object KoinInitializer {
             viewModel {
                 MainViewModel(
                     syncFacade,
+                    nfcFacade,
                     depositFacade,
-                    currentVendor
+                    currentVendor,
+                    nfcTagPublisher
                 )
             }
             viewModel {

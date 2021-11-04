@@ -29,7 +29,7 @@ import quanti.com.kotlinlog.Log
 
 class ScanCardFragment : Fragment() {
     private val mainVM: MainViewModel by sharedViewModel()
-    private val vm: CheckoutViewModel by viewModel()
+    private val vm: CheckoutViewModel by sharedViewModel()
     private var paymentDisposable: Disposable? = null
     private var clearCartDisposable: Disposable? = null
     private var pinDialog: AlertDialog? = null
@@ -190,7 +190,7 @@ class ScanCardFragment : Fragment() {
         dialogBinding.message.text = String.format(
             getString(R.string.card_successfuly_paid_new_balance),
             userBalance.balance,
-            userBalance.currencyCode
+            userBalance.currencyCode // TODO zobrazit expiration date a limity
         )
         AlertDialog.Builder(requireContext(), R.style.SuccessDialogTheme).apply {
             setView(dialogBinding.root)

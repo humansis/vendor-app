@@ -6,7 +6,6 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import cz.quanti.android.nfc.VendorFacade
 import cz.quanti.android.nfc.dto.v2.UserBalance
-import cz.quanti.android.nfc.dto.v2.LimitExceeded
 import cz.quanti.android.nfc.dto.v2.PreserveBalance
 import cz.quanti.android.nfc.exception.PINException
 import cz.quanti.android.nfc.exception.PINExceptionEnum
@@ -43,7 +42,7 @@ class CheckoutViewModel(
     private var pin: Short? = null
     private var originalCardData = OriginalCardData(null, null)
     private val paymentStateLD = MutableLiveData<Pair<PaymentStateEnum, PaymentResult?>>(Pair(PaymentStateEnum.READY, null))
-    private val limitExceededSLE = SingleLiveEvent<List<LimitExceeded>>()
+    private val limitExceededSLE = SingleLiveEvent<Map<Int, Double>>()
 
     fun init() {
         this.vouchers = shoppingHolder.vouchers
@@ -92,11 +91,11 @@ class CheckoutViewModel(
         return originalCardData
     }
 
-    fun setLimitsExceeded(limitsExceeded: List<LimitExceeded>) {
+    fun setLimitsExceeded(limitsExceeded: Map<Int, Double>) {
         limitExceededSLE.value = limitsExceeded
     }
 
-    fun getLimitsExceeded(): SingleLiveEvent<List<LimitExceeded>> {
+    fun getLimitsExceeded(): SingleLiveEvent<Map<Int, Double>> {
         return limitExceededSLE
     }
 

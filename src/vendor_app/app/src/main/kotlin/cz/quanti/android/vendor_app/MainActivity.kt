@@ -26,9 +26,7 @@ import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.navigation.NavigationView
-import cz.quanti.android.nfc.VendorFacade
 import cz.quanti.android.nfc.dto.v2.UserBalance
-import cz.quanti.android.nfc_io_libray.types.NfcUtil
 import cz.quanti.android.vendor_app.databinding.ActivityMainBinding
 import cz.quanti.android.vendor_app.databinding.NavHeaderBinding
 import cz.quanti.android.vendor_app.main.authorization.viewmodel.LoginViewModel
@@ -38,7 +36,6 @@ import cz.quanti.android.vendor_app.main.shop.viewmodel.ShopViewModel
 import cz.quanti.android.vendor_app.main.transactions.viewmodel.TransactionsViewModel
 import cz.quanti.android.vendor_app.repository.AppPreferences
 import cz.quanti.android.vendor_app.repository.category.dto.CategoryType
-import cz.quanti.android.vendor_app.repository.deposit.DepositFacade
 import cz.quanti.android.vendor_app.repository.login.LoginFacade
 import cz.quanti.android.vendor_app.repository.purchase.dto.SelectedProduct
 import cz.quanti.android.vendor_app.sync.SynchronizationManager
@@ -48,7 +45,6 @@ import cz.quanti.android.vendor_app.utils.ConnectionObserver
 import cz.quanti.android.vendor_app.utils.NfcTagPublisher
 import cz.quanti.android.vendor_app.utils.PermissionRequestResult
 import cz.quanti.android.vendor_app.utils.SendLogDialogFragment
-import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
@@ -61,8 +57,6 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
     NavigationView.OnNavigationItemSelectedListener {
 
     private val loginFacade: LoginFacade by inject()
-    private val nfcFacade: VendorFacade by inject()
-    private val depositFacade: DepositFacade by inject()
     private val nfcTagPublisher: NfcTagPublisher by inject()
     private val synchronizationManager: SynchronizationManager by inject()
     private val preferences: AppPreferences by inject()
@@ -351,35 +345,16 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
                     readBalanceDisposable?.dispose()
                     readBalanceDisposable = null
                 }
-                .create().apply { show() }
-
-            showReadBalanceResult()
-        }
-    }
-
-    private fun readBalance(): Single<UserBalance> {
-        return nfcTagPublisher.getTagObservable().firstOrError().flatMap { tag ->
-            depositFacade.getDepositByTag(NfcUtil.toHexString(tag.id).uppercase(Locale.US))
-                .subscribeOn(Schedulers.io())
-                .flatMap { reliefPackages ->
-                    val reliefPackage = mainVM.getRelevantReliefPackage(reliefPackages)
-                    nfcFacade.readUserBalance(tag, reliefPackage?.convertToDeposit()).map { userBalance ->
-                        reliefPackage?.let {
-                            depositFacade.updateReliefPackageInDB(reliefPackage.apply {
-                                createdAt = convertTimeForApiRequestBody(Date())
-                                balanceBefore = userBalance.originalBalance
-                                balanceAfter = userBalance.balance
-                            })
-                        }
-                        userBalance
-                    }
+                .create().apply {
+                    show()
                 }
+            showReadBalanceResult()
         }
     }
 
     private fun showReadBalanceResult() {
         readBalanceDisposable?.dispose()
-        readBalanceDisposable = readBalance()
+        readBalanceDisposable = mainVM.readBalance()
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({

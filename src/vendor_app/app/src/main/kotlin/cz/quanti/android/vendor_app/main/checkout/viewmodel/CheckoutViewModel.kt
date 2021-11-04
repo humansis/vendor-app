@@ -205,27 +205,27 @@ class CheckoutViewModel(
                                                 TAG,
                                                 "subtractedBalanceFromCard: balance: ${userBalance.balance}, beneficiaryId: ${userBalance.userId}, currencyCode: ${userBalance.currencyCode}"
                                             )
-                                            reliefPackage?.let {
-                                                depositFacade.updateReliefPackageInDB(it.apply {
-                                                    createdAt = convertTimeForApiRequestBody(Date())
-                                                    balanceBefore = userBalance.originalBalance
-                                                    balanceAfter = it.amount
-                                                })
+                                            var balance: UserBalance? = null
+                                            if (userBalance.depositDone) {
+                                                reliefPackage?.let {
+                                                    depositFacade.updateReliefPackageInDB(it.apply {
+                                                        createdAt = convertTimeForApiRequestBody(Date())
+                                                        balanceBefore = userBalance.originalBalance
+                                                        balanceAfter = it.amount
+                                                    })
+                                                    balance = UserBalance(
+                                                        userBalance.userId,
+                                                        userBalance.distributionId,
+                                                        userBalance.expirationDate,
+                                                        userBalance.currencyCode,
+                                                        it.amount,
+                                                        userBalance.balance,
+                                                        userBalance.limits,
+                                                        userBalance.depositDone
+                                                    )
+                                                }
                                             }
-                                            Pair(tag, if (userBalance.depositDone) {
-                                                UserBalance(
-                                                    userBalance.userId,
-                                                    userBalance.distributionId,
-                                                    userBalance.expirationDate,
-                                                    userBalance.currencyCode,
-                                                    reliefPackage?.amount,
-                                                    userBalance.balance,
-                                                    userBalance.limits,
-                                                    userBalance.depositDone
-                                                )
-                                            } else {
-                                                userBalance
-                                            })
+                                            Pair(tag, balance ?: userBalance)
                                         }
                                     } else {
                                         throw PINException(PINExceptionEnum.INVALID_DATA, tag.id)

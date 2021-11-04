@@ -54,6 +54,10 @@ fun convertStringToDate(date: String): Date? {
     return SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ", Locale.US).parse(date)
 }
 
+fun convertDateToString(value: Date, context: Context): String {
+    return getDateFormat(context).format(value)
+}
+
 fun getDefaultCurrency(country: String): String {
     return when (country) {
         "KHM" -> "KHR"

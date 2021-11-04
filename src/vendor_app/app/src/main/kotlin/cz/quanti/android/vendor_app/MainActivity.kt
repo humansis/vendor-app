@@ -385,15 +385,18 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
             .subscribe({
                 displayedDialog?.dismiss()
                 val cardContent = it
+                val expirationDate = cardContent.expirationDate
                 val cardResultDialog = AlertDialog.Builder(this, R.style.DialogTheme)
                     .setTitle(getString((R.string.read_balance)))
                     .setMessage(
                         getString(
                             R.string.scanning_card_balance,
-                            if (cardContent.expirationDate >= Date()) {
-                                "${cardContent.balance} ${cardContent.currencyCode}\n${cardContent.expirationDate}\n${getLimitsAsText(cardContent)}"
-                            } else {
+                            if (expirationDate != null && expirationDate < Date()) {
                                 "0.0 ${cardContent.currencyCode}"
+                            } else {
+                                "${cardContent.balance} ${cardContent.currencyCode}" +
+                                    getExpirationDateAsString(expirationDate) +
+                                    getLimitsAsText(cardContent)
                             }
                         )
                     )
@@ -415,12 +418,22 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
             })
     }
 
+    private fun getExpirationDateAsString(expirationDate: Date?): String {
+        return if (expirationDate != null) {
+            getString(
+                R.string.expiration_date_formatted,
+                convertDateToString(expirationDate, this)
+            )
+        } else {
+            ""
+        }
+    }
+
     private fun getLimitsAsText(cardContent: UserBalance): String {
         var limits = ""
         cardContent.limits.map {
-            limits += "${CategoryType.getById(it.key).backendName}: ${it.value} ${cardContent.currencyCode} remaining" // TODO preklad? nebo dat pryc?
+            limits += getString(R.string.product_type_limit_formatted, CategoryType.getById(it.key).backendName, it.value, cardContent.currencyCode)
         }
-
         return limits
     }
 

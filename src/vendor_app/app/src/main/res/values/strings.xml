@@ -76,7 +76,6 @@
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="utilities">Utilities</string>
     <string name="status">Status</string>
-    <string name="scanning_card_balance">Card Balance: %1$s</string>
     <string name="close">Close</string>
     <string name="empty_cart">Your shopping cart is empty</string>
     <string name="transactions_to_reimburse">Transactions to reimburse</string>
@@ -113,4 +112,7 @@
     <string name="commodity_type_exceeded">%1$s products in your cart exceed your balance by %2$.2f.</string>
     <string name="please_update_cart">Please update your cart accordingly.</string>
     <string name="remove_restricted_products">Remove restricted products</string>
+    <string name="scanning_card_balance">Total Balance: %1$s</string> <!-- do not forget this changed-->
+    <string name="expiration_date_formatted">\nExpiration Date: %1$s</string>
+    <string name="product_type_limit_formatted">\n%1$s: %2$.2f %3$s remaining</string>
 </resources>

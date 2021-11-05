@@ -20,6 +20,8 @@ import cz.quanti.android.vendor_app.databinding.DialogSuccessBinding
 import cz.quanti.android.vendor_app.databinding.FragmentScanCardBinding
 import cz.quanti.android.vendor_app.main.checkout.viewmodel.CheckoutViewModel
 import cz.quanti.android.vendor_app.main.checkout.viewmodel.CheckoutViewModel.PaymentStateEnum
+import cz.quanti.android.vendor_app.utils.getExpirationDateAsString
+import cz.quanti.android.vendor_app.utils.getLimitsAsText
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
@@ -189,7 +191,9 @@ class ScanCardFragment : Fragment() {
         dialogBinding.message.text = String.format(
             getString(R.string.card_successfuly_paid_new_balance),
             userBalance.balance,
-            userBalance.currencyCode // TODO zobrazit expiration date a limity
+            userBalance.currencyCode,
+            getExpirationDateAsString(userBalance.expirationDate, requireContext()) +
+            getLimitsAsText(userBalance, requireContext())
         )
         AlertDialog.Builder(requireContext(), R.style.SuccessDialogTheme).apply {
             setView(dialogBinding.root)

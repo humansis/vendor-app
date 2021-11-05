@@ -54,7 +54,7 @@
     <string name="please_enter_pin">Please enter PIN for your card</string>
     <string name="no_nfc_available">NFC is not available</string>
     <string name="you_need_to_enable_nfc">You need to enable NFC</string>
-    <string name="card_successfuly_paid_new_balance">New balance on the card: %1$.2f %2$s</string>
+    <string name="card_successfuly_paid_new_balance">New balance on the card: %1$.2f %2$s%3$s</string>
     <string name="not_enough_money_on_card">Not enough money on the card</string>
     <string name="scan_card">Please scan the card</string>
     <string name="incorrect_pin">Incorrect PIN</string>

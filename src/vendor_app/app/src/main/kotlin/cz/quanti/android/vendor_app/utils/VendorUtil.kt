@@ -8,7 +8,9 @@ import android.view.View
 import android.view.inputmethod.InputMethodManager
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import cz.quanti.android.nfc.dto.v2.UserBalance
 import cz.quanti.android.vendor_app.R
+import cz.quanti.android.vendor_app.repository.category.dto.CategoryType
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.text.DecimalFormat
@@ -88,6 +90,25 @@ fun getBackgroundColor(context: Context, environment: ApiEnvironments?): Int {
             ContextCompat.getColor(context, R.color.screenBackgroundColor)
         }
     }
+}
+
+fun getExpirationDateAsString(expirationDate: Date?, context: Context): String {
+    return if (expirationDate != null) {
+        context.getString(
+            R.string.expiration_date_formatted,
+            convertDateToString(expirationDate, context)
+        )
+    } else {
+        ""
+    }
+}
+
+fun getLimitsAsText(cardContent: UserBalance, context: Context): String {
+    var limits = ""
+    cardContent.limits.map {
+        limits += context.getString(R.string.product_type_limit_formatted, CategoryType.getById(it.key).backendName, it.value, cardContent.currencyCode)
+    }
+    return limits
 }
 
 fun Fragment.hideKeyboard() {

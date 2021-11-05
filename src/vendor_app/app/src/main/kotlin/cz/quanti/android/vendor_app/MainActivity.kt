@@ -26,7 +26,6 @@ import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.navigation.NavigationView
-import cz.quanti.android.nfc.dto.v2.UserBalance
 import cz.quanti.android.vendor_app.databinding.ActivityMainBinding
 import cz.quanti.android.vendor_app.databinding.NavHeaderBinding
 import cz.quanti.android.vendor_app.main.authorization.viewmodel.LoginViewModel
@@ -370,8 +369,8 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
                                 "0.0 ${cardContent.currencyCode}"
                             } else {
                                 "${cardContent.balance} ${cardContent.currencyCode}" +
-                                    getExpirationDateAsString(expirationDate) +
-                                    getLimitsAsText(cardContent)
+                                    getExpirationDateAsString(expirationDate, this) +
+                                    getLimitsAsText(cardContent, this)
                             }
                         )
                     )
@@ -391,25 +390,6 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
                 mainVM.errorSLE.call()
                 displayedDialog?.dismiss()
             })
-    }
-
-    private fun getExpirationDateAsString(expirationDate: Date?): String {
-        return if (expirationDate != null) {
-            getString(
-                R.string.expiration_date_formatted,
-                convertDateToString(expirationDate, this)
-            )
-        } else {
-            ""
-        }
-    }
-
-    private fun getLimitsAsText(cardContent: UserBalance): String {
-        var limits = ""
-        cardContent.limits.map {
-            limits += getString(R.string.product_type_limit_formatted, CategoryType.getById(it.key).backendName, it.value, cardContent.currencyCode)
-        }
-        return limits
     }
 
     private fun shareLogsDialog() {

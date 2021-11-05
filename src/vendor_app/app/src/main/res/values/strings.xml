@@ -108,11 +108,11 @@
     <string name="limit_exceeded">Limit exceeded:</string>
     <string name="multiple_limits_exceeded">Multiple limits exceeded:</string>
     <string name="commodity_type_not_allowed">You are not allowed to purchase %1$s.</string>
-    <string name="commodity_type_not_allowed_remove">You are not allowed to purchase %1$s.\n\nRemove all %1$s products from cart?</string>
+    <string name="commodity_type_not_allowed_remove">You are not allowed to purchase %1$s.\n\nDo you wish to remove all %1$s products from cart?</string>
     <string name="commodity_type_exceeded">%1$s products in your cart exceed your limit of %2$.2f.</string>
     <string name="please_update_cart">Please update your cart accordingly.</string>
     <string name="remove_restricted_products">Remove restricted products</string>
-    <string name="scanning_card_balance">Total Balance: %1$s</string> <!-- do not forget this changed-->
-    <string name="expiration_date_formatted">\nExpiration Date: %1$s</string>
-    <string name="product_type_limit_formatted">\n%1$s: %2$.2f %3$s remaining</string>
+    <string name="scanning_card_balance">Total balance: %1$s</string> <!-- do not forget this changed-->
+    <string name="expiration_date_formatted">\nExpiration date: %1$s</string>
+    <string name="product_type_limit_formatted">\n%1$s: %2$s remaining</string>
 </resources>

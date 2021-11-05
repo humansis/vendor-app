@@ -366,7 +366,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
                         getString(
                             R.string.scanning_card_balance,
                             if (expirationDate != null && expirationDate < Date()) {
-                                "0.0 ${cardContent.currencyCode}"
+                                "${0.0} ${cardContent.currencyCode}"
                             } else {
                                 "${cardContent.balance} ${cardContent.currencyCode}" +
                                     getExpirationDateAsString(expirationDate, this) +

@@ -106,7 +106,7 @@ fun getExpirationDateAsString(expirationDate: Date?, context: Context): String {
 fun getLimitsAsText(cardContent: UserBalance, context: Context): String {
     var limits = ""
     cardContent.limits.map {
-        limits += context.getString(R.string.product_type_limit_formatted, CategoryType.getById(it.key).backendName, it.value, cardContent.currencyCode)
+        limits += context.getString(R.string.product_type_limit_formatted, CategoryType.getById(it.key).backendName, "${it.value} ${cardContent.currencyCode}")
     }
     return limits
 }

@@ -24,7 +24,6 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
-import org.koin.androidx.viewmodel.ext.android.viewModel
 import quanti.com.kotlinlog.Log
 
 class ScanCardFragment : Fragment() {
@@ -196,6 +195,7 @@ class ScanCardFragment : Fragment() {
             setView(dialogBinding.root)
             setPositiveButton(android.R.string.ok, null)
         }.show()
+        vm.setPaymentState(PaymentStateEnum.READY)
         vm.setOriginalCardData(null, null)
         vm.clearVouchers()
         clearCart()
@@ -222,17 +222,18 @@ class ScanCardFragment : Fragment() {
         when (throwable) {
             is PINException -> {
                 Log.e(TAG, throwable.pinExceptionEnum.name + " TagId: ${throwable.tagId}")
-                mainVM.setToastMessage(getNfcCardErrorMessage(throwable.pinExceptionEnum))
                 when (throwable.pinExceptionEnum) {
                     PINExceptionEnum.INCORRECT_PIN -> {
                         paymentDisposable?.dispose()
                         paymentDisposable = null
                         vm.setPin(null)
+                        mainVM.setToastMessage(getNfcCardErrorMessage(throwable.pinExceptionEnum))
                         showPinDialogAndPayByCard()
                     }
                     PINExceptionEnum.PRESERVE_BALANCE -> {
                         Log.d(TAG, "Preserve Balance ${throwable.reconstructPreserveBalance()}.")
                         vm.setOriginalCardData(throwable.reconstructPreserveBalance(), throwable.tagId)
+                        mainVM.setToastMessage(getNfcCardErrorMessage(throwable.pinExceptionEnum))
                         payByCard()
                     }
                     PINExceptionEnum.LIMIT_EXCEEDED -> {
@@ -241,6 +242,7 @@ class ScanCardFragment : Fragment() {
                         navigateBack()
                     }
                     else -> {
+                        mainVM.setToastMessage(getNfcCardErrorMessage(throwable.pinExceptionEnum))
                         payByCard()
                     }
                 }

@@ -7,9 +7,11 @@ import cz.quanti.android.vendor_app.repository.deposit.dto.*
 import cz.quanti.android.vendor_app.repository.deposit.dto.api.ReliefPackageApiEntity
 import cz.quanti.android.vendor_app.repository.deposit.dto.api.SmartcardDepositApiEntity
 import cz.quanti.android.vendor_app.repository.deposit.dto.db.ReliefPackageDbEntity
+import cz.quanti.android.vendor_app.utils.convertStringToDate
 import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.Single
+import java.util.*
 
 class DepositRepositoryImpl(
     private val reliefPackageDao: ReliefPackageDao,
@@ -17,13 +19,17 @@ class DepositRepositoryImpl(
 ) : DepositRepository {
 
     override fun downloadReliefPackages(vendorId: Int): Single<Pair<Int, List<ReliefPackage>>> {
-        return api.getReliefPackages(vendorId, PACKAGE_STATE_TO_DISTRIBUTE).map { response ->
-            response.body()?.let { body ->
-                Pair(response.code(), body.data.map {
-                    convert(it)
-                })
+        return api.getReliefPackages(vendorId, PACKAGE_STATE_TO_DISTRIBUTE)
+            .map { response ->
+                response.body()?.data?.filter {
+                    val expirationDate = convertStringToDate(it.expirationDate)
+                    expirationDate != null && expirationDate > Date()
+                }?.let { data ->
+                    Pair(response.code(), data.map {
+                        convert(it)
+                    })
+                }
             }
-        }
     }
 
     override fun saveReliefPackagesToDB(reliefPackages: List<ReliefPackage>): Completable {

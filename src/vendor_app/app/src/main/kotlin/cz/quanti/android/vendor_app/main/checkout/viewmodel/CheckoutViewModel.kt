@@ -15,7 +15,6 @@ import cz.quanti.android.vendor_app.repository.booklet.dto.Voucher
 import cz.quanti.android.vendor_app.repository.card.CardFacade
 import cz.quanti.android.vendor_app.repository.category.dto.CategoryType
 import cz.quanti.android.vendor_app.repository.deposit.DepositFacade
-import cz.quanti.android.vendor_app.repository.deposit.dto.ReliefPackage
 import cz.quanti.android.vendor_app.repository.purchase.PurchaseFacade
 import cz.quanti.android.vendor_app.repository.purchase.dto.Purchase
 import cz.quanti.android.vendor_app.repository.purchase.dto.PurchasedProduct
@@ -193,11 +192,11 @@ class CheckoutViewModel(
                             depositFacade.getDepositByTag(convertTagToString(tag))
                                 .subscribeOn(Schedulers.io())
                                 .flatMap { reliefPackages ->
-                                    val reliefPackage = getRelevantReliefPackage(reliefPackages)
+                                    val reliefPackage = reliefPackages.filterNotNull().minByOrNull { it.expirationDate }
                                     if (originalCardData.tagId == null || originalCardData.tagId.contentEquals( tag.id )) {
                                         NfcLogger.d(
                                             TAG,
-                                            "subtractBalanceFromCard: value: ${amounts}, currencyCode: $currency, originalBalance: ${originalCardData.preserveBalance?.totalBalance}" // TODO podívat se jak to loguje amounts když je to Map
+                                            "subtractBalanceFromCard: value: ${amounts}, currencyCode: $currency, originalBalance: ${originalCardData.preserveBalance?.totalBalance}"
                                         )
                                         nfcFacade.subtractFromBalance(tag, pin, amounts, currency, originalCardData.preserveBalance, reliefPackage?.convertToDeposit()).map { userBalance ->
                                             NfcLogger.d(
@@ -274,19 +273,6 @@ class CheckoutViewModel(
                 price = it.price
             )
         }
-    }
-
-    private fun getRelevantReliefPackage(reliefPackages: List<ReliefPackage?>): ReliefPackage? {
-        return reliefPackages.filterNotNull().map { reliefPackage ->
-            val expirationDate = convertStringToDate(reliefPackage.expirationDate)
-            if (expirationDate != null && expirationDate > Date()) {
-                reliefPackage
-            } else {
-                depositFacade.deleteReliefPackageFromDB(reliefPackage.id)
-                NfcLogger.d(TAG, "removed invalid RD")
-                null
-            }
-        }.minByOrNull { it?.expirationDate.toString() } // TODO otestovat jestli to vrati nejblizsi nebo nejvzdalenejsi
     }
 
     class PaymentResult(

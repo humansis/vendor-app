@@ -28,7 +28,6 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
-import org.koin.androidx.viewmodel.ext.android.viewModel
 import quanti.com.kotlinlog.Log
 
 class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
@@ -147,12 +146,11 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
         })
 
         vm.getLimitsExceeded().observe(viewLifecycleOwner, { limitsExceeded ->
-            processLimitsExceeded(limitsExceeded) // TODO nedela nic
+            processLimitsExceeded(limitsExceeded)
         })
     }
 
     private fun processLimitsExceeded(limitsExceeded: Map<Int, Double>) {
-        // TODO pridat nejaky logovani
         when {
             limitsExceeded.size == 1 -> {
                 val limitExceeded = limitsExceeded.entries.single()
@@ -233,6 +231,8 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
             .show()
             .apply {
                 typesToRemove?.let {
+                    // TODO investigaate missing negative buton
+                    // TODO investigate crash after clicking clear all after closing this dialog (logs in mail)
                     val negativeButton = this.getButton(AlertDialog.BUTTON_NEGATIVE)
                     negativeButton.text = getString(R.string.remove_restricted_products)
                     negativeButton.setOnClickListener {

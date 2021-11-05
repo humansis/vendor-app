@@ -11,10 +11,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.toLiveData
 import cz.quanti.android.nfc.VendorFacade
 import cz.quanti.android.nfc.dto.v2.UserBalance
-import cz.quanti.android.nfc.logger.NfcLogger
 import cz.quanti.android.nfc_io_libray.types.NfcUtil
 import cz.quanti.android.vendor_app.repository.deposit.DepositFacade
-import cz.quanti.android.vendor_app.repository.deposit.dto.ReliefPackage
 import cz.quanti.android.vendor_app.repository.synchronization.SynchronizationFacade
 import cz.quanti.android.vendor_app.utils.*
 import io.reactivex.BackpressureStrategy
@@ -105,32 +103,21 @@ class MainViewModel(
             depositFacade.getDepositByTag(NfcUtil.toHexString(tag.id).uppercase(Locale.US))
                 .subscribeOn(Schedulers.io())
                 .flatMap { reliefPackages ->
-                    val reliefPackage = getRelevantReliefPackage(reliefPackages)
+                    val reliefPackage = reliefPackages.filterNotNull().minByOrNull { it.expirationDate }
                     nfcFacade.readUserBalance(tag, reliefPackage?.convertToDeposit()).map { userBalance ->
-                        reliefPackage?.let {
-                            depositFacade.updateReliefPackageInDB(reliefPackage.apply {
-                                createdAt = convertTimeForApiRequestBody(Date())
-                                balanceBefore = userBalance.originalBalance
-                                balanceAfter = userBalance.balance
-                            })
+                        if (userBalance.depositDone) {
+                            reliefPackage?.let {
+                                depositFacade.updateReliefPackageInDB(reliefPackage.apply {
+                                    createdAt = convertTimeForApiRequestBody(Date())
+                                    balanceBefore = userBalance.originalBalance
+                                    balanceAfter = userBalance.balance
+                                })
+                            }
                         }
                         userBalance
                     }
                 }
         }
-    }
-
-    fun getRelevantReliefPackage(reliefPackages: List<ReliefPackage?>): ReliefPackage? {
-        return reliefPackages.filterNotNull().map { reliefPackage ->
-            val expirationDate = convertStringToDate(reliefPackage.expirationDate)
-            if (expirationDate != null && expirationDate > Date()) {
-                reliefPackage
-            } else {
-                depositFacade.deleteReliefPackageFromDB(reliefPackage.id)
-                NfcLogger.d(TAG, "removed invalid RD")
-                null
-            }
-        }.minByOrNull { it?.expirationDate.toString() } // TODO otestovat jestli to vrati nejblizsi nebo nejvzdalenejsi
     }
 
     companion object {

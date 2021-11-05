@@ -228,13 +228,17 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
             ) { _, _ ->
                 Log.d(TAG, "Positive button clicked.")
             }
+            .setNegativeButton(
+                getString(R.string.remove_restricted_products)
+            ) { _, _ ->
+                Log.d(TAG, "Negative button clicked.")
+            }
             .show()
             .apply {
-                typesToRemove?.let {
-                    // TODO investigaate missing negative buton
-                    // TODO investigate crash after clicking clear all after closing this dialog (logs in mail)
-                    val negativeButton = this.getButton(AlertDialog.BUTTON_NEGATIVE)
-                    negativeButton.text = getString(R.string.remove_restricted_products)
+                val negativeButton = this.getButton( AlertDialog.BUTTON_NEGATIVE)
+                if (typesToRemove == null ) {
+                    negativeButton.visibility = View.GONE
+                } else {
                     negativeButton.setOnClickListener {
                         removeProductsDisposable?.dispose()
                         removeProductsDisposable = vm.removeFromCartByTypes(typesToRemove)
@@ -242,14 +246,13 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
                             .observeOn(AndroidSchedulers.mainThread())
                             .subscribe({
                                 Log.d(TAG, "Affected products removed successfully")
-                                navigateBack()
                             }, {
                                 Log.e(it)
                             })
+                        this.dismiss()
                     }
                 }
             }
-
     }
 
     private fun initOnClickListeners() {
@@ -300,19 +303,17 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
             proceedDisposable = vm.proceed()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(
-                    {
-                        clearCart()
-                        vm.clearVouchers()
-                        AlertDialog.Builder(requireContext(), R.style.SuccessDialogTheme)
-                            .setTitle(getString(R.string.success))
-                            .setPositiveButton(android.R.string.ok, null)
-                            .show()
-                    }, {
-                        mainVM.setToastMessage(getString(R.string.error_while_proceeding))
-                        Log.e(TAG, it)
-                    }
-                )
+                .subscribe({
+                    clearCart()
+                    vm.clearVouchers()
+                    AlertDialog.Builder(requireContext(), R.style.SuccessDialogTheme)
+                        .setTitle(getString(R.string.success))
+                        .setPositiveButton(android.R.string.ok, null)
+                        .show()
+                }, {
+                    mainVM.setToastMessage(getString(R.string.error_while_proceeding))
+                    Log.e(TAG, it)
+                })
         } else {
             AlertDialog.Builder(requireContext(), R.style.DialogTheme)
                 .setTitle(getString(R.string.cannot_proceed_with_purchase_dialog_title))

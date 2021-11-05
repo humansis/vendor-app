@@ -198,32 +198,33 @@ class CheckoutViewModel(
                                             TAG,
                                             "subtractBalanceFromCard: value: ${amounts}, currencyCode: $currency, originalBalance: ${originalCardData.preserveBalance?.totalBalance}"
                                         )
-                                        nfcFacade.subtractFromBalance(tag, pin, amounts, currency, originalCardData.preserveBalance, reliefPackage?.convertToDeposit()).map { userBalance ->
+                                        nfcFacade.subtractFromBalance(tag, pin, amounts, currency, originalCardData.preserveBalance, reliefPackage?.convertToDeposit()).flatMap { userBalance ->
                                             NfcLogger.d(
                                                 TAG,
                                                 "subtractedBalanceFromCard: balance: ${userBalance.balance}, beneficiaryId: ${userBalance.userId}, currencyCode: ${userBalance.currencyCode}"
                                             )
-                                            var balance: UserBalance? = null
-                                            if (userBalance.depositDone) {
-                                                reliefPackage?.let {
-                                                    depositFacade.updateReliefPackageInDB(it.apply {
-                                                        createdAt = convertTimeForApiRequestBody(Date())
-                                                        balanceBefore = userBalance.originalBalance
-                                                        balanceAfter = it.amount
-                                                    })
-                                                    balance = UserBalance(
+                                            if (userBalance.depositDone && reliefPackage != null) {
+                                                depositFacade.updateReliefPackageInDB(reliefPackage.apply {
+                                                    createdAt = convertTimeForApiRequestBody(Date())
+                                                    balanceBefore = userBalance.originalBalance
+                                                    balanceAfter = reliefPackage.amount
+                                                }).toSingle {
+                                                    Pair(tag, UserBalance(
                                                         userBalance.userId,
                                                         userBalance.distributionId,
                                                         userBalance.expirationDate,
                                                         userBalance.currencyCode,
-                                                        it.amount,
+                                                        reliefPackage.amount,
                                                         userBalance.balance,
                                                         userBalance.limits,
                                                         userBalance.depositDone
-                                                    )
+                                                    ))
                                                 }
+                                            } else {
+                                                Single.just(
+                                                    Pair(tag, userBalance)
+                                                )
                                             }
-                                            Pair(tag, balance ?: userBalance)
                                         }
                                     } else {
                                         throw PINException(PINExceptionEnum.INVALID_DATA, tag.id)

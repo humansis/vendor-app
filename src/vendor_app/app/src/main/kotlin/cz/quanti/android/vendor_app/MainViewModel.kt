@@ -104,17 +104,27 @@ class MainViewModel(
                 .subscribeOn(Schedulers.io())
                 .flatMap { reliefPackages ->
                     val reliefPackage = reliefPackages.filterNotNull().minByOrNull { it.expirationDate }
-                    nfcFacade.readUserBalance(tag, reliefPackage?.convertToDeposit()).map { userBalance ->
-                        if (userBalance.depositDone) {
-                            reliefPackage?.let {
-                                depositFacade.updateReliefPackageInDB(reliefPackage.apply {
-                                    createdAt = convertTimeForApiRequestBody(Date())
-                                    balanceBefore = userBalance.originalBalance
-                                    balanceAfter = userBalance.balance
-                                })
+                    nfcFacade.readUserBalance(tag, reliefPackage?.convertToDeposit()).flatMap { userBalance ->
+                        if (userBalance.depositDone && reliefPackage != null) {
+                            depositFacade.updateReliefPackageInDB(reliefPackage.apply {
+                                createdAt = convertTimeForApiRequestBody(Date())
+                                balanceBefore = userBalance.originalBalance
+                                balanceAfter = reliefPackage.amount
+                            }).toSingle {
+                                UserBalance(
+                                    userBalance.userId,
+                                    userBalance.distributionId,
+                                    userBalance.expirationDate,
+                                    userBalance.currencyCode,
+                                    reliefPackage.amount,
+                                    userBalance.balance,
+                                    userBalance.limits,
+                                    userBalance.depositDone
+                                )
                             }
+                        } else {
+                            Single.just(userBalance)
                         }
-                        userBalance
                     }
                 }
         }

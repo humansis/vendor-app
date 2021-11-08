@@ -61,7 +61,7 @@ class CheckoutViewModel(
         val amounts = mutableMapOf<Int, Double>()
         shoppingHolder.cart.forEach { selectedProduct ->
             val typeId = selectedProduct.product.category.type.typeId
-            amounts[typeId] = amounts[typeId]?.plus(selectedProduct.price) ?: selectedProduct.price // nefunguje
+            amounts[typeId] = amounts[typeId]?.plus(selectedProduct.price) ?: selectedProduct.price
         }
         return amounts
     }

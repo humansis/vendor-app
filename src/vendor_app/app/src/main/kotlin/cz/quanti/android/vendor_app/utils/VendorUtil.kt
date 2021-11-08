@@ -111,6 +111,25 @@ fun getLimitsAsText(cardContent: UserBalance, context: Context): String {
     return limits
 }
 
+fun constructLimitsExceededMessage(exceeded: MutableMap<Int, Double>, notAllowed: MutableMap<Int, Double>, context: Context): String {
+    var message = ""
+    exceeded.forEach {
+        message += context.getString(
+            R.string.commodity_type_exceeded,
+            CategoryType.getById(it.key).backendName,
+            it.value.toFloat()
+        )
+    }
+    notAllowed.forEach {
+        message += context.getString(
+            R.string.commodity_type_not_allowed,
+            CategoryType.getById(it.key).backendName
+        )
+    }
+    message += "\n\n" + context.getString(R.string.please_update_cart)
+    return message
+}
+
 fun Fragment.hideKeyboard() {
     view?.let { activity?.hideKeyboard(it) }
 }

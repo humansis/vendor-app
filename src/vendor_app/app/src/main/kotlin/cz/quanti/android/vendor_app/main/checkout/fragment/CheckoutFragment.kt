@@ -23,6 +23,7 @@ import cz.quanti.android.vendor_app.main.checkout.callback.CheckoutFragmentCallb
 import cz.quanti.android.vendor_app.main.checkout.viewmodel.CheckoutViewModel
 import cz.quanti.android.vendor_app.repository.category.dto.CategoryType
 import cz.quanti.android.vendor_app.repository.purchase.dto.SelectedProduct
+import cz.quanti.android.vendor_app.utils.constructLimitsExceededMessage
 import cz.quanti.android.vendor_app.utils.getStringFromDouble
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
@@ -194,31 +195,12 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
                     }
                 }
                 title = getString(R.string.multiple_limits_exceeded)
-                message = constructLimitsExceededMessage(exceeded, notAllowed)
+                message = constructLimitsExceededMessage(exceeded, notAllowed, requireContext())
                 typesToRemove = exceeded.map { CategoryType.getById(it.key) }
                 rightBtnMsg = getString(android.R.string.ok)
             }
         }
         showLimitsExceededDialog(title, message, typesToRemove, rightBtnMsg)
-    }
-
-    private fun constructLimitsExceededMessage(exceeded: MutableMap<Int, Double>, notAllowed: MutableMap<Int, Double>): String {
-        var message = ""
-        exceeded.forEach {
-            message += getString(
-                R.string.commodity_type_exceeded,
-                CategoryType.getById(it.key).backendName,
-                it.value.toFloat()
-            )
-        }
-        notAllowed.forEach {
-            message += getString(
-                R.string.commodity_type_not_allowed,
-                CategoryType.getById(it.key).backendName
-            )
-        }
-        message += "\n\n" + getString(R.string.please_update_cart)
-        return message
     }
 
     private fun showLimitsExceededDialog(title: String, message: String, typesToRemove: List<CategoryType>? = null, rightBtnMsg: String) {
@@ -231,10 +213,9 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
                 Log.d(TAG, "Positive button clicked.")
             }
             .setNegativeButton(
-                getString(R.string.remove_restricted_products)
-            ) { _, _ ->
-                Log.d(TAG, "Negative button clicked.")
-            }
+                getString(R.string.remove_restricted_products),
+                null
+            )
             .show()
             .apply {
                 val negativeButton = this.getButton( AlertDialog.BUTTON_NEGATIVE)
@@ -242,6 +223,7 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
                     negativeButton.visibility = View.GONE
                 } else {
                     negativeButton.setOnClickListener {
+                        Log.d(TAG, "Negative button clicked.")
                         removeProductsDisposable?.dispose()
                         removeProductsDisposable = vm.removeFromCartByTypes(typesToRemove)
                             .subscribeOn(Schedulers.io())

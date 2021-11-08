@@ -27,7 +27,6 @@ import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import quanti.com.kotlinlog.Log
-import java.util.*
 
 class ScanCardFragment : Fragment() {
     private val mainVM: MainViewModel by sharedViewModel()
@@ -189,15 +188,13 @@ class ScanCardFragment : Fragment() {
         mainVM.successSLE.call()
         val dialogBinding = DialogSuccessBinding.inflate(layoutInflater,null, false)
         dialogBinding.title.text = getString(R.string.success)
-        dialogBinding.message.text = String.format(
-            getString(R.string.card_successfuly_paid_new_balance),
-            userBalance.balance,
-            userBalance.currencyCode,
-            if(userBalance.balance != 0.0){
+        dialogBinding.message.text = getString(R.string.card_successfuly_paid_new_balance,
+            "${userBalance.balance} ${userBalance.currencyCode}" +
+            if(userBalance.balance != 0.0) {
                 getExpirationDateAsString(userBalance.expirationDate, requireContext()) +
                 getLimitsAsText(userBalance, requireContext())
             } else {
-                ""
+                String()
             }
         )
         AlertDialog.Builder(requireContext(), R.style.SuccessDialogTheme).apply {

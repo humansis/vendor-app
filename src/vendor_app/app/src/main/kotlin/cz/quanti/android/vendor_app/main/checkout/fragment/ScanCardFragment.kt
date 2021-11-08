@@ -27,6 +27,7 @@ import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import quanti.com.kotlinlog.Log
+import java.util.*
 
 class ScanCardFragment : Fragment() {
     private val mainVM: MainViewModel by sharedViewModel()
@@ -192,8 +193,12 @@ class ScanCardFragment : Fragment() {
             getString(R.string.card_successfuly_paid_new_balance),
             userBalance.balance,
             userBalance.currencyCode,
-            getExpirationDateAsString(userBalance.expirationDate, requireContext()) +
-            getLimitsAsText(userBalance, requireContext())
+            if(userBalance.balance != 0.0){
+                getExpirationDateAsString(userBalance.expirationDate, requireContext()) +
+                getLimitsAsText(userBalance, requireContext())
+            } else {
+                ""
+            }
         )
         AlertDialog.Builder(requireContext(), R.style.SuccessDialogTheme).apply {
             setView(dialogBinding.root)

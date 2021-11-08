@@ -84,7 +84,7 @@ interface VendorAPI {
         @Query("filter[states][]") state: String
     ): Single<Response<PagedApiEntity<ReliefPackageApiEntity>>>
 
-    @POST("/v1/syncs/deposit")
+    @POST("v1/syncs/deposit")
     fun postReliefPackages(
         @Body smartcardDeposits: List<SmartcardDepositApiEntity>
     ): Single<Response<Unit>>

@@ -3,7 +3,6 @@ package cz.quanti.android.vendor_app.repository.deposit.dto
 import cz.quanti.android.nfc.dto.v2.Deposit
 import cz.quanti.android.vendor_app.repository.category.dto.CategoryType
 import cz.quanti.android.vendor_app.utils.convertStringToDate
-import java.util.*
 
 class ReliefPackage (
     val id: Int,

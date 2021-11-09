@@ -69,7 +69,6 @@
     <string name="humansis">humansis</string>
     <string name="loading">تحميل</string>
     <string name="unknown">غير معروف</string>
-    <string name="scanning_card_balance">%1$s:رصيد البطاقة</string>
     <string name="status">الحالة</string>
     <string name="close">اغلق</string>
     <string name="project">مشروع</string>
@@ -96,8 +95,8 @@
     <string name="utilities">خدمات</string>
     <string name="confirm">ترتيب</string>
     <string name="environment">البيئة: %1$s</string>
-    <string name="scan_card_to_fix">لم ينته المسح بشكل صحيح وبالتالي قد تكون البيانات الموجودة على البطاقة غير مكتملة.\\n\\n قم بمسح البطاقة مرة أخرى لإنهاء الدفع.</string>
-    <string name="payment_in_progress">جاري الدفع\\n\\n لا تقم بإزالة البطاقة</string>
+    <string name="scan_card_to_fix">لم ينته المسح بشكل صحيح وبالتالي قد تكون البيانات الموجودة على البطاقة غير مكتملة.\n\n قم بمسح البطاقة مرة أخرى لإنهاء الدفع.</string>
+    <string name="payment_in_progress">جاري الدفع\n\n لا تقم بإزالة البطاقة</string>
     <string name="error_service_unavailable">الخدمة غير موفرة</string>
     <string name="no_products">لا يوجد منتجات</string>
     <string name="all_products">كل المنتجات</string>
@@ -105,4 +104,17 @@
     <string name="item_removed_from_cart">حذفت من الكرت %1$s</string>
     <string name="network_connection_lost">فقدان الاتصال بالشبكة</string>
     <string name="connected_to_network">متصل بالشبكة</string>
+    <string name="product_type_limit_formatted">\n%1$s: %2$s متبقي</string>
+    <string name="food">مواد غذائية</string>
+    <string name="nonfood">مواد غيرغذائية</string>
+    <string name="cashback">مبلغ مالي</string>
+    <string name="limit_exceeded">الحد المتجاوز:</string>
+    <string name="multiple_limits_exceeded">عدة حدود متجاوزة:</string>
+    <string name="please_update_cart">يرجى تحديث سلة التسوق وفقا لذلك.</string>
+    <string name="remove_restricted_products">إزالة المنتجات المحظورة</string>
+    <string name="scanning_card_balance">إجمالي الرصيد:%1$s</string>
+    <string name="expiration_date_formatted">\nتاريخ انتهاء الصلاحية:%1$s</string>
+    <string name="commodity_type_not_allowed">غير مسموح لك بشراء%1$s.</string>
+    <string name="remove_commodity_type">\n\nهل ترغب في إزالة كافة منتجات%1$s من سلة التسوق؟</string>
+    <string name="commodity_type_exceeded">تتجاوز%1$s منتجًا في سلة التسوق حدك البالغ%2$s.</string>
 </resources>

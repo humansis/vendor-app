@@ -176,7 +176,7 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
                     message = getString(
                         R.string.commodity_type_exceeded,
                         commodityName,
-                        limitExceeded.value.toFloat()
+                        String.format("%.2f", limitExceeded.value)
                     ) + "\n\n" + getString(
                         R.string.please_update_cart
                     )

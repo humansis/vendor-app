@@ -192,7 +192,7 @@ class CheckoutViewModel(
                                     if (originalCardData.tagId == null || originalCardData.tagId.contentEquals( tag.id )) {
                                         NfcLogger.d(
                                             TAG,
-                                            "subtractBalanceFromCard: value: ${amounts}, currencyCode: $currency, originalBalance: ${originalCardData.preserveBalance?.totalBalance}"
+                                            "subtractBalanceFromCard: tag: $tag, value: $amounts, currencyCode: $currency, originalBalance: ${originalCardData.preserveBalance?.totalBalance}, deposit: ${reliefPackage?.convertToDeposit()} "
                                         )
                                         nfcFacade.subtractFromBalance(tag, pin, amounts, currency, originalCardData.preserveBalance, reliefPackage?.convertToDeposit()).flatMap { userBalance ->
                                             NfcLogger.d(

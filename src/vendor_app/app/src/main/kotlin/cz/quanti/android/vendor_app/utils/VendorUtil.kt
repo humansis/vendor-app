@@ -105,8 +105,14 @@ fun getExpirationDateAsString(expirationDate: Date?, context: Context): String {
 
 fun getLimitsAsText(cardContent: UserBalance, context: Context): String {
     var limits = String()
-    cardContent.limits.map {
-        limits += context.getString(R.string.product_type_limit_formatted, CategoryType.getById(it.key).backendName, "${it.value} ${cardContent.currencyCode}")
+    cardContent.limits.map { entry ->
+        CategoryType.getById(entry.key).stringRes?.let {
+            limits += context.getString(
+                R.string.product_type_limit_formatted,
+                context.getString(it),
+                "${entry.value} ${cardContent.currencyCode}"
+            )
+        }
     }
     return limits
 }
@@ -117,7 +123,7 @@ fun constructLimitsExceededMessage(exceeded: MutableMap<Int, Double>, notAllowed
         message += context.getString(
             R.string.commodity_type_exceeded,
             CategoryType.getById(it.key).backendName,
-            it.value.toFloat()
+            String.format("%.2f", it.value)
         )
     }
     notAllowed.forEach {

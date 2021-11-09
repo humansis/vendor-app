@@ -3,11 +3,10 @@ package cz.quanti.android.vendor_app.repository.deposit.impl
 import cz.quanti.android.vendor_app.repository.deposit.DepositFacade
 import cz.quanti.android.vendor_app.repository.deposit.DepositRepository
 import cz.quanti.android.vendor_app.repository.deposit.dto.ReliefPackage
-import cz.quanti.android.vendor_app.utils.VendorAppException
-import cz.quanti.android.vendor_app.utils.isPositiveResponseHttpCode
+import cz.quanti.android.vendor_app.utils.NullableObjectWrapper
 import io.reactivex.Completable
 import io.reactivex.Single
-import quanti.com.kotlinlog.Log
+import java.util.*
 
 class DepositFacadeImpl(
     private val depositRepo: DepositRepository
@@ -18,10 +17,6 @@ class DepositFacadeImpl(
             .andThen(loadDataFromServer(vendorId))
     }
 
-    override fun getDepositByTag(tagId: String): Single<List<ReliefPackage?>> {
-        return depositRepo.getReliefPackageFromDB(tagId)
-    }
-
     override fun deleteReliefPackageFromDB(id: Int): Completable {
         return depositRepo.deleteReliefPackageFromDB(id)
     }
@@ -30,55 +25,20 @@ class DepositFacadeImpl(
         return depositRepo.updateReliefPackageInDB(reliefPackage)
     }
 
-    private fun sendDataToServer(): Completable {
-        return depositRepo.getDistributedReliefPackages().flatMapCompletable { reliefPackages ->
-            if (reliefPackages.isNotEmpty()) {
-                depositRepo.postReliefPackages(reliefPackages).flatMapCompletable { responseCode ->
-                    if (isPositiveResponseHttpCode(responseCode)) {
-                        depositRepo.deleteReliefPackagesFromDB()
-                    } else {
-                        throw VendorAppException("Could not upload RD").apply {
-                            this.apiResponseCode = responseCode
-                            this.apiError = true
-                        }
-                    }
-                }
-            } else {
-                Completable.complete()
+    override fun getRelevantReliefPackage(tagId: String): Single<NullableObjectWrapper<ReliefPackage>> {
+        return depositRepo.deleteReliefPackagesOlderThan(Date()).andThen(
+            depositRepo.getReliefPackagesFromDB(tagId).map { reliefPackages ->
+                NullableObjectWrapper(reliefPackages.sortedWith(nullsLast(compareBy{ it.expirationDate })).firstOrNull())
             }
-        }
+        )
+    }
+
+    private fun sendDataToServer(): Completable {
+        return depositRepo.uploadReliefPackages()
     }
 
     private fun loadDataFromServer(vendorId: Int): Completable {
-        return depositRepo.downloadReliefPackages(vendorId).flatMapCompletable { response ->
-            val responseCode = response.first
-            when {
-                isPositiveResponseHttpCode(responseCode) -> {
-                    if (response.second.isEmpty()) {
-                        Log.d("RD returned from server were empty.")
-                        Completable.complete()
-                    } else {
-                        actualizeDatabase(response.second)
-                    }
-                }
-                responseCode == 403 -> {
-                    Log.d(TAG, "RD sync denied")
-                    Completable.complete()
-                }
-                else -> {
-                    throw VendorAppException("Could not download RD").apply {
-                        this.apiResponseCode = responseCode
-                        this.apiError = true
-                    }
-                }
-            }
-        }
-    }
-
-    private fun actualizeDatabase(reliefPackages: List<ReliefPackage>): Completable {
-        return depositRepo.deleteReliefPackagesFromDB().andThen(
-            depositRepo.saveReliefPackagesToDB(reliefPackages)
-        )
+        return depositRepo.downloadReliefPackages(vendorId)
     }
 
     companion object {

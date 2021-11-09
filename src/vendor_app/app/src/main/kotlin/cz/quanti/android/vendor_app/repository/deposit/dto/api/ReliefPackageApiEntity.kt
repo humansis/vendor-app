@@ -10,5 +10,5 @@ class ReliefPackageApiEntity (
     val foodLimit: Double?,
     val nonfoodLimit: Double?,
     val cashbackLimit: Double?,
-    val expirationDate: String
+    val expirationDate: String?
 )

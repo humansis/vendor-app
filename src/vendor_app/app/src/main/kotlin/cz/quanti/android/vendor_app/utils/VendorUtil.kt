@@ -2,6 +2,7 @@ package cz.quanti.android.vendor_app.utils
 
 import android.app.Activity
 import android.content.Context
+import android.nfc.Tag
 import android.text.format.DateFormat.getDateFormat
 import android.text.format.DateFormat.getTimeFormat
 import android.view.View
@@ -9,6 +10,7 @@ import android.view.inputmethod.InputMethodManager
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import cz.quanti.android.nfc.dto.v2.UserBalance
+import cz.quanti.android.nfc_io_libray.types.NfcUtil
 import cz.quanti.android.vendor_app.R
 import cz.quanti.android.vendor_app.repository.category.dto.CategoryType
 import java.math.BigDecimal
@@ -52,12 +54,16 @@ fun convertStringToDateFormattedString(context: Context, date: String): String? 
     }
 }
 
-fun convertStringToDate(date: String): Date? {
-    return SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ", Locale.US).parse(date)
+fun convertStringToDate(date: String?): Date? {
+    return date?.let { SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ", Locale.US).parse(date) }
 }
 
 fun convertDateToString(value: Date, context: Context): String {
     return getDateFormat(context).format(value)
+}
+
+ fun convertTagToString(tag: Tag): String {
+    return NfcUtil.toHexString(tag.id).uppercase(Locale.US)
 }
 
 fun getDefaultCurrency(country: String): String {
@@ -155,3 +161,5 @@ fun round(value: Double, places: Int): Double {
     bd = bd.setScale(places, RoundingMode.HALF_UP)
     return bd.toDouble()
 }
+
+

@@ -163,7 +163,6 @@ object KoinInitializer {
         val synchronizationManager: SynchronizationManager =
             SynchronizationManagerImpl(preferences, syncFacade)
         val nfcFacade: VendorFacade = PINFacade(
-            BuildConfig.APP_VERSION,
             NfcUtil.hexStringToByteArray(BuildConfig.MASTER_KEY),
             NfcUtil.hexStringToByteArray(BuildConfig.APP_ID)
         )

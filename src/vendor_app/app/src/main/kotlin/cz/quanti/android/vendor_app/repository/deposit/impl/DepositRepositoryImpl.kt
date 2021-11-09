@@ -7,10 +7,13 @@ import cz.quanti.android.vendor_app.repository.deposit.dto.*
 import cz.quanti.android.vendor_app.repository.deposit.dto.api.ReliefPackageApiEntity
 import cz.quanti.android.vendor_app.repository.deposit.dto.api.SmartcardDepositApiEntity
 import cz.quanti.android.vendor_app.repository.deposit.dto.db.ReliefPackageDbEntity
+import cz.quanti.android.vendor_app.utils.VendorAppException
 import cz.quanti.android.vendor_app.utils.convertStringToDate
+import cz.quanti.android.vendor_app.utils.isPositiveResponseHttpCode
 import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.Single
+import quanti.com.kotlinlog.Log
 import java.util.*
 
 class DepositRepositoryImpl(
@@ -18,21 +21,61 @@ class DepositRepositoryImpl(
     private val api: VendorAPI
 ) : DepositRepository {
 
-    override fun downloadReliefPackages(vendorId: Int): Single<Pair<Int, List<ReliefPackage>>> {
-        return api.getReliefPackages(vendorId, PACKAGE_STATE_TO_DISTRIBUTE)
-            .map { response ->
-                response.body()?.data?.filter {
-                    val expirationDate = convertStringToDate(it.expirationDate)
-                    expirationDate != null && expirationDate > Date()
-                }?.let { data ->
-                    Pair(response.code(), data.map {
-                        convert(it)
-                    })
+    override fun uploadReliefPackages(): Completable {
+        return getDistributedReliefPackages().flatMapCompletable { reliefPackages ->
+            if (reliefPackages.isNotEmpty()) {
+                postReliefPackages(reliefPackages).flatMapCompletable { responseCode ->
+                    if (isPositiveResponseHttpCode(responseCode)) {
+                        deleteReliefPackagesFromDB()
+                    } else {
+                        throw VendorAppException("Could not upload RD").apply {
+                            this.apiResponseCode = responseCode
+                            this.apiError = true
+                        }
+                    }
+                }
+            } else {
+                Completable.complete()
+            }
+        }
+    }
+
+    override fun downloadReliefPackages(vendorId: Int): Completable {
+        return api.getReliefPackages(vendorId, PACKAGE_STATE_TO_DISTRIBUTE).flatMapCompletable { response ->
+                when {
+                    isPositiveResponseHttpCode(response.code()) -> {
+                        if (response.body()?.data.isNullOrEmpty()) {
+                            Log.d("RD returned from server were empty.")
+                            Completable.complete()
+                        } else {
+                            response.body()?.data?.let { data ->
+                                actualizeDatabase(data.map {
+                                    convert(it)
+                                })
+                            }
+                        }
+                    }
+                    response.code() == 403 -> {
+                        Log.d(TAG, "RD sync denied")
+                        Completable.complete()
+                    }
+                    else -> {
+                        throw VendorAppException("Could not download RD").apply {
+                            this.apiResponseCode = response.code()
+                            this.apiError = true
+                        }
+                    }
                 }
             }
     }
 
-    override fun saveReliefPackagesToDB(reliefPackages: List<ReliefPackage>): Completable {
+    private fun actualizeDatabase(reliefPackages: List<ReliefPackage>): Completable {
+        return deleteReliefPackagesFromDB().andThen(
+            saveReliefPackagesToDB(reliefPackages)
+        )
+    }
+
+    private fun saveReliefPackagesToDB(reliefPackages: List<ReliefPackage>): Completable {
         return Observable.fromIterable(reliefPackages).flatMapCompletable {
             saveReliefPackageToDB(it)
         }
@@ -42,16 +85,20 @@ class DepositRepositoryImpl(
         return reliefPackageDao.insert(convert(reliefPackage))
     }
 
-    override fun getReliefPackageFromDB(tagId: String): Single<List<ReliefPackage?>> {
+    override fun getReliefPackagesFromDB(tagId: String): Single<List<ReliefPackage>> {
         return reliefPackageDao.getReliefPackagesByTagId(tagId).map { list ->
-            list.map { reliefPackage ->
-                reliefPackage?.let { convert(it) }
+            list.map {
+                convert(it)
             }
         }
     }
 
-    override fun deleteReliefPackagesFromDB(): Completable {
+    private fun deleteReliefPackagesFromDB(): Completable {
         return reliefPackageDao.deleteAll()
+    }
+
+    override fun deleteReliefPackagesOlderThan(date: Date): Completable {
+        return reliefPackageDao.deleteOlderThan(date)
     }
 
     override fun deleteReliefPackageFromDB(id: Int): Completable {
@@ -69,7 +116,7 @@ class DepositRepositoryImpl(
         )
     }
 
-    override fun getDistributedReliefPackages(): Single<List<ReliefPackage>> {
+    private fun getDistributedReliefPackages(): Single<List<ReliefPackage>> {
         return reliefPackageDao.getDistributedReliefPackages().map { list ->
             list.map {
                 convert(it)
@@ -77,7 +124,7 @@ class DepositRepositoryImpl(
         }
     }
 
-    override fun postReliefPackages(reliefPackages: List<ReliefPackage>): Single<Int> {
+    private fun postReliefPackages(reliefPackages: List<ReliefPackage>): Single<Int> {
         return api.postReliefPackages(reliefPackages.map {
             convertForPost(it)
         }).map {
@@ -97,7 +144,7 @@ class DepositRepositoryImpl(
             foodLimit = reliefPackageApiEntity.foodLimit,
             nonfoodLimit = reliefPackageApiEntity.nonfoodLimit,
             cashbackLimit = reliefPackageApiEntity.cashbackLimit,
-            expirationDate = reliefPackageApiEntity.expirationDate
+            expirationDate = convertStringToDate(reliefPackageApiEntity.expirationDate)
         )
     }
 
@@ -145,6 +192,7 @@ class DepositRepositoryImpl(
     }
 
     companion object {
+        private val TAG = DepositRepositoryImpl::class.java.simpleName
         const val PACKAGE_STATE_TO_DISTRIBUTE = "To distribute"
     }
 }

@@ -2,7 +2,7 @@ package cz.quanti.android.vendor_app.repository.deposit.dto
 
 import cz.quanti.android.nfc.dto.v2.Deposit
 import cz.quanti.android.vendor_app.repository.category.dto.CategoryType
-import cz.quanti.android.vendor_app.utils.convertStringToDate
+import java.util.*
 
 class ReliefPackage (
     val id: Int,
@@ -14,7 +14,7 @@ class ReliefPackage (
     val foodLimit: Double?,
     val nonfoodLimit: Double?,
     val cashbackLimit: Double?,
-    val expirationDate: String,
+    val expirationDate: Date?,
     var createdAt: String? = null,
     var balanceBefore: Double? = null,
     var balanceAfter: Double? = null
@@ -24,7 +24,7 @@ class ReliefPackage (
         return Deposit(
             beneficiaryId = this.beneficiaryId,
             depositId = this.assistanceId,
-            expirationDate = convertStringToDate(this.expirationDate),
+            expirationDate = this.expirationDate,
             limits = getLimits(this),
             amount = this.amount,
             currency = this.currency

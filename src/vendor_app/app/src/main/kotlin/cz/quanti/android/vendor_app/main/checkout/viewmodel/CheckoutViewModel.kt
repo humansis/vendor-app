@@ -10,7 +10,6 @@ import cz.quanti.android.nfc.dto.v2.PreserveBalance
 import cz.quanti.android.nfc.exception.PINException
 import cz.quanti.android.nfc.exception.PINExceptionEnum
 import cz.quanti.android.nfc.logger.NfcLogger
-import cz.quanti.android.nfc_io_libray.types.NfcUtil
 import cz.quanti.android.vendor_app.repository.booklet.dto.Voucher
 import cz.quanti.android.vendor_app.repository.card.CardFacade
 import cz.quanti.android.vendor_app.repository.category.dto.CategoryType
@@ -167,10 +166,6 @@ class CheckoutViewModel(
         })
     }
 
-    private fun convertTagToString(tag: Tag): String {
-        return NfcUtil.toHexString(tag.id).uppercase(Locale.US)
-    }
-
     private fun subtractMoneyFromCard(
         pin: Short,
         amounts: Map<Int, Double>,
@@ -185,10 +180,10 @@ class CheckoutViewModel(
                         if(blockedCards.contains(convertTagToString(tag))) {
                             throw PINException(PINExceptionEnum.CARD_LOCKED, tag.id)
                         } else {
-                            depositFacade.getDepositByTag(convertTagToString(tag))
+                            depositFacade.getRelevantReliefPackage(convertTagToString(tag))
                                 .subscribeOn(Schedulers.io())
-                                .flatMap { reliefPackages ->
-                                    val reliefPackage = reliefPackages.filterNotNull().minByOrNull { it.expirationDate }
+                                .flatMap { wrappedReliefPackage ->
+                                    val reliefPackage = wrappedReliefPackage.nullableObject
                                     if (originalCardData.tagId == null || originalCardData.tagId.contentEquals( tag.id )) {
                                         NfcLogger.d(
                                             TAG,

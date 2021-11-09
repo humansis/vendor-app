@@ -3,22 +3,19 @@ package cz.quanti.android.vendor_app.repository.deposit
 import cz.quanti.android.vendor_app.repository.deposit.dto.ReliefPackage
 import io.reactivex.Completable
 import io.reactivex.Single
+import java.util.*
 
 interface DepositRepository {
 
-    fun downloadReliefPackages(vendorId: Int): Single<Pair<Int, List<ReliefPackage>>>
+    fun uploadReliefPackages(): Completable
 
-    fun saveReliefPackagesToDB(reliefPackages: List<ReliefPackage>): Completable
+    fun downloadReliefPackages(vendorId: Int): Completable
 
-    fun getReliefPackageFromDB(tagId: String): Single<List<ReliefPackage?>>
-
-    fun deleteReliefPackagesFromDB(): Completable
+    fun getReliefPackagesFromDB(tagId: String): Single<List<ReliefPackage>>
 
     fun deleteReliefPackageFromDB(id: Int): Completable
 
+    fun deleteReliefPackagesOlderThan(date: Date): Completable
+
     fun updateReliefPackageInDB(reliefPackage: ReliefPackage): Completable
-
-    fun getDistributedReliefPackages(): Single<List<ReliefPackage>>
-
-    fun postReliefPackages(reliefPackages: List<ReliefPackage>): Single<Int>
 }

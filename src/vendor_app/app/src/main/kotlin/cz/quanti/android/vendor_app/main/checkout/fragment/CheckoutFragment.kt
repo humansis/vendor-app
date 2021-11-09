@@ -160,8 +160,8 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
             limitsExceeded.size == 1 -> {
                 val limitExceeded = limitsExceeded.entries.single()
                 val commodityName = CategoryType.getById(limitExceeded.key).backendName
+                title = getString(R.string.limit_exceeded)
                 if (limitExceeded.value == 0.0) {
-                    title = getString(R.string.limit_exceeded)
                     message = getString(
                         R.string.commodity_type_not_allowed,
                         commodityName
@@ -172,7 +172,6 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
                     typesToRemove = listOf(CategoryType.getById(limitExceeded.key))
                     rightBtnMsg = getString(R.string.cancel)
                 } else if (limitExceeded.value > 0) {
-                    title = getString(R.string.limit_exceeded)
                     message = getString(
                         R.string.commodity_type_exceeded,
                         commodityName,

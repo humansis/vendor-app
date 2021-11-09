@@ -11,7 +11,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.toLiveData
 import cz.quanti.android.nfc.VendorFacade
 import cz.quanti.android.nfc.dto.v2.UserBalance
-import cz.quanti.android.nfc_io_libray.types.NfcUtil
 import cz.quanti.android.vendor_app.repository.deposit.DepositFacade
 import cz.quanti.android.vendor_app.repository.synchronization.SynchronizationFacade
 import cz.quanti.android.vendor_app.utils.*
@@ -100,10 +99,10 @@ class MainViewModel(
 
     fun readBalance(): Single<UserBalance> {
         return nfcTagPublisher.getTagObservable().firstOrError().flatMap { tag ->
-            depositFacade.getDepositByTag(NfcUtil.toHexString(tag.id).uppercase(Locale.US))
+            depositFacade.getRelevantReliefPackage(convertTagToString(tag))
                 .subscribeOn(Schedulers.io())
-                .flatMap { reliefPackages ->
-                    val reliefPackage = reliefPackages.filterNotNull().minByOrNull { it.expirationDate }
+                .flatMap { wrappedReliefPackage ->
+                    val reliefPackage = wrappedReliefPackage.nullableObject
                     nfcFacade.readUserBalance(tag, reliefPackage?.convertToDeposit()).flatMap { userBalance ->
                         if (userBalance.depositDone && reliefPackage != null) {
                             depositFacade.updateReliefPackageInDB(reliefPackage.apply {

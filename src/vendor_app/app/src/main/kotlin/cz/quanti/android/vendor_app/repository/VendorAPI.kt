@@ -52,7 +52,7 @@ interface VendorAPI {
         @Body bookletCodes: BookletCodesBody
     ): Single<Response<Unit>>
 
-    @PATCH("v3/smartcards/{id}/purchase")
+    @POST("v4/smartcards/{id}/purchase")
     fun postCardPurchase(
         @Path("id") cardId: String,
         @Body cardPurchase: CardPurchaseApiEntity

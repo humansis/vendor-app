@@ -272,6 +272,8 @@ class PurchaseRepositoryImpl(
             createdAt = purchase.createdAt,
             vendorId = purchase.vendorId,
             beneficiaryId = purchase.beneficiaryId,
+            balanceBefore = purchase.balanceBefore,
+            balanceAfter = purchase.balanceAfter
         )
     }
 

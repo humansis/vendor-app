@@ -42,31 +42,31 @@ class DepositRepositoryImpl(
 
     override fun downloadReliefPackages(vendorId: Int): Completable {
         return api.getReliefPackages(vendorId, PACKAGE_STATE_TO_DISTRIBUTE).flatMapCompletable { response ->
-                when {
-                    isPositiveResponseHttpCode(response.code()) -> {
-                        if (response.body()?.data.isNullOrEmpty()) {
-                            Log.d("RD returned from server were empty.")
-                            Completable.complete()
-                        } else {
-                            response.body()?.data?.let { data ->
-                                actualizeDatabase(data.map {
-                                    convert(it)
-                                })
-                            }
-                        }
-                    }
-                    response.code() == 403 -> {
-                        Log.d(TAG, "RD sync denied")
+            when {
+                isPositiveResponseHttpCode(response.code()) -> {
+                    if (response.body()?.data.isNullOrEmpty()) {
+                        Log.d("RD returned from server were empty.")
                         Completable.complete()
-                    }
-                    else -> {
-                        throw VendorAppException("Could not download RD").apply {
-                            this.apiResponseCode = response.code()
-                            this.apiError = true
+                    } else {
+                        response.body()?.data?.let { data ->
+                            actualizeDatabase(data.map {
+                                convert(it)
+                            })
                         }
                     }
                 }
+                response.code() == 403 -> {
+                    Log.d(TAG, "RD sync denied")
+                    Completable.complete()
+                }
+                else -> {
+                    throw VendorAppException("Could not download RD").apply {
+                        this.apiResponseCode = response.code()
+                        this.apiError = true
+                    }
+                }
             }
+        }
     }
 
     private fun actualizeDatabase(reliefPackages: List<ReliefPackage>): Completable {
@@ -97,8 +97,8 @@ class DepositRepositoryImpl(
         return reliefPackageDao.deleteAll()
     }
 
-    override fun deleteReliefPackagesOlderThan(date: Date): Completable {
-        return reliefPackageDao.deleteOlderThan(date)
+    override fun deleteOldReliefPackages(): Completable {
+        return reliefPackageDao.deleteOlderThan(Date())
     }
 
     override fun deleteReliefPackageFromDB(id: Int): Completable {

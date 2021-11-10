@@ -26,7 +26,7 @@ class DepositFacadeImpl(
     }
 
     override fun getRelevantReliefPackage(tagId: String): Single<NullableObjectWrapper<ReliefPackage>> {
-        return depositRepo.deleteReliefPackagesOlderThan(Date()).andThen(
+        return depositRepo.deleteOldReliefPackages().andThen(
             depositRepo.getReliefPackagesFromDB(tagId).map { reliefPackages ->
                 NullableObjectWrapper(reliefPackages.sortedWith(nullsLast(compareBy{ it.expirationDate })).firstOrNull())
             }

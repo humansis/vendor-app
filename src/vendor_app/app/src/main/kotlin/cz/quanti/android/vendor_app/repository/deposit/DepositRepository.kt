@@ -15,7 +15,7 @@ interface DepositRepository {
 
     fun deleteReliefPackageFromDB(id: Int): Completable
 
-    fun deleteReliefPackagesOlderThan(date: Date): Completable
+    fun deleteOldReliefPackages(): Completable
 
     fun updateReliefPackageInDB(reliefPackage: ReliefPackage): Completable
 }

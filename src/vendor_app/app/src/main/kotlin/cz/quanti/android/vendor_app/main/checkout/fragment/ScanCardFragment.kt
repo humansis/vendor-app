@@ -160,12 +160,18 @@ class ScanCardFragment : Fragment() {
             positiveButton.setOnClickListener {
                 Log.d(TAG, "Dialog positive button clicked")
                 val pin = dialogBinding.pinEditText.text.toString()
-                if (pin.isEmpty()) {
-                    mainVM.setToastMessage(getString(R.string.please_enter_pin))
-                } else {
-                    vm.setPin(pin.toShort())
-                    payByCard()
-                    dialog.dismiss()
+                when {
+                    pin.length == 4 -> {
+                        vm.setPin(pin.toShort())
+                        payByCard()
+                        dialog.dismiss()
+                    }
+                    pin.isEmpty() -> {
+                        mainVM.setToastMessage(getString(R.string.please_enter_pin))
+                    }
+                    else -> {
+                        mainVM.setToastMessage(getString(R.string.pin_too_short))
+                    }
                 }
             }
 

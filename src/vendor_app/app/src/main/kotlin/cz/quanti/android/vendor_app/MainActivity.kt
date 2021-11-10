@@ -449,7 +449,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
             .subscribe(
                 { available ->
                     loginVM.isNetworkConnected(available)
-                    if (lastConnectionState == !available) {
+                    if (lastConnectionState != available) {
                         mainVM.setToastMessage(
                             getString(
                                 if (available)

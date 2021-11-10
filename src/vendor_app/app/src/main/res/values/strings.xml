@@ -119,4 +119,5 @@
     <string name="nonfood">Non-food</string>
     <string name="cashback">Cashback</string>
     <string name="pin_too_short">PIN must be 4 digits</string>
+    <string name="card_wrong_user">This card was assigned to a different user</string>
 </resources>

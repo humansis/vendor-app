@@ -218,7 +218,7 @@ class CheckoutViewModel(
                                             }
                                         }
                                     } else {
-                                        throw PINException(PINExceptionEnum.INVALID_DATA, tag.id)
+                                        throw PINException(PINExceptionEnum.DIFFERENT_USER, tag.id)
                                     }
                                 }
                         }

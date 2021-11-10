@@ -6,7 +6,6 @@ import cz.quanti.android.vendor_app.repository.deposit.dto.ReliefPackage
 import cz.quanti.android.vendor_app.utils.NullableObjectWrapper
 import io.reactivex.Completable
 import io.reactivex.Single
-import java.util.*
 
 class DepositFacadeImpl(
     private val depositRepo: DepositRepository

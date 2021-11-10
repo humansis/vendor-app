@@ -270,6 +270,7 @@ class ScanCardFragment : Fragment() {
     private fun getNfcCardErrorMessage(error: PINExceptionEnum): String {
         return when (error) {
             PINExceptionEnum.DIFFERENT_CURRENCY -> getString(R.string.card_wrong_currency)
+            PINExceptionEnum.DIFFERENT_USER -> getString(R.string.card_wrong_user)
             PINExceptionEnum.INVALID_DATA -> getString(R.string.invalid_data)
             PINExceptionEnum.CARD_LOCKED -> getString(R.string.card_locked)
             PINExceptionEnum.INCORRECT_PIN -> getString(R.string.incorrect_pin)

@@ -118,4 +118,5 @@
     <string name="remove_commodity_type">\n\nهل ترغب في إزالة كافة منتجات%1$s من سلة التسوق؟</string>
     <string name="commodity_type_exceeded">تتجاوز%1$s منتجًا في سلة التسوق حدك البالغ%2$s.</string>
     <string name="pin_too_short">رقم التعريف الشخصي يجب ان يتألف من من أربع أرقام</string>
+    <string name="card_wrong_user">هذه البطاقة تم تخصيصها لمستخدم مختلف</string>
 </resources>

@@ -132,7 +132,7 @@ abstract class VendorDb : RoomDatabase() {
 
         val MIGRATION_8_9 = object : Migration(8, 9) {
             override fun migrate(database: SupportSQLiteDatabase) {
-                database.execSQL("CREATE TABLE relief_package (id INTEGER NOT NULL, assistanceId INTEGER NOT NULL, beneficiaryId INTEGER NOT NULL, amount REAL NOT NULL, currency TEXT NOT NULL, tagId TEXT NOT NULL, foodLimit REAL, nonfoodLimit REAL, cashbackLimit REAL, expirationDate TEXT NOT NULL, createdAt TEXT, balanceBefore REAL, balanceAfter REAL, PRIMARY KEY('id'))")
+                database.execSQL("CREATE TABLE relief_package (id INTEGER NOT NULL, assistanceId INTEGER NOT NULL, beneficiaryId INTEGER NOT NULL, amount REAL NOT NULL, currency TEXT NOT NULL, tagId TEXT NOT NULL, foodLimit REAL, nonfoodLimit REAL, cashbackLimit REAL, expirationDate INTEGER, createdAt TEXT, balanceBefore REAL, balanceAfter REAL, PRIMARY KEY('id'))")
             }
         }
     }

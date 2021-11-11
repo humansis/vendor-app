@@ -104,6 +104,7 @@
     <string name="item_removed_from_cart">حذفت من الكرت %1$s</string>
     <string name="network_connection_lost">فقدان الاتصال بالشبكة</string>
     <string name="connected_to_network">متصل بالشبكة</string>
+    <string name="cashback_with_voucher">لايمكن استرداد النقد باستخدام القسيمة</string>
     <string name="product_type_limit_formatted">\n%1$s: %2$s متبقي</string>
     <string name="food">مواد غذائية</string>
     <string name="nonfood">مواد غيرغذائية</string>

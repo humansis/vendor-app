@@ -3,7 +3,6 @@ package cz.quanti.android.vendor_app.utils
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.toLiveData
 import cz.quanti.android.vendor_app.repository.booklet.dto.Voucher
-import cz.quanti.android.vendor_app.repository.category.dto.CategoryType
 import cz.quanti.android.vendor_app.repository.purchase.PurchaseFacade
 import cz.quanti.android.vendor_app.repository.purchase.dto.SelectedProduct
 import io.reactivex.BackpressureStrategy
@@ -39,16 +38,18 @@ data class ShoppingHolder(
         return purchaseFacade.updateProductInCart(product)
     }
 
-    fun removeProductAt(product: SelectedProduct): Completable {
-        return purchaseFacade.removeProductFromCartAt(product)
+    fun removeProduct(product: SelectedProduct): Completable {
+        return purchaseFacade.removeProductFromCart(product)
     }
 
-    fun removeProductsByType(typesToRemove: List<CategoryType>): Completable {
-        return Observable.fromIterable(cart).flatMapCompletable { selectedProduct ->
-            if (typesToRemove.any { it.typeId == selectedProduct.product.category.type.typeId }) {
-                purchaseFacade.removeProductFromCartAt(selectedProduct)
-            } else {
-                Completable.complete()
+    fun removeProductsByType(typesToRemove: Set<Int>): Completable {
+        return purchaseFacade.getProductsFromCartSingle().flatMapCompletable { selectedProducts ->
+            Observable.fromIterable(selectedProducts).flatMapCompletable { selectedProduct ->
+                if (typesToRemove.contains(selectedProduct.product.category.type.typeId )) {
+                    purchaseFacade.removeProductFromCart(selectedProduct)
+                } else {
+                    Completable.complete()
+                }
             }
         }
     }

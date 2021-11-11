@@ -125,20 +125,22 @@ fun getLimitsAsText(cardContent: UserBalance, context: Context): String {
 
 fun constructLimitsExceededMessage(exceeded: MutableMap<Int, Double>, notAllowed: MutableMap<Int, Double>, context: Context): String {
     var message = ""
-    exceeded.forEach {
+    exceeded.forEach { entry ->
+        val typeName = CategoryType.getById(entry.key).stringRes?.let { context.getString(it) }
         message += context.getString(
             R.string.commodity_type_exceeded,
-            CategoryType.getById(it.key).backendName,
-            String.format("%.2f", it.value)
-        )
+            typeName,
+            String.format("%.2f", entry.value)
+        ) + "\n"
     }
-    notAllowed.forEach {
+    notAllowed.forEach { entry ->
+        val typeName = CategoryType.getById(entry.key).stringRes?.let { context.getString(it) }
         message += context.getString(
             R.string.commodity_type_not_allowed,
-            CategoryType.getById(it.key).backendName
-        )
+            typeName
+        ) + "\n"
     }
-    message += "\n\n" + context.getString(R.string.please_update_cart)
+    message += "\n" + context.getString(R.string.please_update_cart)
     return message
 }
 

@@ -57,7 +57,7 @@ class ShopViewModel(
     }
 
     fun removeSelectedProduct(product: SelectedProduct): Completable {
-        return shoppingHolder.removeProductAt(product)
+        return shoppingHolder.removeProduct(product)
     }
 
     fun emptyCart(): Completable {

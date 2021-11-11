@@ -54,8 +54,8 @@ class PurchaseFacadeImpl(
         return purchaseRepo.updateProductInCart(product)
     }
 
-    override fun removeProductFromCartAt(product: SelectedProduct): Completable {
-        return purchaseRepo.removeProductFromCartAt(product)
+    override fun removeProductFromCart(product: SelectedProduct): Completable {
+        return purchaseRepo.removeProductFromCart(product)
     }
 
     override fun deleteAllProductsInCart(): Completable {

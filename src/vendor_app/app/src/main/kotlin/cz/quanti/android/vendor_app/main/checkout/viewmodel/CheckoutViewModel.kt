@@ -12,7 +12,6 @@ import cz.quanti.android.nfc.exception.PINExceptionEnum
 import cz.quanti.android.nfc.logger.NfcLogger
 import cz.quanti.android.vendor_app.repository.booklet.dto.Voucher
 import cz.quanti.android.vendor_app.repository.card.CardFacade
-import cz.quanti.android.vendor_app.repository.category.dto.CategoryType
 import cz.quanti.android.vendor_app.repository.deposit.DepositFacade
 import cz.quanti.android.vendor_app.repository.purchase.PurchaseFacade
 import cz.quanti.android.vendor_app.repository.purchase.dto.Purchase
@@ -115,10 +114,10 @@ class CheckoutViewModel(
     }
 
     fun removeFromCart(product: SelectedProduct): Completable {
-        return shoppingHolder.removeProductAt(product)
+        return shoppingHolder.removeProduct(product)
     }
 
-    fun removeFromCartByTypes(typesToRemove: List<CategoryType>): Completable {
+    fun removeFromCartByTypes(typesToRemove: Set<Int>): Completable {
         return shoppingHolder.removeProductsByType(typesToRemove)
     }
 

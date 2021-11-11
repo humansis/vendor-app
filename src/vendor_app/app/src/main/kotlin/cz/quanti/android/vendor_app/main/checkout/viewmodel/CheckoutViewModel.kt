@@ -36,7 +36,7 @@ class CheckoutViewModel(
     private val nfcTagPublisher: NfcTagPublisher
 ) : ViewModel() {
     private var vouchers: MutableList<Voucher> = mutableListOf()
-    private var pin: Short? = null
+    private var pin: String? = null
     private var originalCardData = OriginalCardData(null, null)
     private val paymentStateLD = MutableLiveData<Pair<PaymentStateEnum, PaymentResult?>>(Pair(PaymentStateEnum.READY, null))
     private val limitExceededSLE = SingleLiveEvent<Map<Int, Double>>()
@@ -133,14 +133,14 @@ class CheckoutViewModel(
         return shoppingHolder.currency.value
     }
 
-    fun getPin(): Short? {
+    fun getPin(): String? {
         return pin
     }
-    fun setPin(string: Short?) {
+    fun setPin(string: String?) {
         this.pin = string
     }
 
-    fun payByCard(pin: Short): Disposable {
+    fun payByCard(pin: String): Disposable {
         return subtractMoneyFromCard(pin, getAmounts(), getCurrency().toString()).flatMap {
             val tag = it.first
             val userBalance = it.second
@@ -166,7 +166,7 @@ class CheckoutViewModel(
     }
 
     private fun subtractMoneyFromCard(
-        pin: Short,
+        pin: String,
         amounts: Map<Int, Double>,
         currency: String
     ): Single<Pair<Tag, UserBalance>> {

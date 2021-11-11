@@ -61,7 +61,7 @@ class ScanCardFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         if (arguments?.isEmpty == false) {
-            vm.setPin((arguments?.get(PIN_KEY) as Int).toShort())
+            vm.setPin(arguments?.get(PIN_KEY) as String)
             arguments?.clear()
         }
         if (paymentDisposable == null) {
@@ -162,7 +162,7 @@ class ScanCardFragment : Fragment() {
                 val pin = dialogBinding.pinEditText.text.toString()
                 when {
                     pin.length == 4 -> {
-                        vm.setPin(pin.toShort())
+                        vm.setPin(pin)
                         payByCard()
                         dialog.dismiss()
                     }

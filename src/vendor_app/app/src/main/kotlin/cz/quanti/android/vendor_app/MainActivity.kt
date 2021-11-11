@@ -75,6 +75,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
     private var selectedProductsDisposable: Disposable? = null
     private var currencyDisposable: Disposable? = null
     private var lastToast: Toast? = null
+    private var lastConnectionState: Boolean? = null
 
     private lateinit var activityBinding: ActivityMainBinding
 
@@ -447,14 +448,17 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
             .subscribe(
                 { available ->
                     loginVM.isNetworkConnected(available)
-                    mainVM.setToastMessage(
-                        getString(
-                            if (available)
-                                R.string.network_connection_lost
-                            else
-                                R.string.connected_to_network
+                    if (lastConnectionState != available) {
+                        mainVM.setToastMessage(
+                            getString(
+                                if (available)
+                                    R.string.connected_to_network
+                                else
+                                    R.string.network_connection_lost
+                            )
                         )
-                    )
+                    }
+                    lastConnectionState = available
                 },
                 {
                     Log.e(TAG, it)

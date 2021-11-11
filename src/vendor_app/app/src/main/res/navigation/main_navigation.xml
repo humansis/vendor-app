@@ -88,7 +88,7 @@
             app:popExitAnim="@anim/slide_to_right">
             <argument
                 android:name="pin"
-                app:argType="integer"/>
+                app:argType="string"/>
         </action>
     </fragment>
 

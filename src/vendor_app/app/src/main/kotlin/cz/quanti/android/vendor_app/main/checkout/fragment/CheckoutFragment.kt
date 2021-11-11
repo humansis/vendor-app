@@ -427,7 +427,7 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
                     pin.length == 4 -> {
                         dialog?.dismiss()
                         findNavController().navigate(
-                            CheckoutFragmentDirections.actionCheckoutFragmentToScanCardFragment(pin.toInt())
+                            CheckoutFragmentDirections.actionCheckoutFragmentToScanCardFragment(pin)
                         )
                     }
                     pin.isEmpty() -> {

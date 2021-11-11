@@ -7,6 +7,7 @@ import cz.quanti.android.vendor_app.utils.VendorAppException
 import cz.quanti.android.vendor_app.utils.isPositiveResponseHttpCode
 import io.reactivex.Completable
 import io.reactivex.Observable
+import quanti.com.kotlinlog.Log
 
 class CategoryFacadeImpl(
     private val categoryRepo: CategoryRepository
@@ -36,7 +37,8 @@ class CategoryFacadeImpl(
 
     private fun actualizeDatabase(categories: List<Category>?): Completable {
         return if (categories == null) {
-            throw VendorAppException("Categories returned from server were empty.")
+            Log.d("Categories returned from server were empty.")
+            Completable.complete()
         } else {
             categoryRepo.deleteCategories().andThen(
                 Observable.fromIterable(categories).flatMapCompletable { category ->

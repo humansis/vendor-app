@@ -23,23 +23,24 @@ import cz.quanti.android.vendor_app.main.checkout.callback.CheckoutFragmentCallb
 import cz.quanti.android.vendor_app.main.checkout.viewmodel.CheckoutViewModel
 import cz.quanti.android.vendor_app.repository.category.dto.CategoryType
 import cz.quanti.android.vendor_app.repository.purchase.dto.SelectedProduct
+import cz.quanti.android.vendor_app.utils.constructLimitsExceededMessage
 import cz.quanti.android.vendor_app.utils.getStringFromDouble
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
-import org.koin.androidx.viewmodel.ext.android.viewModel
 import quanti.com.kotlinlog.Log
 
 class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
     private val mainVM: MainViewModel by sharedViewModel()
-    private val vm: CheckoutViewModel by viewModel()
+    private val vm: CheckoutViewModel by sharedViewModel()
     private lateinit var selectedProductsAdapter: SelectedProductsAdapter
     private val scannedVoucherAdapter = ScannedVoucherAdapter()
     private var proceedDisposable: Disposable? = null
     private var currencyDisposable: Disposable? = null
     private var updateProductDisposable: Disposable? = null
     private var removeProductDisposable: Disposable? = null
+    private var removeProductsDisposable: Disposable? = null
     private var clearCartDisposable: Disposable? = null
     private lateinit var activityCallback: ActivityCallback
 
@@ -90,6 +91,7 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
         proceedDisposable?.dispose()
         updateProductDisposable?.dispose()
         removeProductDisposable?.dispose()
+        removeProductsDisposable?.dispose()
         clearCartDisposable?.dispose()
         super.onStop()
     }
@@ -143,6 +145,99 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
             showIfCartEmpty(products.isNotEmpty())
             actualizeTotal()
         })
+
+        vm.getLimitsExceeded().observe(viewLifecycleOwner, { limitsExceeded ->
+            processLimitsExceeded(limitsExceeded)
+        })
+    }
+
+    private fun processLimitsExceeded(limitsExceeded: Map<Int, Double>) {
+        var title = String()
+        var message = String()
+        var typesToRemove: Set<Int>? = null
+        var rightBtnMsg = String()
+        when {
+            limitsExceeded.size == 1 -> {
+                val limitExceeded = limitsExceeded.entries.single()
+                val commodityName = CategoryType.getById(limitExceeded.key).stringRes?.let {
+                    getString(it)
+                }
+                title = getString(R.string.limit_exceeded)
+                if (limitExceeded.value == 0.0) {
+                    message = getString(
+                        R.string.commodity_type_not_allowed,
+                        commodityName
+                    ) + getString(
+                        R.string.remove_commodity_type,
+                        commodityName
+                    )
+                    typesToRemove = setOf(CategoryType.getById(limitExceeded.key).typeId)
+                    rightBtnMsg = getString(R.string.cancel)
+                } else if (limitExceeded.value > 0) {
+                    message = getString(
+                        R.string.commodity_type_exceeded,
+                        commodityName,
+                        String.format("%.2f", limitExceeded.value)
+                    ) + "\n\n" + getString(
+                        R.string.please_update_cart
+                    )
+                    rightBtnMsg = getString(android.R.string.ok)
+                }
+
+            }
+            limitsExceeded.size > 1 -> {
+                val exceeded = mutableMapOf<Int, Double>()
+                val notAllowed = mutableMapOf<Int, Double>()
+                limitsExceeded.forEach {
+                    if (it.value == 0.0) {
+                        notAllowed[it.key] = it.value
+                    } else {
+                        exceeded[it.key] = it.value
+                    }
+                }
+                title = getString(R.string.multiple_limits_exceeded)
+                message = constructLimitsExceededMessage(exceeded, notAllowed, requireContext())
+                typesToRemove = notAllowed.map { CategoryType.getById(it.key).typeId }.toSet()
+                rightBtnMsg = getString(android.R.string.ok)
+            }
+        }
+        showLimitsExceededDialog(title, message, typesToRemove, rightBtnMsg)
+    }
+
+    private fun showLimitsExceededDialog(title: String, message: String, typesToRemove: Set<Int>? = null, rightBtnMsg: String) {
+        AlertDialog.Builder(requireContext(), R.style.DialogTheme)
+            .setTitle(title)
+            .setMessage(message)
+            .setPositiveButton(
+                rightBtnMsg
+            ) { _, _ ->
+                Log.d(TAG, "Positive button clicked.")
+            }
+            .setNegativeButton(
+                getString(R.string.remove_restricted_products),
+                null
+            )
+            .show()
+            .apply {
+                val negativeButton = this.getButton( AlertDialog.BUTTON_NEGATIVE)
+                if (typesToRemove == null ) {
+                    negativeButton.visibility = View.GONE
+                } else {
+                    negativeButton.setOnClickListener {
+                        Log.d(TAG, "Negative button clicked.")
+                        removeProductsDisposable?.dispose()
+                        removeProductsDisposable = vm.removeFromCartByTypes(typesToRemove)
+                            .subscribeOn(Schedulers.io())
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .subscribe({
+                                Log.d(TAG, "Affected products removed successfully")
+                            }, {
+                                Log.e(it)
+                            })
+                        this.dismiss()
+                    }
+                }
+            }
     }
 
     private fun initOnClickListeners() {
@@ -182,30 +277,28 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
         }
     }
 
-    override fun cancel() {
+    private fun cancel() {
         vm.clearVouchers()
         navigateBack()
     }
 
-    override fun proceed() {
+    private fun proceed() {
         if (vm.getTotal() <= 0) {
             proceedDisposable?.dispose()
             proceedDisposable = vm.proceed()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(
-                    {
-                        clearCart()
-                        vm.clearVouchers()
-                        AlertDialog.Builder(requireContext(), R.style.SuccessDialogTheme)
-                            .setTitle(getString(R.string.success))
-                            .setPositiveButton(android.R.string.ok, null)
-                            .show()
-                    }, {
-                        mainVM.setToastMessage(getString(R.string.error_while_proceeding))
-                        Log.e(TAG, it)
-                    }
-                )
+                .subscribe({
+                    clearCart()
+                    vm.clearVouchers()
+                    AlertDialog.Builder(requireContext(), R.style.SuccessDialogTheme)
+                        .setTitle(getString(R.string.success))
+                        .setPositiveButton(android.R.string.ok, null)
+                        .show()
+                }, {
+                    mainVM.setToastMessage(getString(R.string.error_while_proceeding))
+                    Log.e(TAG, it)
+                })
         } else {
             AlertDialog.Builder(requireContext(), R.style.DialogTheme)
                 .setTitle(getString(R.string.cannot_proceed_with_purchase_dialog_title))
@@ -215,7 +308,7 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
         }
     }
 
-    override fun scanVoucher() {
+    private fun scanVoucher() {
         findNavController().navigate(
             CheckoutFragmentDirections.actionCheckoutFragmentToScannerFragment()
         )
@@ -321,13 +414,19 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
             positiveButton.setOnClickListener {
                 Log.d(TAG, "Dialog positive button clicked")
                 val pin = dialogBinding.pinEditText.text.toString()
-                if (pin.isEmpty()) {
-                    mainVM.setToastMessage(getString(R.string.please_enter_pin))
-                } else {
-                    dialog?.dismiss()
-                    findNavController().navigate(
-                       CheckoutFragmentDirections.actionCheckoutFragmentToScanCardFragment(pin)
-                    )
+                when {
+                    pin.length == 4 -> {
+                        dialog?.dismiss()
+                        findNavController().navigate(
+                            CheckoutFragmentDirections.actionCheckoutFragmentToScanCardFragment(pin.toInt())
+                        )
+                    }
+                    pin.isEmpty() -> {
+                        mainVM.setToastMessage(getString(R.string.please_enter_pin))
+                    }
+                    else -> {
+                        mainVM.setToastMessage(getString(R.string.pin_too_short))
+                    }
                 }
             }
 

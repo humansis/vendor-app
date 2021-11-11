@@ -20,7 +20,13 @@ class LoginFacadeImpl(
             val salt = saltResponse.salt
             if (!isPositiveResponseHttpCode(responseCodeSalt)) {
                 Completable.error(
-                    LoginException(LoginExceptionState.INVALID_USER)
+                    LoginException(
+                        if (responseCodeSalt == 504) {
+                            LoginExceptionState.NO_CONNECTION
+                        } else {
+                            LoginExceptionState.INVALID_USER
+                        }
+                    )
                 )
             } else {
                 val saltedPassword = hashAndSaltPassword(salt.salt, password)

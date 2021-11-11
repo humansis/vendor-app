@@ -7,6 +7,7 @@ import cz.quanti.android.vendor_app.repository.purchase.PurchaseFacade
 import cz.quanti.android.vendor_app.repository.purchase.dto.SelectedProduct
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Completable
+import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.subjects.BehaviorSubject
 import org.koin.core.component.KoinComponent
@@ -37,8 +38,20 @@ data class ShoppingHolder(
         return purchaseFacade.updateProductInCart(product)
     }
 
-    fun removeProductAt(product: SelectedProduct): Completable {
-        return purchaseFacade.removeProductFromCartAt(product)
+    fun removeProduct(product: SelectedProduct): Completable {
+        return purchaseFacade.removeProductFromCart(product)
+    }
+
+    fun removeProductsByType(typesToRemove: Set<Int>): Completable {
+        return purchaseFacade.getProductsFromCartSingle().flatMapCompletable { selectedProducts ->
+            Observable.fromIterable(selectedProducts).flatMapCompletable { selectedProduct ->
+                if (typesToRemove.contains(selectedProduct.product.category.type.typeId )) {
+                    purchaseFacade.removeProductFromCart(selectedProduct)
+                } else {
+                    Completable.complete()
+                }
+            }
+        }
     }
 
     fun removeAllProducts(): Completable {

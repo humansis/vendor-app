@@ -54,7 +54,7 @@
     <string name="please_enter_pin">Please enter PIN for your card</string>
     <string name="no_nfc_available">NFC is not available</string>
     <string name="you_need_to_enable_nfc">You need to enable NFC</string>
-    <string name="card_successfuly_paid_new_balance">New balance on the card: %1$.2f %2$s</string>
+    <string name="card_successfuly_paid_new_balance">New balance on the card: %1$s</string>
     <string name="not_enough_money_on_card">Not enough money on the card</string>
     <string name="scan_card">Please scan the card</string>
     <string name="incorrect_pin">Incorrect PIN</string>
@@ -76,7 +76,6 @@
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="utilities">Utilities</string>
     <string name="status">Status</string>
-    <string name="scanning_card_balance">Card Balance: %1$s</string>
     <string name="close">Close</string>
     <string name="empty_cart">Your shopping cart is empty</string>
     <string name="transactions_to_reimburse">Transactions to reimburse</string>
@@ -106,4 +105,19 @@
     <string name="item_removed_from_cart">%1$s removed from cart</string>
     <string name="network_connection_lost">Network connection lost</string>
     <string name="connected_to_network">Connected to network</string>
+    <string name="limit_exceeded">Limit exceeded:</string>
+    <string name="multiple_limits_exceeded">Multiple limits exceeded:</string>
+    <string name="commodity_type_not_allowed">You are not allowed to purchase %1$s.</string>
+    <string name="remove_commodity_type">"\n\nDo you wish to remove all %1$s products from cart?"</string>
+    <string name="commodity_type_exceeded">%1$s products in your cart exceed your limit of %2$s.</string>
+    <string name="please_update_cart">Please update your cart accordingly.</string>
+    <string name="remove_restricted_products">Remove restricted products</string>
+    <string name="scanning_card_balance">Total balance: %1$s</string>
+    <string name="expiration_date_formatted">\nExpiration date: %1$s</string>
+    <string name="product_type_limit_formatted">\n%1$s: %2$s remaining</string>
+    <string name="food">Food</string>
+    <string name="nonfood">Non-food</string>
+    <string name="cashback">Cashback</string>
+    <string name="pin_too_short">PIN must be 4 digits</string>
+    <string name="card_wrong_user">This card was assigned to a different user</string>
 </resources>

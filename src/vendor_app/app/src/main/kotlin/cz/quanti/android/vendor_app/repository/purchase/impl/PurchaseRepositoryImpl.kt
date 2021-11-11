@@ -159,8 +159,10 @@ class PurchaseRepositoryImpl(
         return selectedProductDao.update(product.dbId, product.price)
     }
 
-    override fun removeProductFromCartAt(product: SelectedProduct): Completable {
-        return selectedProductDao.delete(convertToDb(product))
+    override fun removeProductFromCart(product: SelectedProduct): Completable {
+        return selectedProductDao.delete(convertToDb(product)).doOnComplete {
+            Log.d(TAG, "Removed product $product from cart")
+        }
     }
 
     override fun deleteAllProductsInCart(): Completable {
@@ -272,6 +274,8 @@ class PurchaseRepositoryImpl(
             createdAt = purchase.createdAt,
             vendorId = purchase.vendorId,
             beneficiaryId = purchase.beneficiaryId,
+            balanceBefore = purchase.balanceBefore,
+            balanceAfter = purchase.balanceAfter
         )
     }
 

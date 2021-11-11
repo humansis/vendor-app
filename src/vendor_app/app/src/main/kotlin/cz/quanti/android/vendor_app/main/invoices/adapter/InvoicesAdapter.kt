@@ -9,7 +9,7 @@ import cz.quanti.android.vendor_app.R
 import cz.quanti.android.vendor_app.databinding.ItemInvoiceBinding
 import cz.quanti.android.vendor_app.main.invoices.viewholder.InvoicesViewHolder
 import cz.quanti.android.vendor_app.repository.invoice.dto.Invoice
-import cz.quanti.android.vendor_app.utils.convertStringToDate
+import cz.quanti.android.vendor_app.utils.convertStringToDateFormattedString
 
 class InvoicesAdapter(
     private val context: Context
@@ -29,7 +29,7 @@ class InvoicesAdapter(
         holder.invoiceId.text = context.getString(R.string.humansis_invoice_number, item.invoiceId)
         holder.date.text = context.getString(
             R.string.date,
-            convertStringToDate(context, item.date) ?: R.string.unknown
+            convertStringToDateFormattedString(context, item.date) ?: R.string.unknown
         )
         holder.quantity.text = context.getString(R.string.quantity, item.quantity)
         holder.total.text = context.getString(R.string.total_price, item.value, item.currency)

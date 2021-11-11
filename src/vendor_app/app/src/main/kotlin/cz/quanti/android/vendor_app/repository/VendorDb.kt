@@ -11,6 +11,8 @@ import cz.quanti.android.vendor_app.repository.card.dao.BlockedCardDao
 import cz.quanti.android.vendor_app.repository.card.dto.db.BlockedCardDbEntity
 import cz.quanti.android.vendor_app.repository.category.dao.CategoryDao
 import cz.quanti.android.vendor_app.repository.category.dto.db.CategoryDbEntity
+import cz.quanti.android.vendor_app.repository.deposit.dao.ReliefPackageDao
+import cz.quanti.android.vendor_app.repository.deposit.dto.db.ReliefPackageDbEntity
 import cz.quanti.android.vendor_app.repository.invoice.dao.InvoiceDao
 import cz.quanti.android.vendor_app.repository.invoice.dto.db.InvoiceDbEntity
 import cz.quanti.android.vendor_app.repository.product.dao.ProductDao
@@ -36,8 +38,9 @@ import cz.quanti.android.vendor_app.repository.utils.typeconverter.DateTypeConve
         BlockedCardDbEntity::class,
         InvoiceDbEntity::class,
         TransactionDbEntity::class,
-        TransactionPurchaseDbEntity::class
-    ], version = 8, exportSchema = false
+        TransactionPurchaseDbEntity::class,
+        ReliefPackageDbEntity::class
+    ], version = 9, exportSchema = false
 )
 @TypeConverters(DateTypeConverter::class)
 abstract class VendorDb : RoomDatabase() {
@@ -53,6 +56,7 @@ abstract class VendorDb : RoomDatabase() {
     abstract fun invoiceDao(): InvoiceDao
     abstract fun transactionDao(): TransactionDao
     abstract fun transactionPurchaseDao(): TransactionPurchaseDao
+    abstract fun reliefPackageDao(): ReliefPackageDao
 
     companion object {
         const val DB_NAME = "cz.quanti.android.pin.vendor_app.database"
@@ -68,6 +72,7 @@ abstract class VendorDb : RoomDatabase() {
         const val TABLE_INVOICE = "invoice"
         const val TABLE_TRANSACTION_BATCH = "transaction_batch"
         const val TABLE_TRANSACTION_PURCHASE = "transaction_purchase"
+        const val TABLE_RELIEF_PACKAGE = "relief_package"
 
         val MIGRATION_2_3 = object : Migration(2, 3) {
             override fun migrate(database: SupportSQLiteDatabase) {
@@ -122,6 +127,12 @@ abstract class VendorDb : RoomDatabase() {
                 database.execSQL("ALTER TABLE product ADD unitPrice REAL")
                 database.execSQL("ALTER TABLE product ADD currency TEXT")
                 database.execSQL("CREATE TABLE 'category' ('id' INTEGER NOT NULL, 'name' TEXT NOT NULL, 'type' TEXT NOT NULL, 'image' TEXT, PRIMARY KEY('id'))")
+            }
+        }
+
+        val MIGRATION_8_9 = object : Migration(8, 9) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL("CREATE TABLE relief_package (id INTEGER NOT NULL, assistanceId INTEGER NOT NULL, beneficiaryId INTEGER NOT NULL, amount REAL NOT NULL, currency TEXT NOT NULL, tagId TEXT NOT NULL, foodLimit REAL, nonfoodLimit REAL, cashbackLimit REAL, expirationDate TEXT NOT NULL, createdAt TEXT, balanceBefore REAL, balanceAfter REAL, PRIMARY KEY('id'))")
             }
         }
     }

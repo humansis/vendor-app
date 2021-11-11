@@ -27,6 +27,9 @@ import cz.quanti.android.vendor_app.repository.card.impl.CardRepositoryImpl
 import cz.quanti.android.vendor_app.repository.category.CategoryFacade
 import cz.quanti.android.vendor_app.repository.category.impl.CategoryFacadeImpl
 import cz.quanti.android.vendor_app.repository.category.impl.CategoryRepositoryImpl
+import cz.quanti.android.vendor_app.repository.deposit.DepositFacade
+import cz.quanti.android.vendor_app.repository.deposit.impl.DepositFacadeImpl
+import cz.quanti.android.vendor_app.repository.deposit.impl.DepositRepositoryImpl
 import cz.quanti.android.vendor_app.repository.invoice.InvoiceFacade
 import cz.quanti.android.vendor_app.repository.invoice.impl.InvoiceFacadeImpl
 import cz.quanti.android.vendor_app.repository.invoice.impl.InvoiceRepositoryImpl
@@ -95,6 +98,8 @@ object KoinInitializer {
 
         if (BuildConfig.DEBUG) {
             builder.baseUrl("https://" + BuildConfig.STAGE_API_URL + "/api/wsse/vendor-app/")
+            // uncomment to use apiary https://app.apiary.io/pinvendor
+            // builder.baseUrl("https://private-b3387-pinvendor.apiary-mock.com")
         } else {
             builder.baseUrl("https://" + BuildConfig.RELEASE_API_URL + "/api/wsse/vendor-app/")
         }
@@ -108,7 +113,8 @@ object KoinInitializer {
                 VendorDb.MIGRATION_4_5,
                 VendorDb.MIGRATION_5_6,
                 VendorDb.MIGRATION_6_7,
-                VendorDb.MIGRATION_7_8
+                VendorDb.MIGRATION_7_8,
+                VendorDb.MIGRATION_8_9
             )
             .build()
 
@@ -128,6 +134,10 @@ object KoinInitializer {
             db.selectedProductDao(),
             api
         )
+        val depositRepo = DepositRepositoryImpl(
+            db.reliefPackageDao(),
+            api
+        )
         val transactionRepo = TransactionRepositoryImpl(
             db.transactionDao(),
             db.transactionPurchaseDao(),
@@ -145,14 +155,14 @@ object KoinInitializer {
         val bookletFacade: BookletFacade = BookletFacadeImpl(bookletRepo)
         val cardFacade: CardFacade = CardFacadeImpl(cardRepo)
         val purchaseFacade: PurchaseFacade = PurchaseFacadeImpl(purchaseRepo, cardRepo)
+        val depositFacade: DepositFacade = DepositFacadeImpl(depositRepo)
         val transactionFacade: TransactionFacade = TransactionFacadeImpl(transactionRepo)
         val invoiceFacade: InvoiceFacade = InvoiceFacadeImpl(invoiceRepo)
         val syncFacade: SynchronizationFacade =
-            SynchronizationFacadeImpl(bookletFacade, cardFacade, categoryFacade, productFacade, purchaseFacade, transactionFacade, invoiceFacade)
+            SynchronizationFacadeImpl(bookletFacade, cardFacade, categoryFacade, depositFacade, productFacade, purchaseFacade, transactionFacade, invoiceFacade)
         val synchronizationManager: SynchronizationManager =
             SynchronizationManagerImpl(preferences, syncFacade)
         val nfcFacade: VendorFacade = PINFacade(
-            BuildConfig.APP_VERSION,
             NfcUtil.hexStringToByteArray(BuildConfig.MASTER_KEY),
             NfcUtil.hexStringToByteArray(BuildConfig.APP_ID)
         )
@@ -181,7 +191,10 @@ object KoinInitializer {
             viewModel {
                 MainViewModel(
                     syncFacade,
-                    currentVendor
+                    nfcFacade,
+                    depositFacade,
+                    currentVendor,
+                    nfcTagPublisher
                 )
             }
             viewModel {
@@ -208,6 +221,7 @@ object KoinInitializer {
                     purchaseFacade,
                     nfcFacade,
                     cardFacade,
+                    depositFacade,
                     currentVendor,
                     nfcTagPublisher
                 )
@@ -235,6 +249,7 @@ object KoinInitializer {
             .connectTimeout(5, TimeUnit.MINUTES)
             .callTimeout(5, TimeUnit.MINUTES)
             .readTimeout(5, TimeUnit.MINUTES)
+            .addInterceptor(hostUrlInterceptor)
             .addInterceptor { chain ->
                 val oldRequest = chain.request()
                 val headersBuilder = oldRequest.headers().newBuilder()
@@ -246,7 +261,6 @@ object KoinInitializer {
                 chain.proceed(request)
             }
             .addInterceptor(logging)
-            .addInterceptor(hostUrlInterceptor)
             .build()
     }
 

@@ -7,7 +7,6 @@ import cz.quanti.android.vendor_app.sync.SynchronizationManager
 import cz.quanti.android.vendor_app.sync.SynchronizationState
 import io.reactivex.Completable
 import io.reactivex.Observable
-import io.reactivex.Single
 
 class InvoicesViewModel(
     private val invoiceFacade: InvoiceFacade,

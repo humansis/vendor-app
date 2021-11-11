@@ -31,7 +31,7 @@ interface PurchaseRepository {
 
     fun updateProductInCart(product: SelectedProduct): Completable
 
-    fun removeProductFromCartAt(product: SelectedProduct): Completable
+    fun removeProductFromCart(product: SelectedProduct): Completable
 
     fun deleteAllProductsInCart(): Completable
 }

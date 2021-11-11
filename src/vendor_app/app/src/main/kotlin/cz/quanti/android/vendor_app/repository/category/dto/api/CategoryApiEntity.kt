@@ -6,8 +6,3 @@ class CategoryApiEntity(
     var type: String = "",
     var image: String? = ""
 )
-
-class CategoryPagedApiEntity(
-    var totalCount: Long = 0,
-    var data: List<CategoryApiEntity> = listOf()
-)

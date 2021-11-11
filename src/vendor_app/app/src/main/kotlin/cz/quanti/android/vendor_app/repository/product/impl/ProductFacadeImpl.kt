@@ -10,6 +10,7 @@ import cz.quanti.android.vendor_app.utils.VendorAppException
 import cz.quanti.android.vendor_app.utils.isPositiveResponseHttpCode
 import io.reactivex.Completable
 import io.reactivex.Observable
+import quanti.com.kotlinlog.Log
 
 class ProductFacadeImpl(
     private val productRepo: ProductRepository,
@@ -48,7 +49,8 @@ class ProductFacadeImpl(
 
     private fun actualizeDatabase(products: List<Product>?): Completable {
         return if (products == null) {
-            throw VendorAppException("Products returned from server were empty.")
+            Log.d("Products returned from server were empty.")
+            Completable.complete()
         } else {
             productRepo.deleteProducts().andThen(
                 Observable.fromIterable(products).flatMapCompletable { product ->

@@ -13,7 +13,7 @@ import cz.quanti.android.vendor_app.R
 import cz.quanti.android.vendor_app.databinding.ItemTransactionBinding
 import cz.quanti.android.vendor_app.main.transactions.viewholder.TransactionsViewHolder
 import cz.quanti.android.vendor_app.repository.transaction.dto.Transaction
-import cz.quanti.android.vendor_app.utils.convertStringToDate
+import cz.quanti.android.vendor_app.utils.convertStringToDateFormattedString
 import quanti.com.kotlinlog.Log
 
 class TransactionsAdapter(
@@ -69,7 +69,7 @@ class TransactionsAdapter(
                 val row = inflater.inflate(R.layout.item_transaction_purchase, TableRow(context))
                 row.findViewById<TextView>(R.id.transaction_purchase_date).text = context.getString(
                     R.string.date,
-                    convertStringToDate(context, tp.createdAt) ?: R.string.unknown
+                    convertStringToDateFormattedString(context, tp.createdAt) ?: R.string.unknown
                 )
                 row.findViewById<TextView>(R.id.transaction_purchase_total).text = context.getString(
                     R.string.total_price,

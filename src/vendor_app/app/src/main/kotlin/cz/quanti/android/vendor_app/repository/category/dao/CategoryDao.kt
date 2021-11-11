@@ -1,9 +1,11 @@
 package cz.quanti.android.vendor_app.repository.category.dao
 
-import androidx.room.*
+import androidx.room.Dao
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
+import androidx.room.Query
 import cz.quanti.android.vendor_app.repository.VendorDb
 import cz.quanti.android.vendor_app.repository.category.dto.db.CategoryDbEntity
-import io.reactivex.Observable
 
 @Dao
 interface CategoryDao {

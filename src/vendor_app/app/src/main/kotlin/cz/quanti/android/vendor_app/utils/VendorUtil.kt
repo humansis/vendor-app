@@ -2,13 +2,17 @@ package cz.quanti.android.vendor_app.utils
 
 import android.app.Activity
 import android.content.Context
+import android.nfc.Tag
 import android.text.format.DateFormat.getDateFormat
 import android.text.format.DateFormat.getTimeFormat
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import cz.quanti.android.nfc.dto.v2.UserBalance
+import cz.quanti.android.nfc_io_libray.types.NfcUtil
 import cz.quanti.android.vendor_app.R
+import cz.quanti.android.vendor_app.repository.category.dto.CategoryType
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.text.DecimalFormat
@@ -41,13 +45,25 @@ fun convertTimeForApiRequestBody(date: Date): String {
         .format(date)
 }
 
-fun convertStringToDate(context: Context, date: String): String? {
+fun convertStringToDateFormattedString(context: Context, date: String): String? {
     val df = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ", Locale.US).parse(date)
     return if (df != null) {
         "${getDateFormat(context).format(df)}  ${getTimeFormat(context).format(df)}"
     } else {
         null
     }
+}
+
+fun convertStringToDate(date: String?): Date? {
+    return date?.let { SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ", Locale.US).parse(date) }
+}
+
+fun convertDateToString(value: Date, context: Context): String {
+    return getDateFormat(context).format(value)
+}
+
+ fun convertTagToString(tag: Tag): String {
+    return NfcUtil.toHexString(tag.id).uppercase(Locale.US)
 }
 
 fun getDefaultCurrency(country: String): String {
@@ -82,6 +98,52 @@ fun getBackgroundColor(context: Context, environment: ApiEnvironments?): Int {
     }
 }
 
+fun getExpirationDateAsString(expirationDate: Date?, context: Context): String {
+    return if (expirationDate != null) {
+        context.getString(
+            R.string.expiration_date_formatted,
+            convertDateToString(expirationDate, context)
+        )
+    } else {
+        String()
+    }
+}
+
+fun getLimitsAsText(cardContent: UserBalance, context: Context): String {
+    var limits = String()
+    cardContent.limits.map { entry ->
+        CategoryType.getById(entry.key).stringRes?.let {
+            limits += context.getString(
+                R.string.product_type_limit_formatted,
+                context.getString(it),
+                "${entry.value} ${cardContent.currencyCode}"
+            )
+        }
+    }
+    return limits
+}
+
+fun constructLimitsExceededMessage(exceeded: MutableMap<Int, Double>, notAllowed: MutableMap<Int, Double>, context: Context): String {
+    var message = ""
+    exceeded.forEach { entry ->
+        val typeName = CategoryType.getById(entry.key).stringRes?.let { context.getString(it) }
+        message += context.getString(
+            R.string.commodity_type_exceeded,
+            typeName,
+            String.format("%.2f", entry.value)
+        ) + "\n"
+    }
+    notAllowed.forEach { entry ->
+        val typeName = CategoryType.getById(entry.key).stringRes?.let { context.getString(it) }
+        message += context.getString(
+            R.string.commodity_type_not_allowed,
+            typeName
+        ) + "\n"
+    }
+    message += "\n" + context.getString(R.string.please_update_cart)
+    return message
+}
+
 fun Fragment.hideKeyboard() {
     view?.let { activity?.hideKeyboard(it) }
 }
@@ -101,3 +163,5 @@ fun round(value: Double, places: Int): Double {
     bd = bd.setScale(places, RoundingMode.HALF_UP)
     return bd.toDouble()
 }
+
+

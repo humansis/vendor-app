@@ -23,7 +23,7 @@
             app:titleTextAppearance="@style/Toolbar.Title"
             app:subtitleTextAppearance="@style/Toolbar.Subtitle">
 
-             <androidx.constraintlayout.widget.ConstraintLayout
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_height="?attr/actionBarSize"
                 android:layout_width="?attr/actionBarSize"
                 android:layout_gravity="end">
@@ -37,6 +37,7 @@
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintBottom_toBottomOf="parent"
                     >
+
                     <ImageButton
                         android:id="@+id/syncButton"
                         android:layout_width="wrap_content"
@@ -74,6 +75,7 @@
                     app:layout_constraintTop_toTopOf="@+id/syncButtonArea"
                     app:layout_constraintBottom_toBottomOf="@+id/syncButtonArea"
                     android:visibility="gone"/>
+
             </androidx.constraintlayout.widget.ConstraintLayout>
 
         </androidx.appcompat.widget.Toolbar>

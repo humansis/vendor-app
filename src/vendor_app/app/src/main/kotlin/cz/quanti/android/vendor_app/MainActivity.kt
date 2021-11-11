@@ -26,8 +26,6 @@ import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.navigation.NavigationView
-import cz.quanti.android.nfc.VendorFacade
-import cz.quanti.android.nfc.dto.UserBalance
 import cz.quanti.android.vendor_app.databinding.ActivityMainBinding
 import cz.quanti.android.vendor_app.databinding.NavHeaderBinding
 import cz.quanti.android.vendor_app.main.authorization.viewmodel.LoginViewModel
@@ -46,19 +44,18 @@ import cz.quanti.android.vendor_app.utils.ConnectionObserver
 import cz.quanti.android.vendor_app.utils.NfcTagPublisher
 import cz.quanti.android.vendor_app.utils.PermissionRequestResult
 import cz.quanti.android.vendor_app.utils.SendLogDialogFragment
-import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import quanti.com.kotlinlog.Log
+import java.util.*
 
 class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCallback,
     NavigationView.OnNavigationItemSelectedListener {
 
     private val loginFacade: LoginFacade by inject()
-    private val nfcFacade: VendorFacade by inject()
     private val nfcTagPublisher: NfcTagPublisher by inject()
     private val synchronizationManager: SynchronizationManager by inject()
     private val preferences: AppPreferences by inject()
@@ -78,6 +75,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
     private var selectedProductsDisposable: Disposable? = null
     private var currencyDisposable: Disposable? = null
     private var lastToast: Toast? = null
+    private var lastConnectionState: Boolean? = null
 
     private lateinit var activityBinding: ActivityMainBinding
 
@@ -347,26 +345,34 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
                     readBalanceDisposable?.dispose()
                     readBalanceDisposable = null
                 }
-                .create().apply { show() }
-
+                .create().apply {
+                    show()
+                }
             showReadBalanceResult()
         }
     }
 
     private fun showReadBalanceResult() {
         readBalanceDisposable?.dispose()
-        readBalanceDisposable = readBalance()
+        readBalanceDisposable = mainVM.readBalance()
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({
                 displayedDialog?.dismiss()
                 val cardContent = it
+                val expirationDate = cardContent.expirationDate
                 val cardResultDialog = AlertDialog.Builder(this, R.style.DialogTheme)
                     .setTitle(getString((R.string.read_balance)))
                     .setMessage(
                         getString(
                             R.string.scanning_card_balance,
-                            "${cardContent.balance} ${cardContent.currencyCode}"
+                            if ((expirationDate != null && expirationDate < Date()) || cardContent.balance == 0.0) {
+                                "${0.0} ${cardContent.currencyCode}"
+                            } else {
+                                "${cardContent.balance} ${cardContent.currencyCode}" +
+                                    getExpirationDateAsString(expirationDate, this) +
+                                    getLimitsAsText(cardContent, this)
+                            }
                         )
                     )
                     .setCancelable(true)
@@ -385,12 +391,6 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
                 mainVM.errorSLE.call()
                 displayedDialog?.dismiss()
             })
-    }
-
-    private fun readBalance(): Single<UserBalance> {
-        return nfcTagPublisher.getTagObservable().firstOrError().flatMap { tag ->
-            nfcFacade.readUserBalance(tag)
-        }
     }
 
     private fun shareLogsDialog() {
@@ -448,14 +448,17 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
             .subscribe(
                 { available ->
                     loginVM.isNetworkConnected(available)
-                    mainVM.setToastMessage(
-                        getString(
-                            if (available)
-                                R.string.network_connection_lost
-                            else
-                                R.string.connected_to_network
+                    if (lastConnectionState != available) {
+                        mainVM.setToastMessage(
+                            getString(
+                                if (available)
+                                    R.string.connected_to_network
+                                else
+                                    R.string.network_connection_lost
+                            )
                         )
-                    )
+                    }
+                    lastConnectionState = available
                 },
                 {
                     Log.e(TAG, it)

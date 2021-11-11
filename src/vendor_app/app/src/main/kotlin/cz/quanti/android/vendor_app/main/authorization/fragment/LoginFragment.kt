@@ -150,9 +150,8 @@ class LoginFragment : Fragment() {
                                 loginBinding.loadingImageView.visibility = View.INVISIBLE
                                 loginBinding.loginButton.visibility = View.VISIBLE
                                 loginBinding.loginButton.isEnabled = true
-                                Log.e(TAG, it)
                                 if (it is LoginException) {
-                                    Log.d(TAG, it.message.toString())
+                                    Log.e(TAG, it.state.toString())
                                     when (it.state) {
                                         LoginExceptionState.NO_CONNECTION -> {
                                             mainVM.setToastMessage(
@@ -170,6 +169,7 @@ class LoginFragment : Fragment() {
                                         }
                                     }
                                 } else {
+                                    Log.e(TAG, it)
                                     loginBinding.usernameEditText.error = null
                                     loginBinding.passwordEditText.error = null
                                     mainVM.setToastMessage(getString(R.string.no_internet_connection))

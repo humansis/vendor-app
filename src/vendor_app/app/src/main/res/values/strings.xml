@@ -108,7 +108,7 @@
     <string name="cashback_with_voucher">Cashback cannot be purchased with a Voucher</string>
     <string name="limit_exceeded">Limit exceeded:</string>
     <string name="multiple_limits_exceeded">Multiple limits exceeded:</string>
-    <string name="commodity_type_not_allowed">You are not allowed to purchase:</string>
+    <string name="commodity_type_not_allowed">You are not allowed to purchase %1$s.</string>
     <string name="remove_commodity_type">"\n\nDo you wish to remove all %1$s products from cart?"</string>
     <string name="commodity_type_exceeded">%1$s products in your cart exceed your limit of %2$s.</string>
     <string name="please_update_cart">Please update your cart accordingly.</string>

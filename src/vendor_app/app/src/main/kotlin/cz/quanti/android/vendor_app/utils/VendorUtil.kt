@@ -133,14 +133,14 @@ fun constructLimitsExceededMessage(exceeded: MutableMap<Int, Double>, notAllowed
             String.format("%.2f", entry.value)
         ) + "\n"
     }
-    notAllowed.forEach { entry ->
-        val typeName = CategoryType.getById(entry.key).stringRes?.let { context.getString(it) }
-        message += context.getString(
-            R.string.commodity_type_not_allowed,
-            typeName
-        ) + "\n"
+    if (notAllowed.isNotEmpty()) {
+        message += context.getString(R.string.commodity_type_not_allowed)
+        notAllowed.forEach { entry ->
+            val typeName = CategoryType.getById(entry.key).stringRes?.let { context.getString(it) }
+            message += "\n" + typeName
+        }
     }
-    message += "\n" + context.getString(R.string.please_update_cart)
+    message += "\n\n" + context.getString(R.string.please_update_cart)
     return message
 }
 

@@ -5,6 +5,7 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import cz.quanti.android.vendor_app.R
@@ -26,6 +27,7 @@ class SelectedProductsAdapter(
     RecyclerView.Adapter<SelectedProductsViewHolder>() {
 
     private val products: MutableList<SelectedProduct> = mutableListOf()
+    private val restrictedTypes: MutableSet<Int> = mutableSetOf()
     var chosenCurrency: String = ""
     private var expandedCardHolder: SelectedProductsViewHolder? = null
 
@@ -48,6 +50,10 @@ class SelectedProductsAdapter(
             .into(holder.image)
 
         holder.productName.text = item.product.name
+        if (restrictedTypes.contains(item.product.category.type.typeId)) {
+            holder.productName.setTextColor(ContextCompat.getColor(context, R.color.red))
+            holder.price.setTextColor(ContextCompat.getColor(context, R.color.red))
+        }
         val price = "${getStringFromDouble(item.price)} $chosenCurrency"
         holder.price.text = price
 
@@ -124,6 +130,13 @@ class SelectedProductsAdapter(
     fun setData(data: List<SelectedProduct>) {
         products.clear()
         products.addAll(data)
+        notifyDataSetChanged()
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    fun setRestrictedTypes(typesToRemove: Set<Int>) {
+        restrictedTypes.clear()
+        restrictedTypes.addAll(typesToRemove)
         notifyDataSetChanged()
     }
 

@@ -249,8 +249,9 @@ class CheckoutViewModel(
             products.addAll(convert(shoppingHolder.cart))
             smartcard = card
             beneficiaryId = userBalance.userId.toLong()
-            vendorId = currentVendor.vendor.id
+            distributionId = userBalance.distributionId.toLong()
             createdAt = convertTimeForApiRequestBody(Date())
+            vendorId = currentVendor.vendor.id
             currency = userBalance.currencyCode
             balanceBefore = userBalance.originalBalance
             balanceAfter = userBalance.balance

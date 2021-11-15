@@ -5,6 +5,7 @@ data class CardPurchaseApiEntity(
     var createdAt: String = "",
     var vendorId: Long = 0,
     var beneficiaryId: Long? = null,
+    var distributionId: Long? = null,
     var balanceBefore: Double? = 0.0,
     var balanceAfter: Double? = 0.0
 )

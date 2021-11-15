@@ -23,7 +23,7 @@ class ReliefPackage (
     fun convertToDeposit(): Deposit {
         return Deposit(
             beneficiaryId = this.beneficiaryId,
-            depositId = this.assistanceId, // TODO prejmenovat depositId na assistanceId ?
+            distributionId = this.assistanceId,
             expirationDate = this.expirationDate,
             limits = getLimits(this),
             amount = this.amount,

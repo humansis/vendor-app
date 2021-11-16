@@ -5,7 +5,7 @@ data class Purchase(
     var vouchers: MutableList<Long> = mutableListOf(),
     var smartcard: String? = null,
     var beneficiaryId: Long? = null,
-    var distributionId: Long? = null,
+    var assistanceId: Long? = null,
     var createdAt: String = "",
     var vendorId: Long = 0,
     var dbId: Long = 0,

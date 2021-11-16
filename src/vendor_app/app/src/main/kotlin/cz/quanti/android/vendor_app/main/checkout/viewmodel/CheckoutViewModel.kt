@@ -201,7 +201,7 @@ class CheckoutViewModel(
                                                 }).toSingle {
                                                     Pair(tag, UserBalance(
                                                         userBalance.userId,
-                                                        userBalance.distributionId,
+                                                        userBalance.assistanceId,
                                                         userBalance.expirationDate,
                                                         userBalance.currencyCode,
                                                         reliefPackage.amount,
@@ -249,7 +249,7 @@ class CheckoutViewModel(
             products.addAll(convert(shoppingHolder.cart))
             smartcard = card
             beneficiaryId = userBalance.userId.toLong()
-            distributionId = userBalance.distributionId.toLong()
+            assistanceId = userBalance.assistanceId.toLong()
             createdAt = convertTimeForApiRequestBody(Date())
             vendorId = currentVendor.vendor.id
             currency = userBalance.currencyCode

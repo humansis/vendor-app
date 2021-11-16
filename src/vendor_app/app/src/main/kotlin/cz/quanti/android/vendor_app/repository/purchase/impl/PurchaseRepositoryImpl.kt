@@ -47,7 +47,7 @@ class PurchaseRepositoryImpl(
                         purchaseId = id,
                         card = purchase.smartcard,
                         beneficiaryId = purchase.beneficiaryId,
-                        distributionId = purchase.distributionId
+                        assistanceId = purchase.assistanceId
                     )
                 )
             }
@@ -117,7 +117,7 @@ class PurchaseRepositoryImpl(
                                                 dbId = purchaseDb.dbId,
                                                 vendorId = purchaseDb.vendorId,
                                                 beneficiaryId = cardPurchaseDb.beneficiaryId,
-                                                distributionId = cardPurchaseDb.distributionId,
+                                                assistanceId = cardPurchaseDb.assistanceId,
                                                 currency = purchaseDb.currency
                                             )
                                             purchase.products.addAll(productsDb.map { convert(it) })
@@ -276,7 +276,7 @@ class PurchaseRepositoryImpl(
             createdAt = purchase.createdAt,
             vendorId = purchase.vendorId,
             beneficiaryId = purchase.beneficiaryId,
-            distributionId= purchase.distributionId,
+            assistanceId= purchase.assistanceId,
             balanceBefore = purchase.balanceBefore,
             balanceAfter = purchase.balanceAfter
         )

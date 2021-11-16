@@ -37,7 +37,7 @@ interface ReliefPackageDao {
     fun getAll(): Single<List<ReliefPackageDbEntity>>
 
     @Query("SELECT * FROM " + VendorDb.TABLE_RELIEF_PACKAGE + " WHERE createdAt IS NOT NULL")
-    fun getDistributedReliefPackages() :Single<List<ReliefPackageDbEntity>>
+    fun getDistributedReliefPackages(): Single<List<ReliefPackageDbEntity>>
 
     @Query("SELECT * FROM " + VendorDb.TABLE_RELIEF_PACKAGE + " WHERE id = :reliefPackageId")
     fun getReliefPackageById(reliefPackageId: Int): Single<ReliefPackageDbEntity?>

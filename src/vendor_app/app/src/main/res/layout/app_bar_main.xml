@@ -35,8 +35,7 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    >
+                    app:layout_constraintBottom_toBottomOf="parent">
 
                     <ImageButton
                         android:id="@+id/syncButton"
@@ -49,8 +48,7 @@
                         android:layout_gravity="center_vertical"
                         android:background="@android:color/transparent"
                         android:contentDescription="@string/synchronize"
-                        app:srcCompat="@drawable/ic_cloud"
-                        />
+                        app:srcCompat="@drawable/ic_cloud" />
 
                     <ImageView
                         android:id="@+id/dot"
@@ -58,8 +56,7 @@
                         android:layout_height="wrap_content"
                         app:layout_constraintTop_toTopOf="@id/syncButton"
                         app:layout_constraintRight_toRightOf="@id/syncButton"
-                        android:src="@drawable/red_dot"
-                        />
+                        android:src="@drawable/red_dot" />
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -74,7 +71,7 @@
                     app:layout_constraintEnd_toEndOf="@+id/syncButtonArea"
                     app:layout_constraintTop_toTopOf="@+id/syncButtonArea"
                     app:layout_constraintBottom_toBottomOf="@+id/syncButtonArea"
-                    android:visibility="gone"/>
+                    android:visibility="gone" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -82,10 +79,11 @@
 
     </com.google.android.material.appbar.AppBarLayout>
 
-    <include layout="@layout/content_main"
+    <include
+        layout="@layout/content_main"
         android:id="@+id/contentMain"
         android:layout_height="0dp"
         android:layout_width="match_parent"
-        android:layout_weight="1"/>
+        android:layout_weight="1" />
 
 </LinearLayout>

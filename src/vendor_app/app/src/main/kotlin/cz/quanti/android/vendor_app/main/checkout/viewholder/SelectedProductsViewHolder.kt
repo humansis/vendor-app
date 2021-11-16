@@ -18,7 +18,8 @@ class SelectedProductsViewHolder(
     var close: ImageView = selectedProductBinding.closeButton
     var editProduct: FrameLayout = selectedProductBinding.editProduct
     var priceEditText: TextInputEditText = selectedProductBinding.productOptions.priceEditText
-    var priceTextInputLayout: TextInputLayout = selectedProductBinding.productOptions.priceTextInputLayout
+    var priceTextInputLayout: TextInputLayout =
+        selectedProductBinding.productOptions.priceTextInputLayout
     var remove: ImageView = selectedProductBinding.deleteButton
     var confirm: MaterialButton = selectedProductBinding.productOptions.confirmButton
 }

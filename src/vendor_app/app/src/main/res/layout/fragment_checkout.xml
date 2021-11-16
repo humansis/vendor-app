@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -37,7 +36,7 @@
             android:transcriptMode="alwaysScroll"
             android:splitMotionEvents="false"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"/>
+            app:layout_constraintBottom_toBottomOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -50,7 +49,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            app:layout_constraintGuide_percent="0.5"/>
+            app:layout_constraintGuide_percent="0.5" />
 
         <LinearLayout
             android:id="@+id/total"
@@ -72,7 +71,7 @@
                 android:textColor="@color/black"
                 android:textStyle="bold"
                 android:textSize="@dimen/fragment_subtitle"
-                tools:text="Total:"/>
+                tools:text="Total:" />
 
             <TextView
                 android:id="@+id/totalPriceTextView"
@@ -85,7 +84,7 @@
                 android:textColor="@color/black"
                 android:textStyle="bold"
                 android:textSize="@dimen/fragment_subtitle"
-                tools:text="125 SYP"/>
+                tools:text="125 SYP" />
 
         </LinearLayout>
 
@@ -101,7 +100,7 @@
             android:textSize="@dimen/fragment_text"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/total"/>
+            app:layout_constraintTop_toBottomOf="@id/total" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/scanButton"
@@ -120,7 +119,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:strokeColor="@color/payment_button_color"
             app:strokeWidth="1dp"
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton"/>
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/payByCardButton"
@@ -139,7 +138,7 @@
             app:layout_constraintStart_toEndOf="@+id/center"
             app:strokeColor="@color/payment_button_color"
             app:strokeWidth="1dp"
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton"/>
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/scannedVouchersRecyclerView"

@@ -5,7 +5,7 @@ import android.content.Context
 import android.os.SystemClock
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import android.widget.*
+import android.widget.Filter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
@@ -13,8 +13,7 @@ import cz.quanti.android.vendor_app.databinding.ItemProductBinding
 import cz.quanti.android.vendor_app.main.shop.callback.ProductAdapterCallback
 import cz.quanti.android.vendor_app.main.shop.viewholder.ProductViewHolder
 import cz.quanti.android.vendor_app.repository.product.dto.Product
-import java.util.*
-import kotlin.collections.ArrayList
+import java.util.Locale
 import org.koin.core.component.KoinComponent
 import quanti.com.kotlinlog.Log
 
@@ -93,7 +92,9 @@ class ProductsAdapter(
                 val filterPattern =
                     constraint.toString().lowercase(Locale.getDefault()).trim { it <= ' ' }
                 productsFull.forEach { product ->
-                    if (product.category.name.lowercase(Locale.getDefault()).contains(filterPattern)) {
+                    if (product.category.name.lowercase(Locale.getDefault())
+                            .contains(filterPattern)
+                    ) {
                         filteredList.add(product)
                     }
                 }

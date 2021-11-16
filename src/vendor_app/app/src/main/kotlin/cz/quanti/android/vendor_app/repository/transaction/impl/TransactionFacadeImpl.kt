@@ -37,23 +37,34 @@ class TransactionFacadeImpl(
                 var id: Long = 1
                 deleteAllTransactions().andThen(
                     deleteAllTransactionPurchases().andThen(
-                        Observable.fromIterable(transactionsList).flatMapCompletable { transactions ->
-                            transactionRepo.retrieveTransactionsPurchases(vendorId, transactions.projectId, transactions.currency).flatMapCompletable { response ->
-                                val transactionPurchasesList = response.second
-                                if (isPositiveResponseHttpCode(response.first)) {
-                                    saveTransactionToDb(transactions, id).flatMapCompletable { transactionId ->
-                                        id++
-                                        actualizeTransactionPurchaseDatabase(transactionPurchasesList, transactionId)
-                                    }
-                                } else {
-                                    // todo doresit aby exceptiony neprerusovaly sync
-                                    throw VendorAppException("Received code ${response.first} when trying download purchases.").apply {
-                                        apiError = true
-                                        apiResponseCode = responseCode
+                        Observable.fromIterable(transactionsList)
+                            .flatMapCompletable { transactions ->
+                                transactionRepo.retrieveTransactionsPurchases(
+                                    vendorId,
+                                    transactions.projectId,
+                                    transactions.currency
+                                ).flatMapCompletable { response ->
+                                    val transactionPurchasesList = response.second
+                                    if (isPositiveResponseHttpCode(response.first)) {
+                                        saveTransactionToDb(
+                                            transactions,
+                                            id
+                                        ).flatMapCompletable { transactionId ->
+                                            id++
+                                            actualizeTransactionPurchaseDatabase(
+                                                transactionPurchasesList,
+                                                transactionId
+                                            )
+                                        }
+                                    } else {
+                                        // todo doresit aby exceptiony neprerusovaly sync
+                                        throw VendorAppException("Received code ${response.first} when trying download purchases.").apply {
+                                            apiError = true
+                                            apiResponseCode = responseCode
+                                        }
                                     }
                                 }
                             }
-                        }
                     )
                 )
             } else {
@@ -70,7 +81,10 @@ class TransactionFacadeImpl(
         return transactionRepo.deleteTransactions()
     }
 
-    private fun saveTransactionToDb(transaction: TransactionApiEntity, transactionId: Long): Single<Long> {
+    private fun saveTransactionToDb(
+        transaction: TransactionApiEntity,
+        transactionId: Long
+    ): Single<Long> {
         return transactionRepo.saveTransaction(transaction, transactionId)
     }
 
@@ -78,9 +92,18 @@ class TransactionFacadeImpl(
         return transactionRepo.deleteTransactionPurchases()
     }
 
-    private fun actualizeTransactionPurchaseDatabase(transactionPurchases: List<TransactionPurchaseApiEntity>?, transactionId: Long): Completable {
-        return Observable.fromIterable(transactionPurchases).flatMapCompletable { transactionPurchase ->
-            Completable.fromSingle(transactionRepo.saveTransactionPurchase(transactionPurchase, transactionId))
-        }
+    private fun actualizeTransactionPurchaseDatabase(
+        transactionPurchases: List<TransactionPurchaseApiEntity>?,
+        transactionId: Long
+    ): Completable {
+        return Observable.fromIterable(transactionPurchases)
+            .flatMapCompletable { transactionPurchase ->
+                Completable.fromSingle(
+                    transactionRepo.saveTransactionPurchase(
+                        transactionPurchase,
+                        transactionId
+                    )
+                )
+            }
     }
 }

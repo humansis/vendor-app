@@ -5,7 +5,10 @@ import cz.quanti.android.vendor_app.repository.login.LoginRepository
 import cz.quanti.android.vendor_app.repository.login.dto.Vendor
 import cz.quanti.android.vendor_app.repository.utils.exceptions.LoginException
 import cz.quanti.android.vendor_app.repository.utils.exceptions.LoginExceptionState
-import cz.quanti.android.vendor_app.utils.*
+import cz.quanti.android.vendor_app.utils.CurrentVendor
+import cz.quanti.android.vendor_app.utils.LoginManager
+import cz.quanti.android.vendor_app.utils.hashAndSaltPassword
+import cz.quanti.android.vendor_app.utils.isPositiveResponseHttpCode
 import io.reactivex.Completable
 
 class LoginFacadeImpl(

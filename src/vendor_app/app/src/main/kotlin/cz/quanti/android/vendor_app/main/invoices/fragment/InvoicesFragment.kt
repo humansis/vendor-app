@@ -112,7 +112,7 @@ class InvoicesFragment : Fragment() {
         invoicesBinding.invoicesMessage.text = message
     }
 
-    private fun setMessageVisible (visible: Boolean) {
+    private fun setMessageVisible(visible: Boolean) {
         if (visible) {
             invoicesBinding.invoicesMessage.visibility = View.VISIBLE
         } else {

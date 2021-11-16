@@ -5,8 +5,8 @@ import cz.quanti.android.vendor_app.repository.synchronization.SynchronizationFa
 import io.reactivex.Observable
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.BehaviorSubject
-import quanti.com.kotlinlog.Log
 import java.util.Date
+import quanti.com.kotlinlog.Log
 
 class SynchronizationManagerImpl(
     private val preferences: AppPreferences,

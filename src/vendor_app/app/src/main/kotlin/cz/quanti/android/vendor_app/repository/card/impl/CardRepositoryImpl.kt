@@ -6,7 +6,7 @@ import cz.quanti.android.vendor_app.repository.card.dao.BlockedCardDao
 import cz.quanti.android.vendor_app.repository.card.dto.db.BlockedCardDbEntity
 import io.reactivex.Completable
 import io.reactivex.Single
-import java.util.*
+import java.util.Locale
 
 class CardRepositoryImpl(
     private val blockedCardDao: BlockedCardDao,

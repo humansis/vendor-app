@@ -30,7 +30,7 @@ import cz.quanti.android.vendor_app.utils.hashSHA1
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
-import java.util.*
+import java.util.Timer
 import kotlin.concurrent.timerTask
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -128,10 +128,10 @@ class ScannerFragment : Fragment() {
         permissions.firstOrNull { it == Manifest.permission.CAMERA }?.let {
             val index = permissions.indexOf(it)
             if (grantResults[index] == PackageManager.PERMISSION_GRANTED) {
-                    runScanner()
-                } else {
-                    Log.d(TAG, "Permission not granted")
-                }
+                runScanner()
+            } else {
+                Log.d(TAG, "Permission not granted")
+            }
         }
     }
 
@@ -154,7 +154,10 @@ class ScannerFragment : Fragment() {
         if (!cameraPermissionGranted()) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 mainVM.cameraPermissionsGrantedSLE.observe(viewLifecycleOwner, { permissionResult ->
-                    onCameraPermissionsResult(permissionResult.permissions, permissionResult.grantResults)
+                    onCameraPermissionsResult(
+                        permissionResult.permissions,
+                        permissionResult.grantResults
+                    )
                 })
                 requireActivity().requestPermissions(
                     arrayOf(Manifest.permission.CAMERA),
@@ -232,20 +235,21 @@ class ScannerFragment : Fragment() {
 
     private fun showPasswordDialog(tries: Int, voucher: Voucher) {
         if (tries < 1) {
-            disposables.add(scannerVM.deactivate(voucher)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe({
-                    AlertDialog.Builder(requireContext(), R.style.DialogTheme)
-                        .setTitle(getString(R.string.booklet_deactivated))
-                        .setMessage(getString(R.string.tries_exceeded_booklet_deactivated))
-                        .setPositiveButton(android.R.string.ok, null)
-                        .show()
-                    navigateBack()
-                },
-                {
-                    Log.e(TAG, it)
-                })
+            disposables.add(
+                scannerVM.deactivate(voucher)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe({
+                        AlertDialog.Builder(requireContext(), R.style.DialogTheme)
+                            .setTitle(getString(R.string.booklet_deactivated))
+                            .setMessage(getString(R.string.tries_exceeded_booklet_deactivated))
+                            .setPositiveButton(android.R.string.ok, null)
+                            .show()
+                        navigateBack()
+                    },
+                        {
+                            Log.e(TAG, it)
+                        })
             )
         } else {
             val dialogView: View = layoutInflater.inflate(R.layout.dialog_voucher_password, null)
@@ -254,7 +258,8 @@ class ScannerFragment : Fragment() {
                 limitedTriesTextView.text = getString(R.string.limited_tries_text)
             } else {
                 if (tries > 1) {
-                    limitedTriesTextView.text = getString(R.string.wrong_voucher_password_plural, tries)
+                    limitedTriesTextView.text =
+                        getString(R.string.wrong_voucher_password_plural, tries)
                 } else {
                     limitedTriesTextView.text = getString(R.string.wrong_voucher_password, tries)
                 }

@@ -76,8 +76,18 @@ class TransactionRepositoryImpl(
         return Completable.fromCallable { transactionDao.deleteAll() }
     }
 
-    override fun saveTransaction(transaction: TransactionApiEntity, transactionId: Long): Single<Long> {
-        return Single.fromCallable { transactionDao.insert(convertToDb(transaction, transactionId)) }
+    override fun saveTransaction(
+        transaction: TransactionApiEntity,
+        transactionId: Long
+    ): Single<Long> {
+        return Single.fromCallable {
+            transactionDao.insert(
+                convertToDb(
+                    transaction,
+                    transactionId
+                )
+            )
+        }
     }
 
     override fun retrieveTransactionsPurchases(
@@ -96,11 +106,17 @@ class TransactionRepositoryImpl(
         return transactionPurchaseDao.deleteAll()
     }
 
-    override fun saveTransactionPurchase(transactionPurchase: TransactionPurchaseApiEntity, transactionId: Long): Single<Long> {
+    override fun saveTransactionPurchase(
+        transactionPurchase: TransactionPurchaseApiEntity,
+        transactionId: Long
+    ): Single<Long> {
         return transactionPurchaseDao.insert(convertToDb(transactionPurchase, transactionId))
     }
 
-    private fun convertToDb(transaction: TransactionApiEntity, transactionId: Long): TransactionDbEntity {
+    private fun convertToDb(
+        transaction: TransactionApiEntity,
+        transactionId: Long
+    ): TransactionDbEntity {
         return TransactionDbEntity(
             dbId = transactionId,
             projectId = transaction.projectId,
@@ -109,7 +125,10 @@ class TransactionRepositoryImpl(
         )
     }
 
-    private fun convertToDb(transactionPurchase: TransactionPurchaseApiEntity, transactionId: Long): TransactionPurchaseDbEntity {
+    private fun convertToDb(
+        transactionPurchase: TransactionPurchaseApiEntity,
+        transactionId: Long
+    ): TransactionPurchaseDbEntity {
         return TransactionPurchaseDbEntity(
             dbId = transactionPurchase.id,
             value = transactionPurchase.value,

@@ -17,8 +17,8 @@ import cz.quanti.android.vendor_app.repository.purchase.dto.SelectedProduct
 import cz.quanti.android.vendor_app.utils.getStringFromDouble
 import cz.quanti.android.vendor_app.utils.inputFilterDecimal
 import cz.quanti.android.vendor_app.utils.round
-import quanti.com.kotlinlog.Log
 import java.math.BigDecimal
+import quanti.com.kotlinlog.Log
 
 class SelectedProductsAdapter(
     private val checkoutFragmentCallback: CheckoutFragmentCallback,

@@ -9,13 +9,19 @@ import cz.quanti.android.vendor_app.repository.invoice.dto.api.InvoiceApiEntity
 import cz.quanti.android.vendor_app.repository.login.dto.api.SaltApiEntity
 import cz.quanti.android.vendor_app.repository.login.dto.api.VendorApiEntity
 import cz.quanti.android.vendor_app.repository.product.dto.api.ProductApiEntity
-import cz.quanti.android.vendor_app.repository.purchase.dto.api.*
+import cz.quanti.android.vendor_app.repository.purchase.dto.api.CardPurchaseApiEntity
+import cz.quanti.android.vendor_app.repository.purchase.dto.api.VoucherPurchaseApiEntity
 import cz.quanti.android.vendor_app.repository.transaction.dto.api.TransactionApiEntity
 import cz.quanti.android.vendor_app.repository.transaction.dto.api.TransactionPurchaseApiEntity
 import cz.quanti.android.vendor_app.repository.utils.PagedApiEntity
 import io.reactivex.Single
 import retrofit2.Response
-import retrofit2.http.*
+import retrofit2.http.Body
+import retrofit2.http.GET
+import retrofit2.http.Header
+import retrofit2.http.POST
+import retrofit2.http.Path
+import retrofit2.http.Query
 
 interface VendorAPI {
 

@@ -5,10 +5,10 @@ import androidx.room.PrimaryKey
 import androidx.room.TypeConverters
 import cz.quanti.android.vendor_app.repository.VendorDb
 import cz.quanti.android.vendor_app.repository.utils.typeconverter.DateTypeConverter
-import java.util.*
+import java.util.Date
 
 @Entity(tableName = VendorDb.TABLE_RELIEF_PACKAGE)
-class ReliefPackageDbEntity (
+class ReliefPackageDbEntity(
     @PrimaryKey(autoGenerate = false)
     val id: Int,
     val assistanceId: Int,

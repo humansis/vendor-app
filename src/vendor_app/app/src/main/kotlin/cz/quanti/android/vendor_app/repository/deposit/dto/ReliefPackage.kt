@@ -2,9 +2,9 @@ package cz.quanti.android.vendor_app.repository.deposit.dto
 
 import cz.quanti.android.nfc.dto.v2.Deposit
 import cz.quanti.android.vendor_app.repository.category.dto.CategoryType
-import java.util.*
+import java.util.Date
 
-class ReliefPackage (
+class ReliefPackage(
     val id: Int,
     val assistanceId: Int,
     val beneficiaryId: Int,
@@ -31,7 +31,7 @@ class ReliefPackage (
         )
     }
 
-    private fun getLimits(reliefPackage: ReliefPackage): Map<Int,Double> {
+    private fun getLimits(reliefPackage: ReliefPackage): Map<Int, Double> {
         val limits = mutableMapOf<Int, Double>()
         reliefPackage.foodLimit?.let {
             limits[CategoryType.FOOD.typeId] = it

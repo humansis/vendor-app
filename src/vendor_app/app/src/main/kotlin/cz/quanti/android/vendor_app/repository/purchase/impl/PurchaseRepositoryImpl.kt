@@ -7,10 +7,22 @@ import cz.quanti.android.vendor_app.repository.product.dao.ProductDao
 import cz.quanti.android.vendor_app.repository.product.dto.Product
 import cz.quanti.android.vendor_app.repository.product.dto.db.ProductDbEntity
 import cz.quanti.android.vendor_app.repository.purchase.PurchaseRepository
-import cz.quanti.android.vendor_app.repository.purchase.dao.*
-import cz.quanti.android.vendor_app.repository.purchase.dto.*
-import cz.quanti.android.vendor_app.repository.purchase.dto.api.*
-import cz.quanti.android.vendor_app.repository.purchase.dto.db.*
+import cz.quanti.android.vendor_app.repository.purchase.dao.CardPurchaseDao
+import cz.quanti.android.vendor_app.repository.purchase.dao.PurchaseDao
+import cz.quanti.android.vendor_app.repository.purchase.dao.PurchasedProductDao
+import cz.quanti.android.vendor_app.repository.purchase.dao.SelectedProductDao
+import cz.quanti.android.vendor_app.repository.purchase.dao.VoucherPurchaseDao
+import cz.quanti.android.vendor_app.repository.purchase.dto.Purchase
+import cz.quanti.android.vendor_app.repository.purchase.dto.PurchasedProduct
+import cz.quanti.android.vendor_app.repository.purchase.dto.SelectedProduct
+import cz.quanti.android.vendor_app.repository.purchase.dto.api.CardPurchaseApiEntity
+import cz.quanti.android.vendor_app.repository.purchase.dto.api.PurchasedProductApiEntity
+import cz.quanti.android.vendor_app.repository.purchase.dto.api.VoucherPurchaseApiEntity
+import cz.quanti.android.vendor_app.repository.purchase.dto.db.CardPurchaseDbEntity
+import cz.quanti.android.vendor_app.repository.purchase.dto.db.PurchaseDbEntity
+import cz.quanti.android.vendor_app.repository.purchase.dto.db.PurchasedProductDbEntity
+import cz.quanti.android.vendor_app.repository.purchase.dto.db.SelectedProductDbEntity
+import cz.quanti.android.vendor_app.repository.purchase.dto.db.VoucherPurchaseDbEntity
 import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.Single
@@ -183,7 +195,7 @@ class PurchaseRepositoryImpl(
 
     override fun deleteAllVoucherPurchases(): Completable {
         return getAllPurchases().flatMapCompletable { purchases ->
-            Observable.fromIterable(purchases.filter { it.vouchers.isNotEmpty()})
+            Observable.fromIterable(purchases.filter { it.vouchers.isNotEmpty() })
                 .flatMapCompletable {
                     Completable.fromCallable {
                         purchaseDao.delete(convertToDb(it))
@@ -236,7 +248,10 @@ class PurchaseRepositoryImpl(
         )
     }
 
-    private fun convertToApi(purchased: PurchasedProduct, currency: String): PurchasedProductApiEntity {
+    private fun convertToApi(
+        purchased: PurchasedProduct,
+        currency: String
+    ): PurchasedProductApiEntity {
         return PurchasedProductApiEntity(
             id = purchased.product.id,
             value = purchased.price,
@@ -246,14 +261,17 @@ class PurchaseRepositoryImpl(
 
     private fun convertToDb(purchasedProduct: SelectedProduct): SelectedProductDbEntity {
         return SelectedProductDbEntity(
-                productId = purchasedProduct.product.id,
-                value = purchasedProduct.price,
-            ).apply {
-                purchasedProduct.dbId?.let { this.dbId = it }
-            }
+            productId = purchasedProduct.product.id,
+            value = purchasedProduct.price
+        ).apply {
+            purchasedProduct.dbId?.let { this.dbId = it }
+        }
     }
 
-    private fun convertToDb(purchasedProduct: PurchasedProduct, purchaseId: Long): PurchasedProductDbEntity {
+    private fun convertToDb(
+        purchasedProduct: PurchasedProduct,
+        purchaseId: Long
+    ): PurchasedProductDbEntity {
         return PurchasedProductDbEntity(
             productId = purchasedProduct.product.id,
             value = purchasedProduct.price,
@@ -276,7 +294,7 @@ class PurchaseRepositoryImpl(
             createdAt = purchase.createdAt,
             vendorId = purchase.vendorId,
             beneficiaryId = purchase.beneficiaryId,
-            assistanceId= purchase.assistanceId,
+            assistanceId = purchase.assistanceId,
             balanceBefore = purchase.balanceBefore,
             balanceAfter = purchase.balanceAfter
         )
@@ -295,4 +313,3 @@ class PurchaseRepositoryImpl(
         private val TAG = PurchaseRepositoryImpl::class.java.simpleName
     }
 }
-

@@ -8,9 +8,9 @@ enum class CategoryType(
     val stringRes: Int?
 ) {
     ALL(0, null, null),
-    FOOD (1, "Food", R.string.food),
-    NONFOOD (2, "Non-Food", R.string.nonfood),
-    CASHBACK (3, "Cashback", R.string.cashback),
+    FOOD(1, "Food", R.string.food),
+    NONFOOD(2, "Non-Food", R.string.nonfood),
+    CASHBACK(3, "Cashback", R.string.cashback),
     OTHER(4, null, null);
 
     companion object {

@@ -17,14 +17,14 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="8dp"
-            android:background="@color/colorPrimary"/>
+            android:background="@color/colorPrimary" />
 
         <TextView
             android:id="@+id/invoice_date_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textColor="@color/black"
-            android:layout_margin="8dp"/>
+            android:layout_margin="8dp" />
 
         <LinearLayout
             android:orientation="horizontal"
@@ -37,17 +37,16 @@
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
-                android:textColor="@color/black"/>
+                android:textColor="@color/black" />
 
             <TextView
                 android:id="@+id/invoice_total_text"
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
-                android:textColor="@color/black"/>
+                android:textColor="@color/black" />
 
         </LinearLayout>
-
 
 
     </LinearLayout>

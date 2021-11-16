@@ -3,7 +3,7 @@ package cz.quanti.android.vendor_app.repository.deposit.impl
 import cz.quanti.android.vendor_app.repository.VendorAPI
 import cz.quanti.android.vendor_app.repository.deposit.DepositRepository
 import cz.quanti.android.vendor_app.repository.deposit.dao.ReliefPackageDao
-import cz.quanti.android.vendor_app.repository.deposit.dto.*
+import cz.quanti.android.vendor_app.repository.deposit.dto.ReliefPackage
 import cz.quanti.android.vendor_app.repository.deposit.dto.api.ReliefPackageApiEntity
 import cz.quanti.android.vendor_app.repository.deposit.dto.api.SmartcardDepositApiEntity
 import cz.quanti.android.vendor_app.repository.deposit.dto.db.ReliefPackageDbEntity
@@ -13,8 +13,8 @@ import cz.quanti.android.vendor_app.utils.isPositiveResponseHttpCode
 import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.Single
+import java.util.Date
 import quanti.com.kotlinlog.Log
-import java.util.*
 
 class DepositRepositoryImpl(
     private val reliefPackageDao: ReliefPackageDao,
@@ -41,32 +41,33 @@ class DepositRepositoryImpl(
     }
 
     override fun downloadReliefPackages(vendorId: Int): Completable {
-        return api.getReliefPackages(vendorId, PACKAGE_STATE_TO_DISTRIBUTE).flatMapCompletable { response ->
-            when {
-                isPositiveResponseHttpCode(response.code()) -> {
-                    if (response.body()?.data.isNullOrEmpty()) {
-                        Log.d("RD returned from server were empty.")
+        return api.getReliefPackages(vendorId, PACKAGE_STATE_TO_DISTRIBUTE)
+            .flatMapCompletable { response ->
+                when {
+                    isPositiveResponseHttpCode(response.code()) -> {
+                        if (response.body()?.data.isNullOrEmpty()) {
+                            Log.d("RD returned from server were empty.")
+                            Completable.complete()
+                        } else {
+                            response.body()?.data?.let { data ->
+                                actualizeDatabase(data.map {
+                                    convert(it)
+                                })
+                            }
+                        }
+                    }
+                    response.code() == 403 -> {
+                        Log.d(TAG, "RD sync denied")
                         Completable.complete()
-                    } else {
-                        response.body()?.data?.let { data ->
-                            actualizeDatabase(data.map {
-                                convert(it)
-                            })
+                    }
+                    else -> {
+                        throw VendorAppException("Could not download RD").apply {
+                            this.apiResponseCode = response.code()
+                            this.apiError = true
                         }
                     }
                 }
-                response.code() == 403 -> {
-                    Log.d(TAG, "RD sync denied")
-                    Completable.complete()
-                }
-                else -> {
-                    throw VendorAppException("Could not download RD").apply {
-                        this.apiResponseCode = response.code()
-                        this.apiError = true
-                    }
-                }
             }
-        }
     }
 
     private fun actualizeDatabase(reliefPackages: List<ReliefPackage>): Completable {
@@ -131,7 +132,6 @@ class DepositRepositoryImpl(
             it.code()
         }
     }
-
 
     private fun convert(reliefPackageApiEntity: ReliefPackageApiEntity): ReliefPackage {
         return ReliefPackage(

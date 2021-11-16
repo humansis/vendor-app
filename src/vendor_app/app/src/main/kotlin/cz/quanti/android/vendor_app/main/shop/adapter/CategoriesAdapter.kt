@@ -89,10 +89,12 @@ class CategoriesAdapter(
                 .transition(DrawableTransitionOptions.withCrossFade())
                 .into(holder.categoryImage)
         }
-        holder.categoryForeground.background.setTint(ColorUtils.setAlphaComponent(
-            getTintColor(categories[position].type),
-            OPACITY
-        ))
+        holder.categoryForeground.background.setTint(
+            ColorUtils.setAlphaComponent(
+                getTintColor(categories[position].type),
+                OPACITY
+            )
+        )
 
         holder.categoryLayout.setOnClickListener {
             categoryAdapterCallback.onCategoryClicked(categories[position])

@@ -6,7 +6,7 @@ include:
     ref: 'mobile/docker-ci'
     file: 'src/mobile/aws-upload.template.yml'
 
-image: artifactory.quanti.cz/docker/devel-settings:jdk-11
+image: artifactory.quanti.cz/docker/builder-android:v2
 
 # todo: versioning
 variables:
@@ -16,6 +16,7 @@ variables:
   EMULATOR_TIMEOUT: "60"
 
 stages:
+  - prepare
   - build
   - archive
   - upload
@@ -36,14 +37,27 @@ stages:
       export GOOGLE_APPLICATION_CREDENTIALS=./app/adc.json;
     - ./gradlew clean
 
+before_build:
+  stage: prepare
+  extends: .gradle_build
+  script:
+    - sudo gem update fastlane
+
+ktlint:
+  stage: prepare
+  extends: .gradle_build
+  script:
+    - echo "ktlint"
+    - ./gradlew ktlint
+
 # Just build application
 build_debug_job:
   stage: build
   extends: .gradle_build
   script:
     - ./gradlew assembleDebug
-# Just build application
 
+# Just build application
 build_release_job:
   stage: build
   extends: .gradle_build

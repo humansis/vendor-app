@@ -112,7 +112,7 @@ class MainViewModel(
                             }).toSingle {
                                 UserBalance(
                                     userBalance.userId,
-                                    userBalance.distributionId,
+                                    userBalance.assistanceId,
                                     userBalance.expirationDate,
                                     userBalance.currencyCode,
                                     reliefPackage.amount,

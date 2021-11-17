@@ -11,7 +11,7 @@ buildscript {
     ext.junit_version = '4.13.2'
     ext.koin_version = '3.1.2'
     ext.kotlin_logger_version = '2.2.5'
-    ext.kotlin_version = '1.6.0'
+    ext.kotlin_version = '1.5.31'
     ext.ktlint_version = '9.3.0'
     ext.lifecycle_version = '2.3.1'
     ext.lifecycle_extensions_version = '2.2.0'

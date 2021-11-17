@@ -7,7 +7,8 @@ import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.RecyclerView
 import cz.quanti.android.vendor_app.databinding.ItemTransactionBinding
 
-class TransactionsViewHolder(transactionBinding: ItemTransactionBinding) : RecyclerView.ViewHolder(transactionBinding.root) {
+class TransactionsViewHolder(transactionBinding: ItemTransactionBinding) :
+    RecyclerView.ViewHolder(transactionBinding.root) {
     var projectId: TextView = transactionBinding.transactionsProjectId
     var purchasesTable: TableLayout = transactionBinding.purchasesTable
     var quantity: TextView = transactionBinding.transactionsQuantity

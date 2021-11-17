@@ -16,7 +16,9 @@ import android.util.DisplayMetrics
 import android.view.MenuItem
 import android.view.MotionEvent
 import android.view.View
-import android.widget.*
+import android.widget.AdapterView
+import android.widget.ImageButton
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
@@ -39,18 +41,20 @@ import cz.quanti.android.vendor_app.repository.login.LoginFacade
 import cz.quanti.android.vendor_app.repository.purchase.dto.SelectedProduct
 import cz.quanti.android.vendor_app.sync.SynchronizationManager
 import cz.quanti.android.vendor_app.sync.SynchronizationState
-import cz.quanti.android.vendor_app.utils.*
 import cz.quanti.android.vendor_app.utils.ConnectionObserver
 import cz.quanti.android.vendor_app.utils.NfcTagPublisher
 import cz.quanti.android.vendor_app.utils.PermissionRequestResult
 import cz.quanti.android.vendor_app.utils.SendLogDialogFragment
+import cz.quanti.android.vendor_app.utils.getBackgroundColor
+import cz.quanti.android.vendor_app.utils.getExpirationDateAsString
+import cz.quanti.android.vendor_app.utils.getLimitsAsText
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
+import java.util.Date
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import quanti.com.kotlinlog.Log
-import java.util.*
 
 class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCallback,
     NavigationView.OnNavigationItemSelectedListener {
@@ -177,7 +181,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
                 )
             }
             R.id.read_balance_button -> {
-                    showReadBalanceDialog()
+                showReadBalanceDialog()
             }
             R.id.share_logs_button -> {
                 shareLogsDialog()
@@ -205,7 +209,6 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
         }
     }
 
-
     private fun setUpToolbar() {
         activityBinding.navView.setNavigationItemSelectedListener(this)
 
@@ -219,9 +222,13 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
             activityBinding.drawerLayout
         )
 
-        val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
+        val navHostFragment =
+            supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
 
-        activityBinding.appBar.toolbar.setupWithNavController(navHostFragment.navController, appBarConfiguration)
+        activityBinding.appBar.toolbar.setupWithNavController(
+            navHostFragment.navController,
+            appBarConfiguration
+        )
 
         mainVM.showDot().observe(this, {
             if (it) {
@@ -326,13 +333,13 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
             .andThen(shopVM.deleteProducts())
             .andThen(transactionsVM.deleteTransactions())
             .andThen(invoiceVM.deleteInvoices())
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe({
-                    Log.d(TAG, "Sensitive data deleted successfully")
-                }, {
-                    Log.e(it)
-                })
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({
+                Log.d(TAG, "Sensitive data deleted successfully")
+            }, {
+                Log.e(it)
+            })
     }
 
     private fun showReadBalanceDialog() {
@@ -492,7 +499,8 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
     }
 
     private fun getToolbarUpButton(): ImageButton? {
-        val field = Class.forName("androidx.appcompat.widget.Toolbar").getDeclaredField("mNavButtonView")
+        val field =
+            Class.forName("androidx.appcompat.widget.Toolbar").getDeclaredField("mNavButtonView")
         field.isAccessible = true
         return field.get(activityBinding.appBar.toolbar) as? ImageButton
     }
@@ -501,7 +509,12 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
         getToolbarUpButton()?.isEnabled = boolean
         if (!boolean) {
             // I could not find a better method to make the arrow grey when disabled
-            getToolbarUpButton()?.setImageDrawable(ContextCompat.getDrawable(this,R.drawable.arrow_back))
+            getToolbarUpButton()?.setImageDrawable(
+                ContextCompat.getDrawable(
+                    this,
+                    R.drawable.arrow_back
+                )
+            )
             getToolbarUpButton()?.drawable?.setTint(ContextCompat.getColor(this, R.color.grey))
         } else {
             getToolbarUpButton()?.drawable?.setTint(ContextCompat.getColor(this, R.color.black))
@@ -515,14 +528,20 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
     override fun loadNavHeader(currentVendorName: String) {
         val navHeaderBinding = NavHeaderBinding.bind(activityBinding.navView.getHeaderView(0))
         val metrics: DisplayMetrics = resources.displayMetrics
-        navHeaderBinding.ivAppIcon.layoutParams.height = if ((metrics.heightPixels / metrics.density) > 640) {
-            resources.getDimensionPixelSize(R.dimen.nav_header_image_height_tall)
-        } else {
-            resources.getDimensionPixelSize(R.dimen.nav_header_image_height_regular)
-        }
+        navHeaderBinding.ivAppIcon.layoutParams.height =
+            if ((metrics.heightPixels / metrics.density) > 640) {
+                resources.getDimensionPixelSize(R.dimen.nav_header_image_height_tall)
+            } else {
+                resources.getDimensionPixelSize(R.dimen.nav_header_image_height_regular)
+            }
 
-        var appVersion = (getString(R.string.app_name) + " " + getString(R.string.version, BuildConfig.VERSION_NAME))
-        if (BuildConfig.DEBUG) { appVersion += (" (" + BuildConfig.BUILD_NUMBER + ")") }
+        var appVersion = (getString(R.string.app_name) + " " + getString(
+            R.string.version,
+            BuildConfig.VERSION_NAME
+        ))
+        if (BuildConfig.DEBUG) {
+            appVersion += (" (" + BuildConfig.BUILD_NUMBER + ")")
+        }
         navHeaderBinding.tvAppVersion.text = appVersion
 
         if (BuildConfig.DEBUG) {
@@ -557,15 +576,21 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
                 Log.e(TAG, it)
             })
 
-        activityBinding.priceUnitSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onNothingSelected(parent: AdapterView<*>?) {
-            }
+        activityBinding.priceUnitSpinner.onItemSelectedListener =
+            object : AdapterView.OnItemSelectedListener {
+                override fun onNothingSelected(parent: AdapterView<*>?) {
+                }
 
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                shopVM.setCurrency(activityBinding.priceUnitSpinner.selectedItem as String)
-                checkForCashbacks(activityBinding.priceUnitSpinner.selectedItem as String)
+                override fun onItemSelected(
+                    parent: AdapterView<*>?,
+                    view: View?,
+                    position: Int,
+                    id: Long
+                ) {
+                    shopVM.setCurrency(activityBinding.priceUnitSpinner.selectedItem as String)
+                    checkForCashbacks(activityBinding.priceUnitSpinner.selectedItem as String)
+                }
             }
-        }
     }
 
     private fun checkForCashbacks(currency: String) {
@@ -573,10 +598,10 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
         selectedProductsDisposable = shopVM.getSelectedProducts()
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribe ({ products ->
+            .subscribe({ products ->
                 products.find {
-                    it.product.category.type == CategoryType.CASHBACK
-                        && it.product.currency != currency
+                    it.product.category.type == CategoryType.CASHBACK &&
+                        it.product.currency != currency
                 }?.let {
                     removeProductFromCart(it)
                 }

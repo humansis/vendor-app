@@ -5,17 +5,25 @@ import android.content.Context
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.view.*
+import android.view.LayoutInflater
+import android.view.MotionEvent
+import android.view.View
+import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
-import android.widget.*
+import android.widget.LinearLayout
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.widget.SearchView
+import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.MutableLiveData
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
+import com.google.android.material.appbar.AppBarLayout
+import com.google.android.material.appbar.AppBarLayout.OnOffsetChangedListener
 import cz.quanti.android.vendor_app.ActivityCallback
 import cz.quanti.android.vendor_app.MainActivity
 import cz.quanti.android.vendor_app.MainActivity.OnTouchOutsideViewListener
@@ -23,36 +31,32 @@ import cz.quanti.android.vendor_app.MainViewModel
 import cz.quanti.android.vendor_app.R
 import cz.quanti.android.vendor_app.databinding.DialogProductBinding
 import cz.quanti.android.vendor_app.databinding.FragmentShopBinding
+import cz.quanti.android.vendor_app.main.authorization.viewmodel.LoginViewModel
 import cz.quanti.android.vendor_app.main.shop.adapter.CategoriesAdapter
 import cz.quanti.android.vendor_app.main.shop.adapter.ProductsAdapter
+import cz.quanti.android.vendor_app.main.shop.callback.CategoryAdapterCallback
+import cz.quanti.android.vendor_app.main.shop.callback.ProductAdapterCallback
 import cz.quanti.android.vendor_app.main.shop.viewmodel.ShopViewModel
 import cz.quanti.android.vendor_app.repository.category.dto.Category
 import cz.quanti.android.vendor_app.repository.category.dto.CategoryType
 import cz.quanti.android.vendor_app.repository.product.dto.Product
 import cz.quanti.android.vendor_app.repository.purchase.dto.SelectedProduct
-import cz.quanti.android.vendor_app.utils.getStringFromDouble
-import org.koin.androidx.viewmodel.ext.android.sharedViewModel
-import org.koin.androidx.viewmodel.ext.android.viewModel
-import com.google.android.material.appbar.AppBarLayout
-import androidx.coordinatorlayout.widget.CoordinatorLayout
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
-import com.google.android.material.appbar.AppBarLayout.OnOffsetChangedListener
-import cz.quanti.android.vendor_app.main.authorization.viewmodel.LoginViewModel
-import cz.quanti.android.vendor_app.main.shop.callback.CategoryAdapterCallback
-import cz.quanti.android.vendor_app.main.shop.callback.ProductAdapterCallback
 import cz.quanti.android.vendor_app.sync.SynchronizationState
 import cz.quanti.android.vendor_app.utils.getBackgroundColor
+import cz.quanti.android.vendor_app.utils.getStringFromDouble
 import cz.quanti.android.vendor_app.utils.inputFilterDecimal
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
-import quanti.com.kotlinlog.Log
 import java.math.BigDecimal
 import kotlin.math.abs
+import org.koin.androidx.viewmodel.ext.android.sharedViewModel
+import org.koin.androidx.viewmodel.ext.android.viewModel
+import quanti.com.kotlinlog.Log
 
-class ShopFragment : Fragment(), CategoryAdapterCallback, ProductAdapterCallback, OnTouchOutsideViewListener {
+class ShopFragment : Fragment(), CategoryAdapterCallback, ProductAdapterCallback,
+    OnTouchOutsideViewListener {
 
     private val loginVM: LoginViewModel by viewModel()
     private val mainVM: MainViewModel by sharedViewModel()
@@ -142,7 +146,8 @@ class ShopFragment : Fragment(), CategoryAdapterCallback, ProductAdapterCallback
     private fun initCategoriesAdapter() {
         categoriesAdapter = CategoriesAdapter(this, requireContext())
 
-        val viewManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false )
+        val viewManager =
+            LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
 
         shopBinding.categoriesRecyclerView.setHasFixedSize(true)
         shopBinding.categoriesRecyclerView.layoutManager = viewManager
@@ -198,16 +203,17 @@ class ShopFragment : Fragment(), CategoryAdapterCallback, ProductAdapterCallback
             setAppBarHidden(!it)
             showCategories(it)
             if (it) {
-                shopBinding.categoriesAppBarLayout.addOnOffsetChangedListener( OnOffsetChangedListener { appBarLayout, verticalOffset ->
-                    if (abs(verticalOffset) >= appBarLayout.totalScrollRange) {
-                        if (appBarState != AppBarStateEnum.COLLAPSED) {
-                            appBarState = AppBarStateEnum.COLLAPSED
-                            shopBinding.categoriesRecyclerView.scrollToPosition(0)
+                shopBinding.categoriesAppBarLayout.addOnOffsetChangedListener(
+                    OnOffsetChangedListener { appBarLayout, verticalOffset ->
+                        if (abs(verticalOffset) >= appBarLayout.totalScrollRange) {
+                            if (appBarState != AppBarStateEnum.COLLAPSED) {
+                                appBarState = AppBarStateEnum.COLLAPSED
+                                shopBinding.categoriesRecyclerView.scrollToPosition(0)
+                            }
+                        } else {
+                            appBarState = AppBarStateEnum.EXPANDED
                         }
-                    } else {
-                        appBarState = AppBarStateEnum.EXPANDED
-                    }
-                })
+                    })
             }
         })
 
@@ -250,8 +256,7 @@ class ShopFragment : Fragment(), CategoryAdapterCallback, ProductAdapterCallback
                 shopBinding.totalTextView.visibility = View.GONE
                 shopBinding.cartFAB.visibility = View.GONE
                 shopBinding.cartBadge.visibility = View.GONE
-            }
-            else {
+            } else {
                 actualizeTotal()
                 // wait for keyboard to hide to prevent weird animation
                 Handler(Looper.getMainLooper()).postDelayed({
@@ -259,7 +264,7 @@ class ShopFragment : Fragment(), CategoryAdapterCallback, ProductAdapterCallback
                     shopBinding.cartFAB.visibility = View.VISIBLE
                     shopBinding.cartBadge.visibility = View.VISIBLE
                     shopBinding.cartBadge.text = products.size.toString()
-                }, if (isKeyboardVisible()) KEYBOARD_ANIMATION_DURATION else ZERO )
+                }, if (isKeyboardVisible()) KEYBOARD_ANIMATION_DURATION else ZERO)
             }
         })
     }
@@ -289,7 +294,8 @@ class ShopFragment : Fragment(), CategoryAdapterCallback, ProductAdapterCallback
         if (boolean) {
             shopBinding.categoriesAppBarLayout.layoutParams.height = 0
         } else {
-            shopBinding.categoriesAppBarLayout.layoutParams.height = AppBarLayout.LayoutParams.WRAP_CONTENT
+            shopBinding.categoriesAppBarLayout.layoutParams.height =
+                AppBarLayout.LayoutParams.WRAP_CONTENT
         }
     }
 
@@ -331,7 +337,7 @@ class ShopFragment : Fragment(), CategoryAdapterCallback, ProductAdapterCallback
         if (vm.hasCashback() != null && product.category.type == CategoryType.CASHBACK) {
             mainVM.setToastMessage(getString(R.string.only_one_cashback_item_allowed))
         } else {
-            val dialogBinding = DialogProductBinding.inflate(layoutInflater,null, false)
+            val dialogBinding = DialogProductBinding.inflate(layoutInflater, null, false)
 
             Glide
                 .with(requireContext())
@@ -353,7 +359,11 @@ class ShopFragment : Fragment(), CategoryAdapterCallback, ProductAdapterCallback
         }
     }
 
-    private fun loadOptions(dialog: AlertDialog, dialogBinding: DialogProductBinding, product: Product) {
+    private fun loadOptions(
+        dialog: AlertDialog,
+        dialogBinding: DialogProductBinding,
+        product: Product
+    ) {
         val priceEditText = dialogBinding.editProduct.priceEditText
         val confirmButton = dialogBinding.editProduct.confirmButton
         priceEditText.hint = requireContext().getString(R.string.price)
@@ -416,7 +426,7 @@ class ShopFragment : Fragment(), CategoryAdapterCallback, ProductAdapterCallback
         shopBinding.shopMessage.text = message
     }
 
-    private fun setMessageVisible (visible: Boolean) {
+    private fun setMessageVisible(visible: Boolean) {
         if (visible) {
             shopBinding.shopMessage.visibility = View.VISIBLE
         } else {
@@ -426,7 +436,8 @@ class ShopFragment : Fragment(), CategoryAdapterCallback, ProductAdapterCallback
 
     private fun actualizeTotal() {
         val total = vm.getTotal()
-        val totalText = "${getString(R.string.total)}: ${getStringFromDouble(total)} ${vm.getCurrency()}"
+        val totalText =
+            "${getString(R.string.total)}: ${getStringFromDouble(total)} ${vm.getCurrency()}"
         shopBinding.totalTextView.text = totalText
     }
 
@@ -447,10 +458,13 @@ enum class AppBarStateEnum {
 
 private fun List<Category>.addAllCategory(context: Context): List<Category> {
     return this.toMutableList().apply {
-        add(0, Category(0,
-            context.getString(R.string.all_products),
-            CategoryType.ALL
-        ))
+        add(
+            0, Category(
+                0,
+                context.getString(R.string.all_products),
+                CategoryType.ALL
+            )
+        )
     }
 }
 

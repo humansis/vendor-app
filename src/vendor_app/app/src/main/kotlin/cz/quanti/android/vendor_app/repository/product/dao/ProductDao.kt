@@ -1,6 +1,10 @@
 package cz.quanti.android.vendor_app.repository.product.dao
 
-import androidx.room.*
+import androidx.room.Dao
+import androidx.room.Delete
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
+import androidx.room.Query
 import cz.quanti.android.vendor_app.repository.VendorDb
 import cz.quanti.android.vendor_app.repository.product.dto.db.ProductDbEntity
 import io.reactivex.Completable

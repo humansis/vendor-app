@@ -159,7 +159,16 @@ object KoinInitializer {
         val transactionFacade: TransactionFacade = TransactionFacadeImpl(transactionRepo)
         val invoiceFacade: InvoiceFacade = InvoiceFacadeImpl(invoiceRepo)
         val syncFacade: SynchronizationFacade =
-            SynchronizationFacadeImpl(bookletFacade, cardFacade, categoryFacade, depositFacade, productFacade, purchaseFacade, transactionFacade, invoiceFacade)
+            SynchronizationFacadeImpl(
+                bookletFacade,
+                cardFacade,
+                categoryFacade,
+                depositFacade,
+                productFacade,
+                purchaseFacade,
+                transactionFacade,
+                invoiceFacade
+            )
         val synchronizationManager: SynchronizationManager =
             SynchronizationManagerImpl(preferences, syncFacade)
         val nfcFacade: VendorFacade = PINFacade(
@@ -227,7 +236,13 @@ object KoinInitializer {
                 )
             }
             viewModel { InvoicesViewModel(invoiceFacade, synchronizationManager) }
-            viewModel { TransactionsViewModel(transactionFacade, synchronizationManager, syncFacade) }
+            viewModel {
+                TransactionsViewModel(
+                    transactionFacade,
+                    synchronizationManager,
+                    syncFacade
+                )
+            }
         }
     }
 

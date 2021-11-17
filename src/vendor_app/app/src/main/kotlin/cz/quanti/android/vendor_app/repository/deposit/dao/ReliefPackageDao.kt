@@ -1,6 +1,10 @@
 package cz.quanti.android.vendor_app.repository.deposit.dao
 
-import androidx.room.*
+import androidx.room.Dao
+import androidx.room.Delete
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
+import androidx.room.Query
 import cz.quanti.android.vendor_app.repository.VendorDb
 import cz.quanti.android.vendor_app.repository.deposit.dto.db.ReliefPackageDbEntity
 import io.reactivex.Completable
@@ -13,7 +17,12 @@ interface ReliefPackageDao {
     fun insert(reliefPackage: ReliefPackageDbEntity): Completable
 
     @Query("UPDATE " + VendorDb.TABLE_RELIEF_PACKAGE + " SET createdAt = :createdAt, balanceBefore = :balanceBefore, balanceAfter = :balanceAfter WHERE id = :id")
-    fun update(id: Int, createdAt: String?, balanceBefore: Double?, balanceAfter: Double?): Completable
+    fun update(
+        id: Int,
+        createdAt: String?,
+        balanceBefore: Double?,
+        balanceAfter: Double?
+    ): Completable
 
     @Delete
     fun delete(reliefPackage: ReliefPackageDbEntity): Completable
@@ -28,7 +37,7 @@ interface ReliefPackageDao {
     fun getAll(): Single<List<ReliefPackageDbEntity>>
 
     @Query("SELECT * FROM " + VendorDb.TABLE_RELIEF_PACKAGE + " WHERE createdAt IS NOT NULL")
-    fun getDistributedReliefPackages() :Single<List<ReliefPackageDbEntity>>
+    fun getDistributedReliefPackages(): Single<List<ReliefPackageDbEntity>>
 
     @Query("SELECT * FROM " + VendorDb.TABLE_RELIEF_PACKAGE + " WHERE id = :reliefPackageId")
     fun getReliefPackageById(reliefPackageId: Int): Single<ReliefPackageDbEntity?>

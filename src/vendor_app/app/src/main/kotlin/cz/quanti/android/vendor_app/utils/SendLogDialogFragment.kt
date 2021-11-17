@@ -142,7 +142,7 @@ class SendLogDialogFragment : DialogFragment() {
         val zipFileUri = zipFile?.await()?.getUriForFile(appContext)
 
         val intent = Intent(Intent.ACTION_SEND).apply {
-            type = "message/rfc822" //email
+            type = "message/rfc822" // email
             type = "message/rfc822" // email
             flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
             putExtra(Intent.EXTRA_EMAIL, addresses)
@@ -160,7 +160,6 @@ class SendLogDialogFragment : DialogFragment() {
                 Toast.LENGTH_LONG
             ).show()
         }
-
     }
 
     /**

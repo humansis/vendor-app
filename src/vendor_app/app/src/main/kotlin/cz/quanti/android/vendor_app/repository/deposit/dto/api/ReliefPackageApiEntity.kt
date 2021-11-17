@@ -1,6 +1,6 @@
 package cz.quanti.android.vendor_app.repository.deposit.dto.api
 
-class ReliefPackageApiEntity (
+class ReliefPackageApiEntity(
     val id: Int,
     val assistanceId: Int,
     val beneficiaryId: Int,

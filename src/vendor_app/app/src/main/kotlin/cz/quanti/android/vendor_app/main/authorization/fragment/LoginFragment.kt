@@ -21,13 +21,13 @@ import cz.quanti.android.vendor_app.repository.utils.exceptions.LoginException
 import cz.quanti.android.vendor_app.repository.utils.exceptions.LoginExceptionState
 import cz.quanti.android.vendor_app.utils.ApiEnvironments
 import cz.quanti.android.vendor_app.utils.Constants
+import cz.quanti.android.vendor_app.utils.hideKeyboard
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
+import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import quanti.com.kotlinlog.Log
-import cz.quanti.android.vendor_app.utils.hideKeyboard
-import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 
 class LoginFragment : Fragment() {
 
@@ -59,7 +59,7 @@ class LoginFragment : Fragment() {
             loginBinding.settingsImageView.visibility = View.VISIBLE
             loginBinding.envTextView.visibility = View.VISIBLE
             var defaultEnv = ApiEnvironments.STAGE
-            vm.getApiHost()?.let{
+            vm.getApiHost()?.let {
                 defaultEnv = it
             }
             loginBinding.envTextView.text = defaultEnv.name
@@ -112,8 +112,12 @@ class LoginFragment : Fragment() {
             loginBinding.loginButton.setOnClickListener {
                 Log.d(TAG, "Login button clicked.")
                 hideKeyboard()
-                if (loginBinding.usernameEditText.text.toString().isNotEmpty() && loginBinding.passwordEditText.text.toString().isNotEmpty()) {
-                    if (loginBinding.usernameEditText.text.toString().equals(BuildConfig.DEMO_ACCOUNT, true)) {
+                if (loginBinding.usernameEditText.text.toString()
+                        .isNotEmpty() && loginBinding.passwordEditText.text.toString().isNotEmpty()
+                ) {
+                    if (loginBinding.usernameEditText.text.toString()
+                            .equals(BuildConfig.DEMO_ACCOUNT, true)
+                    ) {
                         vm.setApiHost(ApiEnvironments.STAGE)
                     }
 
@@ -134,7 +138,10 @@ class LoginFragment : Fragment() {
 
                     disposable?.dispose()
                     disposable =
-                        vm.login(loginBinding.usernameEditText.text.toString(), loginBinding.passwordEditText.text.toString())
+                        vm.login(
+                            loginBinding.usernameEditText.text.toString(),
+                            loginBinding.passwordEditText.text.toString()
+                        )
                             .subscribeOn(Schedulers.io())
                             .observeOn(AndroidSchedulers.mainThread())
                             .subscribe({
@@ -164,8 +171,10 @@ class LoginFragment : Fragment() {
                                         }
                                         LoginExceptionState.INVALID_USER,
                                         LoginExceptionState.INVALID_PASSWORD -> {
-                                            loginBinding.usernameEditText.error = getString(R.string.wrong_password)
-                                            loginBinding.passwordEditText.error = getString(R.string.wrong_password)
+                                            loginBinding.usernameEditText.error =
+                                                getString(R.string.wrong_password)
+                                            loginBinding.passwordEditText.error =
+                                                getString(R.string.wrong_password)
                                         }
                                     }
                                 } else {

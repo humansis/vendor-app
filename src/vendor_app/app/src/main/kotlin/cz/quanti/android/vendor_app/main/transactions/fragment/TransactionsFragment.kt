@@ -79,8 +79,9 @@ class TransactionsFragment : Fragment() {
 
     private fun initObservers() {
         vm.getPurchasesCount().observe(viewLifecycleOwner, {
-            transactionsBinding.unsyncedWarning.warningText.text = getString(R.string.unsynced_transactions, it)
-            if (it > 0L ) {
+            transactionsBinding.unsyncedWarning.warningText.text =
+                getString(R.string.unsynced_transactions, it)
+            if (it > 0L) {
                 transactionsBinding.unsyncedWarning.root.visibility = View.VISIBLE
             } else {
                 transactionsBinding.unsyncedWarning.root.visibility = View.GONE
@@ -128,7 +129,7 @@ class TransactionsFragment : Fragment() {
         transactionsBinding.transactionsMessage.text = message
     }
 
-    private fun setMessageVisible (visible: Boolean) {
+    private fun setMessageVisible(visible: Boolean) {
         if (visible) {
             transactionsBinding.transactionsMessage.visibility = View.VISIBLE
         } else {

@@ -53,7 +53,7 @@
                 android:splitMotionEvents="false"
                 android:transcriptMode="alwaysScroll"
                 app:fastScrollEnabled="false"
-                app:layout_scrollFlags="scroll|snap"/>
+                app:layout_scrollFlags="scroll|snap" />
 
             <TextView
                 android:id="@+id/productsHeader"
@@ -77,7 +77,7 @@
             android:scrollbars="none"
             android:transcriptMode="alwaysScroll"
             android:splitMotionEvents="false"
-            app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
+            app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
@@ -92,7 +92,7 @@
         android:textStyle="bold"
         android:textSize="@dimen/fragment_bigger_text"
         app:layout_constraintBottom_toBottomOf="parent"
-        tools:text="Total: 120 SYP"/>
+        tools:text="Total: 120 SYP" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/cartFAB"
@@ -105,7 +105,7 @@
         app:backgroundTint="@color/colorPrimary"
         app:shapeAppearanceOverlay="@style/SquareFAB"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <TextView
         android:id="@+id/cartBadge"
@@ -121,6 +121,6 @@
         android:layout_marginBottom="40dp"
         android:layout_marginEnd="40dp"
         app:layout_constraintDimensionRatio="1:1"
-        tools:text="1"/>
+        tools:text="1" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -4,7 +4,11 @@ import cz.quanti.android.vendor_app.repository.VendorAPI
 import cz.quanti.android.vendor_app.repository.login.LoginRepository
 import cz.quanti.android.vendor_app.repository.login.dto.Salt
 import cz.quanti.android.vendor_app.repository.login.dto.Vendor
-import cz.quanti.android.vendor_app.repository.login.dto.api.*
+import cz.quanti.android.vendor_app.repository.login.dto.api.SaltApiEntity
+import cz.quanti.android.vendor_app.repository.login.dto.api.SaltWithResponseCode
+import cz.quanti.android.vendor_app.repository.login.dto.api.VendorApiEntity
+import cz.quanti.android.vendor_app.repository.login.dto.api.VendorLocationApiEntity
+import cz.quanti.android.vendor_app.repository.login.dto.api.VendorWithResponseCode
 import cz.quanti.android.vendor_app.repository.utils.exceptions.LoginException
 import cz.quanti.android.vendor_app.repository.utils.exceptions.LoginExceptionState
 import io.reactivex.Single
@@ -15,7 +19,7 @@ class LoginRepositoryImpl(private val api: VendorAPI) :
     LoginRepository {
 
     override fun getSalt(username: String): Single<SaltWithResponseCode> {
-        return api.getSalt(username).onErrorResumeNext{
+        return api.getSalt(username).onErrorResumeNext {
             when (it) {
                 is IOException -> {
                     Single.error(LoginException(LoginExceptionState.NO_CONNECTION))
@@ -34,7 +38,10 @@ class LoginRepositoryImpl(private val api: VendorAPI) :
 
     override fun login(vendor: Vendor): Single<VendorWithResponseCode> {
         return api.postLogin(convert(vendor)).map { response ->
-            VendorWithResponseCode(vendor = convert(response.body()), responseCode = response.code())
+            VendorWithResponseCode(
+                vendor = convert(response.body()),
+                responseCode = response.code()
+            )
         }
     }
 

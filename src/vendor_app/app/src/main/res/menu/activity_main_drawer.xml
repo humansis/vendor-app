@@ -32,8 +32,7 @@
 
     </group>
 
-    <item
-        android:title="@string/utilities">
+    <item android:title="@string/utilities">
 
         <menu>
 
@@ -63,6 +62,6 @@
     <item
         android:title=""
         android:id="@+id/dummy_item"
-        android:enabled="false"/>
+        android:enabled="false" />
 
 </menu>

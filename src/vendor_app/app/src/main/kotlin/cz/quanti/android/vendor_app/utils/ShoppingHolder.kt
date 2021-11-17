@@ -45,7 +45,7 @@ data class ShoppingHolder(
     fun removeProductsByType(typesToRemove: Set<Int>): Completable {
         return purchaseFacade.getProductsFromCartSingle().flatMapCompletable { selectedProducts ->
             Observable.fromIterable(selectedProducts).flatMapCompletable { selectedProduct ->
-                if (typesToRemove.contains(selectedProduct.product.category.type.typeId )) {
+                if (typesToRemove.contains(selectedProduct.product.category.type.typeId)) {
                     purchaseFacade.removeProductFromCart(selectedProduct)
                 } else {
                     Completable.complete()

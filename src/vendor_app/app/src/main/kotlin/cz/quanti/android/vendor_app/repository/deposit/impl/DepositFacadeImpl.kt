@@ -9,7 +9,7 @@ import io.reactivex.Single
 
 class DepositFacadeImpl(
     private val depositRepo: DepositRepository
-): DepositFacade {
+) : DepositFacade {
 
     override fun syncWithServer(vendorId: Int): Completable {
         return sendDataToServer()
@@ -27,7 +27,10 @@ class DepositFacadeImpl(
     override fun getRelevantReliefPackage(tagId: String): Single<NullableObjectWrapper<ReliefPackage>> {
         return depositRepo.deleteOldReliefPackages().andThen(
             depositRepo.getReliefPackagesFromDB(tagId).map { reliefPackages ->
-                NullableObjectWrapper(reliefPackages.sortedWith(nullsLast(compareBy{ it.expirationDate })).firstOrNull())
+                NullableObjectWrapper(
+                    reliefPackages.sortedWith(nullsLast(compareBy { it.expirationDate }))
+                        .firstOrNull()
+                )
             }
         )
     }

@@ -5,8 +5,8 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.widget.doOnTextChanged
 import androidx.activity.OnBackPressedCallback
+import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import cz.quanti.android.nfc.dto.v2.UserBalance
@@ -54,7 +54,8 @@ class ScanCardFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        scanCardBinding.price.text  = getString(R.string.total_price, vm.getTotal(), vm.getCurrency())
+        scanCardBinding.price.text =
+            getString(R.string.total_price, vm.getTotal(), vm.getCurrency())
         init()
     }
 
@@ -124,7 +125,8 @@ class ScanCardFragment : Fragment() {
             }
 
             // prevent leaving ScanCardFragment when theres scanning in progress or when card got broken during previous payment
-            val enableLeaving = state!= PaymentStateEnum.IN_PROGRESS && vm.getOriginalCardData().preserveBalance == null
+            val enableLeaving =
+                state != PaymentStateEnum.IN_PROGRESS && vm.getOriginalCardData().preserveBalance == null
             activityCallback.setBackButtonEnabled(enableLeaving)
             scanCardBinding.backButton.isEnabled = (enableLeaving)
             requireActivity().onBackPressedDispatcher.addCallback(
@@ -181,27 +183,28 @@ class ScanCardFragment : Fragment() {
         }
     }
 
-     private fun payByCard() {
-         if (mainVM.enableNfc(requireActivity())) {
-             vm.getPin()?.let { pin ->
-                 paymentDisposable?.dispose()
-                 paymentDisposable = vm.payByCard(pin)
-             }
-         }
-     }
+    private fun payByCard() {
+        if (mainVM.enableNfc(requireActivity())) {
+            vm.getPin()?.let { pin ->
+                paymentDisposable?.dispose()
+                paymentDisposable = vm.payByCard(pin)
+            }
+        }
+    }
 
     private fun onPaymentSuccessful(userBalance: UserBalance) {
         mainVM.successSLE.call()
-        val dialogBinding = DialogSuccessBinding.inflate(layoutInflater,null, false)
+        val dialogBinding = DialogSuccessBinding.inflate(layoutInflater, null, false)
         dialogBinding.title.text = getString(R.string.success)
-        dialogBinding.message.text = getString(R.string.card_successfuly_paid_new_balance,
+        dialogBinding.message.text = getString(
+            R.string.card_successfuly_paid_new_balance,
             "${userBalance.balance} ${userBalance.currencyCode}" +
-            if(userBalance.balance != 0.0) {
-                getExpirationDateAsString(userBalance.expirationDate, requireContext()) +
-                getLimitsAsText(userBalance, requireContext())
-            } else {
-                String()
-            }
+                if (userBalance.balance != 0.0) {
+                    getExpirationDateAsString(userBalance.expirationDate, requireContext()) +
+                        getLimitsAsText(userBalance, requireContext())
+                } else {
+                    String()
+                }
         )
         AlertDialog.Builder(requireContext(), R.style.SuccessDialogTheme).apply {
             setView(dialogBinding.root)
@@ -219,7 +222,7 @@ class ScanCardFragment : Fragment() {
     private fun clearCart() {
         clearCartDisposable?.dispose()
         clearCartDisposable = vm.clearCart()
-        .subscribeOn(Schedulers.io())
+            .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({
                 Log.d(TAG, "Shopping cart emptied successfully")
@@ -244,7 +247,10 @@ class ScanCardFragment : Fragment() {
                     }
                     PINExceptionEnum.PRESERVE_BALANCE -> {
                         Log.d(TAG, "Preserve Balance ${throwable.reconstructPreserveBalance()}.")
-                        vm.setOriginalCardData(throwable.reconstructPreserveBalance(), throwable.tagId)
+                        vm.setOriginalCardData(
+                            throwable.reconstructPreserveBalance(),
+                            throwable.tagId
+                        )
                         mainVM.setToastMessage(getNfcCardErrorMessage(throwable.pinExceptionEnum))
                         payByCard()
                     }

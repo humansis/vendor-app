@@ -4,7 +4,9 @@ import android.annotation.SuppressLint
 import android.util.Base64
 import java.security.MessageDigest
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Date
+import java.util.Locale
+import java.util.TimeZone
 import kotlin.random.Random
 
 fun hashAndSaltPassword(salt: String, password: String): String {

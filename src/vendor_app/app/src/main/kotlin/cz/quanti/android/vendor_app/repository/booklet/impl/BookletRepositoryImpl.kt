@@ -82,8 +82,8 @@ class BookletRepositoryImpl(
     override fun sendDeactivatedBookletsToServer(booklets: List<Booklet>): Single<Int> {
         return api.postBooklets(BookletCodesBody(booklets.map { it.code }))
             .map { response ->
-            response.code()
-        }
+                response.code()
+            }
     }
 
     override fun getProtectedBooklets(): Single<List<Booklet>> {

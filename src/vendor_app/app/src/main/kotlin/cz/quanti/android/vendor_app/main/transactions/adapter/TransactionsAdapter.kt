@@ -31,7 +31,8 @@ class TransactionsAdapter(
     override fun onBindViewHolder(holder: TransactionsViewHolder, position: Int) {
         val item = transactions[position]
 
-        holder.projectId.text = (context.getString(R.string.project) + "  ${item.projectId}") // todo replace later with project name
+        holder.projectId.text =
+            (context.getString(R.string.project) + "  ${item.projectId}") // todo replace later with project name
         holder.quantity.text = context.getString(R.string.quantity, item.purchases.size)
         holder.total.text = context.getString(R.string.total_price, item.value, item.currency)
 
@@ -71,10 +72,11 @@ class TransactionsAdapter(
                     R.string.date,
                     convertStringToDateFormattedString(context, tp.createdAt) ?: R.string.unknown
                 )
-                row.findViewById<TextView>(R.id.transaction_purchase_total).text = context.getString(
-                    R.string.total_price,
-                    tp.value, tp.currency
-                )
+                row.findViewById<TextView>(R.id.transaction_purchase_total).text =
+                    context.getString(
+                        R.string.total_price,
+                        tp.value, tp.currency
+                    )
                 holder.purchasesTable.addView(row)
             }
         }
@@ -96,5 +98,4 @@ class TransactionsAdapter(
     companion object {
         private val TAG = TransactionsAdapter::class.java.simpleName
     }
-
 }

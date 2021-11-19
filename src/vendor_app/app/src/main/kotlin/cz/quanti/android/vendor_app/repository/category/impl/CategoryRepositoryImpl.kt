@@ -13,7 +13,7 @@ import io.reactivex.Single
 class CategoryRepositoryImpl(
     private val categoryDao: CategoryDao,
     private val api: VendorAPI
-): CategoryRepository {
+) : CategoryRepository {
 
     override fun loadCategoriesFromServer(vendorId: Int): Single<Pair<Int, List<Category>>> {
         return api.getCategories(vendorId).map { response ->

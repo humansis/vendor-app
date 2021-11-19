@@ -27,7 +27,8 @@ class TransactionsViewModel(
     }
 
     fun getPurchasesCount(): LiveData<Long> {
-        return synchronizationFacade.getPurchasesCount().toFlowable(BackpressureStrategy.LATEST).toLiveData()
+        return synchronizationFacade.getPurchasesCount().toFlowable(BackpressureStrategy.LATEST)
+            .toLiveData()
     }
 
     fun sync() {

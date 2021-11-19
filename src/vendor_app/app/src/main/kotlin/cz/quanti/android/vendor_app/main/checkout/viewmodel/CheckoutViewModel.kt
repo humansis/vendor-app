@@ -5,8 +5,8 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import cz.quanti.android.nfc.VendorFacade
-import cz.quanti.android.nfc.dto.v2.UserBalance
 import cz.quanti.android.nfc.dto.v2.PreserveBalance
+import cz.quanti.android.nfc.dto.v2.UserBalance
 import cz.quanti.android.nfc.exception.PINException
 import cz.quanti.android.nfc.exception.PINExceptionEnum
 import cz.quanti.android.nfc.logger.NfcLogger
@@ -17,14 +17,21 @@ import cz.quanti.android.vendor_app.repository.purchase.PurchaseFacade
 import cz.quanti.android.vendor_app.repository.purchase.dto.Purchase
 import cz.quanti.android.vendor_app.repository.purchase.dto.PurchasedProduct
 import cz.quanti.android.vendor_app.repository.purchase.dto.SelectedProduct
-import cz.quanti.android.vendor_app.utils.*
+import cz.quanti.android.vendor_app.utils.CurrentVendor
+import cz.quanti.android.vendor_app.utils.NfcTagPublisher
+import cz.quanti.android.vendor_app.utils.OriginalCardData
+import cz.quanti.android.vendor_app.utils.ShoppingHolder
+import cz.quanti.android.vendor_app.utils.SingleLiveEvent
+import cz.quanti.android.vendor_app.utils.convertTagToString
+import cz.quanti.android.vendor_app.utils.convertTimeForApiRequestBody
+import cz.quanti.android.vendor_app.utils.round
 import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
-import java.util.*
+import java.util.Date
 
 class CheckoutViewModel(
     private val shoppingHolder: ShoppingHolder,
@@ -38,7 +45,8 @@ class CheckoutViewModel(
     private var vouchers: MutableList<Voucher> = mutableListOf()
     private var pin: String? = null
     private var originalCardData = OriginalCardData(null, null)
-    private val paymentStateLD = MutableLiveData<Pair<PaymentStateEnum, PaymentResult?>>(Pair(PaymentStateEnum.READY, null))
+    private val paymentStateLD =
+        MutableLiveData<Pair<PaymentStateEnum, PaymentResult?>>(Pair(PaymentStateEnum.READY, null))
     private val limitExceededSLE = SingleLiveEvent<Map<Int, Double>>()
 
     fun init() {
@@ -136,6 +144,7 @@ class CheckoutViewModel(
     fun getPin(): String? {
         return pin
     }
+
     fun setPin(string: String?) {
         this.pin = string
     }
@@ -151,18 +160,18 @@ class CheckoutViewModel(
                     Single.just(userBalance)
                 }
         }.subscribeOn(Schedulers.io())
-        .observeOn(AndroidSchedulers.mainThread())
-        .subscribe({
-            setPaymentState(
-                PaymentStateEnum.SUCCESS,
-                PaymentResult(userBalance = it)
-            )
-        }, {
-            setPaymentState(
-                PaymentStateEnum.FAILED,
-                PaymentResult(throwable = it)
-            )
-        })
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({
+                setPaymentState(
+                    PaymentStateEnum.SUCCESS,
+                    PaymentResult(userBalance = it)
+                )
+            }, {
+                setPaymentState(
+                    PaymentStateEnum.FAILED,
+                    PaymentResult(throwable = it)
+                )
+            })
     }
 
     private fun subtractMoneyFromCard(
@@ -176,19 +185,29 @@ class CheckoutViewModel(
                 cardFacade.getBlockedCards()
                     .subscribeOn(Schedulers.io())
                     .flatMap { blockedCards ->
-                        if(blockedCards.contains(convertTagToString(tag))) {
+                        if (blockedCards.contains(convertTagToString(tag))) {
                             throw PINException(PINExceptionEnum.CARD_LOCKED, tag.id)
                         } else {
                             depositFacade.getRelevantReliefPackage(convertTagToString(tag))
                                 .subscribeOn(Schedulers.io())
                                 .flatMap { wrappedReliefPackage ->
                                     val reliefPackage = wrappedReliefPackage.nullableObject
-                                    if (originalCardData.tagId == null || originalCardData.tagId.contentEquals( tag.id )) {
+                                    if (originalCardData.tagId == null || originalCardData.tagId.contentEquals(
+                                            tag.id
+                                        )
+                                    ) {
                                         NfcLogger.d(
                                             TAG,
                                             "subtractBalanceFromCard: tag: $tag, value: $amounts, currencyCode: $currency, originalBalance: ${originalCardData.preserveBalance?.totalBalance}, deposit: ${reliefPackage?.convertToDeposit()} "
                                         )
-                                        nfcFacade.subtractFromBalance(tag, pin, amounts, currency, originalCardData.preserveBalance, reliefPackage?.convertToDeposit()).flatMap { userBalance ->
+                                        nfcFacade.subtractFromBalance(
+                                            tag,
+                                            pin,
+                                            amounts,
+                                            currency,
+                                            originalCardData.preserveBalance,
+                                            reliefPackage?.convertToDeposit()
+                                        ).flatMap { userBalance ->
                                             NfcLogger.d(
                                                 TAG,
                                                 "subtractedBalanceFromCard: balance: ${userBalance.balance}, beneficiaryId: ${userBalance.userId}, currencyCode: ${userBalance.currencyCode}"
@@ -199,16 +218,18 @@ class CheckoutViewModel(
                                                     balanceBefore = userBalance.originalBalance
                                                     balanceAfter = reliefPackage.amount
                                                 }).toSingle {
-                                                    Pair(tag, UserBalance(
-                                                        userBalance.userId,
-                                                        userBalance.distributionId,
-                                                        userBalance.expirationDate,
-                                                        userBalance.currencyCode,
-                                                        reliefPackage.amount,
-                                                        userBalance.balance,
-                                                        userBalance.limits,
-                                                        userBalance.depositDone
-                                                    ))
+                                                    Pair(
+                                                        tag, UserBalance(
+                                                            userBalance.userId,
+                                                            userBalance.assistanceId,
+                                                            userBalance.expirationDate,
+                                                            userBalance.currencyCode,
+                                                            reliefPackage.amount,
+                                                            userBalance.balance,
+                                                            userBalance.limits,
+                                                            userBalance.depositDone
+                                                        )
+                                                    )
                                                 }
                                             } else {
                                                 Single.just(
@@ -249,8 +270,9 @@ class CheckoutViewModel(
             products.addAll(convert(shoppingHolder.cart))
             smartcard = card
             beneficiaryId = userBalance.userId.toLong()
-            vendorId = currentVendor.vendor.id
+            assistanceId = userBalance.assistanceId.toLong()
             createdAt = convertTimeForApiRequestBody(Date())
+            vendorId = currentVendor.vendor.id
             currency = userBalance.currencyCode
             balanceBefore = userBalance.originalBalance
             balanceAfter = userBalance.balance
@@ -259,7 +281,7 @@ class CheckoutViewModel(
 
     private fun convert(cart: MutableList<SelectedProduct>): Collection<PurchasedProduct> {
         return cart.map {
-            PurchasedProduct (
+            PurchasedProduct(
                 product = it.product,
                 price = it.price
             )

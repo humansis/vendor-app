@@ -17,7 +17,8 @@ import java.math.BigDecimal
 import java.math.RoundingMode
 import java.text.DecimalFormat
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Date
+import java.util.Locale
 import kotlin.math.abs
 
 fun getStringFromDouble(double: Double): String {
@@ -62,7 +63,7 @@ fun convertDateToString(value: Date, context: Context): String {
     return getDateFormat(context).format(value)
 }
 
- fun convertTagToString(tag: Tag): String {
+fun convertTagToString(tag: Tag): String {
     return NfcUtil.toHexString(tag.id).uppercase(Locale.US)
 }
 
@@ -123,7 +124,11 @@ fun getLimitsAsText(cardContent: UserBalance, context: Context): String {
     return limits
 }
 
-fun constructLimitsExceededMessage(exceeded: MutableMap<Int, Double>, notAllowed: MutableMap<Int, Double>, context: Context): String {
+fun constructLimitsExceededMessage(
+    exceeded: MutableMap<Int, Double>,
+    notAllowed: MutableMap<Int, Double>,
+    context: Context
+): String {
     var message = ""
     exceeded.forEach { entry ->
         val typeName = CategoryType.getById(entry.key).stringRes?.let { context.getString(it) }
@@ -133,14 +138,14 @@ fun constructLimitsExceededMessage(exceeded: MutableMap<Int, Double>, notAllowed
             String.format("%.2f", entry.value)
         ) + "\n"
     }
-    notAllowed.forEach { entry ->
-        val typeName = CategoryType.getById(entry.key).stringRes?.let { context.getString(it) }
-        message += context.getString(
-            R.string.commodity_type_not_allowed,
-            typeName
-        ) + "\n"
+    if (notAllowed.isNotEmpty()) {
+        message += context.getString(R.string.commodity_type_not_allowed)
+        notAllowed.forEach { entry ->
+            val typeName = CategoryType.getById(entry.key).stringRes?.let { context.getString(it) }
+            message += "\n" + typeName
+        }
     }
-    message += "\n" + context.getString(R.string.please_update_cart)
+    message += "\n\n" + context.getString(R.string.please_update_cart)
     return message
 }
 
@@ -163,5 +168,3 @@ fun round(value: Double, places: Int): Double {
     bd = bd.setScale(places, RoundingMode.HALF_UP)
     return bd.toDouble()
 }
-
-

@@ -23,5 +23,6 @@ data class CardPurchaseDbEntity(
     var dbId: Long = 0,
     var card: String? = "",
     var purchaseId: Long = 0,
-    var beneficiaryId: Long? = null
+    var beneficiaryId: Long? = null,
+    var assistanceId: Long? = null
 )

@@ -43,7 +43,7 @@
                 app:layout_constraintEnd_toStartOf="@+id/settingsImageView"
                 app:layout_constraintTop_toTopOf="@+id/settingsImageView"
                 app:layout_constraintBottom_toBottomOf="@+id/settingsImageView"
-                tools:text="dev"/>
+                tools:text="dev" />
 
             <ImageView
                 android:id="@+id/settingsImageView"

@@ -8,6 +8,7 @@ import cz.quanti.android.vendor_app.utils.VendorAppException
 import cz.quanti.android.vendor_app.utils.isPositiveResponseHttpCode
 import io.reactivex.Completable
 import io.reactivex.Observable
+
 class InvoiceFacadeImpl(
     private val invoiceRepo: InvoiceRepository
 ) : InvoiceFacade {

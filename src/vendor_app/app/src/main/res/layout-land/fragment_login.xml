@@ -44,7 +44,7 @@
                 app:layout_constraintEnd_toStartOf="@+id/settingsImageView"
                 app:layout_constraintTop_toTopOf="@+id/settingsImageView"
                 app:layout_constraintBottom_toBottomOf="@+id/settingsImageView"
-                tools:text="dev"/>
+                tools:text="dev" />
 
             <ImageView
                 android:id="@+id/settingsImageView"
@@ -71,7 +71,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:contentDescription="@string/humansis"
-                    app:srcCompat="@mipmap/ic_launcher"  />
+                    app:srcCompat="@mipmap/ic_launcher" />
 
 
             </androidx.cardview.widget.CardView>

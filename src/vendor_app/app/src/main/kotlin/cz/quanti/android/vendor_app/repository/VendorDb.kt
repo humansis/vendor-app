@@ -17,8 +17,16 @@ import cz.quanti.android.vendor_app.repository.invoice.dao.InvoiceDao
 import cz.quanti.android.vendor_app.repository.invoice.dto.db.InvoiceDbEntity
 import cz.quanti.android.vendor_app.repository.product.dao.ProductDao
 import cz.quanti.android.vendor_app.repository.product.dto.db.ProductDbEntity
-import cz.quanti.android.vendor_app.repository.purchase.dao.*
-import cz.quanti.android.vendor_app.repository.purchase.dto.db.*
+import cz.quanti.android.vendor_app.repository.purchase.dao.CardPurchaseDao
+import cz.quanti.android.vendor_app.repository.purchase.dao.PurchaseDao
+import cz.quanti.android.vendor_app.repository.purchase.dao.PurchasedProductDao
+import cz.quanti.android.vendor_app.repository.purchase.dao.SelectedProductDao
+import cz.quanti.android.vendor_app.repository.purchase.dao.VoucherPurchaseDao
+import cz.quanti.android.vendor_app.repository.purchase.dto.db.CardPurchaseDbEntity
+import cz.quanti.android.vendor_app.repository.purchase.dto.db.PurchaseDbEntity
+import cz.quanti.android.vendor_app.repository.purchase.dto.db.PurchasedProductDbEntity
+import cz.quanti.android.vendor_app.repository.purchase.dto.db.SelectedProductDbEntity
+import cz.quanti.android.vendor_app.repository.purchase.dto.db.VoucherPurchaseDbEntity
 import cz.quanti.android.vendor_app.repository.transaction.dao.TransactionDao
 import cz.quanti.android.vendor_app.repository.transaction.dao.TransactionPurchaseDao
 import cz.quanti.android.vendor_app.repository.transaction.dto.db.TransactionDbEntity
@@ -132,7 +140,8 @@ abstract class VendorDb : RoomDatabase() {
 
         val MIGRATION_8_9 = object : Migration(8, 9) {
             override fun migrate(database: SupportSQLiteDatabase) {
-                database.execSQL("CREATE TABLE relief_package (id INTEGER NOT NULL, assistanceId INTEGER NOT NULL, beneficiaryId INTEGER NOT NULL, amount REAL NOT NULL, currency TEXT NOT NULL, tagId TEXT NOT NULL, foodLimit REAL, nonfoodLimit REAL, cashbackLimit REAL, expirationDate TEXT NOT NULL, createdAt TEXT, balanceBefore REAL, balanceAfter REAL, PRIMARY KEY('id'))")
+                database.execSQL("CREATE TABLE relief_package (id INTEGER NOT NULL, assistanceId INTEGER NOT NULL, beneficiaryId INTEGER NOT NULL, amount REAL NOT NULL, currency TEXT NOT NULL, tagId TEXT NOT NULL, foodLimit REAL, nonfoodLimit REAL, cashbackLimit REAL, expirationDate INTEGER, createdAt TEXT, balanceBefore REAL, balanceAfter REAL, PRIMARY KEY('id'))")
+                database.execSQL("ALTER TABLE card_purchase ADD assistanceId INTEGER")
             }
         }
     }

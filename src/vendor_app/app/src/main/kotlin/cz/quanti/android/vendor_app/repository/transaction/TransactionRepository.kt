@@ -17,7 +17,11 @@ interface TransactionRepository {
 
     fun getTransactions(): Observable<List<Transaction>>
 
-    fun retrieveTransactionsPurchases(vendorId: Int, projectId: Long, currency: String): Single<Pair<Int, List<TransactionPurchaseApiEntity>>>
+    fun retrieveTransactionsPurchases(
+        vendorId: Int,
+        projectId: Long,
+        currency: String
+    ): Single<Pair<Int, List<TransactionPurchaseApiEntity>>>
 
     fun deleteTransactionPurchases(): Completable
 

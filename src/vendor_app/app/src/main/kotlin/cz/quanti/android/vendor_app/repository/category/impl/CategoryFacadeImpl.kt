@@ -11,7 +11,7 @@ import quanti.com.kotlinlog.Log
 
 class CategoryFacadeImpl(
     private val categoryRepo: CategoryRepository
-): CategoryFacade {
+) : CategoryFacade {
 
     override fun syncWithServer(vendorId: Int): Completable {
         return loadCategoriesFromServer(vendorId)

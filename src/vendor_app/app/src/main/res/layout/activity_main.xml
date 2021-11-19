@@ -10,7 +10,8 @@
     tools:context=".MainActivity"
     tools:openDrawer="start">
 
-    <include layout="@layout/app_bar_main"
+    <include
+        layout="@layout/app_bar_main"
         android:id="@+id/appBar"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
@@ -49,7 +50,7 @@
                 android:textSize="12sp"
                 app:icon="@drawable/exit_to_app"
                 app:iconTint="@color/white"
-                app:iconGravity="start"/>
+                app:iconGravity="start" />
 
             <Spinner
                 style="@style/Widget.AppCompat.Spinner.DropDown"

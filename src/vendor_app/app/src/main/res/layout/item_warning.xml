@@ -11,7 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:textColor="@color/white"
-        style="@style/WarningText"/>
+        style="@style/WarningText" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/warning_button"
@@ -23,6 +23,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         style="@style/WarningButton"
         app:icon="@drawable/ic_cloud"
-        android:text="@string/synchronize"/>
+        android:text="@string/synchronize" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -151,95 +151,6 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
         })
     }
 
-    private fun processLimitsExceeded(limitsExceeded: Map<Int, Double>) {
-        var title = String()
-        var message = String()
-        var typesToRemove: Set<Int>? = null
-        var rightBtnMsg = String()
-        when {
-            limitsExceeded.size == 1 -> {
-                val limitExceeded = limitsExceeded.entries.single()
-                val commodityName = CategoryType.getById(limitExceeded.key).stringRes?.let {
-                    getString(it)
-                }
-                title = getString(R.string.limit_exceeded)
-                if (limitExceeded.value == 0.0) {
-                    message = getString(
-                        R.string.commodity_type_not_allowed,
-                        commodityName
-                    ) + getString(
-                        R.string.remove_commodity_type,
-                        commodityName
-                    )
-                    typesToRemove = setOf(CategoryType.getById(limitExceeded.key).typeId)
-                    rightBtnMsg = getString(R.string.cancel)
-                } else if (limitExceeded.value > 0) {
-                    message = getString(
-                        R.string.commodity_type_exceeded,
-                        commodityName,
-                        String.format("%.2f", limitExceeded.value)
-                    ) + "\n\n" + getString(
-                        R.string.please_update_cart
-                    )
-                    rightBtnMsg = getString(android.R.string.ok)
-                }
-
-            }
-            limitsExceeded.size > 1 -> {
-                val exceeded = mutableMapOf<Int, Double>()
-                val notAllowed = mutableMapOf<Int, Double>()
-                limitsExceeded.forEach {
-                    if (it.value == 0.0) {
-                        notAllowed[it.key] = it.value
-                    } else {
-                        exceeded[it.key] = it.value
-                    }
-                }
-                title = getString(R.string.multiple_limits_exceeded)
-                message = constructLimitsExceededMessage(exceeded, notAllowed, requireContext())
-                typesToRemove = notAllowed.map { CategoryType.getById(it.key).typeId }.toSet()
-                rightBtnMsg = getString(android.R.string.ok)
-            }
-        }
-        showLimitsExceededDialog(title, message, typesToRemove, rightBtnMsg)
-    }
-
-    private fun showLimitsExceededDialog(title: String, message: String, typesToRemove: Set<Int>? = null, rightBtnMsg: String) {
-        AlertDialog.Builder(requireContext(), R.style.DialogTheme)
-            .setTitle(title)
-            .setMessage(message)
-            .setPositiveButton(
-                rightBtnMsg
-            ) { _, _ ->
-                Log.d(TAG, "Positive button clicked.")
-            }
-            .setNegativeButton(
-                getString(R.string.remove_restricted_products),
-                null
-            )
-            .show()
-            .apply {
-                val negativeButton = this.getButton( AlertDialog.BUTTON_NEGATIVE)
-                if (typesToRemove == null ) {
-                    negativeButton.visibility = View.GONE
-                } else {
-                    negativeButton.setOnClickListener {
-                        Log.d(TAG, "Negative button clicked.")
-                        removeProductsDisposable?.dispose()
-                        removeProductsDisposable = vm.removeFromCartByTypes(typesToRemove)
-                            .subscribeOn(Schedulers.io())
-                            .observeOn(AndroidSchedulers.mainThread())
-                            .subscribe({
-                                Log.d(TAG, "Affected products removed successfully")
-                            }, {
-                                Log.e(it)
-                            })
-                        this.dismiss()
-                    }
-                }
-            }
-    }
-
     private fun initOnClickListeners() {
         checkoutBinding.checkoutFooter.backButton.setOnClickListener {
             Log.d(TAG, "Back button clicked.")
@@ -272,7 +183,6 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
                 scanVoucher()
             } else {
                 mainVM.setToastMessage(getString(R.string.cashback_with_voucher))
-                // TODO dodat překlady
             }
         }
 
@@ -408,8 +318,9 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
 
     private fun showPinDialogAndPayByCard() {
         if (mainVM.enableNfc(requireActivity())) {
-            val dialogBinding = DialogCardPinBinding.inflate(layoutInflater,null, false)
-            dialogBinding.pinTitle.text = getString(R.string.total_price, vm.getTotal(), vm.getCurrency())
+            val dialogBinding = DialogCardPinBinding.inflate(layoutInflater, null, false)
+            dialogBinding.pinTitle.text =
+                getString(R.string.total_price, vm.getTotal(), vm.getCurrency())
             val dialog = AlertDialog.Builder(requireContext(), R.style.DialogTheme)
                 .setView(dialogBinding.root)
                 .setCancelable(false)
@@ -443,6 +354,96 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
                 positiveButton.isEnabled = !text.isNullOrEmpty()
             }
         }
+    }
+
+    private fun processLimitsExceeded(limitsExceeded: Map<Int, Double>) {
+        var title = String()
+        var message = String()
+        var typesToRemove: Set<Int>? = null
+        var rightBtnMsg = String()
+        when {
+            limitsExceeded.size == 1 -> {
+                val limitExceeded = limitsExceeded.entries.single()
+                val commodityName = CategoryType.getById(limitExceeded.key).stringRes?.let {
+                    getString(it)
+                }
+                title = getString(R.string.limit_exceeded)
+                if (limitExceeded.value == 0.0) {
+                    message =
+                        getString(R.string.commodity_type_not_allowed) + "\n" + commodityName +
+                            getString(R.string.remove_commodity_type, commodityName)
+                    typesToRemove = setOf(CategoryType.getById(limitExceeded.key).typeId)
+                    rightBtnMsg = getString(R.string.cancel)
+                } else if (limitExceeded.value > 0) {
+                    message = getString(
+                        R.string.commodity_type_exceeded,
+                        commodityName,
+                        String.format("%.2f", limitExceeded.value)
+                    ) + "\n\n" + getString(
+                        R.string.please_update_cart
+                    )
+                    rightBtnMsg = getString(android.R.string.ok)
+                }
+            }
+            limitsExceeded.size > 1 -> {
+                val exceeded = mutableMapOf<Int, Double>()
+                val notAllowed = mutableMapOf<Int, Double>()
+                limitsExceeded.forEach {
+                    if (it.value == 0.0) {
+                        notAllowed[it.key] = it.value
+                    } else {
+                        exceeded[it.key] = it.value
+                    }
+                }
+                title = getString(R.string.multiple_limits_exceeded)
+                message = constructLimitsExceededMessage(exceeded, notAllowed, requireContext())
+                typesToRemove = notAllowed.map { CategoryType.getById(it.key).typeId }.toSet()
+                rightBtnMsg = getString(android.R.string.ok)
+            }
+        }
+        showLimitsExceededDialog(title, message, typesToRemove, rightBtnMsg)
+    }
+
+    private fun showLimitsExceededDialog(
+        title: String,
+        message: String,
+        typesToRemove: Set<Int>? = null,
+        rightBtnMsg: String
+    ) {
+        AlertDialog.Builder(requireContext(), R.style.DialogTheme)
+            .setTitle(title)
+            .setMessage(message)
+            .setPositiveButton(
+                rightBtnMsg
+            ) { _, _ ->
+                Log.d(TAG, "Positive button clicked.")
+            }
+            .setNegativeButton(
+                getString(R.string.remove_restricted_products),
+                null
+            )
+            .show()
+            .apply {
+                val negativeButton = this.getButton(AlertDialog.BUTTON_NEGATIVE)
+                if (typesToRemove == null) {
+                    negativeButton.visibility = View.GONE
+                } else {
+                    selectedProductsAdapter.setRestrictedTypes(typesToRemove)
+                    negativeButton.setOnClickListener {
+                        Log.d(TAG, "Negative button clicked.")
+                        removeProductsDisposable?.dispose()
+                        removeProductsDisposable = vm.removeFromCartByTypes(typesToRemove)
+                            .subscribeOn(Schedulers.io())
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .subscribe({
+                                Log.d(TAG, "Affected products removed successfully")
+                            }, {
+                                Log.e(it)
+                            })
+                        this.dismiss()
+                    }
+                }
+            }
     }
 
     private fun actualizeTotal() {

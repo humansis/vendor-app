@@ -9,7 +9,8 @@ import android.widget.SpinnerAdapter
 import android.widget.TextView
 import cz.quanti.android.vendor_app.R
 
-class CurrencyAdapter(context: Context) : SpinnerAdapter, ArrayAdapter<String>(context, R.layout.item_currency) {
+class CurrencyAdapter(context: Context) : SpinnerAdapter,
+    ArrayAdapter<String>(context, R.layout.item_currency) {
 
     fun init(firstCurrencies: List<String>) {
         addAll(firstCurrencies)

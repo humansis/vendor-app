@@ -144,5 +144,12 @@ abstract class VendorDb : RoomDatabase() {
                 database.execSQL("ALTER TABLE card_purchase ADD assistanceId INTEGER")
             }
         }
+
+        val MIGRATION_9_10 = object : Migration(9, 10) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL("ALTER TABLE card_purchase ADD balanceBefore REAL")
+                database.execSQL("ALTER TABLE card_purchase ADD balanceAfter REAL")
+            }
+        }
     }
 }

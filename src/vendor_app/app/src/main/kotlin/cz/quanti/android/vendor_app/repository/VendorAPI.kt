@@ -37,7 +37,7 @@ interface VendorAPI {
 
     @GET("v2/products")
     fun getProducts(
-        @Query("filter[vendors][]") vendorId: Int,
+        @Query("filter[vendors][]") vendorId: Int
     ): Single<Response<PagedApiEntity<ProductApiEntity>>>
 
     @GET("v1/deactivated-booklets")

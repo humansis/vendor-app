@@ -8,14 +8,20 @@ import cz.quanti.android.vendor_app.utils.isPositiveResponseHttpCode
 import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.Single
-import io.reactivex.subjects.ReplaySubject
+import io.reactivex.subjects.PublishSubject
 
 class CardFacadeImpl(private val cardRepo: CardRepository) : CardFacade {
 
-    override fun syncWithServer(syncSubjectReplaySubject: ReplaySubject<SynchronizationSubject>): Completable {
+    private val syncSubject = PublishSubject.create<SynchronizationSubject>()
+
+    override fun syncWithServer(): Completable {
         return Completable.fromCallable {
-            syncSubjectReplaySubject.onNext(SynchronizationSubject.BLOCKED_CARDS_DOWNLOAD)
+            syncSubject.onNext(SynchronizationSubject.BLOCKED_CARDS_DOWNLOAD)
         }.andThen(actualizeBlockedCardsFromServer())
+    }
+
+    override fun getSyncSubject(): PublishSubject<SynchronizationSubject> {
+        return syncSubject
     }
 
     override fun getBlockedCards(): Single<List<String>> {

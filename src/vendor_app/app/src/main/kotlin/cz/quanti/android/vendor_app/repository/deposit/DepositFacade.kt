@@ -5,11 +5,10 @@ import cz.quanti.android.vendor_app.sync.SynchronizationSubject
 import cz.quanti.android.vendor_app.utils.NullableObjectWrapper
 import io.reactivex.Completable
 import io.reactivex.Single
-import io.reactivex.subjects.ReplaySubject
+import io.reactivex.subjects.PublishSubject
 
 interface DepositFacade {
     fun syncWithServer(
-        syncSubjectReplaySubject: ReplaySubject<SynchronizationSubject>,
         vendorId: Int
     ): Completable
 
@@ -18,4 +17,6 @@ interface DepositFacade {
     fun updateReliefPackageInDB(reliefPackage: ReliefPackage): Completable
 
     fun getRelevantReliefPackage(tagId: String): Single<NullableObjectWrapper<ReliefPackage>>
+
+    fun getSyncSubject(): PublishSubject<SynchronizationSubject>
 }

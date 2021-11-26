@@ -10,7 +10,7 @@ import cz.quanti.android.vendor_app.utils.VendorAppException
 import cz.quanti.android.vendor_app.utils.isPositiveResponseHttpCode
 import io.reactivex.Completable
 import io.reactivex.Observable
-import io.reactivex.subjects.ReplaySubject
+import io.reactivex.subjects.PublishSubject
 import quanti.com.kotlinlog.Log
 
 class ProductFacadeImpl(
@@ -18,17 +18,22 @@ class ProductFacadeImpl(
     private val context: Context
 ) : ProductFacade {
 
+    private val syncSubject = PublishSubject.create<SynchronizationSubject>()
+
     override fun getProducts(): Observable<List<Product>> {
         return productRepo.getProducts()
     }
 
     override fun syncWithServer(
-        syncSubjectReplaySubject: ReplaySubject<SynchronizationSubject>,
         vendorId: Int
     ): Completable {
         return Completable.fromCallable {
-            syncSubjectReplaySubject.onNext(SynchronizationSubject.PRODUCTS_DOWNLOAD)
+            syncSubject.onNext(SynchronizationSubject.PRODUCTS_DOWNLOAD)
         }.andThen(reloadProductFromServer(vendorId))
+    }
+
+    override fun getSyncSubject(): PublishSubject<SynchronizationSubject> {
+        return syncSubject
     }
 
     override fun deleteProducts(): Completable {

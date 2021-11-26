@@ -9,11 +9,13 @@ import cz.quanti.android.vendor_app.utils.isPositiveResponseHttpCode
 import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.Single
-import io.reactivex.subjects.ReplaySubject
+import io.reactivex.subjects.PublishSubject
 
 class BookletFacadeImpl(
     private val bookletRepo: BookletRepository
 ) : BookletFacade {
+
+    private val syncSubject = PublishSubject.create<SynchronizationSubject>()
 
     override fun getAllDeactivatedBooklets(): Single<List<Booklet>> {
         return bookletRepo.getAllDeactivatedBooklets()
@@ -30,26 +32,30 @@ class BookletFacadeImpl(
         return bookletRepo.getProtectedBooklets()
     }
 
-    override fun syncWithServer(syncSubjectReplaySubject: ReplaySubject<SynchronizationSubject>): Completable {
-        return sendDataToServer(syncSubjectReplaySubject)
-            .andThen(loadDataFromServer(syncSubjectReplaySubject))
+    override fun syncWithServer(): Completable {
+        return sendDataToServer()
+            .andThen(loadDataFromServer())
     }
 
     override fun isSyncNeeded(): Single<Boolean> {
         return bookletRepo.getNewlyDeactivatedCount().map { it > 0 }
     }
 
-    private fun sendDataToServer(syncSubjectReplaySubject: ReplaySubject<SynchronizationSubject>): Completable {
-        return Completable.fromCallable { syncSubjectReplaySubject.onNext(SynchronizationSubject.BOOKLETS_UPLOAD) }
+    override fun getSyncSubject(): PublishSubject<SynchronizationSubject> {
+        return syncSubject
+    }
+
+    private fun sendDataToServer(): Completable {
+        return Completable.fromCallable { syncSubject.onNext(SynchronizationSubject.BOOKLETS_UPLOAD) }
             .andThen(sendDeactivatedBooklets())
     }
 
-    private fun loadDataFromServer(syncSubjectReplaySubject: ReplaySubject<SynchronizationSubject>): Completable {
+    private fun loadDataFromServer(): Completable {
         return Completable.fromCallable {
-            syncSubjectReplaySubject.onNext(SynchronizationSubject.BOOKLETS_DEACTIVATED_DOWNLOAD)
+            syncSubject.onNext(SynchronizationSubject.BOOKLETS_DEACTIVATED_DOWNLOAD)
         }.andThen(reloadDeactivatedBookletsFromServer())
             .andThen(Completable.fromCallable {
-                syncSubjectReplaySubject.onNext(SynchronizationSubject.BOOKLETS_PROTECTED_DOWNLOAD)
+                syncSubject.onNext(SynchronizationSubject.BOOKLETS_PROTECTED_DOWNLOAD)
             })
             .andThen(reloadProtectedBookletsFromServer())
     }

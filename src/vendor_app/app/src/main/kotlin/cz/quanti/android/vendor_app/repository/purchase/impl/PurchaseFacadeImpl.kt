@@ -12,13 +12,15 @@ import cz.quanti.android.vendor_app.utils.isPositiveResponseHttpCode
 import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.Single
-import io.reactivex.subjects.ReplaySubject
+import io.reactivex.subjects.PublishSubject
 import quanti.com.kotlinlog.Log
 
 class PurchaseFacadeImpl(
     private val purchaseRepo: PurchaseRepository,
     private val cardRepo: CardRepository
 ) : PurchaseFacade {
+
+    private val syncSubject = PublishSubject.create<SynchronizationSubject>()
 
     override fun savePurchase(purchase: Purchase): Completable {
         return cardRepo.isBlockedCard(purchase.smartcard).flatMapCompletable { itsBlocked ->
@@ -30,12 +32,16 @@ class PurchaseFacadeImpl(
         }
     }
 
-    override fun syncWithServer(syncSubjectReplaySubject: ReplaySubject<SynchronizationSubject>): Completable {
+    override fun syncWithServer(): Completable {
         return Completable.fromCallable {
-            syncSubjectReplaySubject.onNext(SynchronizationSubject.PURCHASES_UPLOAD)
+            syncSubject.onNext(SynchronizationSubject.PURCHASES_UPLOAD)
         }.andThen(preparePurchases())
             .andThen(sendPurchasesToServer())
             .andThen(deletePurchasedProducts())
+    }
+
+    override fun getSyncSubject(): PublishSubject<SynchronizationSubject> {
+        return syncSubject
     }
 
     override fun getPurchasesCount(): Observable<Long> {

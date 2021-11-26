@@ -14,7 +14,6 @@ import cz.quanti.android.vendor_app.sync.SynchronizationSubject
 import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.Single
-import io.reactivex.subjects.ReplaySubject
 
 class SynchronizationFacadeImpl(
     private val bookletFacade: BookletFacade,
@@ -27,23 +26,27 @@ class SynchronizationFacadeImpl(
     private val invoiceFacade: InvoiceFacade
 ) : SynchronizationFacade {
 
-    private val syncSubjectReplaySubject = ReplaySubject.create<SynchronizationSubject>()
-
     override fun synchronize(vendor: Vendor): Completable {
         val vendorId = vendor.id.toInt()
-        return purchaseFacade.syncWithServer(syncSubjectReplaySubject)
-            .andThen(bookletFacade.syncWithServer(syncSubjectReplaySubject))
-            .andThen(cardFacade.syncWithServer(syncSubjectReplaySubject))
-            .andThen(depositFacade.syncWithServer(syncSubjectReplaySubject, vendorId))
-            .andThen(categoryFacade.syncWithServer(syncSubjectReplaySubject, vendorId))
-            .andThen(productFacade.syncWithServer(syncSubjectReplaySubject, vendorId))
-            .andThen(transactionFacade.syncWithServer(syncSubjectReplaySubject, vendorId))
-            .andThen(invoiceFacade.syncWithServer(syncSubjectReplaySubject, vendorId))
+        return purchaseFacade.syncWithServer()
+            .andThen(bookletFacade.syncWithServer())
+            .andThen(cardFacade.syncWithServer())
+            .andThen(depositFacade.syncWithServer(vendorId))
+            .andThen(categoryFacade.syncWithServer(vendorId))
+            .andThen(productFacade.syncWithServer(vendorId))
+            .andThen(transactionFacade.syncWithServer(vendorId))
+            .andThen(invoiceFacade.syncWithServer(vendorId))
     }
 
     override fun getSyncSubjectObservable(): Observable<SynchronizationSubject> {
-        // TODO xxxFacade.getSyncSubject merge vsechny do jednoho
-        return syncSubjectReplaySubject
+        return purchaseFacade.getSyncSubject()
+            .mergeWith(bookletFacade.getSyncSubject())
+            .mergeWith(cardFacade.getSyncSubject())
+            .mergeWith(depositFacade.getSyncSubject())
+            .mergeWith(categoryFacade.getSyncSubject())
+            .mergeWith(productFacade.getSyncSubject())
+            .mergeWith(transactionFacade.getSyncSubject())
+            .mergeWith(invoiceFacade.getSyncSubject())
     }
 
     override fun isSyncNeeded(): Observable<Boolean> {

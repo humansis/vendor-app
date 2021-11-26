@@ -9,19 +9,24 @@ import cz.quanti.android.vendor_app.utils.VendorAppException
 import cz.quanti.android.vendor_app.utils.isPositiveResponseHttpCode
 import io.reactivex.Completable
 import io.reactivex.Observable
-import io.reactivex.subjects.ReplaySubject
+import io.reactivex.subjects.PublishSubject
 
 class InvoiceFacadeImpl(
     private val invoiceRepo: InvoiceRepository
 ) : InvoiceFacade {
 
+    private val syncSubject = PublishSubject.create<SynchronizationSubject>()
+
     override fun syncWithServer(
-        syncSubjectReplaySubject: ReplaySubject<SynchronizationSubject>,
         vendorId: Int
     ): Completable {
         return Completable.fromCallable {
-            syncSubjectReplaySubject.onNext(SynchronizationSubject.INVOICES_DOWNLOAD)
+            syncSubject.onNext(SynchronizationSubject.INVOICES_DOWNLOAD)
         }.andThen(retrieveInvoices(vendorId))
+    }
+
+    override fun getSyncSubject(): PublishSubject<SynchronizationSubject> {
+        return syncSubject
     }
 
     override fun getInvoices(): Observable<List<Invoice>> {

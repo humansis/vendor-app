@@ -7,18 +7,23 @@ import cz.quanti.android.vendor_app.sync.SynchronizationSubject
 import cz.quanti.android.vendor_app.utils.NullableObjectWrapper
 import io.reactivex.Completable
 import io.reactivex.Single
-import io.reactivex.subjects.ReplaySubject
+import io.reactivex.subjects.PublishSubject
 
 class DepositFacadeImpl(
     private val depositRepo: DepositRepository
 ) : DepositFacade {
 
+    private val syncSubject = PublishSubject.create<SynchronizationSubject>()
+
     override fun syncWithServer(
-        syncSubjectReplaySubject: ReplaySubject<SynchronizationSubject>,
         vendorId: Int
     ): Completable {
-        return sendDataToServer(syncSubjectReplaySubject)
-            .andThen(loadDataFromServer(syncSubjectReplaySubject, vendorId))
+        return sendDataToServer()
+            .andThen(loadDataFromServer(vendorId))
+    }
+
+    override fun getSyncSubject(): PublishSubject<SynchronizationSubject> {
+        return syncSubject
     }
 
     override fun deleteReliefPackageFromDB(id: Int): Completable {
@@ -40,18 +45,17 @@ class DepositFacadeImpl(
         )
     }
 
-    private fun sendDataToServer(syncSubjectReplaySubject: ReplaySubject<SynchronizationSubject>): Completable {
+    private fun sendDataToServer(): Completable {
         return Completable.fromCallable {
-            syncSubjectReplaySubject.onNext(SynchronizationSubject.RD_UPLOAD)
+            syncSubject.onNext(SynchronizationSubject.RD_UPLOAD)
         }.andThen(depositRepo.uploadReliefPackages())
     }
 
     private fun loadDataFromServer(
-        syncSubjectReplaySubject: ReplaySubject<SynchronizationSubject>,
         vendorId: Int
     ): Completable {
         return Completable.fromCallable {
-            syncSubjectReplaySubject.onNext(SynchronizationSubject.RD_DOWNLOAD)
+            syncSubject.onNext(SynchronizationSubject.RD_DOWNLOAD)
         }.andThen(depositRepo.downloadReliefPackages(vendorId))
     }
 

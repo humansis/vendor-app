@@ -8,20 +8,25 @@ import cz.quanti.android.vendor_app.utils.VendorAppException
 import cz.quanti.android.vendor_app.utils.isPositiveResponseHttpCode
 import io.reactivex.Completable
 import io.reactivex.Observable
-import io.reactivex.subjects.ReplaySubject
+import io.reactivex.subjects.PublishSubject
 import quanti.com.kotlinlog.Log
 
 class CategoryFacadeImpl(
     private val categoryRepo: CategoryRepository
 ) : CategoryFacade {
 
+    private val syncSubject = PublishSubject.create<SynchronizationSubject>()
+
     override fun syncWithServer(
-        syncSubjectReplaySubject: ReplaySubject<SynchronizationSubject>,
         vendorId: Int
     ): Completable {
         return Completable.fromCallable {
-            syncSubjectReplaySubject.onNext(SynchronizationSubject.CATEGORIES_DOWNLOAD)
+            syncSubject.onNext(SynchronizationSubject.CATEGORIES_DOWNLOAD)
         }.andThen(loadCategoriesFromServer(vendorId))
+    }
+
+    override fun getSyncSubject(): PublishSubject<SynchronizationSubject> {
+        return syncSubject
     }
 
     private fun loadCategoriesFromServer(

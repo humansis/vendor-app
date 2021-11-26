@@ -4,7 +4,7 @@ import cz.quanti.android.vendor_app.repository.booklet.dto.Booklet
 import cz.quanti.android.vendor_app.sync.SynchronizationSubject
 import io.reactivex.Completable
 import io.reactivex.Single
-import io.reactivex.subjects.ReplaySubject
+import io.reactivex.subjects.PublishSubject
 
 interface BookletFacade {
 
@@ -14,7 +14,9 @@ interface BookletFacade {
 
     fun getProtectedBooklets(): Single<List<Booklet>>
 
-    fun syncWithServer(syncSubjectReplaySubject: ReplaySubject<SynchronizationSubject>): Completable
+    fun syncWithServer(): Completable
 
     fun isSyncNeeded(): Single<Boolean>
+
+    fun getSyncSubject(): PublishSubject<SynchronizationSubject>
 }

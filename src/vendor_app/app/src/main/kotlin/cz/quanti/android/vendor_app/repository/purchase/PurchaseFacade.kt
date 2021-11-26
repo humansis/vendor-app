@@ -6,13 +6,15 @@ import cz.quanti.android.vendor_app.sync.SynchronizationSubject
 import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.Single
-import io.reactivex.subjects.ReplaySubject
+import io.reactivex.subjects.PublishSubject
 
 interface PurchaseFacade {
 
     fun savePurchase(purchase: Purchase): Completable
 
-    fun syncWithServer(syncSubjectReplaySubject: ReplaySubject<SynchronizationSubject>): Completable
+    fun syncWithServer(): Completable
+
+    fun getSyncSubject(): PublishSubject<SynchronizationSubject>
 
     fun getPurchasesCount(): Observable<Long>
 

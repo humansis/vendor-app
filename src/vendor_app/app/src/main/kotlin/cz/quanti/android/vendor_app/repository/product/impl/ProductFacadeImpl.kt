@@ -2,14 +2,15 @@ package cz.quanti.android.vendor_app.repository.product.impl
 
 import android.content.Context
 import com.bumptech.glide.Glide
-import cz.quanti.android.vendor_app.repository.login.dto.Vendor
 import cz.quanti.android.vendor_app.repository.product.ProductFacade
 import cz.quanti.android.vendor_app.repository.product.ProductRepository
 import cz.quanti.android.vendor_app.repository.product.dto.Product
+import cz.quanti.android.vendor_app.sync.SynchronizationSubject
 import cz.quanti.android.vendor_app.utils.VendorAppException
 import cz.quanti.android.vendor_app.utils.isPositiveResponseHttpCode
 import io.reactivex.Completable
 import io.reactivex.Observable
+import io.reactivex.subjects.ReplaySubject
 import quanti.com.kotlinlog.Log
 
 class ProductFacadeImpl(
@@ -21,16 +22,23 @@ class ProductFacadeImpl(
         return productRepo.getProducts()
     }
 
-    override fun syncWithServer(vendor: Vendor): Completable {
-        return reloadProductFromServer(vendor)
+    override fun syncWithServer(
+        syncSubjectReplaySubject: ReplaySubject<SynchronizationSubject>,
+        vendorId: Int
+    ): Completable {
+        return Completable.fromCallable {
+            syncSubjectReplaySubject.onNext(SynchronizationSubject.PRODUCTS_DOWNLOAD)
+        }.andThen(reloadProductFromServer(vendorId))
     }
 
     override fun deleteProducts(): Completable {
         return productRepo.deleteProducts()
     }
 
-    private fun reloadProductFromServer(vendor: Vendor): Completable {
-        return productRepo.loadProductsFromServer(vendor).flatMapCompletable { response ->
+    private fun reloadProductFromServer(
+        vendorId: Int
+    ): Completable {
+        return productRepo.loadProductsFromServer(vendorId).flatMapCompletable { response ->
             val responseCode = response.first
             val products = response.second.toMutableList()
             if (isPositiveResponseHttpCode(responseCode)) {

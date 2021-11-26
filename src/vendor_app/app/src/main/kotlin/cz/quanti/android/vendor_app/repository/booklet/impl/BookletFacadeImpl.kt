@@ -3,11 +3,13 @@ package cz.quanti.android.vendor_app.repository.booklet.impl
 import cz.quanti.android.vendor_app.repository.booklet.BookletFacade
 import cz.quanti.android.vendor_app.repository.booklet.BookletRepository
 import cz.quanti.android.vendor_app.repository.booklet.dto.Booklet
+import cz.quanti.android.vendor_app.sync.SynchronizationSubject
 import cz.quanti.android.vendor_app.utils.VendorAppException
 import cz.quanti.android.vendor_app.utils.isPositiveResponseHttpCode
 import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.Single
+import io.reactivex.subjects.ReplaySubject
 
 class BookletFacadeImpl(
     private val bookletRepo: BookletRepository
@@ -28,21 +30,27 @@ class BookletFacadeImpl(
         return bookletRepo.getProtectedBooklets()
     }
 
-    override fun syncWithServer(): Completable {
-        return sendDataToServer()
-            .andThen(loadDataFromServer())
+    override fun syncWithServer(syncSubjectReplaySubject: ReplaySubject<SynchronizationSubject>): Completable {
+        return sendDataToServer(syncSubjectReplaySubject)
+            .andThen(loadDataFromServer(syncSubjectReplaySubject))
     }
 
     override fun isSyncNeeded(): Single<Boolean> {
         return bookletRepo.getNewlyDeactivatedCount().map { it > 0 }
     }
 
-    private fun sendDataToServer(): Completable {
-        return sendDeactivatedBooklets()
+    private fun sendDataToServer(syncSubjectReplaySubject: ReplaySubject<SynchronizationSubject>): Completable {
+        return Completable.fromCallable{ syncSubjectReplaySubject.onNext(SynchronizationSubject.BOOKLETS_UPLOAD) }
+            .andThen(sendDeactivatedBooklets())
     }
 
-    private fun loadDataFromServer(): Completable {
-        return reloadDeactivatedBookletsFromServer()
+    private fun loadDataFromServer(syncSubjectReplaySubject: ReplaySubject<SynchronizationSubject>): Completable {
+        return Completable.fromCallable {
+            syncSubjectReplaySubject.onNext(SynchronizationSubject.BOOKLETS_DEACTIVATED_DOWNLOAD)
+        }.andThen(reloadDeactivatedBookletsFromServer())
+            .andThen(Completable.fromCallable {
+                syncSubjectReplaySubject.onNext(SynchronizationSubject.BOOKLETS_PROTECTED_DOWNLOAD)
+            })
             .andThen(reloadProtectedBookletsFromServer())
     }
 
@@ -88,7 +96,6 @@ class BookletFacadeImpl(
     private fun reloadProtectedBookletsFromServer(): Completable {
         return bookletRepo.loadProtectedBookletsFromServer().flatMapCompletable { response ->
             val responseCode = response.responseCode
-
             if (isPositiveResponseHttpCode(responseCode)) {
                 val booklets = response.booklets
                 bookletRepo.deleteProtected()

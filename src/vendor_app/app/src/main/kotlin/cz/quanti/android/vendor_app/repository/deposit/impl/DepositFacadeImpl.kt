@@ -3,17 +3,22 @@ package cz.quanti.android.vendor_app.repository.deposit.impl
 import cz.quanti.android.vendor_app.repository.deposit.DepositFacade
 import cz.quanti.android.vendor_app.repository.deposit.DepositRepository
 import cz.quanti.android.vendor_app.repository.deposit.dto.ReliefPackage
+import cz.quanti.android.vendor_app.sync.SynchronizationSubject
 import cz.quanti.android.vendor_app.utils.NullableObjectWrapper
 import io.reactivex.Completable
 import io.reactivex.Single
+import io.reactivex.subjects.ReplaySubject
 
 class DepositFacadeImpl(
     private val depositRepo: DepositRepository
 ) : DepositFacade {
 
-    override fun syncWithServer(vendorId: Int): Completable {
-        return sendDataToServer()
-            .andThen(loadDataFromServer(vendorId))
+    override fun syncWithServer(
+        syncSubjectReplaySubject: ReplaySubject<SynchronizationSubject>,
+        vendorId: Int
+    ): Completable {
+        return sendDataToServer(syncSubjectReplaySubject)
+            .andThen(loadDataFromServer(syncSubjectReplaySubject, vendorId))
     }
 
     override fun deleteReliefPackageFromDB(id: Int): Completable {
@@ -35,12 +40,19 @@ class DepositFacadeImpl(
         )
     }
 
-    private fun sendDataToServer(): Completable {
-        return depositRepo.uploadReliefPackages()
+    private fun sendDataToServer(syncSubjectReplaySubject: ReplaySubject<SynchronizationSubject>): Completable {
+        return Completable.fromCallable {
+            syncSubjectReplaySubject.onNext(SynchronizationSubject.RD_UPLOAD)
+        }.andThen(depositRepo.uploadReliefPackages())
     }
 
-    private fun loadDataFromServer(vendorId: Int): Completable {
-        return depositRepo.downloadReliefPackages(vendorId)
+    private fun loadDataFromServer(
+        syncSubjectReplaySubject: ReplaySubject<SynchronizationSubject>,
+        vendorId: Int
+    ): Completable {
+        return Completable.fromCallable {
+            syncSubjectReplaySubject.onNext(SynchronizationSubject.RD_DOWNLOAD)
+        }.andThen(depositRepo.downloadReliefPackages(vendorId))
     }
 
     companion object {

@@ -5,12 +5,14 @@ import cz.quanti.android.vendor_app.repository.purchase.PurchaseFacade
 import cz.quanti.android.vendor_app.repository.purchase.PurchaseRepository
 import cz.quanti.android.vendor_app.repository.purchase.dto.Purchase
 import cz.quanti.android.vendor_app.repository.purchase.dto.SelectedProduct
+import cz.quanti.android.vendor_app.sync.SynchronizationSubject
 import cz.quanti.android.vendor_app.utils.BlockedCardError
 import cz.quanti.android.vendor_app.utils.VendorAppException
 import cz.quanti.android.vendor_app.utils.isPositiveResponseHttpCode
 import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.Single
+import io.reactivex.subjects.ReplaySubject
 import quanti.com.kotlinlog.Log
 
 class PurchaseFacadeImpl(
@@ -28,8 +30,10 @@ class PurchaseFacadeImpl(
         }
     }
 
-    override fun syncWithServer(): Completable {
-        return preparePurchases()
+    override fun syncWithServer(syncSubjectReplaySubject: ReplaySubject<SynchronizationSubject>): Completable {
+        return Completable.fromCallable {
+            syncSubjectReplaySubject.onNext(SynchronizationSubject.PURCHASES_UPLOAD)
+        }.andThen(preparePurchases())
             .andThen(sendPurchasesToServer())
             .andThen(deletePurchasedProducts())
     }
@@ -77,7 +81,6 @@ class PurchaseFacadeImpl(
 
     private fun sendPurchasesToServer(): Completable {
         val invalidPurchases = mutableListOf<Purchase>()
-
         return purchaseRepo.getAllPurchases().flatMapCompletable { purchases ->
             if (purchases.isEmpty()) {
                 Completable.complete()

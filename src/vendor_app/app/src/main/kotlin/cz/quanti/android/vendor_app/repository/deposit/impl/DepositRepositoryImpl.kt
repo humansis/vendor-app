@@ -40,7 +40,9 @@ class DepositRepositoryImpl(
         }
     }
 
-    override fun downloadReliefPackages(vendorId: Int): Completable {
+    override fun downloadReliefPackages(
+        vendorId: Int
+    ): Completable {
         return api.getReliefPackages(vendorId, PACKAGE_STATE_TO_DISTRIBUTE)
             .flatMapCompletable { response ->
                 when {

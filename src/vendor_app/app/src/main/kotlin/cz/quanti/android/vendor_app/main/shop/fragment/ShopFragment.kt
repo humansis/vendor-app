@@ -107,9 +107,13 @@ class ShopFragment : Fragment(), CategoryAdapterCallback, ProductAdapterCallback
         )
         initCategoriesAdapter()
         initProductsAdapter()
-        initObservers()
         initSearchBar()
         initOnClickListeners()
+    }
+
+    override fun onStart() {
+        super.onStart()
+        initObservers()
     }
 
     override fun onPause() {

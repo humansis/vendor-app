@@ -5,18 +5,25 @@ import cz.quanti.android.vendor_app.repository.transaction.TransactionRepository
 import cz.quanti.android.vendor_app.repository.transaction.dto.Transaction
 import cz.quanti.android.vendor_app.repository.transaction.dto.api.TransactionApiEntity
 import cz.quanti.android.vendor_app.repository.transaction.dto.api.TransactionPurchaseApiEntity
+import cz.quanti.android.vendor_app.sync.SynchronizationSubject
 import cz.quanti.android.vendor_app.utils.VendorAppException
 import cz.quanti.android.vendor_app.utils.isPositiveResponseHttpCode
 import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.Single
+import io.reactivex.subjects.ReplaySubject
 
 class TransactionFacadeImpl(
     private val transactionRepo: TransactionRepository
 ) : TransactionFacade {
 
-    override fun syncWithServer(vendorId: Int): Completable {
-        return retrieveTransactions(vendorId)
+    override fun syncWithServer(
+        syncSubjectReplaySubject: ReplaySubject<SynchronizationSubject>,
+        vendorId: Int
+    ): Completable {
+        return Completable.fromCallable {
+            syncSubjectReplaySubject.onNext(SynchronizationSubject.TRANSACTIONS_DOWNLOAD)
+        }.andThen(retrieveTransactions(vendorId))
     }
 
     override fun getTransactions(): Observable<List<Transaction>> {
@@ -29,7 +36,9 @@ class TransactionFacadeImpl(
         )
     }
 
-    private fun retrieveTransactions(vendorId: Int): Completable {
+    private fun retrieveTransactions(
+        vendorId: Int
+    ): Completable {
         return transactionRepo.retrieveTransactions(vendorId).flatMapCompletable {
             val responseCode = it.first
             val transactionsList = it.second

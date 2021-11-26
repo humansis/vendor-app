@@ -40,7 +40,7 @@ class BookletFacadeImpl(
     }
 
     private fun sendDataToServer(syncSubjectReplaySubject: ReplaySubject<SynchronizationSubject>): Completable {
-        return Completable.fromCallable{ syncSubjectReplaySubject.onNext(SynchronizationSubject.BOOKLETS_UPLOAD) }
+        return Completable.fromCallable { syncSubjectReplaySubject.onNext(SynchronizationSubject.BOOKLETS_UPLOAD) }
             .andThen(sendDeactivatedBooklets())
     }
 

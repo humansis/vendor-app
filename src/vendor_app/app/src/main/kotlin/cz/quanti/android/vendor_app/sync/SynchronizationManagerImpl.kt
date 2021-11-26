@@ -10,7 +10,6 @@ import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.BehaviorSubject
 import java.util.Date
 import quanti.com.kotlinlog.Log
-import java.lang.Exception
 
 class SynchronizationManagerImpl(
     private val preferences: AppPreferences,

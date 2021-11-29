@@ -11,7 +11,6 @@ import cz.quanti.android.vendor_app.repository.purchase.PurchaseFacade
 import cz.quanti.android.vendor_app.repository.synchronization.SynchronizationFacade
 import cz.quanti.android.vendor_app.repository.transaction.TransactionFacade
 import cz.quanti.android.vendor_app.sync.SynchronizationSubject
-import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.Single
 
@@ -26,27 +25,16 @@ class SynchronizationFacadeImpl(
     private val invoiceFacade: InvoiceFacade
 ) : SynchronizationFacade {
 
-    override fun synchronize(vendor: Vendor): Completable {
+    override fun synchronize(vendor: Vendor): Observable<SynchronizationSubject> {
         val vendorId = vendor.id.toInt()
         return purchaseFacade.syncWithServer()
-            .andThen(bookletFacade.syncWithServer())
-            .andThen(cardFacade.syncWithServer())
-            .andThen(depositFacade.syncWithServer(vendorId))
-            .andThen(categoryFacade.syncWithServer(vendorId))
-            .andThen(productFacade.syncWithServer(vendorId))
-            .andThen(transactionFacade.syncWithServer(vendorId))
-            .andThen(invoiceFacade.syncWithServer(vendorId))
-    }
-
-    override fun getSyncSubjectObservable(): Observable<SynchronizationSubject> {
-        return purchaseFacade.getSyncSubject()
-            .mergeWith(bookletFacade.getSyncSubject())
-            .mergeWith(cardFacade.getSyncSubject())
-            .mergeWith(depositFacade.getSyncSubject())
-            .mergeWith(categoryFacade.getSyncSubject())
-            .mergeWith(productFacade.getSyncSubject())
-            .mergeWith(transactionFacade.getSyncSubject())
-            .mergeWith(invoiceFacade.getSyncSubject())
+            .concatWith(bookletFacade.syncWithServer())
+            .concatWith(cardFacade.syncWithServer())
+            .concatWith(depositFacade.syncWithServer(vendorId))
+            .concatWith(categoryFacade.syncWithServer(vendorId))
+            .concatWith(productFacade.syncWithServer(vendorId))
+            .concatWith(transactionFacade.syncWithServer(vendorId))
+            .concatWith(invoiceFacade.syncWithServer(vendorId))
     }
 
     override fun isSyncNeeded(): Observable<Boolean> {

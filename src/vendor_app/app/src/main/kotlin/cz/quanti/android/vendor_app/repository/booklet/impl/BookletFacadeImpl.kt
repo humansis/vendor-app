@@ -9,13 +9,11 @@ import cz.quanti.android.vendor_app.utils.isPositiveResponseHttpCode
 import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.Single
-import io.reactivex.subjects.PublishSubject
+import quanti.com.kotlinlog.Log
 
 class BookletFacadeImpl(
     private val bookletRepo: BookletRepository
 ) : BookletFacade {
-
-    private val syncSubject = PublishSubject.create<SynchronizationSubject>()
 
     override fun getAllDeactivatedBooklets(): Single<List<Booklet>> {
         return bookletRepo.getAllDeactivatedBooklets()
@@ -32,32 +30,17 @@ class BookletFacadeImpl(
         return bookletRepo.getProtectedBooklets()
     }
 
-    override fun syncWithServer(): Completable {
-        return sendDataToServer()
-            .andThen(loadDataFromServer())
+    override fun syncWithServer(): Observable<SynchronizationSubject> {
+        return Observable.just(SynchronizationSubject.BOOKLETS_UPLOAD)
+            .concatWith(sendDeactivatedBooklets())
+            .concatWith(Observable.just(SynchronizationSubject.BOOKLETS_DEACTIVATED_DOWNLOAD))
+            .concatWith(reloadDeactivatedBookletsFromServer())
+            .concatWith(Observable.just(SynchronizationSubject.BOOKLETS_PROTECTED_DOWNLOAD))
+            .concatWith(reloadProtectedBookletsFromServer())
     }
 
     override fun isSyncNeeded(): Single<Boolean> {
         return bookletRepo.getNewlyDeactivatedCount().map { it > 0 }
-    }
-
-    override fun getSyncSubject(): PublishSubject<SynchronizationSubject> {
-        return syncSubject
-    }
-
-    private fun sendDataToServer(): Completable {
-        return Completable.fromCallable { syncSubject.onNext(SynchronizationSubject.BOOKLETS_UPLOAD) }
-            .andThen(sendDeactivatedBooklets())
-    }
-
-    private fun loadDataFromServer(): Completable {
-        return Completable.fromCallable {
-            syncSubject.onNext(SynchronizationSubject.BOOKLETS_DEACTIVATED_DOWNLOAD)
-        }.andThen(reloadDeactivatedBookletsFromServer())
-            .andThen(Completable.fromCallable {
-                syncSubject.onNext(SynchronizationSubject.BOOKLETS_PROTECTED_DOWNLOAD)
-            })
-            .andThen(reloadProtectedBookletsFromServer())
     }
 
     private fun sendDeactivatedBooklets(): Completable {
@@ -75,6 +58,7 @@ class BookletFacadeImpl(
                         }
                     }
             } else {
+                Log.d(TAG, "No deactivated booklets to upload")
                 Completable.complete()
             }
         }
@@ -116,5 +100,9 @@ class BookletFacadeImpl(
                 }
             }
         }
+    }
+
+    companion object {
+        private val TAG = BookletFacadeImpl::class.java.simpleName
     }
 }

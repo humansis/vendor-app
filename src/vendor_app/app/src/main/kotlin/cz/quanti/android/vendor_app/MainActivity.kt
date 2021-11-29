@@ -470,8 +470,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
 
     private fun showSyncingDialog(): AlertDialog {
         val dialogBinding = DialogSyncBinding.inflate(layoutInflater, null, false)
-        dialogBinding.title.text = getString(R.string.syncing) // TODO sehnat preklad
-        dialogBinding.message.text = getString(R.string.sync_starting) // TODO sehnat preklad
+        dialogBinding.title.text = getString(R.string.syncing)
         dialogBinding.progressBar.max = SynchronizationSubject.values().size
 
         syncSubjectDisposable?.dispose()
@@ -479,7 +478,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({ subject ->
-                dialogBinding.message.text = subject.message
+                dialogBinding.message.text = getString(subject.message)
                 dialogBinding.progressBar.setProgressCompat(subject.ordinal, true)
             }, {
                 Log.e(TAG, it)

@@ -6,24 +6,20 @@ import cz.quanti.android.vendor_app.repository.deposit.dto.ReliefPackage
 import cz.quanti.android.vendor_app.sync.SynchronizationSubject
 import cz.quanti.android.vendor_app.utils.NullableObjectWrapper
 import io.reactivex.Completable
+import io.reactivex.Observable
 import io.reactivex.Single
-import io.reactivex.subjects.PublishSubject
 
 class DepositFacadeImpl(
     private val depositRepo: DepositRepository
 ) : DepositFacade {
 
-    private val syncSubject = PublishSubject.create<SynchronizationSubject>()
-
     override fun syncWithServer(
         vendorId: Int
-    ): Completable {
-        return sendDataToServer()
-            .andThen(loadDataFromServer(vendorId))
-    }
-
-    override fun getSyncSubject(): PublishSubject<SynchronizationSubject> {
-        return syncSubject
+    ): Observable<SynchronizationSubject> {
+        return Observable.just(SynchronizationSubject.RD_UPLOAD)
+            .concatWith(sendDataToServer())
+            .concatWith(Observable.just(SynchronizationSubject.RD_DOWNLOAD))
+            .concatWith(loadDataFromServer(vendorId))
     }
 
     override fun deleteReliefPackageFromDB(id: Int): Completable {
@@ -46,20 +42,12 @@ class DepositFacadeImpl(
     }
 
     private fun sendDataToServer(): Completable {
-        return Completable.fromCallable {
-            syncSubject.onNext(SynchronizationSubject.RD_UPLOAD)
-        }.andThen(depositRepo.uploadReliefPackages())
+        return depositRepo.uploadReliefPackages()
     }
 
     private fun loadDataFromServer(
         vendorId: Int
     ): Completable {
-        return Completable.fromCallable {
-            syncSubject.onNext(SynchronizationSubject.RD_DOWNLOAD)
-        }.andThen(depositRepo.downloadReliefPackages(vendorId))
-    }
-
-    companion object {
-        private val TAG = DepositFacadeImpl::class.java.simpleName
+        return depositRepo.downloadReliefPackages(vendorId)
     }
 }

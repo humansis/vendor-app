@@ -12,15 +12,12 @@ import cz.quanti.android.vendor_app.utils.isPositiveResponseHttpCode
 import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.Single
-import io.reactivex.subjects.PublishSubject
 import quanti.com.kotlinlog.Log
 
 class PurchaseFacadeImpl(
     private val purchaseRepo: PurchaseRepository,
     private val cardRepo: CardRepository
 ) : PurchaseFacade {
-
-    private val syncSubject = PublishSubject.create<SynchronizationSubject>()
 
     override fun savePurchase(purchase: Purchase): Completable {
         return cardRepo.isBlockedCard(purchase.smartcard).flatMapCompletable { itsBlocked ->
@@ -32,16 +29,11 @@ class PurchaseFacadeImpl(
         }
     }
 
-    override fun syncWithServer(): Completable {
-        return Completable.fromCallable {
-            syncSubject.onNext(SynchronizationSubject.PURCHASES_UPLOAD)
-        }.andThen(preparePurchases())
-            .andThen(sendPurchasesToServer())
-            .andThen(deletePurchasedProducts())
-    }
-
-    override fun getSyncSubject(): PublishSubject<SynchronizationSubject> {
-        return syncSubject
+    override fun syncWithServer(): Observable<SynchronizationSubject> {
+        return Observable.just(SynchronizationSubject.PURCHASES_UPLOAD)
+            .concatWith(preparePurchases())
+            .concatWith(sendPurchasesToServer())
+            .concatWith(deletePurchasedProducts())
     }
 
     override fun getPurchasesCount(): Observable<Long> {
@@ -89,6 +81,7 @@ class PurchaseFacadeImpl(
         val invalidPurchases = mutableListOf<Purchase>()
         return purchaseRepo.getAllPurchases().flatMapCompletable { purchases ->
             if (purchases.isEmpty()) {
+                Log.d(TAG, "No purchases to upload")
                 Completable.complete()
             } else {
                 val voucherPurchases = purchases.filter { it.vouchers.isNotEmpty() }

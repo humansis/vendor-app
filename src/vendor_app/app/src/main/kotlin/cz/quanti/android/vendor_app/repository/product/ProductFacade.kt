@@ -4,7 +4,6 @@ import cz.quanti.android.vendor_app.repository.product.dto.Product
 import cz.quanti.android.vendor_app.sync.SynchronizationSubject
 import io.reactivex.Completable
 import io.reactivex.Observable
-import io.reactivex.subjects.PublishSubject
 
 interface ProductFacade {
 
@@ -12,9 +11,7 @@ interface ProductFacade {
 
     fun syncWithServer(
         vendorId: Int
-    ): Completable
+    ): Observable<SynchronizationSubject>
 
     fun deleteProducts(): Completable
-
-    fun getSyncSubject(): PublishSubject<SynchronizationSubject>
 }

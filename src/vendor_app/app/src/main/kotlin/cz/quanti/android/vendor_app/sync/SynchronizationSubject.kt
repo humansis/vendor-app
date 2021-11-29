@@ -1,16 +1,17 @@
 package cz.quanti.android.vendor_app.sync
 
-enum class SynchronizationSubject(val message: String) {
-    // TODO mit message jako string resource s preklady
-    PURCHASES_UPLOAD("Uploading purchases"),
-    BOOKLETS_UPLOAD("Uploading deactivated booklets"),
-    BOOKLETS_DEACTIVATED_DOWNLOAD("Downloading deactivated booklets"),
-    BOOKLETS_PROTECTED_DOWNLOAD("Downloading protected booklets"),
-    BLOCKED_CARDS_DOWNLOAD("Downloading blocked smartcards"),
-    RD_UPLOAD("Uploading RD"),
-    RD_DOWNLOAD("Downloading RD"),
-    CATEGORIES_DOWNLOAD("Downloading product categories"),
-    PRODUCTS_DOWNLOAD("Downloading products"),
-    TRANSACTIONS_DOWNLOAD("Downloading transactions to reimburse"),
-    INVOICES_DOWNLOAD("Downloading invoices")
+import cz.quanti.android.vendor_app.R
+
+enum class SynchronizationSubject(val message: Int) {
+    PURCHASES_UPLOAD(R.string.purchases_upload),
+    BOOKLETS_UPLOAD(R.string.booklets_upload),
+    BOOKLETS_DEACTIVATED_DOWNLOAD(R.string.booklets_deactivated_download),
+    BOOKLETS_PROTECTED_DOWNLOAD(R.string.booklets_protected_download),
+    BLOCKED_CARDS_DOWNLOAD(R.string.blocked_cards_download),
+    RD_UPLOAD(R.string.rd_upload),
+    RD_DOWNLOAD(R.string.rd_download),
+    CATEGORIES_DOWNLOAD(R.string.categories_download),
+    PRODUCTS_DOWNLOAD(R.string.products_download),
+    TRANSACTIONS_DOWNLOAD(R.string.transactions_download),
+    INVOICES_DOWNLOAD(R.string.invoices_download)
 }

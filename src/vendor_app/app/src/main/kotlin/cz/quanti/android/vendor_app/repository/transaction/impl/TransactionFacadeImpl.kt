@@ -11,24 +11,16 @@ import cz.quanti.android.vendor_app.utils.isPositiveResponseHttpCode
 import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.Single
-import io.reactivex.subjects.PublishSubject
 
 class TransactionFacadeImpl(
     private val transactionRepo: TransactionRepository
 ) : TransactionFacade {
 
-    private val syncSubject = PublishSubject.create<SynchronizationSubject>()
-
     override fun syncWithServer(
         vendorId: Int
-    ): Completable {
-        return Completable.fromCallable {
-            syncSubject.onNext(SynchronizationSubject.TRANSACTIONS_DOWNLOAD)
-        }.andThen(retrieveTransactions(vendorId))
-    }
-
-    override fun getSyncSubject(): PublishSubject<SynchronizationSubject> {
-        return syncSubject
+    ): Observable<SynchronizationSubject> {
+        return Observable.just(SynchronizationSubject.TRANSACTIONS_DOWNLOAD)
+            .concatWith(retrieveTransactions(vendorId))
     }
 
     override fun getTransactions(): Observable<List<Transaction>> {

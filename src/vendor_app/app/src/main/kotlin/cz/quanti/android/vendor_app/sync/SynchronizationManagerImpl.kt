@@ -17,6 +17,7 @@ class SynchronizationManagerImpl(
 ) : SynchronizationManager {
 
     private val syncStatePublishSubject = BehaviorSubject.createDefault(SynchronizationState.INIT)
+    private val syncSubject = BehaviorSubject.create<SynchronizationSubject>()
     private var lastSyncError: Throwable? = null
 
     override fun synchronizeWithServer() {
@@ -30,15 +31,18 @@ class SynchronizationManagerImpl(
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.io())
                 .subscribe(
-                    {
-                        preferences.lastSynced = Date().time
-                        syncStatePublishSubject.onNext(SynchronizationState.SUCCESS)
-                        Log.d(TAG, "Synchronization finished successfully")
+                    { subject ->
+                        syncSubject.onNext(subject)
                     },
                     { e ->
                         Log.e(TAG, e)
                         lastSyncError = e
                         syncStatePublishSubject.onNext(SynchronizationState.ERROR)
+                    },
+                    {
+                        preferences.lastSynced = Date().time
+                        syncStatePublishSubject.onNext(SynchronizationState.SUCCESS)
+                        Log.d(TAG, "Synchronization finished successfully")
                     }
                 ).let { /*ignore disposable*/ }
         }
@@ -49,7 +53,7 @@ class SynchronizationManagerImpl(
     }
 
     override fun syncSubjectObservable(): Observable<SynchronizationSubject> {
-        return syncFacade.getSyncSubjectObservable()
+        return syncSubject
     }
 
     override fun getLastSyncError(): Throwable? {

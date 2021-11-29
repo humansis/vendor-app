@@ -35,6 +35,7 @@ class DepositRepositoryImpl(
                     }
                 }
             } else {
+                Log.d(TAG, "No completed RD to upload")
                 Completable.complete()
             }
         }

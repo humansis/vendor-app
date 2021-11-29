@@ -12,6 +12,7 @@ import androidx.navigation.fragment.findNavController
 import cz.quanti.android.nfc.dto.v2.UserBalance
 import cz.quanti.android.nfc.exception.PINException
 import cz.quanti.android.nfc.exception.PINExceptionEnum
+import cz.quanti.android.nfc_io_libray.types.NfcUtil
 import cz.quanti.android.vendor_app.ActivityCallback
 import cz.quanti.android.vendor_app.MainViewModel
 import cz.quanti.android.vendor_app.R
@@ -236,7 +237,7 @@ class ScanCardFragment : Fragment() {
         vm.setPaymentState(PaymentStateEnum.READY)
         when (throwable) {
             is PINException -> {
-                Log.e(TAG, throwable.pinExceptionEnum.name + " TagId: ${throwable.tagId}")
+                Log.e(TAG, throwable.pinExceptionEnum.name + " TagId: ${NfcUtil.toHexString(throwable.tagId)}")
                 when (throwable.pinExceptionEnum) {
                     PINExceptionEnum.INCORRECT_PIN -> {
                         paymentDisposable?.dispose()

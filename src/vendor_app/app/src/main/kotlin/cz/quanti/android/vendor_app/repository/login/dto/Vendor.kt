@@ -6,5 +6,5 @@ data class Vendor(
     var password: String = "",
     var saltedPassword: String = "",
     var loggedIn: Boolean = false,
-    var country: String = "",
+    var country: String = ""
 )

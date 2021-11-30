@@ -120,4 +120,16 @@
     <string name="commodity_type_exceeded">تتجاوز%1$s منتجًا في سلة التسوق حدك البالغ%2$s.</string>
     <string name="pin_too_short">رقم التعريف الشخصي يجب ان يتألف من من أربع أرقام</string>
     <string name="card_wrong_user">هذه البطاقة تم تخصيصها لمستخدم مختلف</string>
+    <string name="syncing">مزامنة</string>
+    <string name="purchases_upload">رفع المشتريات</string>
+    <string name="booklets_upload">رفع الدفاتر المعطلة</string>
+    <string name="booklets_deactivated_download">تحميل الدفاترالمعطلة</string>
+    <string name="booklets_protected_download">تحميل الدفاتر المحمية</string>
+    <string name="blocked_cards_download">تحميل الكروت الذكية المحجوبة</string>
+    <string name="categories_download">تحميل فئات المنتجات</string>
+    <string name="products_download">تحميل المنتجات</string>
+    <string name="transactions_download">تحميل معاملات السداد</string>
+    <string name="invoices_download">تحميل الفواتير</string>
+    <string name="rd_upload">رفع حزمة المستفيد</string>
+    <string name="rd_download">"تحميل حزمة المستفيد "</string>
 </resources>

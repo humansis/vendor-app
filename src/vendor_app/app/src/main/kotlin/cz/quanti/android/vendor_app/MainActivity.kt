@@ -257,7 +257,6 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
     }
 
     private fun setUpNavigationMenu() {
-        initPriceUnitSpinner()
         activityBinding.btnLogout.setOnClickListener {
             Log.d(TAG, "Logout button clicked.")
             logout()
@@ -599,11 +598,12 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
         if (loginVM.isVendorLoggedIn()) {
             navHeaderBinding.tvUsername.text = currentVendorName
         }
+
+        initPriceUnitSpinner()
     }
 
     private fun initPriceUnitSpinner() {
         val currencyAdapter = CurrencyAdapter(this)
-        currencyAdapter.init(shopVM.getCurrencies())
         currencyAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         activityBinding.priceUnitSpinner.adapter = currencyAdapter
 
@@ -612,9 +612,14 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({
-                activityBinding.priceUnitSpinner.setSelection(
-                    currencyAdapter.getPosition(it)
-                )
+                if (it.isNotBlank()) {
+                    if (activityBinding.priceUnitSpinner.adapter.isEmpty) {
+                        (activityBinding.priceUnitSpinner.adapter as CurrencyAdapter).init(shopVM.getCurrencies())
+                    }
+                    activityBinding.priceUnitSpinner.setSelection(
+                        currencyAdapter.getPosition(it)
+                    )
+                }
             }, {
                 Log.e(TAG, it)
             })

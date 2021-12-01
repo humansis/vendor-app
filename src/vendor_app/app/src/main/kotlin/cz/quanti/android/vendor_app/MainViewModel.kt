@@ -6,13 +6,10 @@ import android.content.Context
 import android.content.Intent
 import android.nfc.NfcAdapter
 import android.provider.Settings
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.toLiveData
 import cz.quanti.android.nfc.VendorFacade
 import cz.quanti.android.nfc.dto.v2.UserBalance
 import cz.quanti.android.vendor_app.repository.deposit.DepositFacade
-import cz.quanti.android.vendor_app.repository.synchronization.SynchronizationFacade
 import cz.quanti.android.vendor_app.utils.ApiEnvironments
 import cz.quanti.android.vendor_app.utils.Constants
 import cz.quanti.android.vendor_app.utils.CurrentVendor
@@ -21,14 +18,12 @@ import cz.quanti.android.vendor_app.utils.PermissionRequestResult
 import cz.quanti.android.vendor_app.utils.SingleLiveEvent
 import cz.quanti.android.vendor_app.utils.convertTagToString
 import cz.quanti.android.vendor_app.utils.convertTimeForApiRequestBody
-import io.reactivex.BackpressureStrategy
 import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
 import java.util.Date
 
 class MainViewModel(
-    private val syncFacade: SynchronizationFacade,
     private val nfcFacade: VendorFacade,
     private val depositFacade: DepositFacade,
     private val currentVendor: CurrentVendor,
@@ -92,12 +87,6 @@ class MainViewModel(
                 cameraPermissionsGrantedSLE.value = permissionResult
             }
         }
-    }
-
-    fun showDot(): LiveData<Boolean> {
-        return syncFacade.getPurchasesCount().flatMapSingle { purchasesCount ->
-            syncFacade.isSyncNeeded(purchasesCount)
-        }.toFlowable(BackpressureStrategy.LATEST).toLiveData()
     }
 
     fun setToastMessage(message: String) {

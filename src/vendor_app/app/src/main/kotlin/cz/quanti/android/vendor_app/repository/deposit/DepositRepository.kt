@@ -8,7 +8,9 @@ interface DepositRepository {
 
     fun uploadReliefPackages(): Completable
 
-    fun downloadReliefPackages(vendorId: Int): Completable
+    fun downloadReliefPackages(
+        vendorId: Int
+    ): Completable
 
     fun getReliefPackagesFromDB(tagId: String): Single<List<ReliefPackage>>
 

@@ -3,11 +3,13 @@ package cz.quanti.android.vendor_app.repository.booklet.impl
 import cz.quanti.android.vendor_app.repository.booklet.BookletFacade
 import cz.quanti.android.vendor_app.repository.booklet.BookletRepository
 import cz.quanti.android.vendor_app.repository.booklet.dto.Booklet
+import cz.quanti.android.vendor_app.sync.SynchronizationSubject
 import cz.quanti.android.vendor_app.utils.VendorAppException
 import cz.quanti.android.vendor_app.utils.isPositiveResponseHttpCode
 import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.Single
+import quanti.com.kotlinlog.Log
 
 class BookletFacadeImpl(
     private val bookletRepo: BookletRepository
@@ -28,22 +30,17 @@ class BookletFacadeImpl(
         return bookletRepo.getProtectedBooklets()
     }
 
-    override fun syncWithServer(): Completable {
-        return sendDataToServer()
-            .andThen(loadDataFromServer())
+    override fun syncWithServer(): Observable<SynchronizationSubject> {
+        return Observable.just(SynchronizationSubject.BOOKLETS_UPLOAD)
+            .concatWith(sendDeactivatedBooklets())
+            .concatWith(Observable.just(SynchronizationSubject.BOOKLETS_DEACTIVATED_DOWNLOAD))
+            .concatWith(reloadDeactivatedBookletsFromServer())
+            .concatWith(Observable.just(SynchronizationSubject.BOOKLETS_PROTECTED_DOWNLOAD))
+            .concatWith(reloadProtectedBookletsFromServer())
     }
 
     override fun isSyncNeeded(): Single<Boolean> {
         return bookletRepo.getNewlyDeactivatedCount().map { it > 0 }
-    }
-
-    private fun sendDataToServer(): Completable {
-        return sendDeactivatedBooklets()
-    }
-
-    private fun loadDataFromServer(): Completable {
-        return reloadDeactivatedBookletsFromServer()
-            .andThen(reloadProtectedBookletsFromServer())
     }
 
     private fun sendDeactivatedBooklets(): Completable {
@@ -61,6 +58,7 @@ class BookletFacadeImpl(
                         }
                     }
             } else {
+                Log.d(TAG, "No deactivated booklets to upload")
                 Completable.complete()
             }
         }
@@ -88,7 +86,6 @@ class BookletFacadeImpl(
     private fun reloadProtectedBookletsFromServer(): Completable {
         return bookletRepo.loadProtectedBookletsFromServer().flatMapCompletable { response ->
             val responseCode = response.responseCode
-
             if (isPositiveResponseHttpCode(responseCode)) {
                 val booklets = response.booklets
                 bookletRepo.deleteProtected()
@@ -103,5 +100,9 @@ class BookletFacadeImpl(
                 }
             }
         }
+    }
+
+    companion object {
+        private val TAG = BookletFacadeImpl::class.java.simpleName
     }
 }

@@ -3,17 +3,23 @@ package cz.quanti.android.vendor_app.repository.deposit.impl
 import cz.quanti.android.vendor_app.repository.deposit.DepositFacade
 import cz.quanti.android.vendor_app.repository.deposit.DepositRepository
 import cz.quanti.android.vendor_app.repository.deposit.dto.ReliefPackage
+import cz.quanti.android.vendor_app.sync.SynchronizationSubject
 import cz.quanti.android.vendor_app.utils.NullableObjectWrapper
 import io.reactivex.Completable
+import io.reactivex.Observable
 import io.reactivex.Single
 
 class DepositFacadeImpl(
     private val depositRepo: DepositRepository
 ) : DepositFacade {
 
-    override fun syncWithServer(vendorId: Int): Completable {
-        return sendDataToServer()
-            .andThen(loadDataFromServer(vendorId))
+    override fun syncWithServer(
+        vendorId: Int
+    ): Observable<SynchronizationSubject> {
+        return Observable.just(SynchronizationSubject.RD_UPLOAD)
+            .concatWith(sendDataToServer())
+            .concatWith(Observable.just(SynchronizationSubject.RD_DOWNLOAD))
+            .concatWith(loadDataFromServer(vendorId))
     }
 
     override fun deleteReliefPackageFromDB(id: Int): Completable {
@@ -39,11 +45,9 @@ class DepositFacadeImpl(
         return depositRepo.uploadReliefPackages()
     }
 
-    private fun loadDataFromServer(vendorId: Int): Completable {
+    private fun loadDataFromServer(
+        vendorId: Int
+    ): Completable {
         return depositRepo.downloadReliefPackages(vendorId)
-    }
-
-    companion object {
-        private val TAG = DepositFacadeImpl::class.java.simpleName
     }
 }

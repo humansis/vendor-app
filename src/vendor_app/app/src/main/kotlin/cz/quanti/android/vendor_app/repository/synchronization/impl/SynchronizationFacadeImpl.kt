@@ -10,7 +10,7 @@ import cz.quanti.android.vendor_app.repository.product.ProductFacade
 import cz.quanti.android.vendor_app.repository.purchase.PurchaseFacade
 import cz.quanti.android.vendor_app.repository.synchronization.SynchronizationFacade
 import cz.quanti.android.vendor_app.repository.transaction.TransactionFacade
-import io.reactivex.Completable
+import cz.quanti.android.vendor_app.sync.SynchronizationSubject
 import io.reactivex.Observable
 import io.reactivex.Single
 
@@ -25,22 +25,25 @@ class SynchronizationFacadeImpl(
     private val invoiceFacade: InvoiceFacade
 ) : SynchronizationFacade {
 
-    override fun synchronize(vendor: Vendor): Completable {
+    override fun synchronize(vendor: Vendor): Observable<SynchronizationSubject> {
+        val vendorId = vendor.id.toInt()
         return purchaseFacade.syncWithServer()
-            .andThen(bookletFacade.syncWithServer())
-            .andThen(cardFacade.syncWithServer())
-            .andThen(depositFacade.syncWithServer(vendor.id.toInt()))
-            .andThen(categoryFacade.syncWithServer(vendor.id.toInt()))
-            .andThen(productFacade.syncWithServer(vendor))
-            .andThen(transactionFacade.syncWithServer(vendor.id.toInt()))
-            .andThen(invoiceFacade.syncWithServer(vendor.id.toInt()))
+            .concatWith(bookletFacade.syncWithServer())
+            .concatWith(cardFacade.syncWithServer())
+            .concatWith(depositFacade.syncWithServer(vendorId))
+            .concatWith(categoryFacade.syncWithServer(vendorId))
+            .concatWith(productFacade.syncWithServer(vendorId))
+            .concatWith(transactionFacade.syncWithServer(vendorId))
+            .concatWith(invoiceFacade.syncWithServer(vendorId))
     }
 
-    override fun isSyncNeeded(purchasesCount: Long): Single<Boolean> {
-        return if (purchasesCount > 0) {
-            Single.just(true)
-        } else {
-            bookletFacade.isSyncNeeded()
+    override fun isSyncNeeded(): Observable<Boolean> {
+        return getPurchasesCount().flatMapSingle { purchasesCount ->
+            if (purchasesCount > 0) {
+                Single.just(true)
+            } else {
+                bookletFacade.isSyncNeeded()
+            }
         }
     }
 

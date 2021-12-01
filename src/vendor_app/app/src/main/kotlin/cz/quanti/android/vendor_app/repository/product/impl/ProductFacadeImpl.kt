@@ -2,10 +2,10 @@ package cz.quanti.android.vendor_app.repository.product.impl
 
 import android.content.Context
 import com.bumptech.glide.Glide
-import cz.quanti.android.vendor_app.repository.login.dto.Vendor
 import cz.quanti.android.vendor_app.repository.product.ProductFacade
 import cz.quanti.android.vendor_app.repository.product.ProductRepository
 import cz.quanti.android.vendor_app.repository.product.dto.Product
+import cz.quanti.android.vendor_app.sync.SynchronizationSubject
 import cz.quanti.android.vendor_app.utils.VendorAppException
 import cz.quanti.android.vendor_app.utils.isPositiveResponseHttpCode
 import io.reactivex.Completable
@@ -21,16 +21,21 @@ class ProductFacadeImpl(
         return productRepo.getProducts()
     }
 
-    override fun syncWithServer(vendor: Vendor): Completable {
-        return reloadProductFromServer(vendor)
+    override fun syncWithServer(
+        vendorId: Int
+    ): Observable<SynchronizationSubject> {
+        return Observable.just(SynchronizationSubject.PRODUCTS_DOWNLOAD)
+            .concatWith(reloadProductFromServer(vendorId))
     }
 
     override fun deleteProducts(): Completable {
         return productRepo.deleteProducts()
     }
 
-    private fun reloadProductFromServer(vendor: Vendor): Completable {
-        return productRepo.loadProductsFromServer(vendor).flatMapCompletable { response ->
+    private fun reloadProductFromServer(
+        vendorId: Int
+    ): Completable {
+        return productRepo.loadProductsFromServer(vendorId).flatMapCompletable { response ->
             val responseCode = response.first
             val products = response.second.toMutableList()
             if (isPositiveResponseHttpCode(responseCode)) {

@@ -200,7 +200,6 @@ object KoinInitializer {
             // View model
             viewModel {
                 MainViewModel(
-                    syncFacade,
                     nfcFacade,
                     depositFacade,
                     currentVendor,
@@ -270,9 +269,12 @@ object KoinInitializer {
                 val oldRequest = chain.request()
                 val headersBuilder = oldRequest.headers().newBuilder()
                 loginManager.getAuthHeader().let {
-                    headersBuilder.add("x-wsse", it)
+                    headersBuilder.add("X-Wsse", it)
                 }
-                headersBuilder.add("country", getCountry(currentVendor))
+                headersBuilder.add("Country", getCountry(currentVendor))
+                headersBuilder.add("Version-Name", BuildConfig.VERSION_NAME)
+                headersBuilder.add("Build-Number", BuildConfig.BUILD_NUMBER.toString())
+                headersBuilder.add("Build-Type", BuildConfig.BUILD_TYPE)
                 val request = oldRequest.newBuilder().headers(headersBuilder.build()).build()
                 chain.proceed(request)
             }

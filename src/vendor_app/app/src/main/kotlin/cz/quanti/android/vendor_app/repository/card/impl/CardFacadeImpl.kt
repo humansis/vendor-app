@@ -2,6 +2,7 @@ package cz.quanti.android.vendor_app.repository.card.impl
 
 import cz.quanti.android.vendor_app.repository.card.CardFacade
 import cz.quanti.android.vendor_app.repository.card.CardRepository
+import cz.quanti.android.vendor_app.sync.SynchronizationSubject
 import cz.quanti.android.vendor_app.utils.VendorAppException
 import cz.quanti.android.vendor_app.utils.isPositiveResponseHttpCode
 import io.reactivex.Completable
@@ -10,8 +11,9 @@ import io.reactivex.Single
 
 class CardFacadeImpl(private val cardRepo: CardRepository) : CardFacade {
 
-    override fun syncWithServer(): Completable {
-        return actualizeBlockedCardsFromServer()
+    override fun syncWithServer(): Observable<SynchronizationSubject> {
+        return Observable.just(SynchronizationSubject.BLOCKED_CARDS_DOWNLOAD)
+            .concatWith(actualizeBlockedCardsFromServer())
     }
 
     override fun getBlockedCards(): Single<List<String>> {

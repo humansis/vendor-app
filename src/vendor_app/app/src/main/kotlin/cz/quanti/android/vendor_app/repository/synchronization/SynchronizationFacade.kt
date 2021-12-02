@@ -1,15 +1,14 @@
 package cz.quanti.android.vendor_app.repository.synchronization
 
 import cz.quanti.android.vendor_app.repository.login.dto.Vendor
-import io.reactivex.Completable
+import cz.quanti.android.vendor_app.sync.SynchronizationSubject
 import io.reactivex.Observable
-import io.reactivex.Single
 
 interface SynchronizationFacade {
 
-    fun synchronize(vendor: Vendor): Completable
+    fun synchronize(vendor: Vendor): Observable<SynchronizationSubject>
 
-    fun isSyncNeeded(purchasesCount: Long): Single<Boolean>
+    fun isSyncNeeded(): Observable<Boolean>
 
     fun getPurchasesCount(): Observable<Long>
 }

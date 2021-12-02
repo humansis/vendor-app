@@ -2,6 +2,7 @@ package cz.quanti.android.vendor_app.repository.purchase
 
 import cz.quanti.android.vendor_app.repository.purchase.dto.Purchase
 import cz.quanti.android.vendor_app.repository.purchase.dto.SelectedProduct
+import cz.quanti.android.vendor_app.sync.SynchronizationSubject
 import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.Single
@@ -10,7 +11,7 @@ interface PurchaseFacade {
 
     fun savePurchase(purchase: Purchase): Completable
 
-    fun syncWithServer(): Completable
+    fun syncWithServer(): Observable<SynchronizationSubject>
 
     fun getPurchasesCount(): Observable<Long>
 

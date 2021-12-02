@@ -2,7 +2,6 @@ package cz.quanti.android.vendor_app.repository.product.impl
 
 import cz.quanti.android.vendor_app.repository.VendorAPI
 import cz.quanti.android.vendor_app.repository.category.CategoryRepository
-import cz.quanti.android.vendor_app.repository.login.dto.Vendor
 import cz.quanti.android.vendor_app.repository.product.ProductRepository
 import cz.quanti.android.vendor_app.repository.product.dao.ProductDao
 import cz.quanti.android.vendor_app.repository.product.dto.Product
@@ -19,8 +18,8 @@ class ProductRepositoryImpl(
 ) :
     ProductRepository {
 
-    override fun loadProductsFromServer(vendor: Vendor): Single<Pair<Int, List<Product>>> {
-        return api.getProducts(vendor.id.toInt(), vendor.country).map { response ->
+    override fun loadProductsFromServer(vendorId: Int): Single<Pair<Int, List<Product>>> {
+        return api.getProducts(vendorId).map { response ->
             var products = response.body()?.data
             if (products == null) {
                 products = listOf()

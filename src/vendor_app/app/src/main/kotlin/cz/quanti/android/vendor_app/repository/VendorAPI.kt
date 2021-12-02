@@ -18,7 +18,6 @@ import io.reactivex.Single
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
-import retrofit2.http.Header
 import retrofit2.http.POST
 import retrofit2.http.Path
 import retrofit2.http.Query
@@ -38,8 +37,7 @@ interface VendorAPI {
 
     @GET("v2/products")
     fun getProducts(
-        @Query("filter[vendors][]") vendorId: Int,
-        @Header("country") country: String
+        @Query("filter[vendors][]") vendorId: Int
     ): Single<Response<PagedApiEntity<ProductApiEntity>>>
 
     @GET("v1/deactivated-booklets")

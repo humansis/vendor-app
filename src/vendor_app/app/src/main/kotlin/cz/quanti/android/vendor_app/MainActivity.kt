@@ -29,6 +29,7 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.navigation.NavigationView
 import cz.quanti.android.vendor_app.databinding.ActivityMainBinding
+import cz.quanti.android.vendor_app.databinding.DialogSyncBinding
 import cz.quanti.android.vendor_app.databinding.NavHeaderBinding
 import cz.quanti.android.vendor_app.main.authorization.viewmodel.LoginViewModel
 import cz.quanti.android.vendor_app.main.invoices.viewmodel.InvoicesViewModel
@@ -41,6 +42,7 @@ import cz.quanti.android.vendor_app.repository.login.LoginFacade
 import cz.quanti.android.vendor_app.repository.purchase.dto.SelectedProduct
 import cz.quanti.android.vendor_app.sync.SynchronizationManager
 import cz.quanti.android.vendor_app.sync.SynchronizationState
+import cz.quanti.android.vendor_app.sync.SynchronizationSubject
 import cz.quanti.android.vendor_app.utils.ConnectionObserver
 import cz.quanti.android.vendor_app.utils.NfcTagPublisher
 import cz.quanti.android.vendor_app.utils.PermissionRequestResult
@@ -69,9 +71,11 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
     private val transactionsVM: TransactionsViewModel by viewModel()
     private val invoiceVM: InvoicesViewModel by viewModel()
     private var displayedDialog: AlertDialog? = null
+    private var syncDialog: AlertDialog? = null
     private var environmentDisposable: Disposable? = null
     private var connectionDisposable: Disposable? = null
     private var syncStateDisposable: Disposable? = null
+    private var syncSubjectDisposable: Disposable? = null
     private var syncDisposable: Disposable? = null
     private var removeProductDisposable: Disposable? = null
     private var emptyDataDisposable: Disposable? = null
@@ -107,12 +111,12 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
         initNfc()
         setUpToolbar()
         setUpNavigationMenu()
-        setUpBackground()
         initObservers()
     }
 
     override fun onStart() {
         super.onStart()
+        setUpBackground()
         Log.d(TAG, "onStart")
     }
 
@@ -142,6 +146,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
         environmentDisposable?.dispose()
         connectionDisposable?.dispose()
         syncStateDisposable?.dispose()
+        syncSubjectDisposable?.dispose()
         syncDisposable?.dispose()
         removeProductDisposable?.dispose()
         emptyDataDisposable?.dispose()
@@ -230,7 +235,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
             appBarConfiguration
         )
 
-        mainVM.showDot().observe(this, {
+        synchronizationManager.showDot().observe(this, {
             if (it) {
                 activityBinding.appBar.dot.visibility = View.VISIBLE
             } else {
@@ -270,6 +275,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
                     val color = getBackgroundColor(this, environment)
                     activityBinding.appBar.toolbar.setBackgroundColor(color)
                     activityBinding.appBar.contentMain.navHostFragment.setBackgroundColor(color)
+                    this.window.navigationBarColor = color
                 },
                 {
                     Log.e(TAG, it)
@@ -417,34 +423,71 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
         syncStateDisposable = synchronizationManager.syncStateObservable()
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribe({
-                when (it) {
+            .subscribe({ state ->
+                when (state) {
                     SynchronizationState.STARTED -> {
                         activityBinding.btnLogout.isEnabled = false
                         activityBinding.appBar.progressBar.visibility = View.VISIBLE
                         activityBinding.appBar.syncButtonArea.visibility = View.INVISIBLE
+                        syncDialog?.dismiss()
+                        syncDialog = showSyncingDialog()
                     }
                     SynchronizationState.SUCCESS -> {
                         activityBinding.btnLogout.isEnabled = true
                         activityBinding.appBar.progressBar.visibility = View.GONE
                         activityBinding.appBar.syncButtonArea.visibility = View.VISIBLE
-                        mainVM.setToastMessage(getString(R.string.data_were_successfully_synchronized))
+                        syncDialog?.dismiss()
+                        syncDialog = AlertDialog.Builder(this, R.style.DialogTheme)
+                            .setTitle(getString(R.string.success))
+                            .setMessage(getString(R.string.data_were_successfully_synchronized))
+                            .setCancelable(true)
+                            .setPositiveButton(getString(android.R.string.ok), null)
+                            .show()
                     }
                     SynchronizationState.ERROR -> {
                         activityBinding.btnLogout.isEnabled = true
                         activityBinding.appBar.progressBar.visibility = View.GONE
                         activityBinding.appBar.syncButtonArea.visibility = View.VISIBLE
-                        if (loginVM.isNetworkConnected().value != true) {
-                            mainVM.setToastMessage(getString(R.string.no_internet_connection))
+                        val title = if (loginVM.isNetworkConnected().value != true) {
+                            getString(R.string.no_internet_connection)
                         } else {
-                            mainVM.setToastMessage(getString(R.string.could_not_synchronize_data_with_server))
+                            getString(R.string.could_not_synchronize_data_with_server)
                         }
+                        syncDialog?.dismiss()
+                        syncDialog = AlertDialog.Builder(this, R.style.DialogTheme)
+                            .setTitle(title)
+                            .setMessage(synchronizationManager.getLastSyncError()?.message)
+                            .setCancelable(true)
+                            .setPositiveButton(getString(android.R.string.ok), null)
+                            .show()
                     }
                     else -> {}
                 }
             }, {
                 Log.e(TAG, it)
             })
+    }
+
+    private fun showSyncingDialog(): AlertDialog {
+        val dialogBinding = DialogSyncBinding.inflate(layoutInflater, null, false)
+        dialogBinding.title.text = getString(R.string.syncing)
+        dialogBinding.progressBar.max = SynchronizationSubject.values().size
+
+        syncSubjectDisposable?.dispose()
+        syncSubjectDisposable = synchronizationManager.syncSubjectObservable()
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({ subject ->
+                dialogBinding.message.text = getString(subject.message)
+                dialogBinding.progressBar.setProgressCompat(subject.ordinal, true)
+            }, {
+                Log.e(TAG, it)
+            })
+
+        return AlertDialog.Builder(this, R.style.DialogTheme)
+            .setView(dialogBinding.root)
+            .setCancelable(false)
+            .show()
     }
 
     private fun checkConnection() {

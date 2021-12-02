@@ -121,4 +121,16 @@
     <string name="cashback">Cashback</string>
     <string name="pin_too_short">PIN must be 4 digits</string>
     <string name="card_wrong_user">This card was assigned to a different user</string>
+    <string name="syncing">Syncing</string>
+    <string name="purchases_upload">Uploading purchases</string>
+    <string name="booklets_upload">Uploading deactivated booklets</string>
+    <string name="booklets_deactivated_download">Downloading deactivated booklets</string>
+    <string name="booklets_protected_download">Downloading protected booklets</string>
+    <string name="blocked_cards_download">Downloading blocked smartcards</string>
+    <string name="rd_upload">Uploading RD</string>
+    <string name="rd_download">Downloading RD</string>
+    <string name="categories_download">Downloading product categories</string>
+    <string name="products_download">Downloading products</string>
+    <string name="transactions_download">Downloading transactions to reimburse</string>
+    <string name="invoices_download">Downloading invoices</string>
 </resources>

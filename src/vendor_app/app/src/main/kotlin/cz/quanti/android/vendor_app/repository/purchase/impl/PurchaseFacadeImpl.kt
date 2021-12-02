@@ -5,6 +5,7 @@ import cz.quanti.android.vendor_app.repository.purchase.PurchaseFacade
 import cz.quanti.android.vendor_app.repository.purchase.PurchaseRepository
 import cz.quanti.android.vendor_app.repository.purchase.dto.Purchase
 import cz.quanti.android.vendor_app.repository.purchase.dto.SelectedProduct
+import cz.quanti.android.vendor_app.sync.SynchronizationSubject
 import cz.quanti.android.vendor_app.utils.BlockedCardError
 import cz.quanti.android.vendor_app.utils.VendorAppException
 import cz.quanti.android.vendor_app.utils.isPositiveResponseHttpCode
@@ -28,10 +29,11 @@ class PurchaseFacadeImpl(
         }
     }
 
-    override fun syncWithServer(): Completable {
-        return preparePurchases()
-            .andThen(sendPurchasesToServer())
-            .andThen(deletePurchasedProducts())
+    override fun syncWithServer(): Observable<SynchronizationSubject> {
+        return Observable.just(SynchronizationSubject.PURCHASES_UPLOAD)
+            .concatWith(preparePurchases())
+            .concatWith(sendPurchasesToServer())
+            .concatWith(deletePurchasedProducts())
     }
 
     override fun getPurchasesCount(): Observable<Long> {
@@ -77,9 +79,9 @@ class PurchaseFacadeImpl(
 
     private fun sendPurchasesToServer(): Completable {
         val invalidPurchases = mutableListOf<Purchase>()
-
         return purchaseRepo.getAllPurchases().flatMapCompletable { purchases ->
             if (purchases.isEmpty()) {
+                Log.d(TAG, "No purchases to upload")
                 Completable.complete()
             } else {
                 val voucherPurchases = purchases.filter { it.vouchers.isNotEmpty() }

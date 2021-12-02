@@ -85,8 +85,8 @@
     <string name="reimbursed_invoices">الفواتير المسددة</string>
     <string name="no_reimbursed_invoices">لايوجد فواتير مسددة</string>
     <string name="no_purchases">لايوجد مشتريات</string>
-    <string name="unsynced_transactions">" تزامن لعرض جميع المعاملات. غير متزامن: %1$d"</string>
-    <string name="humansis_invoice_number">"%1$d رقم فاتورة Humansis  "</string>
+    <string name="unsynced_transactions"> تزامن لعرض جميع المعاملات. غير متزامن: %1$d</string>
+    <string name="humansis_invoice_number">%1$d رقم فاتورة Humansis </string>
     <string name="read_balance">قراءة الرصيد</string>
     <string name="home">الرئيسية</string>
     <string name="nav_header_desc">رأس التنقل</string>
@@ -95,8 +95,8 @@
     <string name="utilities">خدمات</string>
     <string name="confirm">ترتيب</string>
     <string name="environment">البيئة: %1$s</string>
-    <string name="scan_card_to_fix">لم ينته المسح بشكل صحيح وبالتالي قد تكون البيانات الموجودة على البطاقة غير مكتملة.\n\n قم بمسح البطاقة مرة أخرى لإنهاء الدفع.</string>
-    <string name="payment_in_progress">جاري الدفع\n\n لا تقم بإزالة البطاقة</string>
+    <string name="scan_card_to_fix">لم ينته المسح بشكل صحيح وبالتالي قد تكون البيانات الموجودة على البطاقة غير مكتملة.n\n\ قم بمسح البطاقة مرة أخرى لإنهاء الدفع.</string>
+    <string name="payment_in_progress">جاري الدفعn\n\ لا تقم بإزالة البطاقة</string>
     <string name="error_service_unavailable">الخدمة غير موفرة</string>
     <string name="no_products">لا يوجد منتجات</string>
     <string name="all_products">كل المنتجات</string>
@@ -131,5 +131,6 @@
     <string name="transactions_download">تحميل معاملات السداد</string>
     <string name="invoices_download">تحميل الفواتير</string>
     <string name="rd_upload">رفع حزمة المستفيد</string>
-    <string name="rd_download">"تحميل حزمة المستفيد "</string>
+    <string name="rd_download">تحميل حزمة المستفيد</string>
+    <string name="card_balance_expired">انتهت صلاحية رصيد البطاقة</string>
 </resources>

@@ -132,5 +132,5 @@
     <string name="invoices_download">تحميل الفواتير</string>
     <string name="rd_upload">رفع حزمة المستفيد</string>
     <string name="rd_download">تحميل حزمة المستفيد</string>
-    <string name="card_balance_expired">انتهت صلاحية رصيد البطاقة</string>
+    <string name="card_balance_expired">انتهت فترة صلاحية رصيد البطاقة</string>
 </resources>

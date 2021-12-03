@@ -88,7 +88,7 @@
     <string name="date">Date: %1$s</string>
     <string name="quantity">Quantity: %1$d</string>
     <string name="total_price">Total: %1$.2f %2$s</string>
-    <string name="project">"Project: "</string>
+    <string name="project">Project: </string>
     <string name="export_logs">Send logs</string>
     <string name="send_email_adress" translatable="false">support@humansis.org, mobilne-pin@quanti.cz</string>
     <string name="logs_dialog_title">Share logs</string>
@@ -109,7 +109,7 @@
     <string name="limit_exceeded">Limit exceeded:</string>
     <string name="multiple_limits_exceeded">Multiple limits exceeded:</string>
     <string name="commodity_type_not_allowed">You are not allowed to purchase:</string>
-    <string name="remove_commodity_type">"\n\nDo you wish to remove all %1$s products from cart?"</string>
+    <string name="remove_commodity_type">\n\nDo you wish to remove all %1$s products from cart?</string>
     <string name="commodity_type_exceeded">%1$s products in your cart exceed your limit of %2$s.</string>
     <string name="please_update_cart">Please update your cart accordingly.</string>
     <string name="remove_restricted_products">Remove restricted products</string>
@@ -133,4 +133,5 @@
     <string name="products_download">Downloading products</string>
     <string name="transactions_download">Downloading transactions to reimburse</string>
     <string name="invoices_download">Downloading invoices</string>
+    <string name="card_balance_expired">Card balance has expired</string>
 </resources>

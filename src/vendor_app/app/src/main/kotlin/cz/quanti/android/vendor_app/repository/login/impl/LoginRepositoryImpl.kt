@@ -59,11 +59,6 @@ class LoginRepositoryImpl(private val api: VendorAPI) :
             this.username = vendor.username
             this.password = vendor.password
             this.saltedPassword = vendor.saltedPassword
-            this.shop = vendor.shop
-            this.adress = vendor.address
-            this.loggedIn = vendor.loggedIn
-            this.products = vendor.products
-            this.language = vendor.language
         }
     }
 
@@ -76,12 +71,7 @@ class LoginRepositoryImpl(private val api: VendorAPI) :
                 this.username = vendorApiEntity.username
                 this.password = vendorApiEntity.password
                 this.saltedPassword = vendorApiEntity.saltedPassword
-                this.shop = vendorApiEntity.shop ?: ""
-                this.address = vendorApiEntity.adress
-                this.loggedIn = vendorApiEntity.loggedIn
-                this.products = vendorApiEntity.products
                 this.country = getCountryFromLocation(vendorApiEntity.location)
-                this.language = vendorApiEntity.language
             }
         }
     }

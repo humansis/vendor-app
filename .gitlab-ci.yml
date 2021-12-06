@@ -79,7 +79,7 @@ archive_debug_job:
     paths:
       - $ARTIFACT_PATH
 
-# Build debug and archive apk
+# Build release and archive apk
 archive_release_job:
   stage: archive
   extends: .gradle_build
@@ -148,13 +148,12 @@ upload_to_firebase:
         app:assembleDebug app:appDistributionUploadDebug
   when: manual
 
-# Build release and archive aab
-archive_release_bundle_job:
-  stage: archive
+# Build release and archive bundle automatically
+archive_release_bundle_job_automatically:
+  stage: publish
   extends: .gradle_build
   script:
     - ./gradlew :app:bundleRelease
-  when: always
   only:
     - tags
   artifacts:

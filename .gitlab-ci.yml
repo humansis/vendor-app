@@ -148,6 +148,20 @@ upload_to_firebase:
         app:assembleDebug app:appDistributionUploadDebug
   when: manual
 
+# Build release and archive aab
+archive_release_bundle_job:
+  stage: archive
+  extends: .gradle_build
+  script:
+    - ./gradlew :app:bundleRelease
+  when: always
+  only:
+    - tags
+  artifacts:
+    when: always
+    expire_in: 4 week
+    paths:
+      - $ARTIFACT_PATH
 
 publish_to_playstore:
   stage: publish

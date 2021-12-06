@@ -13,6 +13,7 @@ variables:
   ARTIFACT_PATH: ./src/vendor_app/app/build/outputs/apk/*/vendor-app-*.apk
   ARTIFACT_DEBUG_PATH: ./src/vendor_app/app/build/outputs/apk/*/vendor-app-*debug.apk
   ARTIFACT_RELEASE_PATH: ./src/vendor_app/app/build/outputs/apk/*/vendor-app-*release.apk
+  ARTIFACT_BUNDLE_PATH: ./src/vendor_app/app/build/outputs/bundle/*/vendor-app-*.aab
   EMULATOR_TIMEOUT: "60"
 
 stages:
@@ -160,7 +161,7 @@ archive_release_bundle_job_automatically:
     when: always
     expire_in: 4 week
     paths:
-      - $ARTIFACT_PATH
+      - $ARTIFACT_BUNDLE_PATH
 
 publish_to_playstore:
   stage: publish

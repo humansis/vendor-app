@@ -257,7 +257,6 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
     }
 
     private fun setUpNavigationMenu() {
-        initPriceUnitSpinner()
         activityBinding.btnLogout.setOnClickListener {
             Log.d(TAG, "Logout button clicked.")
             logout()
@@ -377,16 +376,20 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
                 val cardResultDialog = AlertDialog.Builder(this, R.style.DialogTheme)
                     .setTitle(getString((R.string.read_balance)))
                     .setMessage(
-                        getString(
-                            R.string.scanning_card_balance,
-                            if ((expirationDate != null && expirationDate < Date()) || cardContent.balance == 0.0) {
-                                "${0.0} ${cardContent.currencyCode}"
-                            } else {
-                                "${cardContent.balance} ${cardContent.currencyCode}" +
-                                    getExpirationDateAsString(expirationDate, this) +
-                                    getLimitsAsText(cardContent, this)
-                            }
-                        )
+                        if (expirationDate != null && expirationDate < Date()) {
+                            getString(R.string.card_balance_expired)
+                        } else {
+                            getString(
+                                R.string.scanning_card_balance,
+                                if (cardContent.balance == 0.0) {
+                                    "${0.0} ${cardContent.currencyCode}"
+                                } else {
+                                    "${cardContent.balance} ${cardContent.currencyCode}" +
+                                        getExpirationDateAsString(expirationDate, this) +
+                                        getLimitsAsText(cardContent, this)
+                                }
+                            )
+                        }
                     )
                     .setCancelable(true)
                     .setNegativeButton(getString(R.string.close)) { dialog, _ ->
@@ -599,11 +602,12 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
         if (loginVM.isVendorLoggedIn()) {
             navHeaderBinding.tvUsername.text = currentVendorName
         }
+
+        initPriceUnitSpinner()
     }
 
     private fun initPriceUnitSpinner() {
         val currencyAdapter = CurrencyAdapter(this)
-        currencyAdapter.init(shopVM.getCurrencies())
         currencyAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         activityBinding.priceUnitSpinner.adapter = currencyAdapter
 
@@ -612,9 +616,14 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({
-                activityBinding.priceUnitSpinner.setSelection(
-                    currencyAdapter.getPosition(it)
-                )
+                if (it.isNotBlank()) {
+                    if (activityBinding.priceUnitSpinner.adapter.isEmpty) {
+                        (activityBinding.priceUnitSpinner.adapter as CurrencyAdapter).init(shopVM.getCurrencies())
+                    }
+                    activityBinding.priceUnitSpinner.setSelection(
+                        currencyAdapter.getPosition(it)
+                    )
+                }
             }, {
                 Log.e(TAG, it)
             })

@@ -13,6 +13,7 @@ class CurrencyAdapter(context: Context) : SpinnerAdapter,
     ArrayAdapter<String>(context, R.layout.item_currency) {
 
     fun init(firstCurrencies: List<String>) {
+        clear()
         addAll(firstCurrencies)
         notifyDataSetChanged()
     }

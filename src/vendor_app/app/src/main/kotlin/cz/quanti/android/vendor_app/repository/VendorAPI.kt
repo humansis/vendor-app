@@ -23,7 +23,7 @@ import retrofit2.http.Query
 
 interface VendorAPI {
 
-    @POST("v2/login")
+    @POST("v1/login")
     fun postLogin(@Body vendor: VendorApiEntity): Single<Response<VendorApiEntity>>
 
     @GET("v1/product-categories")

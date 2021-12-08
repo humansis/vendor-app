@@ -268,8 +268,8 @@ object KoinInitializer {
             .addInterceptor { chain ->
                 val oldRequest = chain.request()
                 val headersBuilder = oldRequest.headers().newBuilder()
-                loginManager.getAuthHeader().let {
-                    headersBuilder.add("X-Wsse", it)
+                loginManager.getAuthToken().let {
+                    headersBuilder.add("Authorization", it)
                 }
                 headersBuilder.add("Country", getCountry(currentVendor))
                 headersBuilder.add("Version-Name", BuildConfig.VERSION_NAME)

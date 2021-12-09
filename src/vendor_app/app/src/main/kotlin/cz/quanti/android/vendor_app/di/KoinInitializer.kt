@@ -97,9 +97,9 @@ object KoinInitializer {
             .client(createClient(loginManager, hostUrlInterceptor, currentVendor))
 
         if (BuildConfig.DEBUG) {
-            builder.baseUrl("https://" + BuildConfig.STAGE_API_URL + "/api/basic/vendor-app/")
+            builder.baseUrl("https://" + BuildConfig.STAGE_API_URL + "/api/jwt/vendor-app/")
         } else {
-            builder.baseUrl("https://" + BuildConfig.RELEASE_API_URL + "/api/basic/vendor-app/")
+            builder.baseUrl("https://" + BuildConfig.RELEASE_API_URL + "/api/jwt/vendor-app/")
         }
 
         val api = builder.build().create(VendorAPI::class.java)

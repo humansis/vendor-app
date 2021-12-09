@@ -21,11 +21,17 @@ class LoginFacadeImpl(
             val responseCodeLogin = response.responseCode
             val loggedVendor = response.vendor
             if (isPositiveResponseHttpCode(responseCodeLogin)) {
-                loggedVendor.loggedIn = true
-                loggedVendor.username = username
-                loggedVendor.password = password
-                currentVendor.vendor = loggedVendor
-                Completable.complete()
+                if (loggedVendor.country.isEmpty()) {
+                    Completable.error(
+                        LoginException(LoginExceptionState.NO_COUNTRY)
+                    )
+                } else {
+                    loggedVendor.loggedIn = true
+                    loggedVendor.username = username
+                    loggedVendor.password = password
+                    currentVendor.vendor = loggedVendor
+                    Completable.complete()
+                }
             } else {
                 Completable.error(
                     LoginException(

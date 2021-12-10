@@ -4,11 +4,9 @@ import cz.quanti.android.vendor_app.repository.VendorAPI
 import cz.quanti.android.vendor_app.repository.log.LogRepository
 import io.reactivex.Single
 import java.io.File
+import java.io.FileInputStream
 import okhttp3.MediaType
 import okhttp3.RequestBody
-import java.io.FileInputStream
-import java.io.InputStream
-
 
 class LogRepositoryImpl(
     val api: VendorAPI

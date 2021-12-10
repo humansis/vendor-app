@@ -30,7 +30,7 @@ class LoginRepositoryImpl(private val api: VendorAPI) :
             Vendor()
         } else {
             Vendor().apply {
-                this.id = vendorApiEntity.id
+                this.id = vendorApiEntity.userId
                 this.username = vendorApiEntity.username
                 this.password = vendorApiEntity.password
                 this.country = getCountryFromLocation(vendorApiEntity.location)

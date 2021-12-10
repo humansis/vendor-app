@@ -14,5 +14,6 @@ interface SynchronizationManager {
     fun resetSyncState()
 
     fun showDot(): LiveData<Boolean>
+
     fun getLastSyncError(): Throwable?
 }

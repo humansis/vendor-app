@@ -33,6 +33,9 @@ import cz.quanti.android.vendor_app.repository.deposit.impl.DepositRepositoryImp
 import cz.quanti.android.vendor_app.repository.invoice.InvoiceFacade
 import cz.quanti.android.vendor_app.repository.invoice.impl.InvoiceFacadeImpl
 import cz.quanti.android.vendor_app.repository.invoice.impl.InvoiceRepositoryImpl
+import cz.quanti.android.vendor_app.repository.log.LogFacade
+import cz.quanti.android.vendor_app.repository.log.impl.LogFacadeImpl
+import cz.quanti.android.vendor_app.repository.log.impl.LogRepositoryImpl
 import cz.quanti.android.vendor_app.repository.login.LoginFacade
 import cz.quanti.android.vendor_app.repository.login.impl.LoginFacadeImpl
 import cz.quanti.android.vendor_app.repository.login.impl.LoginRepositoryImpl
@@ -148,6 +151,9 @@ object KoinInitializer {
             db.invoiceDao(),
             api
         )
+        val logRepo = LogRepositoryImpl(
+            api
+        )
 
         // Facade
         val loginFacade: LoginFacade = LoginFacadeImpl(loginRepo, loginManager, currentVendor)
@@ -159,6 +165,7 @@ object KoinInitializer {
         val depositFacade: DepositFacade = DepositFacadeImpl(depositRepo)
         val transactionFacade: TransactionFacade = TransactionFacadeImpl(transactionRepo)
         val invoiceFacade: InvoiceFacade = InvoiceFacadeImpl(invoiceRepo)
+        val logFacade: LogFacade = LogFacadeImpl(logRepo, app.applicationContext)
         val syncFacade: SynchronizationFacade =
             SynchronizationFacadeImpl(
                 bookletFacade,
@@ -168,7 +175,8 @@ object KoinInitializer {
                 productFacade,
                 purchaseFacade,
                 transactionFacade,
-                invoiceFacade
+                invoiceFacade,
+                logFacade
             )
         val synchronizationManager: SynchronizationManager =
             SynchronizationManagerImpl(preferences, syncFacade)

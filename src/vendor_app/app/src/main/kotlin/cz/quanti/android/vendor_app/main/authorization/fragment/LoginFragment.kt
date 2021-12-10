@@ -26,13 +26,12 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
-import org.koin.androidx.viewmodel.ext.android.viewModel
 import quanti.com.kotlinlog.Log
 
 class LoginFragment : Fragment() {
 
     private val mainVM: MainViewModel by sharedViewModel()
-    private val vm: LoginViewModel by viewModel()
+    private val vm: LoginViewModel by sharedViewModel()
     private var disposable: Disposable? = null
 
     private lateinit var activityCallback: ActivityCallback
@@ -145,7 +144,7 @@ class LoginFragment : Fragment() {
                             .subscribeOn(Schedulers.io())
                             .observeOn(AndroidSchedulers.mainThread())
                             .subscribe({
-                                vm.onLogin(requireActivity() as (ActivityCallback))
+                                vm.onLogin(requireActivity() as ActivityCallback)
                                 loginBinding.loadingImageView.animation.repeatCount = 0
                                 loginBinding.usernameEditText.error = null
                                 loginBinding.passwordEditText.error = null
@@ -159,6 +158,7 @@ class LoginFragment : Fragment() {
                                 loginBinding.loginButton.isEnabled = true
                                 if (it is LoginException) {
                                     Log.e(TAG, it.state.toString())
+                                    Log.d("xxx", vm.isNetworkConnected().value.toString())
                                     when (it.state) {
                                         LoginExceptionState.NO_CONNECTION -> {
                                             mainVM.setToastMessage(

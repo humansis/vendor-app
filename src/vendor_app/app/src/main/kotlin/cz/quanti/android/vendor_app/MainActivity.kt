@@ -274,6 +274,8 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
                     val color = getBackgroundColor(this, environment)
                     activityBinding.appBar.toolbar.setBackgroundColor(color)
                     activityBinding.appBar.contentMain.navHostFragment.setBackgroundColor(color)
+                    // TODO obalit navigationbarcolor nejakym ifem podle api a obarvit ikonky
+                    // https://stackoverflow.com/questions/33104246/change-navigation-bar-icon-color-on-android
                     this.window.navigationBarColor = color
                 },
                 {

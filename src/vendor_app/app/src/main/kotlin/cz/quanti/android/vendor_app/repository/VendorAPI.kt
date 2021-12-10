@@ -15,6 +15,7 @@ import cz.quanti.android.vendor_app.repository.transaction.dto.api.TransactionAp
 import cz.quanti.android.vendor_app.repository.transaction.dto.api.TransactionPurchaseApiEntity
 import cz.quanti.android.vendor_app.repository.utils.PagedApiEntity
 import io.reactivex.Single
+import okhttp3.RequestBody
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
@@ -91,5 +92,11 @@ interface VendorAPI {
     @POST("v1/syncs/deposit")
     fun postReliefPackages(
         @Body smartcardDeposits: List<SmartcardDepositApiEntity>
+    ): Single<Response<Unit>>
+
+    @POST("v1/users/{id}/logs")
+    fun postLogs(
+        @Path("id") vendorId: Int,
+        @Body logfile: RequestBody
     ): Single<Response<Unit>>
 }

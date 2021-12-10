@@ -8,8 +8,8 @@ import io.reactivex.BackpressureStrategy
 import io.reactivex.Observable
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.BehaviorSubject
-import java.util.Date
 import quanti.com.kotlinlog.Log
+import java.util.Date
 
 class SynchronizationManagerImpl(
     private val preferences: AppPreferences,
@@ -27,7 +27,8 @@ class SynchronizationManagerImpl(
             Log.d(TAG, "Synchronization started")
             lastSyncError = null
             syncStatePublishSubject.onNext(SynchronizationState.STARTED)
-            syncFacade.synchronize(preferences.vendor)
+            val vendorId = preferences.vendor.id.toInt()
+            syncFacade.synchronize(vendorId)
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.io())
                 .subscribe(
@@ -35,6 +36,7 @@ class SynchronizationManagerImpl(
                         syncSubject.onNext(subject)
                     },
                     { e ->
+                        // TODO poresit if e is CompositeException ??
                         Log.e(TAG, e)
                         lastSyncError = e
                         syncStatePublishSubject.onNext(SynchronizationState.ERROR)

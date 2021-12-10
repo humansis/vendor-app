@@ -134,4 +134,5 @@
     <string name="transactions_download">Downloading transactions to reimburse</string>
     <string name="invoices_download">Downloading invoices</string>
     <string name="card_balance_expired">Card balance has expired</string>
+    <string name="logs_upload">Uploading logs</string>
 </resources>

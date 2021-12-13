@@ -134,4 +134,5 @@
     <string name="rd_download">تحميل حزمة المستفيد</string>
     <string name="card_balance_expired">انتهت فترة صلاحية رصيد البطاقة</string>
     <string name="logs_upload">رفع السجلات</string>
+    <string name="please_dont_kill">الرجاء، لاتغلق التطبيق</string>
 </resources>

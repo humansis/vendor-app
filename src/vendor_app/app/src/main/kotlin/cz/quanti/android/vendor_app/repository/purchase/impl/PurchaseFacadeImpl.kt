@@ -127,7 +127,7 @@ class PurchaseFacadeImpl(
                                     "Smartcard purchases sync finished successfully"
                                 )
                                 if (invalidPurchases.isNotEmpty()) {
-                                    throw VendorAppException("Could not send purchases to the server.").apply {
+                                    throw VendorAppException("Could not send purchases to the server").apply {
                                         apiError = true
                                     }
                                 }

@@ -36,7 +36,6 @@ class SynchronizationManagerImpl(
                         syncSubject.onNext(subject)
                     },
                     { e ->
-                        // TODO poresit if e is CompositeException ??
                         Log.e(TAG, e)
                         lastSyncError = e
                         syncStatePublishSubject.onNext(SynchronizationState.ERROR)

@@ -52,6 +52,7 @@ import cz.quanti.android.vendor_app.utils.getExpirationDateAsString
 import cz.quanti.android.vendor_app.utils.getLimitsAsText
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
+import io.reactivex.exceptions.CompositeException
 import io.reactivex.schedulers.Schedulers
 import java.util.Date
 import org.koin.android.ext.android.inject
@@ -458,10 +459,16 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
                         } else {
                             getString(R.string.could_not_synchronize_data_with_server)
                         }
+                        val lastSyncError = synchronizationManager.getLastSyncError()
+                        val message = if (lastSyncError is CompositeException) {
+                            lastSyncError.message + getExceptions(lastSyncError)
+                        } else {
+                            lastSyncError?.message
+                        }
                         syncDialog?.dismiss()
                         syncDialog = AlertDialog.Builder(this, R.style.DialogTheme)
                             .setTitle(title)
-                            .setMessage(synchronizationManager.getLastSyncError()?.message)
+                            .setMessage(message)
                             .setCancelable(true)
                             .setPositiveButton(getString(android.R.string.ok), null)
                             .show()
@@ -493,6 +500,14 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
             .setView(dialogBinding.root)
             .setCancelable(false)
             .show()
+    }
+
+    private fun getExceptions(lastSyncError: CompositeException): String {
+        var string = String()
+        lastSyncError.exceptions.forEach {
+            string += "\n" + it.message
+        }
+        return string
     }
 
     private fun checkConnection() {

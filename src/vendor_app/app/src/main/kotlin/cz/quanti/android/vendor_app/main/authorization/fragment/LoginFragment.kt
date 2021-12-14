@@ -21,6 +21,7 @@ import cz.quanti.android.vendor_app.repository.utils.exceptions.LoginException
 import cz.quanti.android.vendor_app.repository.utils.exceptions.LoginExceptionState
 import cz.quanti.android.vendor_app.utils.ApiEnvironments
 import cz.quanti.android.vendor_app.utils.Constants
+import cz.quanti.android.vendor_app.utils.SendLogDialogFragment
 import cz.quanti.android.vendor_app.utils.hideKeyboard
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
@@ -84,6 +85,18 @@ class LoginFragment : Fragment() {
                     true
                 }
                 popup.show()
+            }
+
+            loginBinding.logoImageView.setOnLongClickListener {
+                SendLogDialogFragment.newInstance(
+                    sendEmailAddress = getString(R.string.send_email_adress),
+                    title = getString(R.string.logs_dialog_title),
+                    message = getString(R.string.logs_dialog_message),
+                    emailButtonText = getString(R.string.logs_dialog_email_button),
+                    dialogTheme = R.style.DialogTheme
+                ).show(requireActivity().supportFragmentManager, "TAG")
+                // TODO inside this method in kotlinlogger there is a method getZipOfFiles() that automatically deletes all logs older than 4 days
+                return@setOnLongClickListener true
             }
         } else {
             loginBinding.settingsImageView.visibility = View.INVISIBLE

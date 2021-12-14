@@ -46,7 +46,6 @@ import cz.quanti.android.vendor_app.sync.SynchronizationSubject
 import cz.quanti.android.vendor_app.utils.ConnectionObserver
 import cz.quanti.android.vendor_app.utils.NfcTagPublisher
 import cz.quanti.android.vendor_app.utils.PermissionRequestResult
-import cz.quanti.android.vendor_app.utils.SendLogDialogFragment
 import cz.quanti.android.vendor_app.utils.getBackgroundColor
 import cz.quanti.android.vendor_app.utils.getExpirationDateAsString
 import cz.quanti.android.vendor_app.utils.getLimitsAsText
@@ -188,9 +187,6 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
             }
             R.id.read_balance_button -> {
                 showReadBalanceDialog()
-            }
-            R.id.share_logs_button -> {
-                shareLogsDialog()
             }
         }
         activityBinding.drawerLayout.closeDrawer(GravityCompat.START)
@@ -410,17 +406,6 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
                 mainVM.errorSLE.call()
                 displayedDialog?.dismiss()
             })
-    }
-
-    private fun shareLogsDialog() {
-        SendLogDialogFragment.newInstance(
-            sendEmailAddress = getString(R.string.send_email_adress),
-            title = getString(R.string.logs_dialog_title),
-            message = getString(R.string.logs_dialog_message),
-            emailButtonText = getString(R.string.logs_dialog_email_button),
-            dialogTheme = R.style.DialogTheme
-        ).show(this.supportFragmentManager, "TAG")
-        // TODO inside this method in kotlinlogger there is a method getZipOfFiles() that automatically deletes all logs older than 4 days
     }
 
     @Suppress("WHEN_ENUM_CAN_BE_NULL_IN_JAVA")

@@ -13,11 +13,6 @@ import cz.quanti.android.nfc.dto.v2.UserBalance
 import cz.quanti.android.nfc_io_libray.types.NfcUtil
 import cz.quanti.android.vendor_app.R
 import cz.quanti.android.vendor_app.repository.category.dto.CategoryType
-import okhttp3.Headers
-import okhttp3.ResponseBody
-import okio.Buffer
-import okio.GzipSource
-import quanti.com.kotlinlog.Log
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.nio.charset.Charset
@@ -26,6 +21,11 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import kotlin.math.abs
+import okhttp3.Headers
+import okhttp3.ResponseBody
+import okio.Buffer
+import okio.GzipSource
+import quanti.com.kotlinlog.Log
 
 fun getStringFromDouble(double: Double): String {
     val abs = abs(double)
@@ -77,8 +77,8 @@ fun logResponseBody(headers: Headers, responseBody: ResponseBody) {
     if (gzippedLength != null) {
         Log.d(
             "OkHttp",
-            "<-- END HTTP (" + buffer.size() + "-byte, "
-                + gzippedLength + "-gzipped-byte body)"
+            "<-- END HTTP (" + buffer.size() + "-byte, " +
+                gzippedLength + "-gzipped-byte body)"
         )
     }
 }

@@ -37,10 +37,6 @@ class MainViewModel(
     val errorSLE = SingleLiveEvent<Unit>()
     val toastMessageSLE = SingleLiveEvent<String>()
 
-    fun getCurrentEnvironment(): Observable<ApiEnvironments> {
-        return currentVendor.getEnvironment()
-    }
-
     fun initNfcAdapter(activity: Activity) {
         nfcAdapter = NfcAdapter.getDefaultAdapter(activity)
         enableNfc(activity)

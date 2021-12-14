@@ -23,21 +23,8 @@ class CurrentVendor(private val preferences: AppPreferences) {
         set(url) {
             url?.let {
                 preferences.url = url.name
-                environment.onNext(url)
             }
         }
-
-    private var environment: BehaviorSubject<ApiEnvironments> = BehaviorSubject.createDefault(
-        try {
-            ApiEnvironments.valueOf(preferences.url)
-        } catch (e: Exception) {
-            ApiEnvironments.FRONT
-        }
-    )
-
-    fun getEnvironment(): Observable<ApiEnvironments> {
-        return environment
-    }
 
     fun isLoggedIn(): Boolean {
         return vendor.loggedIn && vendor.country != ""

@@ -269,21 +269,10 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
     }
 
     private fun setUpBackground() {
-        environmentDisposable?.dispose()
-        environmentDisposable = mainVM.getCurrentEnvironment()
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(
-                { environment ->
-                    val color = getBackgroundColor(this, environment)
-                    activityBinding.appBar.toolbar.setBackgroundColor(color)
-                    activityBinding.appBar.contentMain.navHostFragment.setBackgroundColor(color)
-                    window.navigationBarColor = color
-                },
-                {
-                    Log.e(TAG, it)
-                }
-            )
+        val color = getBackgroundColor(this, loginVM.getApiHost())
+        activityBinding.appBar.toolbar.setBackgroundColor(color)
+        activityBinding.appBar.contentMain.navHostFragment.setBackgroundColor(color)
+        window.navigationBarColor = color
     }
 
     private fun initObservers() {

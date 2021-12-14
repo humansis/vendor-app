@@ -6,6 +6,8 @@ import android.content.Context
 import android.content.Intent
 import android.nfc.NfcAdapter
 import android.provider.Settings
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import cz.quanti.android.nfc.VendorFacade
 import cz.quanti.android.nfc.dto.v2.UserBalance
@@ -18,7 +20,6 @@ import cz.quanti.android.vendor_app.utils.PermissionRequestResult
 import cz.quanti.android.vendor_app.utils.SingleLiveEvent
 import cz.quanti.android.vendor_app.utils.convertTagToString
 import cz.quanti.android.vendor_app.utils.convertTimeForApiRequestBody
-import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
 import java.util.Date
@@ -32,10 +33,16 @@ class MainViewModel(
 
     private var nfcAdapter: NfcAdapter? = null
 
+    private val isNetworkConnectedLD = MutableLiveData<Boolean>()
+
     val cameraPermissionsGrantedSLE = SingleLiveEvent<PermissionRequestResult>()
     val successSLE = SingleLiveEvent<Unit>()
     val errorSLE = SingleLiveEvent<Unit>()
     val toastMessageSLE = SingleLiveEvent<String>()
+
+    fun getApiHost(): ApiEnvironments? {
+        return currentVendor.url
+    }
 
     fun initNfcAdapter(activity: Activity) {
         nfcAdapter = NfcAdapter.getDefaultAdapter(activity)
@@ -83,6 +90,14 @@ class MainViewModel(
                 cameraPermissionsGrantedSLE.value = permissionResult
             }
         }
+    }
+
+    fun isNetworkConnected(available: Boolean) {
+        isNetworkConnectedLD.value = available
+    }
+
+    fun isNetworkConnected(): LiveData<Boolean> {
+        return isNetworkConnectedLD
     }
 
     fun setToastMessage(message: String) {

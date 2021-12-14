@@ -2,8 +2,6 @@ package cz.quanti.android.vendor_app.utils
 
 import cz.quanti.android.vendor_app.repository.AppPreferences
 import cz.quanti.android.vendor_app.repository.login.dto.Vendor
-import io.reactivex.Observable
-import io.reactivex.subjects.BehaviorSubject
 
 class CurrentVendor(private val preferences: AppPreferences) {
     var vendor: Vendor

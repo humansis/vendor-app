@@ -171,11 +171,11 @@ class LoginFragment : Fragment() {
                                 loginBinding.loginButton.isEnabled = true
                                 if (it is LoginException) {
                                     Log.e(TAG, it.state.toString())
-                                    Log.d("xxx", vm.isNetworkConnected().value.toString())
+                                    Log.d("xxx", mainVM.isNetworkConnected().value.toString())
                                     when (it.state) {
                                         LoginExceptionState.NO_CONNECTION -> {
                                             mainVM.setToastMessage(
-                                                if (vm.isNetworkConnected().value == true) {
+                                                if (mainVM.isNetworkConnected().value == true) {
                                                     getString(R.string.error_service_unavailable)
                                                 } else {
                                                     getString(R.string.no_internet_connection)

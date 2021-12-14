@@ -54,10 +54,10 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.exceptions.CompositeException
 import io.reactivex.schedulers.Schedulers
+import java.util.Date
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import quanti.com.kotlinlog.Log
-import java.util.Date
 
 class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCallback,
     NavigationView.OnNavigationItemSelectedListener {
@@ -244,7 +244,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
             }
         })
 
-        loginVM.isNetworkConnected().observe(this, { available ->
+        mainVM.isNetworkConnected().observe(this, { available ->
             val drawable = if (available) R.drawable.ic_cloud else R.drawable.ic_cloud_offline
             activityBinding.appBar.syncButton.setImageDrawable(
                 ContextCompat.getDrawable(this, drawable)
@@ -269,7 +269,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
     }
 
     private fun setUpBackground() {
-        val color = getBackgroundColor(this, loginVM.getApiHost())
+        val color = getBackgroundColor(this, mainVM.getApiHost())
         activityBinding.appBar.toolbar.setBackgroundColor(color)
         activityBinding.appBar.contentMain.navHostFragment.setBackgroundColor(color)
         window.navigationBarColor = color
@@ -444,7 +444,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
                         activityBinding.btnLogout.isEnabled = true
                         activityBinding.appBar.progressBar.visibility = View.GONE
                         activityBinding.appBar.syncButtonArea.visibility = View.VISIBLE
-                        val title = if (loginVM.isNetworkConnected().value != true) {
+                        val title = if (mainVM.isNetworkConnected().value != true) {
                             getString(R.string.no_internet_connection)
                         } else {
                             getString(R.string.could_not_synchronize_data_with_server)
@@ -507,7 +507,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(
                 { available ->
-                    loginVM.isNetworkConnected(available)
+                    mainVM.isNetworkConnected(available)
                     if (lastConnectionState != available) {
                         mainVM.setToastMessage(
                             getString(

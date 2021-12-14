@@ -38,6 +38,7 @@ class LoginViewModel(
     }
 
     fun onLogin(activityCallback: ActivityCallback) {
+        activityCallback.setUpBackground()
         activityCallback.loadNavHeader(currentVendor.vendor.username)
         synchronizationManager.synchronizeWithServer()
     }

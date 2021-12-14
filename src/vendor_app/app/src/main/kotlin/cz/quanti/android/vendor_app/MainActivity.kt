@@ -268,13 +268,6 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
         }
     }
 
-    private fun setUpBackground() {
-        val color = getBackgroundColor(this, mainVM.getApiHost())
-        activityBinding.appBar.toolbar.setBackgroundColor(color)
-        activityBinding.appBar.contentMain.navHostFragment.setBackgroundColor(color)
-        window.navigationBarColor = color
-    }
-
     private fun initObservers() {
         mainVM.successSLE.observe(this, {
             vibrate(this)
@@ -576,6 +569,15 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
 
     override fun setSyncButtonEnabled(boolean: Boolean) {
         activityBinding.appBar.syncButton.isEnabled = boolean
+    }
+
+    override fun setUpBackground() {
+        val color = getBackgroundColor(this, mainVM.getApiHost())
+        activityBinding.appBar.toolbar.setBackgroundColor(color)
+        activityBinding.appBar.contentMain.navHostFragment.setBackgroundColor(color)
+        if (activityBinding.appBar.contentMain.navHostFragment.findNavController().currentDestination?.id != R.id.loginFragment) {
+            window.navigationBarColor = color
+        }
     }
 
     override fun loadNavHeader(currentVendorName: String) {

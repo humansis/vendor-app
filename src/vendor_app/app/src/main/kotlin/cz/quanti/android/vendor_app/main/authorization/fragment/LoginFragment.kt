@@ -53,6 +53,8 @@ class LoginFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        requireActivity().window.navigationBarColor = android.R.attr.navigationBarColor
+
         loginBinding.versionTextView.text = getString(R.string.version, BuildConfig.VERSION_NAME)
 
         if (BuildConfig.DEBUG) {
@@ -157,13 +159,13 @@ class LoginFragment : Fragment() {
                             .subscribeOn(Schedulers.io())
                             .observeOn(AndroidSchedulers.mainThread())
                             .subscribe({
-                                vm.onLogin(requireActivity() as ActivityCallback)
                                 loginBinding.loadingImageView.animation.repeatCount = 0
                                 loginBinding.usernameEditText.error = null
                                 loginBinding.passwordEditText.error = null
                                 findNavController().navigate(
                                     LoginFragmentDirections.actionLoginFragmentToProductsFragment()
                                 )
+                                vm.onLogin(requireActivity() as ActivityCallback)
                             }, {
                                 loginBinding.loadingImageView.clearAnimation()
                                 loginBinding.loadingImageView.visibility = View.INVISIBLE
@@ -171,7 +173,6 @@ class LoginFragment : Fragment() {
                                 loginBinding.loginButton.isEnabled = true
                                 if (it is LoginException) {
                                     Log.e(TAG, it.state.toString())
-                                    Log.d("xxx", mainVM.isNetworkConnected().value.toString())
                                     when (it.state) {
                                         LoginExceptionState.NO_CONNECTION -> {
                                             mainVM.setToastMessage(

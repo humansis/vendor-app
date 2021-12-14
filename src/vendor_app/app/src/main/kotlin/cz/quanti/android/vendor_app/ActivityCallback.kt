@@ -9,5 +9,6 @@ interface ActivityCallback {
     fun setDrawerLocked(boolean: Boolean)
     fun setBackButtonEnabled(boolean: Boolean)
     fun setSyncButtonEnabled(boolean: Boolean)
+    fun setUpBackground()
     fun loadNavHeader(currentVendorName: String)
 }

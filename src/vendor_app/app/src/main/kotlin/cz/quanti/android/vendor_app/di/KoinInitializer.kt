@@ -57,6 +57,8 @@ import cz.quanti.android.vendor_app.utils.CurrentVendor
 import cz.quanti.android.vendor_app.utils.LoginManager
 import cz.quanti.android.vendor_app.utils.NfcTagPublisher
 import cz.quanti.android.vendor_app.utils.ShoppingHolder
+import cz.quanti.android.vendor_app.utils.isPositiveResponseHttpCode
+import cz.quanti.android.vendor_app.utils.logResponseBody
 import java.util.concurrent.TimeUnit
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -262,7 +264,11 @@ object KoinInitializer {
 
         val logging = HttpLoggingInterceptor { message -> Log.d("OkHttp", message) }
 
-        logging.level = HttpLoggingInterceptor.Level.BODY
+        logging.level = if (BuildConfig.DEBUG) {
+            HttpLoggingInterceptor.Level.BODY
+        } else {
+            HttpLoggingInterceptor.Level.BASIC
+        }
 
         return OkHttpClient.Builder()
             .connectTimeout(5, TimeUnit.MINUTES)
@@ -280,7 +286,11 @@ object KoinInitializer {
                 headersBuilder.add("Build-Number", BuildConfig.BUILD_NUMBER.toString())
                 headersBuilder.add("Build-Type", BuildConfig.BUILD_TYPE)
                 val request = oldRequest.newBuilder().headers(headersBuilder.build()).build()
-                chain.proceed(request)
+                chain.proceed(request).apply {
+                    if (!isPositiveResponseHttpCode(this.code()) && !BuildConfig.DEBUG) {
+                        this.body()?.let { logResponseBody(this.headers(), it) }
+                    }
+                }
             }
             .addInterceptor(logging)
             .build()

@@ -11,8 +11,8 @@ import quanti.com.kotlinlog.file.FileLogger
 import quanti.com.kotlinlog.utils.getZipOfLogs
 
 class LogFacadeImpl(
-    val logRepo: LogRepositoryImpl,
-    val context: Context
+    private val logRepo: LogRepositoryImpl,
+    private val context: Context
 ) : LogFacade {
 
     override fun syncWithServer(vendorId: Int): Observable<SynchronizationSubject> {
@@ -22,12 +22,12 @@ class LogFacadeImpl(
 
     private fun postLogs(vendorId: Int): Completable {
         return logRepo.postLogs(vendorId, getZipOfLogs(context, 48))
-            .flatMapCompletable { responseCode ->
-                if (isPositiveResponseHttpCode(responseCode)) {
+            .flatMapCompletable { response ->
+                if (isPositiveResponseHttpCode(response.code())) {
                     Completable.fromCallable { FileLogger.deleteAllLogs(context) }
                 } else {
                     throw VendorAppException("Could not upload Logs").apply {
-                        this.apiResponseCode = responseCode
+                        this.apiResponseCode = response.code()
                         this.apiError = true
                     }
                 }

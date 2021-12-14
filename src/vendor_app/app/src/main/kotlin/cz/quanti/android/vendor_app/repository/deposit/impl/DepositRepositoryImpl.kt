@@ -15,6 +15,7 @@ import io.reactivex.Observable
 import io.reactivex.Single
 import java.util.Date
 import quanti.com.kotlinlog.Log
+import retrofit2.Response
 
 class DepositRepositoryImpl(
     private val reliefPackageDao: ReliefPackageDao,
@@ -24,12 +25,12 @@ class DepositRepositoryImpl(
     override fun uploadReliefPackages(): Completable {
         return getDistributedReliefPackages().flatMapCompletable { reliefPackages ->
             if (reliefPackages.isNotEmpty()) {
-                postReliefPackages(reliefPackages).flatMapCompletable { responseCode ->
-                    if (isPositiveResponseHttpCode(responseCode)) {
+                postReliefPackages(reliefPackages).flatMapCompletable { response ->
+                    if (isPositiveResponseHttpCode(response.code())) {
                         deleteReliefPackagesFromDB()
                     } else {
                         throw VendorAppException("Could not upload RD").apply {
-                            this.apiResponseCode = responseCode
+                            this.apiResponseCode = response.code()
                             this.apiError = true
                         }
                     }
@@ -128,12 +129,10 @@ class DepositRepositoryImpl(
         }
     }
 
-    private fun postReliefPackages(reliefPackages: List<ReliefPackage>): Single<Int> {
+    private fun postReliefPackages(reliefPackages: List<ReliefPackage>): Single<Response<Unit>> {
         return api.postReliefPackages(reliefPackages.map {
             convertForPost(it)
-        }).map {
-            it.code()
-        }
+        })
     }
 
     private fun convert(reliefPackageApiEntity: ReliefPackageApiEntity): ReliefPackage {

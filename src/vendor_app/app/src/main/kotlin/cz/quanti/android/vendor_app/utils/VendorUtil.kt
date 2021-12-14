@@ -13,8 +13,14 @@ import cz.quanti.android.nfc.dto.v2.UserBalance
 import cz.quanti.android.nfc_io_libray.types.NfcUtil
 import cz.quanti.android.vendor_app.R
 import cz.quanti.android.vendor_app.repository.category.dto.CategoryType
+import okhttp3.Headers
+import okhttp3.ResponseBody
+import okio.Buffer
+import okio.GzipSource
+import quanti.com.kotlinlog.Log
 import java.math.BigDecimal
 import java.math.RoundingMode
+import java.nio.charset.Charset
 import java.text.DecimalFormat
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -39,6 +45,42 @@ fun getStringFromDouble(double: Double): String {
 fun isPositiveResponseHttpCode(code: Int): Boolean {
     // The positive http code is in format of 2xx
     return (code - 200 >= 0) && (code - 300 < 0)
+}
+
+fun logResponseBody(headers: Headers, responseBody: ResponseBody) {
+    val source = responseBody.source()
+    source.request(Long.MAX_VALUE) // Buffer the entire body.
+    var buffer = source.buffer()
+    var gzippedLength: Long? = null
+
+    if ("gzip".equals(headers.get("Content-Encoding"), ignoreCase = true)) {
+        gzippedLength = buffer.size()
+        var gzippedResponseBody: GzipSource? = null
+        try {
+            gzippedResponseBody = GzipSource(buffer.clone())
+            buffer = Buffer()
+            buffer.writeAll(gzippedResponseBody)
+        } finally {
+            gzippedResponseBody?.close()
+        }
+    }
+
+    if (responseBody.contentLength() != 0L) {
+        var charset = Charset.forName("UTF-8")
+        val contentType = responseBody.contentType()
+        if (contentType != null) {
+            charset = contentType.charset(Charset.forName("UTF-8"))
+        }
+        Log.d("OkHttp", "")
+        Log.d("OkHttp", buffer.clone().readString(charset))
+    }
+    if (gzippedLength != null) {
+        Log.d(
+            "OkHttp",
+            "<-- END HTTP (" + buffer.size() + "-byte, "
+                + gzippedLength + "-gzipped-byte body)"
+        )
+    }
 }
 
 fun convertTimeForApiRequestBody(date: Date): String {

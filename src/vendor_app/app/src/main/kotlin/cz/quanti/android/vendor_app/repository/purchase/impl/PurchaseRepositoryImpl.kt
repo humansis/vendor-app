@@ -294,7 +294,7 @@ class PurchaseRepositoryImpl(
             createdAt = purchase.createdAt,
             vendorId = purchase.vendorId,
             beneficiaryId = purchase.beneficiaryId,
-            assistanceId = purchase.assistanceId.takeIf { !it.equals(0) }, // temporary fix, because assistanceId is 0 after card is migrated to version 2, but BE only accepts null or >0
+            assistanceId = purchase.assistanceId.takeIf { it != 0L }, // temporary fix, because assistanceId is 0 after card is migrated to version 2, but BE only accepts null or >0
             balanceBefore = purchase.balanceBefore,
             balanceAfter = purchase.balanceAfter
         )

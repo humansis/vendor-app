@@ -15,9 +15,10 @@ import cz.quanti.android.vendor_app.repository.transaction.dto.api.TransactionAp
 import cz.quanti.android.vendor_app.repository.transaction.dto.api.TransactionPurchaseApiEntity
 import cz.quanti.android.vendor_app.repository.utils.PagedApiEntity
 import io.reactivex.Single
-import okhttp3.RequestBody
+import okhttp3.MultipartBody
 import retrofit2.Response
 import retrofit2.http.*
+
 
 interface VendorAPI {
 
@@ -94,6 +95,6 @@ interface VendorAPI {
     @POST("v1/vendors/{id}/logs")
     fun postLogs(
         @Path("id") vendorId: Int,
-        @Part("file") logfile: RequestBody,
+        @Part logfile: MultipartBody.Part,
     ): Single<Response<Unit>>
 }

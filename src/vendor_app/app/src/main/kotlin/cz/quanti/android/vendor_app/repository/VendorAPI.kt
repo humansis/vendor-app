@@ -17,11 +17,7 @@ import cz.quanti.android.vendor_app.repository.utils.PagedApiEntity
 import io.reactivex.Single
 import okhttp3.RequestBody
 import retrofit2.Response
-import retrofit2.http.Body
-import retrofit2.http.GET
-import retrofit2.http.POST
-import retrofit2.http.Path
-import retrofit2.http.Query
+import retrofit2.http.*
 
 interface VendorAPI {
 
@@ -94,9 +90,10 @@ interface VendorAPI {
         @Body smartcardDeposits: List<SmartcardDepositApiEntity>
     ): Single<Response<Unit>>
 
-    @POST("v1/users/{id}/logs")
+    @Multipart
+    @POST("v1/vendors/{id}/logs")
     fun postLogs(
         @Path("id") vendorId: Int,
-        @Body logfile: RequestBody
+        @Part("file") logfile: RequestBody,
     ): Single<Response<Unit>>
 }

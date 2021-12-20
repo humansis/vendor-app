@@ -15,10 +15,7 @@ class LogRepositoryImpl(
     override fun postLogs(vendorId: Int, zipOfLogs: File): Single<Response<Unit>> {
         return api.postLogs(
             vendorId,
-            RequestBody.create(
-                MediaType.parse("application/octet-stream"),
-                ByteArray(FileInputStream(zipOfLogs).available())
-            )
+            RequestBody.create(MediaType.parse("multipart/form-data"), zipOfLogs)
         )
     }
 }

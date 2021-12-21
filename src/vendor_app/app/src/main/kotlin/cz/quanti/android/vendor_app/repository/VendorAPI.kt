@@ -6,7 +6,6 @@ import cz.quanti.android.vendor_app.repository.category.dto.api.CategoryApiEntit
 import cz.quanti.android.vendor_app.repository.deposit.dto.api.ReliefPackageApiEntity
 import cz.quanti.android.vendor_app.repository.deposit.dto.api.SmartcardDepositApiEntity
 import cz.quanti.android.vendor_app.repository.invoice.dto.api.InvoiceApiEntity
-import cz.quanti.android.vendor_app.repository.login.dto.api.SaltApiEntity
 import cz.quanti.android.vendor_app.repository.login.dto.api.VendorApiEntity
 import cz.quanti.android.vendor_app.repository.product.dto.api.ProductApiEntity
 import cz.quanti.android.vendor_app.repository.purchase.dto.api.CardPurchaseApiEntity
@@ -24,10 +23,7 @@ import retrofit2.http.Query
 
 interface VendorAPI {
 
-    @GET("v1/salt/{username}")
-    fun getSalt(@Path("username") username: String): Single<Response<SaltApiEntity>>
-
-    @POST("v1/login")
+    @POST("v2/login")
     fun postLogin(@Body vendor: VendorApiEntity): Single<Response<VendorApiEntity>>
 
     @GET("v1/product-categories")

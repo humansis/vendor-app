@@ -133,4 +133,5 @@
     <string name="rd_upload">رفع حزمة المستفيد</string>
     <string name="rd_download">تحميل حزمة المستفيد</string>
     <string name="card_balance_expired">انتهت فترة صلاحية رصيد البطاقة</string>
+    <string name="no_location_data">لم يتم استلام بيانات موقع  هذا البائع</string>
 </resources>

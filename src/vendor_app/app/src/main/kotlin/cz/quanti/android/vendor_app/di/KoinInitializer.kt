@@ -97,11 +97,9 @@ object KoinInitializer {
             .client(createClient(loginManager, hostUrlInterceptor, currentVendor))
 
         if (BuildConfig.DEBUG) {
-            builder.baseUrl("https://" + BuildConfig.STAGE_API_URL + "/api/wsse/vendor-app/")
-            // uncomment to use apiary https://app.apiary.io/pinvendor
-            // builder.baseUrl("https://private-b3387-pinvendor.apiary-mock.com")
+            builder.baseUrl("https://" + BuildConfig.STAGE_API_URL + "/api/jwt/vendor-app/")
         } else {
-            builder.baseUrl("https://" + BuildConfig.RELEASE_API_URL + "/api/wsse/vendor-app/")
+            builder.baseUrl("https://" + BuildConfig.RELEASE_API_URL + "/api/jwt/vendor-app/")
         }
 
         val api = builder.build().create(VendorAPI::class.java)
@@ -252,7 +250,13 @@ object KoinInitializer {
         currentVendor: CurrentVendor
     ): OkHttpClient {
 
-        val logging = HttpLoggingInterceptor { message -> Log.d("OkHttp", message) }
+        val forbiddenRegex = Regex("(password|^Content-Type|^Content-Length|^Authorization|^Country|^Version-Name|^Build-Number|^Build-Type|^Transfer-Encoding|^Set-Cookie|^Cache-Control|^Date|^Connection|^Server|^X-)")
+
+        val logging = HttpLoggingInterceptor { message ->
+            if (!message.contains(forbiddenRegex)) {
+                Log.d("OkHttp", message)
+            }
+        }
 
         logging.level = if (BuildConfig.DEBUG) {
             HttpLoggingInterceptor.Level.BODY
@@ -268,8 +272,8 @@ object KoinInitializer {
             .addInterceptor { chain ->
                 val oldRequest = chain.request()
                 val headersBuilder = oldRequest.headers().newBuilder()
-                loginManager.getAuthHeader().let {
-                    headersBuilder.add("X-Wsse", it)
+                loginManager.getAuthToken().let {
+                    headersBuilder.add("Authorization", it)
                 }
                 headersBuilder.add("Country", getCountry(currentVendor))
                 headersBuilder.add("Version-Name", BuildConfig.VERSION_NAME)

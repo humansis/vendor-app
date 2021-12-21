@@ -171,8 +171,10 @@ class LoginFragment : Fragment() {
                                                 }
                                             )
                                         }
-                                        LoginExceptionState.INVALID_USER,
-                                        LoginExceptionState.INVALID_PASSWORD -> {
+                                        LoginExceptionState.NO_COUNTRY -> {
+                                            mainVM.setToastMessage(getString(R.string.no_location_data))
+                                        }
+                                        LoginExceptionState.INVALID_USER_OR_PASSWORD -> {
                                             loginBinding.usernameEditText.error =
                                                 getString(R.string.wrong_password)
                                             loginBinding.passwordEditText.error =

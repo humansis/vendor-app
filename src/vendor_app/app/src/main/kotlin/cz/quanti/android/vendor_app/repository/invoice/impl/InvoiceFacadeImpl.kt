@@ -38,7 +38,6 @@ class InvoiceFacadeImpl(
             if (isPositiveResponseHttpCode(responseCode)) {
                 actualizeInvoiceDatabase(invoicesList)
             } else {
-                // todo doresit aby exceptiony neprerusovaly sync
                 throw VendorAppException("Received code $responseCode when trying download invoices.").apply {
                     apiError = true
                     apiResponseCode = responseCode

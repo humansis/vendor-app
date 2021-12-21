@@ -19,6 +19,7 @@ class AppPreferences(context: Context) : BasePreferences(context, VERSION, MIGRA
         private const val VENDOR_USERNAME = "pin_vendor_app_vendor_username"
         private const val VENDOR_COUNTRY = "pin_vendor_app_vendor_country"
         private const val VENDOR_LOGGED_IN = "pin_vendor_app_vendor_logged_in"
+        private const val VENDOR_TOKEN = "pin_vendor_app_vendor_token"
 
         private const val LAST_SYNCED = "pin_vendor_app_last_synced"
 
@@ -44,9 +45,10 @@ class AppPreferences(context: Context) : BasePreferences(context, VERSION, MIGRA
             try {
                 vendor.apply {
                     this.id = settings.getLong(VENDOR_ID, 0)
-                    this.username = settings.getString(VENDOR_USERNAME, "")!!
-                    this.country = settings.getString(VENDOR_COUNTRY, "")!!
+                    this.username = settings.getString(VENDOR_USERNAME, "").toString()
+                    this.country = settings.getString(VENDOR_COUNTRY, "").toString()
                     this.loggedIn = settings.getBoolean(VENDOR_LOGGED_IN, false)
+                    this.token = settings.getString(VENDOR_TOKEN, "").toString()
                 }
             } catch (e: ClassCastException) {
                 settings.edit().remove(VENDOR_ID).apply()
@@ -58,6 +60,7 @@ class AppPreferences(context: Context) : BasePreferences(context, VERSION, MIGRA
             settings.edit().putString(VENDOR_USERNAME, vendor.username).apply()
             settings.edit().putString(VENDOR_COUNTRY, vendor.country).apply()
             settings.edit().putBoolean(VENDOR_LOGGED_IN, vendor.loggedIn).apply()
+            settings.edit().putString(VENDOR_TOKEN, vendor.token).apply()
         }
 
     var url: String

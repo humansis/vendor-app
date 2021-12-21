@@ -25,7 +25,7 @@ class CurrentVendor(private val preferences: AppPreferences) {
         }
 
     fun isLoggedIn(): Boolean {
-        return vendor.loggedIn && vendor.country != ""
+        return vendor.loggedIn && vendor.country != "" && vendor.token != ""
     }
 
     fun clear() {

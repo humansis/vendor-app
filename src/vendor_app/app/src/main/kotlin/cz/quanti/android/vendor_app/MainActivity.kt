@@ -117,6 +117,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
 
     override fun onStart() {
         super.onStart()
+        logoutIfNotLoggedIn()
         setUpBackground()
         Log.d(TAG, "onStart")
     }
@@ -263,7 +264,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
         }
         activityBinding.btnLogout.setOnClickListener {
             Log.d(TAG, "Logout button clicked.")
-            logout()
+            showLogoutDialog()
             activityBinding.drawerLayout.closeDrawer(GravityCompat.START)
         }
     }
@@ -302,19 +303,23 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
         }
     }
 
-    private fun logout() {
+    private fun showLogoutDialog() {
         AlertDialog.Builder(this, R.style.DialogTheme)
             .setTitle(getString(R.string.are_you_sure_dialog_title))
             .setMessage(getString(R.string.logout_dialog_message))
             .setPositiveButton(
                 android.R.string.ok
             ) { _, _ ->
-                emptyData()
-                loginFacade.logout()
-                findNavController(R.id.nav_host_fragment).popBackStack(R.id.loginFragment, false)
+                logout()
             }
             .setNegativeButton(android.R.string.cancel, null)
             .show()
+    }
+
+    private fun logout() {
+        emptyData()
+        loginFacade.logout()
+        findNavController(R.id.nav_host_fragment).popBackStack(R.id.loginFragment, false)
     }
 
     private fun emptyData() {
@@ -492,6 +497,10 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
             string += "\n" + it.message
         }
         return string
+    }
+
+    private fun logoutIfNotLoggedIn() {
+        if (loginVM.isVendorLoggedIn()) logout()
     }
 
     private fun checkConnection() {

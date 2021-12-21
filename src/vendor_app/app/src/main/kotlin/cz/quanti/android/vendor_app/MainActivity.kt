@@ -333,6 +333,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
 
     private fun emptyData() {
         this.cacheDir.deleteRecursively()
+        shopVM.setCurrency("")
         emptyDataDisposable?.dispose()
         emptyDataDisposable = shopVM.emptyCart()
             .andThen(shopVM.deleteProducts())

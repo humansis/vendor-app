@@ -23,7 +23,9 @@
         android:theme="@style/AppTheme"
         android:allowBackup="false"
         android:testOnly="false"
-        tools:replace="android:allowBackup">
+        android:networkSecurityConfig="@xml/network_security_config"
+        tools:replace="android:allowBackup"
+        tools:ignore="UnusedAttribute">
         <activity
             android:name="cz.quanti.android.vendor_app.MainActivity"
             android:theme="@style/AppTheme.NoActionBar"

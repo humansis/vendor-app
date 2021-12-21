@@ -59,7 +59,9 @@ class PurchaseRepositoryImpl(
                         purchaseId = id,
                         card = purchase.smartcard,
                         beneficiaryId = purchase.beneficiaryId,
-                        assistanceId = purchase.assistanceId
+                        assistanceId = purchase.assistanceId,
+                        balanceBefore = purchase.balanceBefore,
+                        balanceAfter = purchase.balanceAfter
                     )
                 )
             }
@@ -130,7 +132,9 @@ class PurchaseRepositoryImpl(
                                                 vendorId = purchaseDb.vendorId,
                                                 beneficiaryId = cardPurchaseDb.beneficiaryId,
                                                 assistanceId = cardPurchaseDb.assistanceId,
-                                                currency = purchaseDb.currency
+                                                currency = purchaseDb.currency,
+                                                balanceBefore = cardPurchaseDb.balanceBefore,
+                                                balanceAfter = cardPurchaseDb.balanceAfter
                                             )
                                             purchase.products.addAll(productsDb.map { convert(it) })
                                             purchase.vouchers.addAll(voucherPurchasesDb.map { it.voucher })
@@ -294,7 +298,7 @@ class PurchaseRepositoryImpl(
             createdAt = purchase.createdAt,
             vendorId = purchase.vendorId,
             beneficiaryId = purchase.beneficiaryId,
-            assistanceId = purchase.assistanceId,
+            assistanceId = purchase.assistanceId.takeIf { it != 0L }, // temporary fix, because assistanceId is 0 after card is migrated to version 2, but BE only accepts null or >0
             balanceBefore = purchase.balanceBefore,
             balanceAfter = purchase.balanceAfter
         )

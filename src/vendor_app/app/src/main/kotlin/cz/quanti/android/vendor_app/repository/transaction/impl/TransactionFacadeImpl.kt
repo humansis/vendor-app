@@ -73,7 +73,6 @@ class TransactionFacadeImpl(
                     )
                 )
             } else {
-                // todo doresit aby exceptiony neprerusovaly sync
                 throw VendorAppException("Received code $responseCode when trying download transactions.").apply {
                     apiError = true
                     apiResponseCode = responseCode

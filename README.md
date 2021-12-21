@@ -27,7 +27,7 @@ App is ready to work with docker swagger mock server with emulator. If you want 
 1. open port 8091 in firewall
 1. run cmd ipconfig to find your virtual adapter ip address
 1. open gradle.properties and change LOCAL_API_URL from 10.0.2.2 to your ip address
-1. paste <domain includeSubdomains="true">1your_ip_address</domain> to res/xml/network_security_config.xml
+1. paste <domain includeSubdomains="true">your_ip_address</domain> to res/xml/network_security_config.xml
 1. build, run and connect your smartphone to your hotspot
 
 

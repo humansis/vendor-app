@@ -14,10 +14,13 @@ import cz.quanti.android.vendor_app.repository.transaction.dto.api.TransactionAp
 import cz.quanti.android.vendor_app.repository.transaction.dto.api.TransactionPurchaseApiEntity
 import cz.quanti.android.vendor_app.repository.utils.PagedApiEntity
 import io.reactivex.Single
+import okhttp3.MultipartBody
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
+import retrofit2.http.Multipart
 import retrofit2.http.POST
+import retrofit2.http.Part
 import retrofit2.http.Path
 import retrofit2.http.Query
 
@@ -87,5 +90,12 @@ interface VendorAPI {
     @POST("v1/syncs/deposit")
     fun postReliefPackages(
         @Body smartcardDeposits: List<SmartcardDepositApiEntity>
+    ): Single<Response<Unit>>
+
+    @Multipart
+    @POST("v1/vendors/{id}/logs")
+    fun postLogs(
+        @Path("id") vendorId: Int,
+        @Part logfile: MultipartBody.Part
     ): Single<Response<Unit>>
 }

@@ -33,6 +33,9 @@ import cz.quanti.android.vendor_app.repository.deposit.impl.DepositRepositoryImp
 import cz.quanti.android.vendor_app.repository.invoice.InvoiceFacade
 import cz.quanti.android.vendor_app.repository.invoice.impl.InvoiceFacadeImpl
 import cz.quanti.android.vendor_app.repository.invoice.impl.InvoiceRepositoryImpl
+import cz.quanti.android.vendor_app.repository.log.LogFacade
+import cz.quanti.android.vendor_app.repository.log.impl.LogFacadeImpl
+import cz.quanti.android.vendor_app.repository.log.impl.LogRepositoryImpl
 import cz.quanti.android.vendor_app.repository.login.LoginFacade
 import cz.quanti.android.vendor_app.repository.login.impl.LoginFacadeImpl
 import cz.quanti.android.vendor_app.repository.login.impl.LoginRepositoryImpl
@@ -54,6 +57,8 @@ import cz.quanti.android.vendor_app.utils.CurrentVendor
 import cz.quanti.android.vendor_app.utils.LoginManager
 import cz.quanti.android.vendor_app.utils.NfcTagPublisher
 import cz.quanti.android.vendor_app.utils.ShoppingHolder
+import cz.quanti.android.vendor_app.utils.isPositiveResponseHttpCode
+import cz.quanti.android.vendor_app.utils.logResponseBody
 import java.util.concurrent.TimeUnit
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -146,6 +151,9 @@ object KoinInitializer {
             db.invoiceDao(),
             api
         )
+        val logRepo = LogRepositoryImpl(
+            api
+        )
 
         // Facade
         val loginFacade: LoginFacade = LoginFacadeImpl(loginRepo, loginManager, currentVendor)
@@ -157,6 +165,7 @@ object KoinInitializer {
         val depositFacade: DepositFacade = DepositFacadeImpl(depositRepo)
         val transactionFacade: TransactionFacade = TransactionFacadeImpl(transactionRepo)
         val invoiceFacade: InvoiceFacade = InvoiceFacadeImpl(invoiceRepo)
+        val logFacade: LogFacade = LogFacadeImpl(logRepo, app.applicationContext)
         val syncFacade: SynchronizationFacade =
             SynchronizationFacadeImpl(
                 bookletFacade,
@@ -166,7 +175,8 @@ object KoinInitializer {
                 productFacade,
                 purchaseFacade,
                 transactionFacade,
-                invoiceFacade
+                invoiceFacade,
+                logFacade
             )
         val synchronizationManager: SynchronizationManager =
             SynchronizationManagerImpl(preferences, syncFacade)
@@ -280,7 +290,11 @@ object KoinInitializer {
                 headersBuilder.add("Build-Number", BuildConfig.BUILD_NUMBER.toString())
                 headersBuilder.add("Build-Type", BuildConfig.BUILD_TYPE)
                 val request = oldRequest.newBuilder().headers(headersBuilder.build()).build()
-                chain.proceed(request)
+                chain.proceed(request).apply {
+                    if (!isPositiveResponseHttpCode(this.code()) && !BuildConfig.DEBUG) {
+                        this.body()?.let { logResponseBody(this.headers(), it) }
+                    }
+                }
             }
             .addInterceptor(logging)
             .build()

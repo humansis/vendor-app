@@ -2,8 +2,6 @@ package cz.quanti.android.vendor_app.utils
 
 import cz.quanti.android.vendor_app.repository.AppPreferences
 import cz.quanti.android.vendor_app.repository.login.dto.Vendor
-import io.reactivex.Observable
-import io.reactivex.subjects.BehaviorSubject
 
 class CurrentVendor(private val preferences: AppPreferences) {
     var vendor: Vendor
@@ -23,21 +21,8 @@ class CurrentVendor(private val preferences: AppPreferences) {
         set(url) {
             url?.let {
                 preferences.url = url.name
-                environment.onNext(url)
             }
         }
-
-    private var environment: BehaviorSubject<ApiEnvironments> = BehaviorSubject.createDefault(
-        try {
-            ApiEnvironments.valueOf(preferences.url)
-        } catch (e: Exception) {
-            ApiEnvironments.FRONT
-        }
-    )
-
-    fun getEnvironment(): Observable<ApiEnvironments> {
-        return environment
-    }
 
     fun isLoggedIn(): Boolean {
         return vendor.loggedIn && vendor.country != ""

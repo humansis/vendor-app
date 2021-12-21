@@ -21,18 +21,18 @@ import cz.quanti.android.vendor_app.repository.utils.exceptions.LoginException
 import cz.quanti.android.vendor_app.repository.utils.exceptions.LoginExceptionState
 import cz.quanti.android.vendor_app.utils.ApiEnvironments
 import cz.quanti.android.vendor_app.utils.Constants
+import cz.quanti.android.vendor_app.utils.SendLogDialogFragment
 import cz.quanti.android.vendor_app.utils.hideKeyboard
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
-import org.koin.androidx.viewmodel.ext.android.viewModel
 import quanti.com.kotlinlog.Log
 
 class LoginFragment : Fragment() {
 
     private val mainVM: MainViewModel by sharedViewModel()
-    private val vm: LoginViewModel by viewModel()
+    private val vm: LoginViewModel by sharedViewModel()
     private var disposable: Disposable? = null
 
     private lateinit var activityCallback: ActivityCallback
@@ -52,6 +52,8 @@ class LoginFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        requireActivity().window.navigationBarColor = android.R.attr.navigationBarColor
 
         loginBinding.versionTextView.text = getString(R.string.version, BuildConfig.VERSION_NAME)
 
@@ -87,6 +89,18 @@ class LoginFragment : Fragment() {
                     true
                 }
                 popup.show()
+            }
+
+            loginBinding.logoImageView.setOnLongClickListener {
+                SendLogDialogFragment.newInstance(
+                    sendEmailAddress = getString(R.string.send_email_adress),
+                    title = getString(R.string.logs_dialog_title),
+                    message = getString(R.string.logs_dialog_message),
+                    emailButtonText = getString(R.string.logs_dialog_email_button),
+                    dialogTheme = R.style.DialogTheme
+                ).show(requireActivity().supportFragmentManager, "TAG")
+                // TODO inside this method in kotlinlogger there is a method getZipOfFiles() that automatically deletes all logs older than 4 days
+                return@setOnLongClickListener true
             }
         } else {
             loginBinding.settingsImageView.visibility = View.INVISIBLE
@@ -147,13 +161,13 @@ class LoginFragment : Fragment() {
                             .subscribeOn(Schedulers.io())
                             .observeOn(AndroidSchedulers.mainThread())
                             .subscribe({
-                                vm.onLogin(requireActivity() as (ActivityCallback))
                                 loginBinding.loadingImageView.animation.repeatCount = 0
                                 loginBinding.usernameEditText.error = null
                                 loginBinding.passwordEditText.error = null
                                 findNavController().navigate(
                                     LoginFragmentDirections.actionLoginFragmentToProductsFragment()
                                 )
+                                vm.onLogin(requireActivity() as ActivityCallback)
                             }, {
                                 loginBinding.loadingImageView.clearAnimation()
                                 loginBinding.loadingImageView.visibility = View.INVISIBLE
@@ -164,7 +178,7 @@ class LoginFragment : Fragment() {
                                     when (it.state) {
                                         LoginExceptionState.NO_CONNECTION -> {
                                             mainVM.setToastMessage(
-                                                if (vm.isNetworkConnected().value == true) {
+                                                if (mainVM.isNetworkConnected().value == true) {
                                                     getString(R.string.error_service_unavailable)
                                                 } else {
                                                     getString(R.string.no_internet_connection)

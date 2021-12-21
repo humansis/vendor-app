@@ -31,7 +31,6 @@ import cz.quanti.android.vendor_app.MainViewModel
 import cz.quanti.android.vendor_app.R
 import cz.quanti.android.vendor_app.databinding.DialogProductBinding
 import cz.quanti.android.vendor_app.databinding.FragmentShopBinding
-import cz.quanti.android.vendor_app.main.authorization.viewmodel.LoginViewModel
 import cz.quanti.android.vendor_app.main.shop.adapter.CategoriesAdapter
 import cz.quanti.android.vendor_app.main.shop.adapter.ProductsAdapter
 import cz.quanti.android.vendor_app.main.shop.callback.CategoryAdapterCallback
@@ -58,7 +57,6 @@ import quanti.com.kotlinlog.Log
 class ShopFragment : Fragment(), CategoryAdapterCallback, ProductAdapterCallback,
     OnTouchOutsideViewListener {
 
-    private val loginVM: LoginViewModel by viewModel()
     private val mainVM: MainViewModel by sharedViewModel()
     private val vm: ShopViewModel by viewModel()
     private lateinit var categoriesAdapter: CategoriesAdapter
@@ -103,7 +101,7 @@ class ShopFragment : Fragment(), CategoryAdapterCallback, ProductAdapterCallback
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         shopBinding.categoriesAppBarLayout.background.setTint(
-            getBackgroundColor(requireContext(), loginVM.getApiHost())
+            getBackgroundColor(requireContext(), mainVM.getApiHost())
         )
         initCategoriesAdapter()
         initProductsAdapter()

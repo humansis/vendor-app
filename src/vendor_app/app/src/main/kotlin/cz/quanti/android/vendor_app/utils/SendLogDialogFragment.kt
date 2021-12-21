@@ -98,7 +98,7 @@ class SendLogDialogFragment : DialogFragment() {
         super.onCreate(savedInstanceState)
         zipFile = GlobalScope.async {
             val extraFiles = requireArguments().getSerializable(EXTRA_FILES) as ArrayList<File>
-            getZipOfLogs(requireActivity().applicationContext, 30, extraFiles)
+            getZipOfLogs(requireActivity().applicationContext, 48, extraFiles)
         }
     }
 

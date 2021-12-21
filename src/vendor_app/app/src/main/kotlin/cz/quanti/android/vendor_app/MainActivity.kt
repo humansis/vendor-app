@@ -52,6 +52,7 @@ import cz.quanti.android.vendor_app.utils.getExpirationDateAsString
 import cz.quanti.android.vendor_app.utils.getLimitsAsText
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
+import io.reactivex.exceptions.CompositeException
 import io.reactivex.schedulers.Schedulers
 import java.util.Date
 import org.koin.android.ext.android.inject
@@ -243,7 +244,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
             }
         })
 
-        loginVM.isNetworkConnected().observe(this, { available ->
+        mainVM.isNetworkConnected().observe(this, { available ->
             val drawable = if (available) R.drawable.ic_cloud else R.drawable.ic_cloud_offline
             activityBinding.appBar.syncButton.setImageDrawable(
                 ContextCompat.getDrawable(this, drawable)
@@ -257,29 +258,14 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
     }
 
     private fun setUpNavigationMenu() {
+        if (!BuildConfig.DEBUG) {
+            activityBinding.navView.menu.findItem(R.id.share_logs_button).isVisible = false
+        }
         activityBinding.btnLogout.setOnClickListener {
             Log.d(TAG, "Logout button clicked.")
             logout()
             activityBinding.drawerLayout.closeDrawer(GravityCompat.START)
         }
-    }
-
-    private fun setUpBackground() {
-        environmentDisposable?.dispose()
-        environmentDisposable = mainVM.getCurrentEnvironment()
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(
-                { environment ->
-                    val color = getBackgroundColor(this, environment)
-                    activityBinding.appBar.toolbar.setBackgroundColor(color)
-                    activityBinding.appBar.contentMain.navHostFragment.setBackgroundColor(color)
-                    this.window.navigationBarColor = color
-                },
-                {
-                    Log.e(TAG, it)
-                }
-            )
     }
 
     private fun initObservers() {
@@ -452,15 +438,21 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
                         activityBinding.btnLogout.isEnabled = true
                         activityBinding.appBar.progressBar.visibility = View.GONE
                         activityBinding.appBar.syncButtonArea.visibility = View.VISIBLE
-                        val title = if (loginVM.isNetworkConnected().value != true) {
+                        val title = if (mainVM.isNetworkConnected().value != true) {
                             getString(R.string.no_internet_connection)
                         } else {
                             getString(R.string.could_not_synchronize_data_with_server)
                         }
+                        val lastSyncError = synchronizationManager.getLastSyncError()
+                        val message = if (lastSyncError is CompositeException) {
+                            lastSyncError.message + getExceptions(lastSyncError)
+                        } else {
+                            lastSyncError?.message
+                        }
                         syncDialog?.dismiss()
                         syncDialog = AlertDialog.Builder(this, R.style.DialogTheme)
                             .setTitle(title)
-                            .setMessage(synchronizationManager.getLastSyncError()?.message)
+                            .setMessage(message)
                             .setCancelable(true)
                             .setPositiveButton(getString(android.R.string.ok), null)
                             .show()
@@ -494,6 +486,14 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
             .show()
     }
 
+    private fun getExceptions(lastSyncError: CompositeException): String {
+        var string = String()
+        lastSyncError.exceptions.forEach {
+            string += "\n" + it.message
+        }
+        return string
+    }
+
     private fun checkConnection() {
         connectionDisposable?.dispose()
         connectionDisposable = connectionObserver.getNetworkAvailability()
@@ -501,7 +501,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(
                 { available ->
-                    loginVM.isNetworkConnected(available)
+                    mainVM.isNetworkConnected(available)
                     if (lastConnectionState != available) {
                         mainVM.setToastMessage(
                             getString(
@@ -570,6 +570,15 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
 
     override fun setSyncButtonEnabled(boolean: Boolean) {
         activityBinding.appBar.syncButton.isEnabled = boolean
+    }
+
+    override fun setUpBackground() {
+        val color = getBackgroundColor(this, mainVM.getApiHost())
+        activityBinding.appBar.toolbar.setBackgroundColor(color)
+        activityBinding.appBar.contentMain.navHostFragment.setBackgroundColor(color)
+        if (activityBinding.appBar.contentMain.navHostFragment.findNavController().currentDestination?.id != R.id.loginFragment) {
+            window.navigationBarColor = color
+        }
     }
 
     override fun loadNavHeader(currentVendorName: String) {

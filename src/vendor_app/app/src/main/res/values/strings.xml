@@ -134,5 +134,7 @@
     <string name="transactions_download">Downloading transactions to reimburse</string>
     <string name="invoices_download">Downloading invoices</string>
     <string name="card_balance_expired">Card balance has expired</string>
+    <string name="logs_upload">Uploading logs</string>
+    <string name="please_dont_kill">Please, do not close the application.</string>
     <string name="no_location_data">No location data received for this vendor</string>
 </resources>

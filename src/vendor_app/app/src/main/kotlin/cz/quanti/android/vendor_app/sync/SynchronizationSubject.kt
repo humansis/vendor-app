@@ -13,5 +13,6 @@ enum class SynchronizationSubject(val message: Int) {
     CATEGORIES_DOWNLOAD(R.string.categories_download),
     PRODUCTS_DOWNLOAD(R.string.products_download),
     TRANSACTIONS_DOWNLOAD(R.string.transactions_download),
-    INVOICES_DOWNLOAD(R.string.invoices_download)
+    INVOICES_DOWNLOAD(R.string.invoices_download),
+    LOGS_UPLOAD(R.string.logs_upload)
 }

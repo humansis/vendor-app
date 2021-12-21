@@ -27,7 +27,8 @@ class SynchronizationManagerImpl(
             Log.d(TAG, "Synchronization started")
             lastSyncError = null
             syncStatePublishSubject.onNext(SynchronizationState.STARTED)
-            syncFacade.synchronize(preferences.vendor)
+            val vendorId = preferences.vendor.id.toInt()
+            syncFacade.synchronize(vendorId)
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.io())
                 .subscribe(

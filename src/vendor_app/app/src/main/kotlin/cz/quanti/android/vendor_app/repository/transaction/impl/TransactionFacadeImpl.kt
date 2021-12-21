@@ -63,7 +63,6 @@ class TransactionFacadeImpl(
                                             )
                                         }
                                     } else {
-                                        // todo doresit aby exceptiony neprerusovaly sync
                                         throw VendorAppException("Received code ${response.first} when trying download purchases.").apply {
                                             apiError = true
                                             apiResponseCode = responseCode

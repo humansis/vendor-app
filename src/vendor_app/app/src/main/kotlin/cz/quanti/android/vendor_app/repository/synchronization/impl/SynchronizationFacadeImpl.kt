@@ -37,7 +37,7 @@ class SynchronizationFacadeImpl(
                     .concatWith(productFacade.syncWithServer(vendorId)),
                 transactionFacade.syncWithServer(vendorId),
                 invoiceFacade.syncWithServer(vendorId),
-                logFacade.syncWithServer(vendorId) // TODO zavolat syncFacade.sendLogs(vendorId, context) tak, aby se to zavolalo po skonceni syncFacade.synchronize(vendorId), nehlede na vysledek
+                logFacade.syncWithServer(vendorId)
             )
         )
     }

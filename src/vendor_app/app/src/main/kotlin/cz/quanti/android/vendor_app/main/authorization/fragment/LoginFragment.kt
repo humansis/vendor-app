@@ -78,6 +78,8 @@ class LoginFragment : Fragment() {
                 popup.menu.add(0, ApiEnvironments.STAGE.id, 0, "STAGE API")
                 popup.menu.add(0, ApiEnvironments.DEV.id, 0, "DEV API")
                 popup.menu.add(0, ApiEnvironments.TEST.id, 0, "TEST API")
+                popup.menu.add(0, ApiEnvironments.LOCAL.id, 0, "LOCAL API")
+
                 popup.setOnMenuItemClickListener { item ->
                     val env = ApiEnvironments.values().find { it.id == item?.itemId }
                     env?.let {
@@ -183,8 +185,10 @@ class LoginFragment : Fragment() {
                                                 }
                                             )
                                         }
-                                        LoginExceptionState.INVALID_USER,
-                                        LoginExceptionState.INVALID_PASSWORD -> {
+                                        LoginExceptionState.NO_COUNTRY -> {
+                                            mainVM.setToastMessage(getString(R.string.no_location_data))
+                                        }
+                                        LoginExceptionState.INVALID_USER_OR_PASSWORD -> {
                                             loginBinding.usernameEditText.error =
                                                 getString(R.string.wrong_password)
                                             loginBinding.passwordEditText.error =

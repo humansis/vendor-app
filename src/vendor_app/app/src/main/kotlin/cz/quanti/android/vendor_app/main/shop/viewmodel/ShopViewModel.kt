@@ -83,7 +83,10 @@ class ShopViewModel(
             if (savedCurrency.isNotEmpty()) {
                 shoppingHolder.currency.onNext(savedCurrency)
             } else {
-                setCurrency(getDefaultCurrency(currentVendor.vendor.country))
+                setCurrency(
+                    getDefaultCurrency(currentVendor.vendor.country)
+                        .takeIf { it.isNotEmpty() } ?: "USD"
+                )
             }
         }
         return shoppingHolder.currency

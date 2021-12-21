@@ -112,7 +112,7 @@ fun convertTagToString(tag: Tag): String {
 fun getDefaultCurrency(country: String): String {
     return when (country) {
         "KHM" -> "KHR"
-        "SYR" -> "SYP"
+        "SYR" -> "USD"
         "UKR" -> "UAH"
         "ARM" -> "AMD"
         "MNG" -> "MNT"

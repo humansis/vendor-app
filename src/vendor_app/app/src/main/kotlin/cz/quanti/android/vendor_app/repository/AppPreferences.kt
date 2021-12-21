@@ -17,7 +17,6 @@ class AppPreferences(context: Context) : BasePreferences(context, VERSION, MIGRA
 
         private const val VENDOR_ID = "pin_vendor_app_vendor_id"
         private const val VENDOR_USERNAME = "pin_vendor_app_vendor_username"
-        private const val VENDOR_SALTED_PASSWORD = "pin_vendor_app_vendor_salted_password"
         private const val VENDOR_COUNTRY = "pin_vendor_app_vendor_country"
         private const val VENDOR_LOGGED_IN = "pin_vendor_app_vendor_logged_in"
 
@@ -46,7 +45,6 @@ class AppPreferences(context: Context) : BasePreferences(context, VERSION, MIGRA
                 vendor.apply {
                     this.id = settings.getLong(VENDOR_ID, 0)
                     this.username = settings.getString(VENDOR_USERNAME, "")!!
-                    this.saltedPassword = settings.getString(VENDOR_SALTED_PASSWORD, "")!!
                     this.country = settings.getString(VENDOR_COUNTRY, "")!!
                     this.loggedIn = settings.getBoolean(VENDOR_LOGGED_IN, false)
                 }
@@ -58,7 +56,6 @@ class AppPreferences(context: Context) : BasePreferences(context, VERSION, MIGRA
         set(vendor) {
             settings.edit().putLong(VENDOR_ID, vendor.id).apply()
             settings.edit().putString(VENDOR_USERNAME, vendor.username).apply()
-            settings.edit().putString(VENDOR_SALTED_PASSWORD, vendor.saltedPassword).apply()
             settings.edit().putString(VENDOR_COUNTRY, vendor.country).apply()
             settings.edit().putBoolean(VENDOR_LOGGED_IN, vendor.loggedIn).apply()
         }

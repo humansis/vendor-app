@@ -1,11 +1,11 @@
 package cz.quanti.android.vendor_app.utils
 
 import android.util.Base64
+import java.nio.charset.Charset
+import java.security.MessageDigest
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
-import java.nio.charset.Charset
-import java.security.MessageDigest
 
 private val json = Json { ignoreUnknownKeys = true }
 

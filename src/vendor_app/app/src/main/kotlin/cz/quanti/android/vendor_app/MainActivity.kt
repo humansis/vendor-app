@@ -55,10 +55,10 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.exceptions.CompositeException
 import io.reactivex.schedulers.Schedulers
+import java.util.Date
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import quanti.com.kotlinlog.Log
-import java.util.*
 
 class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCallback,
     NavigationView.OnNavigationItemSelectedListener {

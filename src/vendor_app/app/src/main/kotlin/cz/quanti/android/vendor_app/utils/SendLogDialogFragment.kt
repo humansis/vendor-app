@@ -4,10 +4,10 @@ import android.app.AlertDialog
 import android.app.Dialog
 import android.content.DialogInterface
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.os.Bundle
 import androidx.fragment.app.DialogFragment
 import cz.quanti.android.vendor_app.MainViewModel
+import java.io.File
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
@@ -21,7 +21,6 @@ import quanti.com.kotlinlog.utils.getFormattedFileNameDayNow
 import quanti.com.kotlinlog.utils.getUriForFile
 import quanti.com.kotlinlog.utils.getZipOfLogs
 import quanti.com.kotlinlog.utils.hasFileWritePermission
-import java.io.File
 
 /**
  * Created by Trnka Vladislav on 20.06.2017.

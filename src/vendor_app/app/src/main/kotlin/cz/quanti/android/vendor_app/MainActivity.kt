@@ -50,14 +50,15 @@ import cz.quanti.android.vendor_app.utils.SendLogDialogFragment
 import cz.quanti.android.vendor_app.utils.getBackgroundColor
 import cz.quanti.android.vendor_app.utils.getExpirationDateAsString
 import cz.quanti.android.vendor_app.utils.getLimitsAsText
+import cz.quanti.android.vendor_app.utils.getPayload
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.exceptions.CompositeException
 import io.reactivex.schedulers.Schedulers
-import java.util.Date
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import quanti.com.kotlinlog.Log
+import java.util.*
 
 class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCallback,
     NavigationView.OnNavigationItemSelectedListener {
@@ -117,7 +118,6 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
 
     override fun onStart() {
         super.onStart()
-        logoutIfNotLoggedIn()
         setUpBackground()
         Log.d(TAG, "onStart")
     }
@@ -125,6 +125,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
     override fun onResume() {
         super.onResume()
         Log.d(TAG, "onResume")
+        logoutIfNotLoggedIn()
         loadNavHeader(loginVM.getCurrentVendorName())
         checkConnection()
         syncState()
@@ -254,7 +255,9 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
 
         activityBinding.appBar.syncButton.setOnClickListener {
             Log.d(TAG, "Sync button clicked.")
-            synchronizationManager.synchronizeWithServer()
+            if (!logoutIfNotLoggedIn()) {
+                synchronizationManager.synchronizeWithServer()
+            }
         }
     }
 
@@ -280,8 +283,8 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
         })
 
         mainVM.toastMessageSLE.observe(this, { message ->
-            lastToast?.cancel()
             message?.let {
+                lastToast?.cancel()
                 lastToast = Toast.makeText(
                     this,
                     message,
@@ -499,8 +502,19 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
         return string
     }
 
-    private fun logoutIfNotLoggedIn() {
-        if (loginVM.isVendorLoggedIn()) logout()
+    private fun logoutIfNotLoggedIn(): Boolean {
+        val authToken = loginVM.getCurrentVendorJWT()
+
+        return if (!loginVM.isVendorLoggedIn()) {
+            logout()
+            true
+        } else if (authToken.isBlank() || authToken.isExpired()) {
+            mainVM.setToastMessage("You have been logged out because your authentication token has expired or is missing.") // TODO stringres, posle Asim
+            logout()
+            true
+        } else {
+            false
+        }
     }
 
     private fun checkConnection() {
@@ -706,6 +720,17 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
     ) {
         mainVM.grantPermission(PermissionRequestResult(requestCode, permissions, grantResults))
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+    }
+
+    private fun String.isExpired(): Boolean {
+        return getPayload(this).let { payload ->
+            val tokenExpirationInMillis = payload.exp * 1000
+            val numberOfPurchases = synchronizationManager.getPurchasesCount().blockingFirst()
+            val numberOfRequests = SynchronizationSubject.values().size
+            val oneMinuteInMillis = 60000 // TODO pockat jaky timeout posle pavel co je na produkci
+            val timeReserveInMillis = (numberOfPurchases + numberOfRequests) * oneMinuteInMillis
+            (tokenExpirationInMillis - timeReserveInMillis) < Date().time
+        }
     }
 
     // ====OnTouchOutsideListener====

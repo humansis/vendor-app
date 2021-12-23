@@ -37,6 +37,10 @@ class LoginViewModel(
         return currentVendor.vendor.username
     }
 
+    fun getCurrentVendorJWT(): String {
+        return currentVendor.vendor.token
+    }
+
     fun onLogin(activityCallback: ActivityCallback) {
         activityCallback.setUpBackground()
         activityCallback.loadNavHeader(currentVendor.vendor.username)

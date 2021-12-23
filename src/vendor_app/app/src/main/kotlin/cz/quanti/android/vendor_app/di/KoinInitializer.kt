@@ -283,7 +283,7 @@ object KoinInitializer {
                 val oldRequest = chain.request()
                 val headersBuilder = oldRequest.headers().newBuilder()
                 loginManager.getAuthToken().let {
-                    headersBuilder.add("Authorization", it)
+                    headersBuilder.add("Authorization", "Bearer $it")
                 }
                 headersBuilder.add("Country", getCountry(currentVendor))
                 headersBuilder.add("Version-Name", BuildConfig.VERSION_NAME)

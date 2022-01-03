@@ -727,8 +727,8 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
             val tokenExpirationInMillis = payload.exp * 1000
             val numberOfPurchases = synchronizationManager.getPurchasesCount().blockingFirst()
             val numberOfRequests = SynchronizationSubject.values().size
-            val oneMinuteInMillis = 60000
-            val timeReserveInMillis = (numberOfPurchases + numberOfRequests) * oneMinuteInMillis
+            val timeoutInMillis = 330000
+            val timeReserveInMillis = (numberOfPurchases + numberOfRequests) * timeoutInMillis
             (tokenExpirationInMillis - timeReserveInMillis) < Date().time
         }
     }

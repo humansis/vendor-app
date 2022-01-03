@@ -509,7 +509,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
             logout()
             true
         } else if (authToken.isBlank() || authToken.isExpired()) {
-            mainVM.setToastMessage("You have been logged out because your authentication token has expired or is missing.") // TODO stringres, posle Asim
+            mainVM.setToastMessage(getString(R.string.token_expired_or_missing))
             logout()
             true
         } else {
@@ -727,7 +727,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
             val tokenExpirationInMillis = payload.exp * 1000
             val numberOfPurchases = synchronizationManager.getPurchasesCount().blockingFirst()
             val numberOfRequests = SynchronizationSubject.values().size
-            val oneMinuteInMillis = 60000 // TODO pockat jaky timeout posle pavel co je na produkci
+            val oneMinuteInMillis = 60000
             val timeReserveInMillis = (numberOfPurchases + numberOfRequests) * oneMinuteInMillis
             (tokenExpirationInMillis - timeReserveInMillis) < Date().time
         }

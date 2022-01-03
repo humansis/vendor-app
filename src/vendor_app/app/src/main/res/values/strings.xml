@@ -137,4 +137,5 @@
     <string name="logs_upload">Uploading logs</string>
     <string name="please_dont_kill">Please, do not close the application.</string>
     <string name="no_location_data">No location data received for this vendor</string>
+    <string name="token_expired_or_missing">You have been logged out because your authentication token has expired or is missing.</string>
 </resources>

@@ -58,6 +58,7 @@ import cz.quanti.android.vendor_app.utils.LoginManager
 import cz.quanti.android.vendor_app.utils.NfcTagPublisher
 import cz.quanti.android.vendor_app.utils.ShoppingHolder
 import cz.quanti.android.vendor_app.utils.isPositiveResponseHttpCode
+import cz.quanti.android.vendor_app.utils.logRequestBody
 import cz.quanti.android.vendor_app.utils.logResponseBody
 import java.util.concurrent.TimeUnit
 import okhttp3.OkHttpClient
@@ -260,19 +261,9 @@ object KoinInitializer {
         currentVendor: CurrentVendor
     ): OkHttpClient {
 
-        val forbiddenRegex = Regex("(password|^Content-Type|^Content-Length|^Authorization|^Country|^Version-Name|^Build-Number|^Build-Type|^Transfer-Encoding|^Set-Cookie|^Cache-Control|^Date|^Connection|^Server|^X-)")
+        val logging = HttpLoggingInterceptor { message -> Log.d("OkHttp", message) }
 
-        val logging = HttpLoggingInterceptor { message ->
-            if (!message.contains(forbiddenRegex)) {
-                Log.d("OkHttp", message)
-            }
-        }
-
-        logging.level = if (BuildConfig.DEBUG) {
-            HttpLoggingInterceptor.Level.BODY
-        } else {
-            HttpLoggingInterceptor.Level.BASIC
-        }
+        logging.level = HttpLoggingInterceptor.Level.BASIC
 
         return OkHttpClient.Builder()
             .connectTimeout(5, TimeUnit.MINUTES)
@@ -291,8 +282,15 @@ object KoinInitializer {
                 headersBuilder.add("Build-Type", BuildConfig.BUILD_TYPE)
                 val request = oldRequest.newBuilder().headers(headersBuilder.build()).build()
                 chain.proceed(request).apply {
-                    if (!isPositiveResponseHttpCode(this.code()) && !BuildConfig.DEBUG) {
-                        this.body()?.let { logResponseBody(this.headers(), it) }
+                    if (BuildConfig.DEBUG) {
+                        request.body()?.let {
+                            logRequestBody(request.method(), it)
+                        }
+                    }
+                    if (BuildConfig.DEBUG || !isPositiveResponseHttpCode(this.code())) {
+                        this.body()?.let {
+                            logResponseBody(this.headers(), it)
+                        }
                     }
                 }
             }

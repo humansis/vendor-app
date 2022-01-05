@@ -93,7 +93,7 @@ class LoginFragment : Fragment() {
 
             loginBinding.logoImageView.setOnLongClickListener {
                 SendLogDialogFragment.newInstance(
-                    sendEmailAddress = getString(R.string.send_email_adress),
+                    sendEmailAddress = getString(R.string.send_email_address),
                     title = getString(R.string.logs_dialog_title),
                     message = getString(R.string.logs_dialog_message),
                     emailButtonText = getString(R.string.logs_dialog_email_button),

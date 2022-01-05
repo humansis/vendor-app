@@ -54,7 +54,7 @@
     <string name="please_enter_pin">الرجاء إدخال رقم التعريف الشخصي لبطاقتك</string>
     <string name="no_nfc_available">\u200fNFC\u200f غير متوفر</string>
     <string name="you_need_to_enable_nfc">تحتاج إلى تمكين \u200fNFC\u200f</string>
-    <string name="card_successfuly_paid_new_balance">الرصيد الجديد على البطاقة: %1$s</string>
+    <string name="card_successfully_paid_new_balance">الرصيد الجديد على البطاقة: %1$s</string>
     <string name="not_enough_money_on_card">لا توجد عملة كافية على البطاقة</string>
     <string name="scan_card">يرجى مسح البطاقة ضوئيًا</string>
     <string name="incorrect_pin">رقم التعريف الشخصي غير صحيح</string>

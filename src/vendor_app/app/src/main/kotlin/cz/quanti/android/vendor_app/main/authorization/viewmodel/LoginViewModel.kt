@@ -37,8 +37,8 @@ class LoginViewModel(
         return currentVendor.vendor.username
     }
 
-    fun getCurrentVendorJWT(): String {
-        return currentVendor.vendor.token
+    fun hasInvalidToken(purchases: Long): Boolean {
+        return currentVendor.vendor.token.isBlank() || currentVendor.vendor.isTokenExpired(purchases)
     }
 
     fun onLogin(activityCallback: ActivityCallback) {

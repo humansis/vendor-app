@@ -50,7 +50,6 @@ import cz.quanti.android.vendor_app.utils.SendLogDialogFragment
 import cz.quanti.android.vendor_app.utils.getBackgroundColor
 import cz.quanti.android.vendor_app.utils.getExpirationDateAsString
 import cz.quanti.android.vendor_app.utils.getLimitsAsText
-import cz.quanti.android.vendor_app.utils.getPayload
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.exceptions.CompositeException
@@ -503,12 +502,10 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
     }
 
     private fun logoutIfNotLoggedIn(): Boolean {
-        val authToken = loginVM.getCurrentVendorJWT()
-
         return if (!loginVM.isVendorLoggedIn()) {
             logout()
             true
-        } else if (authToken.isBlank() || authToken.isExpired()) {
+        } else if (loginVM.hasInvalidToken(synchronizationManager.getPurchasesCount().blockingFirst())) {
             mainVM.setToastMessage(getString(R.string.token_expired_or_missing))
             logout()
             true
@@ -720,17 +717,6 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
     ) {
         mainVM.grantPermission(PermissionRequestResult(requestCode, permissions, grantResults))
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-    }
-
-    private fun String.isExpired(): Boolean {
-        return getPayload(this).let { payload ->
-            val tokenExpirationInMillis = payload.exp * 1000
-            val numberOfPurchases = synchronizationManager.getPurchasesCount().blockingFirst()
-            val numberOfRequests = SynchronizationSubject.values().size
-            val timeoutInMillis = 330000
-            val timeReserveInMillis = (numberOfPurchases + numberOfRequests) * timeoutInMillis
-            (tokenExpirationInMillis - timeReserveInMillis) < Date().time
-        }
     }
 
     // ====OnTouchOutsideListener====

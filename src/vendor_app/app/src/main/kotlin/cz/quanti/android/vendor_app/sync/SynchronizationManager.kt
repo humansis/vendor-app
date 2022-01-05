@@ -15,5 +15,7 @@ interface SynchronizationManager {
 
     fun showDot(): LiveData<Boolean>
 
+    fun getPurchasesCount(): Observable<Long>
+
     fun getLastSyncError(): Throwable?
 }

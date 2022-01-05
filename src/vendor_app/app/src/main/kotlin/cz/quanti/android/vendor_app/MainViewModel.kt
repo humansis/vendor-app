@@ -38,7 +38,7 @@ class MainViewModel(
     val cameraPermissionsGrantedSLE = SingleLiveEvent<PermissionRequestResult>()
     val successSLE = SingleLiveEvent<Unit>()
     val errorSLE = SingleLiveEvent<Unit>()
-    val toastMessageSLE = SingleLiveEvent<String>()
+    val toastMessageSLE = SingleLiveEvent<String?>()
 
     fun getApiHost(): ApiEnvironments? {
         return currentVendor.url
@@ -100,7 +100,7 @@ class MainViewModel(
         return isNetworkConnectedLD
     }
 
-    fun setToastMessage(message: String) {
+    fun setToastMessage(message: String?) {
         toastMessageSLE.postValue(message)
     }
 

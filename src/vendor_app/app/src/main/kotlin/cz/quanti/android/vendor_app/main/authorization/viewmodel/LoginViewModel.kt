@@ -37,6 +37,10 @@ class LoginViewModel(
         return currentVendor.vendor.username
     }
 
+    fun hasInvalidToken(purchases: Long): Boolean {
+        return currentVendor.vendor.token.isBlank() || currentVendor.vendor.isTokenExpired(purchases)
+    }
+
     fun onLogin(activityCallback: ActivityCallback) {
         activityCallback.setUpBackground()
         activityCallback.loadNavHeader(currentVendor.vendor.username)

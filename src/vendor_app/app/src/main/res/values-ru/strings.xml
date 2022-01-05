@@ -54,7 +54,7 @@
     <string name="please_enter_pin">Пожалуйста, введите ПИН-код к Вашей карте.</string>
     <string name="no_nfc_available">Ближняя бесконтактная связь недоступна.</string>
     <string name="you_need_to_enable_nfc">Вам нужно включить ближнюю бесконтактную связь.</string>
-    <string name="card_successfuly_paid_new_balance">Баланс по карте: %1$s</string>
+    <string name="card_successfully_paid_new_balance">Баланс по карте: %1$s</string>
     <string name="not_enough_money_on_card">Недостаточно денег на карте.</string>
     <string name="scan_card">Пожалуйста, отсканируйте карту.</string>
     <string name="incorrect_pin">Неверный ПИН-код</string>

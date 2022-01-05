@@ -69,6 +69,10 @@ class SynchronizationManagerImpl(
         return syncFacade.isSyncNeeded().toFlowable(BackpressureStrategy.LATEST).toLiveData()
     }
 
+    override fun getPurchasesCount(): Observable<Long> {
+        return syncFacade.getPurchasesCount()
+    }
+
     companion object {
         private val TAG = SynchronizationManagerImpl::class.java.simpleName
     }

@@ -5,15 +5,15 @@ import android.app.Dialog
 import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
-import android.widget.Toast
 import androidx.fragment.app.DialogFragment
+import cz.quanti.android.vendor_app.MainViewModel
 import java.io.File
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
+import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import quanti.com.kotlinlog.Log
 import quanti.com.kotlinlog.R
 import quanti.com.kotlinlog.utils.copyLogsTOSDCard
@@ -29,6 +29,8 @@ import quanti.com.kotlinlog.utils.hasFileWritePermission
  */
 
 class SendLogDialogFragment : DialogFragment() {
+
+    private val mainVM: MainViewModel by sharedViewModel()
 
     // TODO temporary hotfix, delete after implementing fixed version of kotlinlogger
 
@@ -96,7 +98,7 @@ class SendLogDialogFragment : DialogFragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        zipFile = GlobalScope.async {
+        zipFile = CoroutineScope(Dispatchers.IO).async {
             val extraFiles = requireArguments().getSerializable(EXTRA_FILES) as ArrayList<File>
             getZipOfLogs(requireActivity().applicationContext, 48, extraFiles)
         }
@@ -129,58 +131,48 @@ class SendLogDialogFragment : DialogFragment() {
      * Create zip of all logs and open email client to send
      */
     @Suppress("UNUSED_PARAMETER")
-    private fun positiveButtonClick(dialog: DialogInterface, which: Int) = runBlocking {
-        Log.d(TAG, "Share logs clicked.")
+    private fun positiveButtonClick(dialog: DialogInterface, which: Int) =
+        CoroutineScope(Dispatchers.Main).launch {
+            Log.d(TAG, "Share logs clicked.")
 
-        val appContext = this@SendLogDialogFragment.requireContext().applicationContext
+            val appContext = this@SendLogDialogFragment.requireContext().applicationContext
 
-        val addresses = requireArguments().getStringArray(SEND_EMAIL_ADDRESSES)
-        val subject = getString(R.string.logs_email_subject) + " " + getFormattedFileNameDayNow()
-        val bodyText = getString(R.string.logs_email_text)
+            val addresses = requireArguments().getStringArray(SEND_EMAIL_ADDRESSES)
+            val subject =
+                getString(R.string.logs_email_subject) + " " + getFormattedFileNameDayNow()
+            val bodyText = getString(R.string.logs_email_text)
 
-        // await non block's current thread
-        val zipFileUri = zipFile?.await()?.getUriForFile(appContext)
+            // await non block's current thread
+            val zipFileUri = zipFile?.await()?.getUriForFile(appContext)
 
-        val intent = Intent(Intent.ACTION_SEND).apply {
-            type = "message/rfc822" // email
-            type = "message/rfc822" // email
-            flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
-            putExtra(Intent.EXTRA_EMAIL, addresses)
-            putExtra(Intent.EXTRA_SUBJECT, subject)
-            putExtra(Intent.EXTRA_TEXT, bodyText)
-            putExtra(Intent.EXTRA_STREAM, zipFileUri)
+            val intent = Intent(Intent.ACTION_SEND).apply {
+                type = "message/rfc822" // email
+                type = "message/rfc822" // email
+                flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
+                putExtra(Intent.EXTRA_EMAIL, addresses)
+                putExtra(Intent.EXTRA_SUBJECT, subject)
+                putExtra(Intent.EXTRA_TEXT, bodyText)
+                putExtra(Intent.EXTRA_STREAM, zipFileUri)
+            }
+
+            try {
+                startActivity(Intent.createChooser(intent, "Send mail..."))
+            } catch (ex: android.content.ActivityNotFoundException) {
+                mainVM.setToastMessage(getString(R.string.logs_email_no_client_installed))
+            }
         }
-
-        try {
-            startActivity(Intent.createChooser(intent, "Send mail..."))
-        } catch (ex: android.content.ActivityNotFoundException) {
-            Toast.makeText(
-                appContext,
-                getString(R.string.logs_email_no_client_installed),
-                Toast.LENGTH_LONG
-            ).show()
-        }
-    }
 
     /**
      * On neutral button click
      * Copy ZIP of all logs to sd card
      */
     @Suppress("UNUSED_PARAMETER")
-    private fun neutralButtonClick(dialog: DialogInterface, which: Int) {
-        Log.d(TAG, "Save file button clicked.")
+    private fun neutralButtonClick(dialog: DialogInterface, which: Int) =
+        CoroutineScope(Dispatchers.Main).launch {
+            Log.d(TAG, "Save file button clicked.")
 
-        val appContext = this@SendLogDialogFragment.requireContext().applicationContext
-
-        GlobalScope.launch(Dispatchers.IO) {
             val file = zipFile!!.await().copyLogsTOSDCard(requireContext())
-            launch(Dispatchers.Main) {
-                Toast.makeText(
-                    appContext,
-                    "File successfully copied" + "\n" + file.absolutePath,
-                    Toast.LENGTH_LONG
-                ).show()
-            }
+
+            mainVM.setToastMessage("File successfully copied" + "\n" + file.absolutePath)
         }
-    }
 }

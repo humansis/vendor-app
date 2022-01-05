@@ -95,7 +95,7 @@
     <fragment
         android:id="@+id/scannerFragment"
         android:name="cz.quanti.android.vendor_app.main.scanner.fragment.ScannerFragment"
-        tools:layout="@layout/fragment_scanner"></fragment>
+        tools:layout="@layout/fragment_scanner" />
 
     <fragment
         android:id="@+id/scanCardFragment"

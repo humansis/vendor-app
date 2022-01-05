@@ -124,6 +124,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
     override fun onResume() {
         super.onResume()
         Log.d(TAG, "onResume")
+        logoutIfNotLoggedIn()
         loadNavHeader(loginVM.getCurrentVendorName())
         checkConnection()
         syncState()
@@ -253,7 +254,9 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
 
         activityBinding.appBar.syncButton.setOnClickListener {
             Log.d(TAG, "Sync button clicked.")
-            synchronizationManager.synchronizeWithServer()
+            if (!logoutIfNotLoggedIn()) {
+                synchronizationManager.synchronizeWithServer()
+            }
         }
     }
 
@@ -263,7 +266,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
         }
         activityBinding.btnLogout.setOnClickListener {
             Log.d(TAG, "Logout button clicked.")
-            logout()
+            showLogoutDialog()
             activityBinding.drawerLayout.closeDrawer(GravityCompat.START)
         }
     }
@@ -279,8 +282,8 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
         })
 
         mainVM.toastMessageSLE.observe(this, { message ->
-            lastToast?.cancel()
             message?.let {
+                lastToast?.cancel()
                 lastToast = Toast.makeText(
                     this,
                     message,
@@ -302,19 +305,23 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
         }
     }
 
-    private fun logout() {
+    private fun showLogoutDialog() {
         AlertDialog.Builder(this, R.style.DialogTheme)
             .setTitle(getString(R.string.are_you_sure_dialog_title))
             .setMessage(getString(R.string.logout_dialog_message))
             .setPositiveButton(
                 android.R.string.ok
             ) { _, _ ->
-                emptyData()
-                loginFacade.logout()
-                findNavController(R.id.nav_host_fragment).popBackStack(R.id.loginFragment, false)
+                logout()
             }
             .setNegativeButton(android.R.string.cancel, null)
             .show()
+    }
+
+    private fun logout() {
+        emptyData()
+        loginFacade.logout()
+        findNavController(R.id.nav_host_fragment).popBackStack(R.id.loginFragment, false)
     }
 
     private fun emptyData() {
@@ -398,7 +405,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
 
     private fun shareLogsDialog() {
         SendLogDialogFragment.newInstance(
-            sendEmailAddress = getString(R.string.send_email_adress),
+            sendEmailAddress = getString(R.string.send_email_address),
             title = getString(R.string.logs_dialog_title),
             message = getString(R.string.logs_dialog_message),
             emailButtonText = getString(R.string.logs_dialog_email_button),
@@ -492,6 +499,19 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
             string += "\n" + it.message
         }
         return string
+    }
+
+    private fun logoutIfNotLoggedIn(): Boolean {
+        return if (!loginVM.isVendorLoggedIn()) {
+            logout()
+            true
+        } else if (loginVM.hasInvalidToken(synchronizationManager.getPurchasesCount().blockingFirst())) {
+            mainVM.setToastMessage(getString(R.string.token_expired_or_missing))
+            logout()
+            true
+        } else {
+            false
+        }
     }
 
     private fun checkConnection() {

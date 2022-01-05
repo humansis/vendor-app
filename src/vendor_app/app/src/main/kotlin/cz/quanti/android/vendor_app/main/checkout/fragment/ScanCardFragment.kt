@@ -198,7 +198,7 @@ class ScanCardFragment : Fragment() {
         val dialogBinding = DialogSuccessBinding.inflate(layoutInflater, null, false)
         dialogBinding.title.text = getString(R.string.success)
         dialogBinding.message.text = getString(
-            R.string.card_successfuly_paid_new_balance,
+            R.string.card_successfully_paid_new_balance,
             "${userBalance.balance} ${userBalance.currencyCode}" +
                 if (userBalance.balance != 0.0) {
                     getExpirationDateAsString(userBalance.expirationDate, requireContext()) +

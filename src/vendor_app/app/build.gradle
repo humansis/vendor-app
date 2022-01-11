@@ -30,9 +30,9 @@ def gitVersionCode = { boolean isFileName ->
     return count
 }
 
-def VERSION_MAJOR = 2
-def VERSION_MINOR = 5
-def VERSION_PATCH = 3
+def VERSION_MAJOR = 3
+def VERSION_MINOR = 3
+def VERSION_PATCH = 0
 
 
 String APK_NAME = "vendor-app"

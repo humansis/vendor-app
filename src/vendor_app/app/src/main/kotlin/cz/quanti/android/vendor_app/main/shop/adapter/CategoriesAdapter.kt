@@ -17,6 +17,7 @@ import cz.quanti.android.vendor_app.main.shop.viewholder.CategoryViewHolder
 import cz.quanti.android.vendor_app.repository.category.dto.Category
 import cz.quanti.android.vendor_app.repository.category.dto.CategoryType
 import org.koin.core.component.KoinComponent
+import quanti.com.kotlinlog.Log
 
 class CategoriesAdapter(
     private val categoryAdapterCallback: CategoryAdapterCallback,
@@ -78,30 +79,33 @@ class CategoriesAdapter(
     }
 
     override fun onBindViewHolder(holder: CategoryViewHolder, position: Int) {
-        holder.categoryName.text = categories[position].name
+        val item = categories[position]
+        holder.categoryName.text = item.name
 
-        if (categories[position].image.isNullOrEmpty()) {
-            holder.categoryImage.setImageDrawable(getPlaceholderImage(categories[position].type))
+        if (item.image.isNullOrEmpty()) {
+            holder.categoryImage.setImageDrawable(getPlaceholderImage(item.type))
         } else {
             Glide
                 .with(context)
-                .load(categories[position].image)
+                .load(item.image)
                 .transition(DrawableTransitionOptions.withCrossFade())
                 .into(holder.categoryImage)
         }
         holder.categoryForeground.background.setTint(
             ColorUtils.setAlphaComponent(
-                getTintColor(categories[position].type),
+                getTintColor(item.type),
                 OPACITY
             )
         )
 
         holder.categoryLayout.setOnClickListener {
-            categoryAdapterCallback.onCategoryClicked(categories[position])
+            Log.d(TAG, "Category $item clicked")
+            categoryAdapterCallback.onCategoryClicked(item)
         }
     }
 
     companion object {
+        private val TAG = CategoriesAdapter::class.java.simpleName
         const val OPACITY = 153
     }
 }

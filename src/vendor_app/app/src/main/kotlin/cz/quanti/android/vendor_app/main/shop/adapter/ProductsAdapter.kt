@@ -114,19 +114,20 @@ class ProductsAdapter(
     }
 
     override fun onBindViewHolder(holder: ProductViewHolder, position: Int) {
-        holder.productName.text = products[position].name
+        val item = products[position]
+        holder.productName.text = item.name
 
         Glide
             .with(context)
-            .load(products[position].image)
+            .load(item.image)
             .transition(DrawableTransitionOptions.withCrossFade())
             .into(holder.productImage)
 
         holder.productLayout.setOnClickListener {
             if (SystemClock.elapsedRealtime() - mLastClickTime > 500) {
                 mLastClickTime = SystemClock.elapsedRealtime()
-                Log.d(TAG, "Product $position clicked")
-                productAdapterCallback.onProductClicked(products[position])
+                Log.d(TAG, "Product $item clicked")
+                productAdapterCallback.onProductClicked(item)
             }
         }
     }

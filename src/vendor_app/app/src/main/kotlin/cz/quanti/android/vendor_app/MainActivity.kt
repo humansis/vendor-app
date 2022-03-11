@@ -170,27 +170,31 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
     }
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
-        Log.d(TAG, "onNavigationItemSelected $item")
         when (item.itemId) {
             R.id.shop_button -> {
+                Log.d(TAG, "onNavigationItemSelected: Products")
                 findNavController(R.id.nav_host_fragment).navigate(
                     MainNavigationDirections.actionToProductsFragment()
                 )
             }
             R.id.transactions_button -> {
+                Log.d(TAG, "onNavigationItemSelected: Transactions to reimburse")
                 findNavController(R.id.nav_host_fragment).navigate(
                     MainNavigationDirections.actionToTransactionsFragment()
                 )
             }
             R.id.invoices_button -> {
+                Log.d(TAG, "onNavigationItemSelected: Reimbursed invoices")
                 findNavController(R.id.nav_host_fragment).navigate(
                     MainNavigationDirections.actionToInvoicesFragment()
                 )
             }
             R.id.read_balance_button -> {
+                Log.d(TAG, "onNavigationItemSelected: Read balance")
                 showReadBalanceDialog()
             }
             R.id.share_logs_button -> {
+                Log.d(TAG, "onNavigationItemSelected: Send logs")
                 shareLogsDialog()
             }
         }

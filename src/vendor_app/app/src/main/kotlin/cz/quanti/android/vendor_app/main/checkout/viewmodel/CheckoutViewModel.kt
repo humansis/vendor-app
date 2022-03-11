@@ -255,7 +255,7 @@ class CheckoutViewModel(
         return Purchase().apply {
             products.addAll(convert(shoppingHolder.cart))
             vouchers.addAll(shoppingHolder.vouchers.map { it.id })
-            vendorId = currentVendor.vendor.id
+            vendorId = currentVendor.vendor.vendorId
             createdAt = convertTimeForApiRequestBody(Date())
             currency = getCurrency().toString()
         }
@@ -272,7 +272,7 @@ class CheckoutViewModel(
             beneficiaryId = userBalance.userId.toLong()
             assistanceId = userBalance.assistanceId.toLong()
             createdAt = convertTimeForApiRequestBody(Date())
-            vendorId = currentVendor.vendor.id
+            vendorId = currentVendor.vendor.vendorId
             currency = userBalance.currencyCode
             balanceBefore = userBalance.originalBalance
             balanceAfter = userBalance.balance

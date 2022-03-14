@@ -42,14 +42,15 @@ class CategoryFacadeImpl(
     }
 
     private fun actualizeDatabase(categories: List<Category>?): Completable {
-        return if (categories == null) {
-            Log.d("Categories returned from server were empty.")
-            Completable.complete()
-        } else {
-            categoryRepo.deleteCategories().andThen(
+        return categoryRepo.deleteCategories().andThen(
+            if (categories.isNullOrEmpty()) {
+                Log.d("Categories returned from server were empty.")
+                Completable.complete()
+            } else {
                 Observable.fromIterable(categories).flatMapCompletable { category ->
                     categoryRepo.saveCategory(category)
-                })
-        }
+                }
+            }
+        )
     }
 }

@@ -51,7 +51,7 @@ class DepositRepositoryImpl(
                     isPositiveResponseHttpCode(response.code()) -> {
                         if (response.body()?.data.isNullOrEmpty()) {
                             Log.d("RD returned from server were empty.")
-                            Completable.complete()
+                            deleteReliefPackagesFromDB()
                         } else {
                             response.body()?.data?.let { data ->
                                 actualizeDatabase(data.map {

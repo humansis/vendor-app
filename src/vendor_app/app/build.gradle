@@ -85,8 +85,15 @@ android {
         buildConfigField "String", "RELEASE_API_URL", "\"$PROD_RELEASE_API_URL\""
         buildConfigField "short", "BUILD_NUMBER", "$BUILD_NUMBER"
 
+        def currentAppTesterReleaseNotes
+        if (project.hasProperty("appTesterReleaseNotes")) {
+            currentAppTesterReleaseNotes = "$appTesterReleaseNotes"
+        } else {
+            currentAppTesterReleaseNotes = "Built from gradle"
+        }
+
         firebaseAppDistribution {
-            releaseNotes="Release notes"
+            releaseNotes = currentAppTesterReleaseNotes
             groups="quanti-android-testers, pin-testers"
         }
     }

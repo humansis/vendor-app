@@ -2,7 +2,7 @@
 <resources>
     <string name="username">Ім\'я користувача</string>
     <string name="password">Пароль</string>
-    <string name="login_screen_title">Система управління бенефіціарами (СУБ)</string>
+    <string name="login_screen_title">Система управління отримувача (СУО)</string>
     <string name="login">логін</string>
     <string name="app_name">Humansis - Додаток постачальника</string>
     <string name="login_screen_subtitle">Humansis - Додаток постачальника</string>
@@ -49,13 +49,13 @@
     <string name="no_internet_connection">Будь ласка перевірте, чи є зв\'язок з інтернетом.</string>
     <string name="could_not_synchronize_data_with_server">Не вдалося синхронізувати дані із сервером.</string>
     <string name="data_were_successfully_synchronized">Дані були успішно синхронізовані із сервером.</string>
-    <string name="add_to_cart">Додати\nдо кошику</string>
+    <string name="add_to_cart">Додати\nв кошик</string>
     <string name="please_enter_price">Будь ласка, введіть вартість.</string>
     <string name="pin">PIN-код</string>
     <string name="please_enter_pin">Будь ласка, введіть PIN-код для вашої картки</string>
     <string name="no_nfc_available">NFC недоступний</string>
     <string name="you_need_to_enable_nfc">Вам потрібно ввімкнути NFC</string>
-    <string name="card_successfully_paid_new_balance">Операция успешна! Новий залишок на картці: %1$.2f</string>
+    <string name="card_successfully_paid_new_balance">Операція успішна! Новий залишок на картці: %1$.2f</string>
     <string name="not_enough_money_on_card">Недостатньо грошей на картці</string>
     <string name="scan_card">Будь ласка, відскануйте картку</string>
     <string name="incorrect_pin">Неправильний PIN-код</string>
@@ -125,8 +125,8 @@
     <string name="booklets_deactivated_download">Завантаження деактивованих буклетів</string>
     <string name="booklets_protected_download">Завантаження захищених буклетів</string>
     <string name="blocked_cards_download">Завантаження заблокованих смарт-карт</string>
-    <string name="rd_upload">Завантаження пакетів бенефіціарів</string>
-    <string name="rd_download">Завантаження пакетів бенефіціарів</string>
+    <string name="rd_upload">Завантаження пакетів отрімувачів</string>
+    <string name="rd_download">Завантаження пакетів отрімувачів</string>
     <string name="categories_download">Завантаження категорій товарів</string>
     <string name="products_download">Завантаження продуктів</string>
     <string name="transactions_download">Завантаження трансакцій для відшкодування</string>

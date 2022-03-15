@@ -6,7 +6,7 @@
     <string name="login">логін</string>
     <string name="app_name">Humansis - Додаток постачальника</string>
     <string name="login_screen_subtitle">Humansis - Додаток постачальника</string>
-    <string name="version">Версія 1.0.0</string>
+    <string name="version">Версія %1$s</string>
     <string name="vendor_title">Виберіть продукт</string>
     <string name="selected_items">Вибрані продукти</string>
     <string name="no_items_selected">Немає вибраних продуктів</string>

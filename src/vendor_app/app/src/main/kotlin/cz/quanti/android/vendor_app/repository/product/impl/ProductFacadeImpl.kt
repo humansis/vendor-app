@@ -53,17 +53,18 @@ class ProductFacadeImpl(
     }
 
     private fun actualizeDatabase(products: List<Product>?): Completable {
-        return if (products == null) {
-            Log.d("Products returned from server were empty.")
-            Completable.complete()
-        } else {
-            productRepo.deleteProducts().andThen(
+        return productRepo.deleteProducts().andThen(
+            if (products.isNullOrEmpty()) {
+                Log.d("Products returned from server were empty.")
+                Completable.complete()
+            } else {
                 Observable.fromIterable(products).flatMapCompletable { product ->
                     productRepo.saveProduct(product)
                         .andThen(Completable.fromCallable {
                             Glide.with(context).load(product.image)
                         })
-                })
-        }
+                }
+            }
+        )
     }
 }

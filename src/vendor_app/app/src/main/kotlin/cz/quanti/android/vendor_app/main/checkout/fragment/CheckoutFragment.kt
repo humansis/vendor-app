@@ -137,18 +137,18 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
                 Log.e(TAG, it)
             })
 
-        vm.getSelectedProductsLD().observe(viewLifecycleOwner, { products ->
+        vm.getSelectedProductsLD().observe(viewLifecycleOwner) { products ->
             selectedProductsAdapter.closeExpandedCard()
             selectedProductsAdapter.setData(products)
             vm.setProducts(products)
             checkForCashbacks(products)
             showIfCartEmpty(products.isNotEmpty())
             actualizeTotal()
-        })
+        }
 
-        vm.getLimitsExceeded().observe(viewLifecycleOwner, { limitsExceeded ->
+        vm.getLimitsExceeded().observe(viewLifecycleOwner) { limitsExceeded ->
             processLimitsExceeded(limitsExceeded)
-        })
+        }
     }
 
     private fun initOnClickListeners() {

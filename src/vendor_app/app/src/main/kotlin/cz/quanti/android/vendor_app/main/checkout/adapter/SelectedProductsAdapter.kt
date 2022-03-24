@@ -53,6 +53,9 @@ class SelectedProductsAdapter(
         if (restrictedTypes.contains(item.product.category.type.typeId)) {
             holder.productName.setTextColor(ContextCompat.getColor(context, R.color.red))
             holder.price.setTextColor(ContextCompat.getColor(context, R.color.red))
+        } else {
+            holder.productName.setTextColor(ContextCompat.getColor(context, R.color.black))
+            holder.price.setTextColor(ContextCompat.getColor(context, R.color.black))
         }
         val price = "${getStringFromDouble(item.price)} $chosenCurrency"
         holder.price.text = price

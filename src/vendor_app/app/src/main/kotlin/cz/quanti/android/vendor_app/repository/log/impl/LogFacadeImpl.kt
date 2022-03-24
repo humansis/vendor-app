@@ -21,10 +21,12 @@ class LogFacadeImpl(
     }
 
     private fun postLogs(vendorId: Int): Completable {
-        return logRepo.postLogs(vendorId, getZipOfLogs(context, 48))
+        val zipOfLogs = getZipOfLogs(context, 48)
+        FileLogger.deleteAllLogs(context)
+        return logRepo.postLogs(vendorId, zipOfLogs)
             .flatMapCompletable { response ->
                 if (isPositiveResponseHttpCode(response.code())) {
-                    Completable.fromCallable { FileLogger.deleteAllLogs(context) }
+                    Completable.complete()
                 } else {
                     throw VendorAppException("Could not upload Logs").apply {
                         this.apiResponseCode = response.code()

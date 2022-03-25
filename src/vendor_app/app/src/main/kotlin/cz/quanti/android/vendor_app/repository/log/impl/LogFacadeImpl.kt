@@ -9,6 +9,7 @@ import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.Single
 import java.util.concurrent.TimeUnit
+import quanti.com.kotlinlog.Log
 import quanti.com.kotlinlog.file.FileLogger
 import quanti.com.kotlinlog.utils.getZipOfLogs
 
@@ -19,7 +20,10 @@ class LogFacadeImpl(
 
     override fun syncWithServer(vendorId: Int): Observable<SynchronizationSubject> {
         return Observable.just(SynchronizationSubject.LOGS_UPLOAD)
-            .concatWith(Completable.timer(LOGS_DELAY_CONST, TimeUnit.SECONDS))
+            .concatWith(
+                Completable.fromCallable { Log.d(TAG, "Waiting for logs") }
+                    .delay(LOGS_DELAY_CONST, TimeUnit.SECONDS)
+            )
             .concatWith(postLogs(vendorId))
     }
 
@@ -42,6 +46,7 @@ class LogFacadeImpl(
     }
 
     companion object {
+        private val TAG = LogFacadeImpl::class.java.simpleName
         private const val LOGS_DELAY_CONST = 6L
     }
 }

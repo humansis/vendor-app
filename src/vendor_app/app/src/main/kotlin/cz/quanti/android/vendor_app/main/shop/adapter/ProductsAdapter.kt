@@ -89,11 +89,15 @@ class ProductsAdapter(
             if (constraint.isEmpty()) {
                 filteredList.addAll(productsFull)
             } else {
-                val filterPattern =
-                    constraint.toString().lowercase(Locale.getDefault()).trim { it <= ' ' }
+                val filterPattern = constraint.toString()
+                    .lowercase(Locale.getDefault())
+                    .trim { it <= ' ' }
                 productsFull.forEach { product ->
-                    if (product.category.name.lowercase(Locale.getDefault())
-                            .contains(filterPattern)
+                    if (
+                        product.category.name
+                            .lowercase(Locale.getDefault())
+                            .trim { it <= ' ' }
+                            .contentEquals(filterPattern)
                     ) {
                         filteredList.add(product)
                     }

@@ -85,6 +85,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
     private var currencyDisposable: Disposable? = null
     private var lastToast: Toast? = null
     private var lastConnectionState: Boolean? = null
+    private var canEnableSyncButton = false
 
     private lateinit var activityBinding: ActivityMainBinding
 
@@ -251,7 +252,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
 
         mainVM.isNetworkConnected().observe(this) { available ->
             val drawable = if (available) R.drawable.ic_cloud else R.drawable.ic_cloud_offline
-            setSyncButtonEnabled(available)
+            trySetSyncButtonEnabled(available)
             activityBinding.appBar.syncButton.setImageDrawable(
                 ContextCompat.getDrawable(this, drawable)
             )
@@ -594,7 +595,12 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
     }
 
     override fun setSyncButtonEnabled(boolean: Boolean) {
-        activityBinding.appBar.syncButton.isEnabled = boolean
+        canEnableSyncButton = boolean
+        trySetSyncButtonEnabled(boolean)
+    }
+
+    private fun trySetSyncButtonEnabled(boolean: Boolean) {
+        activityBinding.appBar.syncButton.isEnabled = boolean && (canEnableSyncButton || mainVM.isNetworkConnected().value == true)
     }
 
     override fun setUpBackground() {

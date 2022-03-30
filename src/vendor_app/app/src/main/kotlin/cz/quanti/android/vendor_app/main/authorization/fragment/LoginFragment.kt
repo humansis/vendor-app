@@ -57,54 +57,60 @@ class LoginFragment : Fragment() {
 
         loginBinding.versionTextView.text = getString(R.string.version, BuildConfig.VERSION_NAME)
 
+        var defaultEnv = ApiEnvironments.STAGE
+        vm.getApiHost()?.let {
+            defaultEnv = it
+        }
+        loginBinding.envTextView.text = defaultEnv.name
+        vm.setApiHost(defaultEnv)
+
+        loginBinding.settingsImageView.setOnClickListener {
+            Log.d(TAG, "Environment menu opened.")
+            val contextThemeWrapper =
+                ContextThemeWrapper(requireContext(), R.style.PopupMenuTheme)
+            val popup = PopupMenu(contextThemeWrapper, loginBinding.settingsImageView)
+            popup.inflate(R.menu.api_urls_menu)
+            popup.menu.add(0, ApiEnvironments.FRONT.id, 0, "FRONT API")
+            popup.menu.add(0, ApiEnvironments.DEMO.id, 0, "DEMO API")
+            popup.menu.add(0, ApiEnvironments.STAGE.id, 0, "STAGE API")
+            popup.menu.add(0, ApiEnvironments.DEV.id, 0, "DEV API")
+            popup.menu.add(0, ApiEnvironments.TEST.id, 0, "TEST API")
+            popup.menu.add(0, ApiEnvironments.LOCAL.id, 0, "LOCAL API")
+
+            popup.setOnMenuItemClickListener { item ->
+                val env = ApiEnvironments.values().find { it.id == item?.itemId }
+                env?.let {
+                    vm.setApiHost(it)
+                    loginBinding.envTextView.text = it.name
+                }
+                true
+            }
+            popup.show()
+        }
+
         if (BuildConfig.DEBUG) {
             loginBinding.settingsImageView.visibility = View.VISIBLE
             loginBinding.envTextView.visibility = View.VISIBLE
-            var defaultEnv = ApiEnvironments.STAGE
-            vm.getApiHost()?.let {
-                defaultEnv = it
-            }
-            loginBinding.envTextView.text = defaultEnv.name
-            vm.setApiHost(defaultEnv)
-
-            loginBinding.settingsImageView.setOnClickListener {
-                Log.d(TAG, "Environment menu opened.")
-                val contextThemeWrapper =
-                    ContextThemeWrapper(requireContext(), R.style.PopupMenuTheme)
-                val popup = PopupMenu(contextThemeWrapper, loginBinding.settingsImageView)
-                popup.inflate(R.menu.api_urls_menu)
-                popup.menu.add(0, ApiEnvironments.FRONT.id, 0, "FRONT API")
-                popup.menu.add(0, ApiEnvironments.DEMO.id, 0, "DEMO API")
-                popup.menu.add(0, ApiEnvironments.STAGE.id, 0, "STAGE API")
-                popup.menu.add(0, ApiEnvironments.DEV.id, 0, "DEV API")
-                popup.menu.add(0, ApiEnvironments.TEST.id, 0, "TEST API")
-                popup.menu.add(0, ApiEnvironments.LOCAL.id, 0, "LOCAL API")
-
-                popup.setOnMenuItemClickListener { item ->
-                    val env = ApiEnvironments.values().find { it.id == item?.itemId }
-                    env?.let {
-                        vm.setApiHost(it)
-                        loginBinding.envTextView.text = it.name
-                    }
-                    true
-                }
-                popup.show()
-            }
-
-            loginBinding.logoImageView.setOnLongClickListener {
-                SendLogDialogFragment.newInstance(
-                    sendEmailAddress = getString(R.string.send_email_address),
-                    title = getString(R.string.logs_dialog_title),
-                    message = getString(R.string.logs_dialog_message),
-                    emailButtonText = getString(R.string.logs_dialog_email_button),
-                    dialogTheme = R.style.DialogTheme
-                ).show(requireActivity().supportFragmentManager, "TAG")
-                // TODO inside this method in kotlinlogger there is a method getZipOfFiles() that automatically deletes all logs older than 4 days
-                return@setOnLongClickListener true
-            }
         } else {
             loginBinding.settingsImageView.visibility = View.INVISIBLE
             loginBinding.envTextView.visibility = View.INVISIBLE
+            loginBinding.versionTextView.setOnLongClickListener {
+                loginBinding.settingsImageView.visibility = View.VISIBLE
+                loginBinding.envTextView.visibility = View.VISIBLE
+                return@setOnLongClickListener true
+            }
+        }
+
+        loginBinding.logoImageView.setOnLongClickListener {
+            SendLogDialogFragment.newInstance(
+                sendEmailAddress = getString(R.string.send_email_address),
+                title = getString(R.string.logs_dialog_title),
+                message = getString(R.string.logs_dialog_message),
+                emailButtonText = getString(R.string.logs_dialog_email_button),
+                dialogTheme = R.style.DialogTheme
+            ).show(requireActivity().supportFragmentManager, "TAG")
+            // TODO inside this method in kotlinlogger there is a method getZipOfFiles() that automatically deletes all logs older than 4 days
+            return@setOnLongClickListener true
         }
 
         loginBinding.passwordEditText.setOnEditorActionListener { _, actionId, _ ->

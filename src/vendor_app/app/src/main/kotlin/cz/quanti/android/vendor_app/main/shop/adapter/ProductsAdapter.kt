@@ -89,11 +89,15 @@ class ProductsAdapter(
             if (constraint.isEmpty()) {
                 filteredList.addAll(productsFull)
             } else {
-                val filterPattern =
-                    constraint.toString().lowercase(Locale.getDefault()).trim { it <= ' ' }
+                val filterPattern = constraint.toString()
+                    .lowercase(Locale.getDefault())
+                    .trim { it <= ' ' }
                 productsFull.forEach { product ->
-                    if (product.category.name.lowercase(Locale.getDefault())
-                            .contains(filterPattern)
+                    if (
+                        product.category.name
+                            .lowercase(Locale.getDefault())
+                            .trim { it <= ' ' }
+                            .contentEquals(filterPattern)
                     ) {
                         filteredList.add(product)
                     }
@@ -114,19 +118,20 @@ class ProductsAdapter(
     }
 
     override fun onBindViewHolder(holder: ProductViewHolder, position: Int) {
-        holder.productName.text = products[position].name
+        val item = products[position]
+        holder.productName.text = item.name
 
         Glide
             .with(context)
-            .load(products[position].image)
+            .load(item.image)
             .transition(DrawableTransitionOptions.withCrossFade())
             .into(holder.productImage)
 
         holder.productLayout.setOnClickListener {
             if (SystemClock.elapsedRealtime() - mLastClickTime > 500) {
                 mLastClickTime = SystemClock.elapsedRealtime()
-                Log.d(TAG, "Product $position clicked")
-                productAdapterCallback.onProductClicked(products[position])
+                Log.d(TAG, "Product $item clicked")
+                productAdapterCallback.onProductClicked(item)
             }
         }
     }

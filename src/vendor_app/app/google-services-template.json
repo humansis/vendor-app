@@ -37,9 +37,9 @@
     },
     {
       "client_info": {
-        "mobilesdk_app_id": "${FIREBASE_MOBILESDK_APP_ID_DEMO}",
+        "mobilesdk_app_id": "${FIREBASE_MOBILESDK_APP_ID_DEBUG}",
         "android_client_info": {
-          "package_name": "cz.quanti.android.vendor_app.demo"
+          "package_name": "cz.quanti.android.vendor_app.debug"
         }
       },
       "oauth_client": [
@@ -63,7 +63,36 @@
           ]
         }
       }
-    }
+    },
+      {
+          "client_info": {
+              "mobilesdk_app_id": "${FIREBASE_MOBILESDK_APP_ID_DEMO}",
+              "android_client_info": {
+                  "package_name": "cz.quanti.android.vendor_app.demo"
+              }
+          },
+          "oauth_client": [
+              {
+                  "client_id": "${FIREBASE_CLIENT_ID}",
+                  "client_type": 3
+              }
+          ],
+          "api_key": [
+              {
+                  "current_key": "${FIREBASE_API_KEY}"
+              }
+          ],
+          "services": {
+              "appinvite_service": {
+                  "other_platform_oauth_client": [
+                      {
+                          "client_id": "${FIREBASE_CLIENT_ID}",
+                          "client_type": 3
+                      }
+                  ]
+              }
+          }
+      }
   ],
   "configuration_version": "1"
 }

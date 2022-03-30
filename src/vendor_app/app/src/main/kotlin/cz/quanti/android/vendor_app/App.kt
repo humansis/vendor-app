@@ -43,7 +43,8 @@ class App : BaseApp() {
             val metadata: MutableList<Pair<String, String>> = mutableListOf()
             metadata.add(Pair("VERSION:", getString(R.string.version, BuildConfig.VERSION_NAME)))
             metadata.add(Pair("BUILD_NUMBER:", BuildConfig.BUILD_NUMBER.toString()))
-            metadata.add(Pair("VENDOR_ID:", preferences.vendor.id.toString()))
+            metadata.add(Pair("USER_ID:", preferences.vendor.id.toString()))
+            metadata.add(Pair("VENDOR_ID:", preferences.vendor.vendorId.toString()))
             metadata.add(Pair("VENDOR_USERNAME:", preferences.vendor.username))
             metadata.add(Pair("VENDOR_COUNTRY:", preferences.vendor.country))
             metadata

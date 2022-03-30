@@ -11,10 +11,11 @@ class AppPreferences(context: Context) : BasePreferences(context, VERSION, MIGRA
     KoinComponent {
 
     companion object {
-        const val VERSION = 1
+        const val VERSION = 2
 
         val MIGRATIONS = TreeMap<Int, BasePreferencesMigration>()
 
+        private const val USER_ID = "pin_vendor_app_user_id"
         private const val VENDOR_ID = "pin_vendor_app_vendor_id"
         private const val VENDOR_USERNAME = "pin_vendor_app_vendor_username"
         private const val VENDOR_COUNTRY = "pin_vendor_app_vendor_country"
@@ -29,6 +30,10 @@ class AppPreferences(context: Context) : BasePreferences(context, VERSION, MIGRA
     }
 
     override fun init() {
+        MIGRATIONS[2] = BasePreferencesMigration { settings ->
+            val userId = settings.getLong(VENDOR_ID, 0)
+            settings.edit().putLong(USER_ID, userId).apply()
+        }
     }
 
     var lastSynced: Long
@@ -44,7 +49,8 @@ class AppPreferences(context: Context) : BasePreferences(context, VERSION, MIGRA
             val vendor = Vendor()
             try {
                 vendor.apply {
-                    this.id = settings.getLong(VENDOR_ID, 0)
+                    this.id = settings.getLong(USER_ID, 0)
+                    this.vendorId = settings.getLong(VENDOR_ID, 0)
                     this.username = settings.getString(VENDOR_USERNAME, "").toString()
                     this.country = settings.getString(VENDOR_COUNTRY, "").toString()
                     this.loggedIn = settings.getBoolean(VENDOR_LOGGED_IN, false)
@@ -56,7 +62,8 @@ class AppPreferences(context: Context) : BasePreferences(context, VERSION, MIGRA
             return vendor
         }
         set(vendor) {
-            settings.edit().putLong(VENDOR_ID, vendor.id).apply()
+            settings.edit().putLong(USER_ID, vendor.id).apply()
+            settings.edit().putLong(VENDOR_ID, vendor.vendorId).apply()
             settings.edit().putString(VENDOR_USERNAME, vendor.username).apply()
             settings.edit().putString(VENDOR_COUNTRY, vendor.country).apply()
             settings.edit().putBoolean(VENDOR_LOGGED_IN, vendor.loggedIn).apply()

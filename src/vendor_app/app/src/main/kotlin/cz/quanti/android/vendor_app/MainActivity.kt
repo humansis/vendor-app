@@ -241,20 +241,21 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
             appBarConfiguration
         )
 
-        synchronizationManager.showDot().observe(this, {
+        synchronizationManager.showDot().observe(this) {
             if (it) {
                 activityBinding.appBar.dot.visibility = View.VISIBLE
             } else {
                 activityBinding.appBar.dot.visibility = View.INVISIBLE
             }
-        })
+        }
 
-        mainVM.isNetworkConnected().observe(this, { available ->
+        mainVM.isNetworkConnected().observe(this) { available ->
             val drawable = if (available) R.drawable.ic_cloud else R.drawable.ic_cloud_offline
+            setSyncButtonEnabled(available)
             activityBinding.appBar.syncButton.setImageDrawable(
                 ContextCompat.getDrawable(this, drawable)
             )
-        })
+        }
 
         activityBinding.appBar.syncButton.setOnClickListener {
             Log.d(TAG, "Sync button clicked.")
@@ -276,16 +277,16 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
     }
 
     private fun initObservers() {
-        mainVM.successSLE.observe(this, {
+        mainVM.successSLE.observe(this) {
             vibrate(this)
             successPlayer.start()
-        })
-        mainVM.errorSLE.observe(this, {
+        }
+        mainVM.errorSLE.observe(this) {
             vibrate(this)
             errorPlayer.start()
-        })
+        }
 
-        mainVM.toastMessageSLE.observe(this, { message ->
+        mainVM.toastMessageSLE.observe(this) { message ->
             message?.let {
                 lastToast?.cancel()
                 lastToast = Toast.makeText(
@@ -296,7 +297,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
                     show()
                 }
             }
-        })
+        }
     }
 
     @Suppress("DEPRECATION")

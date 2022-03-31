@@ -292,8 +292,8 @@ class ShopFragment : Fragment(), CategoryAdapterCallback, ProductAdapterCallback
         }
     }
 
-    private fun setAppBarHidden(boolean: Boolean) {
-        if (boolean) {
+    private fun setAppBarHidden(hidden: Boolean) {
+        if (hidden) {
             shopBinding.categoriesAppBarLayout.layoutParams.height = 0
         } else {
             shopBinding.categoriesAppBarLayout.layoutParams.height =
@@ -330,8 +330,8 @@ class ShopFragment : Fragment(), CategoryAdapterCallback, ProductAdapterCallback
         showCategories(false, category.name)
     }
 
-    private fun showCategories(boolean: Boolean, name: String = getString(R.string.all_products)) {
-        shopBinding.categoriesAppBarLayout.setExpanded(boolean)
+    private fun showCategories(expanded: Boolean, name: String = getString(R.string.all_products)) {
+        shopBinding.categoriesAppBarLayout.setExpanded(expanded)
         shopBinding.productsHeader.text = name
     }
 

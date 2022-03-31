@@ -600,7 +600,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
     }
 
     private fun trySetSyncButtonEnabled(enabled: Boolean) {
-        activityBinding.appBar.syncButton.isEnabled = enabled && (canEnableSyncButton || mainVM.isNetworkConnected().value == true)
+        activityBinding.appBar.syncButton.isEnabled = enabled && canEnableSyncButton && mainVM.isNetworkConnected().value == true
     }
 
     override fun setUpBackground() {

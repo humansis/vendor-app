@@ -550,21 +550,21 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
         return activityBinding.navView
     }
 
-    override fun setToolbarVisible(boolean: Boolean) {
-        if (boolean) {
+    override fun setToolbarVisible(visible: Boolean) {
+        if (visible) {
             activityBinding.appBar.appBarLayout.visibility = View.VISIBLE
         } else {
             activityBinding.appBar.appBarLayout.visibility = View.GONE
         }
-        setDrawerLocked(!boolean)
+        setDrawerLocked(!visible)
     }
 
     override fun setSubtitle(titleText: String?) {
         activityBinding.appBar.toolbar.subtitle = titleText
     }
 
-    override fun setDrawerLocked(boolean: Boolean) {
-        if (boolean) {
+    override fun setDrawerLocked(locked: Boolean) {
+        if (locked) {
             activityBinding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
         } else {
             activityBinding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
@@ -578,9 +578,9 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
         return field.get(activityBinding.appBar.toolbar) as? ImageButton
     }
 
-    override fun setBackButtonEnabled(boolean: Boolean) {
-        getToolbarUpButton()?.isEnabled = boolean
-        if (!boolean) {
+    override fun setBackButtonEnabled(enabled: Boolean) {
+        getToolbarUpButton()?.isEnabled = enabled
+        if (!enabled) {
             // I could not find a better method to make the arrow grey when disabled
             getToolbarUpButton()?.setImageDrawable(
                 ContextCompat.getDrawable(
@@ -594,13 +594,13 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
         }
     }
 
-    override fun setSyncButtonEnabled(boolean: Boolean) {
-        canEnableSyncButton = boolean
-        trySetSyncButtonEnabled(boolean)
+    override fun setSyncButtonEnabled(enabled: Boolean) {
+        canEnableSyncButton = enabled
+        trySetSyncButtonEnabled(enabled)
     }
 
-    private fun trySetSyncButtonEnabled(boolean: Boolean) {
-        activityBinding.appBar.syncButton.isEnabled = boolean && (canEnableSyncButton || mainVM.isNetworkConnected().value == true)
+    private fun trySetSyncButtonEnabled(enabled: Boolean) {
+        activityBinding.appBar.syncButton.isEnabled = enabled && (canEnableSyncButton || mainVM.isNetworkConnected().value == true)
     }
 
     override fun setUpBackground() {

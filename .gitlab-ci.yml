@@ -206,7 +206,7 @@ upload_stable_debug:
   variables:
     APP_NAME: vendor-app
     APK: $ARTIFACT_DEBUG_PATH
-  extends: .release_debug
+  extends: .release_stable_debug
   when: manual
   environment:
     name: aws-debug

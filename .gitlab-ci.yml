@@ -189,7 +189,7 @@ upload_release_candidate:
   environment:
     name: aws-rc
 
-upload_stable:
+upload_stable_release:
   stage: upload_aws
   variables:
     APP_NAME: vendor-app
@@ -200,3 +200,15 @@ upload_stable:
     name: aws-stable
   only:
     - tags
+
+upload_stable_debug:
+  stage: upload_aws
+  variables:
+    APP_NAME: vendor-app
+    APK: $ARTIFACT_DEBUG_PATH
+  extends: .release_debug
+  when: manual
+  environment:
+    name: aws-debug
+  only:
+    - tags    

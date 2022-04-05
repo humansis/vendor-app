@@ -149,7 +149,7 @@ fun getDefaultCurrency(country: String): String {
 
 fun getBackgroundColor(context: Context, environment: ApiEnvironments?): Int {
     return when (environment?.id) {
-        ApiEnvironments.DEV1.id, ApiEnvironments.DEV2.id, ApiEnvironments.DEV3.id  -> {
+        ApiEnvironments.DEV1.id, ApiEnvironments.DEV2.id, ApiEnvironments.DEV3.id -> {
             ContextCompat.getColor(context, R.color.dev)
         }
         ApiEnvironments.TEST.id -> {

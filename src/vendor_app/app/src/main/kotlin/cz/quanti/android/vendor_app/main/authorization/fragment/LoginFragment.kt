@@ -57,13 +57,6 @@ class LoginFragment : Fragment() {
 
         loginBinding.versionTextView.text = getString(R.string.version, BuildConfig.VERSION_NAME)
 
-        var defaultEnv = ApiEnvironments.STAGE
-        vm.getApiHost()?.let {
-            defaultEnv = it
-        }
-        loginBinding.envTextView.text = defaultEnv.name
-        vm.setApiHost(defaultEnv)
-
         loginBinding.settingsImageView.setOnClickListener {
             Log.d(TAG, "Environment menu opened.")
             val contextThemeWrapper =
@@ -90,9 +83,11 @@ class LoginFragment : Fragment() {
             popup.show()
         }
 
-        if (BuildConfig.DEBUG) {
+        val defaultEnv = if (BuildConfig.DEBUG) {
             loginBinding.settingsImageView.visibility = View.VISIBLE
             loginBinding.envTextView.visibility = View.VISIBLE
+
+            vm.getApiHost() ?: ApiEnvironments.STAGE
         } else {
             loginBinding.settingsImageView.visibility = View.INVISIBLE
             loginBinding.envTextView.visibility = View.INVISIBLE
@@ -101,7 +96,12 @@ class LoginFragment : Fragment() {
                 loginBinding.envTextView.visibility = View.VISIBLE
                 return@setOnLongClickListener true
             }
+
+            ApiEnvironments.FRONT
         }
+
+        loginBinding.envTextView.text = defaultEnv.name
+        vm.setApiHost(defaultEnv)
 
         loginBinding.logoImageView.setOnLongClickListener {
             SendLogDialogFragment.newInstance(

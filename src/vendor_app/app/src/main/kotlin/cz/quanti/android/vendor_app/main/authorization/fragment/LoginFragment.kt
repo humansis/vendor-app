@@ -57,13 +57,6 @@ class LoginFragment : Fragment() {
 
         loginBinding.versionTextView.text = getString(R.string.version, BuildConfig.VERSION_NAME)
 
-        var defaultEnv = ApiEnvironments.STAGE
-        vm.getApiHost()?.let {
-            defaultEnv = it
-        }
-        loginBinding.envTextView.text = defaultEnv.name
-        vm.setApiHost(defaultEnv)
-
         loginBinding.settingsImageView.setOnClickListener {
             Log.d(TAG, "Environment menu opened.")
             val contextThemeWrapper =
@@ -73,7 +66,9 @@ class LoginFragment : Fragment() {
             popup.menu.add(0, ApiEnvironments.FRONT.id, 0, "FRONT API")
             popup.menu.add(0, ApiEnvironments.DEMO.id, 0, "DEMO API")
             popup.menu.add(0, ApiEnvironments.STAGE.id, 0, "STAGE API")
-            popup.menu.add(0, ApiEnvironments.DEV.id, 0, "DEV API")
+            popup.menu.add(0, ApiEnvironments.DEV1.id, 0, "DEV1 API")
+            popup.menu.add(0, ApiEnvironments.DEV2.id, 0, "DEV2 API")
+            popup.menu.add(0, ApiEnvironments.DEV3.id, 0, "DEV3 API")
             popup.menu.add(0, ApiEnvironments.TEST.id, 0, "TEST API")
             popup.menu.add(0, ApiEnvironments.LOCAL.id, 0, "LOCAL API")
 
@@ -88,9 +83,11 @@ class LoginFragment : Fragment() {
             popup.show()
         }
 
-        if (BuildConfig.DEBUG) {
+        val defaultEnv = if (BuildConfig.DEBUG) {
             loginBinding.settingsImageView.visibility = View.VISIBLE
             loginBinding.envTextView.visibility = View.VISIBLE
+
+            vm.getApiHost() ?: ApiEnvironments.STAGE
         } else {
             loginBinding.settingsImageView.visibility = View.INVISIBLE
             loginBinding.envTextView.visibility = View.INVISIBLE
@@ -99,7 +96,12 @@ class LoginFragment : Fragment() {
                 loginBinding.envTextView.visibility = View.VISIBLE
                 return@setOnLongClickListener true
             }
+
+            ApiEnvironments.FRONT
         }
+
+        loginBinding.envTextView.text = defaultEnv.name
+        vm.setApiHost(defaultEnv)
 
         loginBinding.logoImageView.setOnLongClickListener {
             SendLogDialogFragment.newInstance(

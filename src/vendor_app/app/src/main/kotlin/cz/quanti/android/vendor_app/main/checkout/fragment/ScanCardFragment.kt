@@ -96,7 +96,7 @@ class ScanCardFragment : Fragment() {
             navigateBack()
         }
 
-        vm.getPaymentState().observe(viewLifecycleOwner, {
+        vm.getPaymentState().observe(viewLifecycleOwner) {
             val state = it.first
             val result = it.second
             when (state) {
@@ -141,7 +141,7 @@ class ScanCardFragment : Fragment() {
                     }
                 }
             )
-        })
+        }
     }
 
     private fun showPinDialogAndPayByCard() {

@@ -85,7 +85,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
     private var currencyDisposable: Disposable? = null
     private var lastToast: Toast? = null
     private var lastConnectionState: Boolean? = null
-    private var canEnableSyncButton = false
+    private var canEnableSyncButton = true
 
     private lateinit var activityBinding: ActivityMainBinding
 

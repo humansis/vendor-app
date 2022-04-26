@@ -85,6 +85,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
     private var currencyDisposable: Disposable? = null
     private var lastToast: Toast? = null
     private var lastConnectionState: Boolean? = null
+    private var canEnableSyncButton = true
 
     private lateinit var activityBinding: ActivityMainBinding
 
@@ -241,20 +242,21 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
             appBarConfiguration
         )
 
-        synchronizationManager.showDot().observe(this, {
+        synchronizationManager.showDot().observe(this) {
             if (it) {
                 activityBinding.appBar.dot.visibility = View.VISIBLE
             } else {
                 activityBinding.appBar.dot.visibility = View.INVISIBLE
             }
-        })
+        }
 
-        mainVM.isNetworkConnected().observe(this, { available ->
+        mainVM.isNetworkConnected().observe(this) { available ->
             val drawable = if (available) R.drawable.ic_cloud else R.drawable.ic_cloud_offline
+            trySetSyncButtonEnabled(available)
             activityBinding.appBar.syncButton.setImageDrawable(
                 ContextCompat.getDrawable(this, drawable)
             )
-        })
+        }
 
         activityBinding.appBar.syncButton.setOnClickListener {
             Log.d(TAG, "Sync button clicked.")
@@ -276,16 +278,16 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
     }
 
     private fun initObservers() {
-        mainVM.successSLE.observe(this, {
+        mainVM.successSLE.observe(this) {
             vibrate(this)
             successPlayer.start()
-        })
-        mainVM.errorSLE.observe(this, {
+        }
+        mainVM.errorSLE.observe(this) {
             vibrate(this)
             errorPlayer.start()
-        })
+        }
 
-        mainVM.toastMessageSLE.observe(this, { message ->
+        mainVM.toastMessageSLE.observe(this) { message ->
             message?.let {
                 lastToast?.cancel()
                 lastToast = Toast.makeText(
@@ -296,7 +298,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
                     show()
                 }
             }
-        })
+        }
     }
 
     @Suppress("DEPRECATION")
@@ -548,21 +550,21 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
         return activityBinding.navView
     }
 
-    override fun setToolbarVisible(boolean: Boolean) {
-        if (boolean) {
+    override fun setToolbarVisible(visible: Boolean) {
+        if (visible) {
             activityBinding.appBar.appBarLayout.visibility = View.VISIBLE
         } else {
             activityBinding.appBar.appBarLayout.visibility = View.GONE
         }
-        setDrawerLocked(!boolean)
+        setDrawerLocked(!visible)
     }
 
     override fun setSubtitle(titleText: String?) {
         activityBinding.appBar.toolbar.subtitle = titleText
     }
 
-    override fun setDrawerLocked(boolean: Boolean) {
-        if (boolean) {
+    override fun setDrawerLocked(locked: Boolean) {
+        if (locked) {
             activityBinding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
         } else {
             activityBinding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
@@ -576,9 +578,9 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
         return field.get(activityBinding.appBar.toolbar) as? ImageButton
     }
 
-    override fun setBackButtonEnabled(boolean: Boolean) {
-        getToolbarUpButton()?.isEnabled = boolean
-        if (!boolean) {
+    override fun setBackButtonEnabled(enabled: Boolean) {
+        getToolbarUpButton()?.isEnabled = enabled
+        if (!enabled) {
             // I could not find a better method to make the arrow grey when disabled
             getToolbarUpButton()?.setImageDrawable(
                 ContextCompat.getDrawable(
@@ -592,8 +594,13 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
         }
     }
 
-    override fun setSyncButtonEnabled(boolean: Boolean) {
-        activityBinding.appBar.syncButton.isEnabled = boolean
+    override fun setSyncButtonEnabled(enabled: Boolean) {
+        canEnableSyncButton = enabled
+        trySetSyncButtonEnabled(enabled)
+    }
+
+    private fun trySetSyncButtonEnabled(enabled: Boolean) {
+        activityBinding.appBar.syncButton.isEnabled = enabled && canEnableSyncButton && mainVM.isNetworkConnected().value == true
     }
 
     override fun setUpBackground() {

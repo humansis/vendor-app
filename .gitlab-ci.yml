@@ -141,20 +141,6 @@ upload_to_artifactory_automatically:
   only:
     - tags
 
-# Build release and archive bundle automatically
-archive_release_bundle_job_automatically:
-  stage: publish
-  extends: .gradle_build
-  script:
-    - ./gradlew :app:bundleRelease
-  only:
-    - tags
-  artifacts:
-    when: always
-    expire_in: 4 week
-    paths:
-      - $ARTIFACT_BUNDLE_PATH
-
 upload_to_firebase:
   stage: firebase
   extends: .gradle_build
@@ -177,6 +163,20 @@ upload_to_firebase_automatically:
         app:assembleDebug app:appDistributionUploadDebug -PappTesterReleaseNotes="$RELEASE_NOTES"
   only:
     - tags
+
+# Build release and archive bundle automatically
+archive_release_bundle_job_automatically:
+  stage: publish
+  extends: .gradle_build
+  script:
+    - ./gradlew :app:bundleRelease
+  only:
+    - tags
+  artifacts:
+    when: always
+    expire_in: 4 week
+    paths:
+      - $ARTIFACT_BUNDLE_PATH    
 
 publish_to_playstore:
   stage: publish

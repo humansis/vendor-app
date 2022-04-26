@@ -31,7 +31,7 @@ def gitVersionCode = { boolean isFileName ->
 }
 
 def VERSION_MAJOR = 3
-def VERSION_MINOR = 3
+def VERSION_MINOR = 4
 def VERSION_PATCH = 0
 
 
@@ -78,7 +78,9 @@ android {
         buildConfigField "String", "DEMO_API_URL", "\"$DEMO_API_URL\""
         buildConfigField "String", "STAGE_API_URL", "\"$STAGE_API_URL\""
         buildConfigField "String", "TEST_API_URL", "\"$TEST_API_URL\""
-        buildConfigField "String", "DEV_API_URL", "\"$DEV_API_URL\""
+        buildConfigField "String", "DEV1_API_URL", "\"$DEV1_API_URL\""
+        buildConfigField "String", "DEV2_API_URL", "\"$DEV2_API_URL\""
+        buildConfigField "String", "DEV3_API_URL", "\"$DEV3_API_URL\""
         buildConfigField "String", "LOCAL_API_URL", "\"$LOCAL_API_URL\""
 
         buildConfigField "String", "DEMO_ACCOUNT", "\"$DEMO_ACCOUNT\""

@@ -4,11 +4,11 @@ import com.google.android.material.navigation.NavigationView
 
 interface ActivityCallback {
     fun getNavView(): NavigationView
-    fun setToolbarVisible(boolean: Boolean)
+    fun setToolbarVisible(visible: Boolean)
     fun setSubtitle(titleText: String?)
-    fun setDrawerLocked(boolean: Boolean)
-    fun setBackButtonEnabled(boolean: Boolean)
-    fun setSyncButtonEnabled(boolean: Boolean)
+    fun setDrawerLocked(locked: Boolean)
+    fun setBackButtonEnabled(enabled: Boolean)
+    fun setSyncButtonEnabled(enabled: Boolean)
     fun setUpBackground()
     fun loadNavHeader(currentVendorName: String)
 }

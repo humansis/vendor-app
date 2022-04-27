@@ -54,7 +54,7 @@ class ShopViewModel(
     }
 
     fun getTotal(): Double {
-        return shoppingHolder.cart.map { it.price }.sum()
+        return shoppingHolder.cart.sumOf { it.price }
     }
 
     fun removeSelectedProduct(product: SelectedProduct): Completable {

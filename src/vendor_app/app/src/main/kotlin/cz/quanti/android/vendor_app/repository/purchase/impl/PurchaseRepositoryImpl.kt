@@ -11,18 +11,15 @@ import cz.quanti.android.vendor_app.repository.purchase.dao.CardPurchaseDao
 import cz.quanti.android.vendor_app.repository.purchase.dao.PurchaseDao
 import cz.quanti.android.vendor_app.repository.purchase.dao.PurchasedProductDao
 import cz.quanti.android.vendor_app.repository.purchase.dao.SelectedProductDao
-import cz.quanti.android.vendor_app.repository.purchase.dao.VoucherPurchaseDao
 import cz.quanti.android.vendor_app.repository.purchase.dto.Purchase
 import cz.quanti.android.vendor_app.repository.purchase.dto.PurchasedProduct
 import cz.quanti.android.vendor_app.repository.purchase.dto.SelectedProduct
 import cz.quanti.android.vendor_app.repository.purchase.dto.api.CardPurchaseApiEntity
 import cz.quanti.android.vendor_app.repository.purchase.dto.api.PurchasedProductApiEntity
-import cz.quanti.android.vendor_app.repository.purchase.dto.api.VoucherPurchaseApiEntity
 import cz.quanti.android.vendor_app.repository.purchase.dto.db.CardPurchaseDbEntity
 import cz.quanti.android.vendor_app.repository.purchase.dto.db.PurchaseDbEntity
 import cz.quanti.android.vendor_app.repository.purchase.dto.db.PurchasedProductDbEntity
 import cz.quanti.android.vendor_app.repository.purchase.dto.db.SelectedProductDbEntity
-import cz.quanti.android.vendor_app.repository.purchase.dto.db.VoucherPurchaseDbEntity
 import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.Single
@@ -31,7 +28,6 @@ import quanti.com.kotlinlog.Log
 class PurchaseRepositoryImpl(
     private val purchaseDao: PurchaseDao,
     private val cardPurchaseDao: CardPurchaseDao,
-    private val voucherPurchaseDao: VoucherPurchaseDao,
     private val categoryRepo: CategoryRepository,
     private val productDao: ProductDao,
     private val purchasedProductDao: PurchasedProductDao,
@@ -52,31 +48,17 @@ class PurchaseRepositoryImpl(
     }
 
     private fun saveToDb(purchase: Purchase, id: Long): Completable {
-        if (purchase.smartcard != null) {
-            return Completable.fromCallable {
-                cardPurchaseDao.insert(
-                    CardPurchaseDbEntity(
-                        purchaseId = id,
-                        card = purchase.smartcard,
-                        beneficiaryId = purchase.beneficiaryId,
-                        assistanceId = purchase.assistanceId,
-                        balanceBefore = purchase.balanceBefore,
-                        balanceAfter = purchase.balanceAfter
-                    )
+        return Completable.fromCallable {
+            cardPurchaseDao.insert(
+                CardPurchaseDbEntity(
+                    purchaseId = id,
+                    card = purchase.smartcard,
+                    beneficiaryId = purchase.beneficiaryId,
+                    assistanceId = purchase.assistanceId,
+                    balanceBefore = purchase.balanceBefore,
+                    balanceAfter = purchase.balanceAfter
                 )
-            }
-        } else {
-            return Observable.fromIterable(purchase.vouchers.toList())
-                .flatMapCompletable { voucher ->
-                    Completable.fromCallable {
-                        voucherPurchaseDao.insert(
-                            VoucherPurchaseDbEntity(
-                                purchaseId = id,
-                                voucher = voucher
-                            )
-                        )
-                    }
-                }
+            )
         }
     }
 
@@ -95,23 +77,6 @@ class PurchaseRepositoryImpl(
         }
     }
 
-    override fun sendVoucherPurchasesToServer(purchases: List<Purchase>): Single<Int> {
-
-        val voucherPurchases = purchases.map { convertToVoucherApi(it) }
-
-        return if (voucherPurchases.isNotEmpty()) {
-            api.postVoucherPurchases(voucherPurchases).map { response ->
-                Log.d(
-                    TAG,
-                    "Received code ${response.code()} when trying to sync voucher purchases"
-                )
-                response.code()
-            }
-        } else {
-            Single.just(200)
-        }
-    }
-
     override fun getAllPurchases(): Single<List<Purchase>> {
         return purchaseDao.getAll().flatMap { purchasesDb ->
             Observable.fromIterable(purchasesDb)
@@ -122,24 +87,19 @@ class PurchaseRepositoryImpl(
                                 .defaultIfEmpty(CardPurchaseDbEntity(card = null))
                                 .toSingle()
                                 .flatMap { cardPurchaseDb ->
-                                    voucherPurchaseDao.getVouchersForPurchase(purchaseDb.dbId)
-                                        .defaultIfEmpty(listOf())
-                                        .flatMapSingle { voucherPurchasesDb ->
-                                            val purchase = Purchase(
-                                                smartcard = cardPurchaseDb.card,
-                                                createdAt = purchaseDb.createdAt,
-                                                dbId = purchaseDb.dbId,
-                                                vendorId = purchaseDb.vendorId,
-                                                beneficiaryId = cardPurchaseDb.beneficiaryId,
-                                                assistanceId = cardPurchaseDb.assistanceId,
-                                                currency = purchaseDb.currency,
-                                                balanceBefore = cardPurchaseDb.balanceBefore,
-                                                balanceAfter = cardPurchaseDb.balanceAfter
-                                            )
-                                            purchase.products.addAll(productsDb.map { convert(it) })
-                                            purchase.vouchers.addAll(voucherPurchasesDb.map { it.voucher })
-                                            Single.just(purchase)
-                                        }
+                                    val purchase = Purchase(
+                                        smartcard = cardPurchaseDb.card,
+                                        createdAt = purchaseDb.createdAt,
+                                        dbId = purchaseDb.dbId,
+                                        vendorId = purchaseDb.vendorId,
+                                        beneficiaryId = cardPurchaseDb.beneficiaryId,
+                                        assistanceId = cardPurchaseDb.assistanceId,
+                                        currency = purchaseDb.currency,
+                                        balanceBefore = cardPurchaseDb.balanceBefore,
+                                        balanceAfter = cardPurchaseDb.balanceAfter
+                                    )
+                                    purchase.products.addAll(productsDb.map { convert(it) })
+                                    Single.just(purchase)
                                 }
                         }
                 }.toList()
@@ -195,17 +155,6 @@ class PurchaseRepositoryImpl(
 
     override fun deletePurchase(purchase: Purchase): Completable {
         return Completable.fromCallable { purchaseDao.delete(convertToDb(purchase)) }
-    }
-
-    override fun deleteAllVoucherPurchases(): Completable {
-        return getAllPurchases().flatMapCompletable { purchases ->
-            Observable.fromIterable(purchases.filter { it.vouchers.isNotEmpty() })
-                .flatMapCompletable {
-                    Completable.fromCallable {
-                        purchaseDao.delete(convertToDb(it))
-                    }
-                }
-        }
     }
 
     override fun getPurchasesCount(): Observable<Long> {
@@ -301,15 +250,6 @@ class PurchaseRepositoryImpl(
             assistanceId = purchase.assistanceId.takeIf { it != 0L }, // temporary fix, because assistanceId is 0 after card is migrated to version 2, but BE only accepts null or >0
             balanceBefore = purchase.balanceBefore,
             balanceAfter = purchase.balanceAfter
-        )
-    }
-
-    private fun convertToVoucherApi(purchase: Purchase): VoucherPurchaseApiEntity {
-        return VoucherPurchaseApiEntity(
-            products = purchase.products.map { convertToApi(it, purchase.currency) },
-            vouchers = purchase.vouchers,
-            createdAt = purchase.createdAt,
-            vendorId = purchase.vendorId
         )
     }
 

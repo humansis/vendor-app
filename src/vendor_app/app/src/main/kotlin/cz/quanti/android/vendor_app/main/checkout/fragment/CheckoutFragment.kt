@@ -7,7 +7,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
-import androidx.core.content.ContextCompat.getColor
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
@@ -17,7 +16,6 @@ import cz.quanti.android.vendor_app.MainViewModel
 import cz.quanti.android.vendor_app.R
 import cz.quanti.android.vendor_app.databinding.DialogCardPinBinding
 import cz.quanti.android.vendor_app.databinding.FragmentCheckoutBinding
-import cz.quanti.android.vendor_app.main.checkout.adapter.ScannedVoucherAdapter
 import cz.quanti.android.vendor_app.main.checkout.adapter.SelectedProductsAdapter
 import cz.quanti.android.vendor_app.main.checkout.callback.CheckoutFragmentCallback
 import cz.quanti.android.vendor_app.main.checkout.viewmodel.CheckoutViewModel
@@ -35,7 +33,6 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
     private val mainVM: MainViewModel by sharedViewModel()
     private val vm: CheckoutViewModel by sharedViewModel()
     private lateinit var selectedProductsAdapter: SelectedProductsAdapter
-    private val scannedVoucherAdapter = ScannedVoucherAdapter()
     private var proceedDisposable: Disposable? = null
     private var currencyDisposable: Disposable? = null
     private var updateProductDisposable: Disposable? = null
@@ -57,7 +54,7 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
             viewLifecycleOwner,
             object : OnBackPressedCallback(true) {
                 override fun handleOnBackPressed() {
-                    cancel()
+                    navigateBack()
                 }
             }
         )
@@ -67,23 +64,14 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         selectedProductsAdapter = SelectedProductsAdapter(this, requireContext())
     }
 
     override fun onStart() {
         super.onStart()
-
-        vm.init()
         initSelectedProductsAdapter()
-        initScannedVouchersAdapter()
         initObservers()
         initOnClickListeners()
-    }
-
-    override fun onResume() {
-        super.onResume()
-        showIfPurchasePaid()
     }
 
     override fun onStop() {
@@ -102,25 +90,6 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
         checkoutBinding.checkoutSelectedProductsRecyclerView.setHasFixedSize(true)
         checkoutBinding.checkoutSelectedProductsRecyclerView.layoutManager = viewManager
         checkoutBinding.checkoutSelectedProductsRecyclerView.adapter = selectedProductsAdapter
-    }
-
-    private fun initScannedVouchersAdapter() {
-        val viewManager = LinearLayoutManager(activity)
-
-        checkoutBinding.scannedVouchersRecyclerView.setHasFixedSize(true)
-        checkoutBinding.scannedVouchersRecyclerView.layoutManager = viewManager
-        checkoutBinding.scannedVouchersRecyclerView.adapter = scannedVoucherAdapter
-
-        scannedVoucherAdapter.setData(vm.getVouchers())
-        if (vm.getVouchers().isEmpty()) {
-            checkoutBinding.scannedVouchersRecyclerView.visibility = View.INVISIBLE
-            checkoutBinding.pleaseScanVoucherTextView.visibility = View.VISIBLE
-            checkoutBinding.payByCardButton.visibility = View.VISIBLE
-        } else {
-            checkoutBinding.scannedVouchersRecyclerView.visibility = View.VISIBLE
-            checkoutBinding.pleaseScanVoucherTextView.visibility = View.INVISIBLE
-            checkoutBinding.payByCardButton.visibility = View.INVISIBLE
-        }
     }
 
     @SuppressLint("NotifyDataSetChanged")
@@ -154,7 +123,7 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
     private fun initOnClickListeners() {
         checkoutBinding.checkoutFooter.backButton.setOnClickListener {
             Log.d(TAG, "Back button clicked.")
-            cancel()
+            navigateBack()
         }
 
         checkoutBinding.checkoutFooter.clearAllButton.setOnClickListener {
@@ -172,20 +141,6 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
                 .show()
         }
 
-        checkoutBinding.checkoutFooter.proceedButton.setOnClickListener {
-            Log.d(TAG, "Proceed button clicked.")
-            proceed()
-        }
-
-        checkoutBinding.scanButton.setOnClickListener {
-            Log.d(TAG, "Scan button clicked.")
-            if (it.isActivated) {
-                scanVoucher()
-            } else {
-                mainVM.setToastMessage(getString(R.string.cashback_with_voucher))
-            }
-        }
-
         checkoutBinding.payByCardButton.setOnClickListener {
             Log.d(TAG, "Pay by card button clicked.")
             if (it.isActivated) {
@@ -194,43 +149,6 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
                 mainVM.setToastMessage(getString(R.string.only_one_cashback_item_allowed))
             }
         }
-    }
-
-    private fun cancel() {
-        vm.clearVouchers()
-        navigateBack()
-    }
-
-    private fun proceed() {
-        if (vm.getTotal() <= 0) {
-            proceedDisposable?.dispose()
-            proceedDisposable = vm.proceed()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe({
-                    clearCart()
-                    vm.clearVouchers()
-                    AlertDialog.Builder(requireContext(), R.style.SuccessDialogTheme)
-                        .setTitle(getString(R.string.success))
-                        .setPositiveButton(android.R.string.ok, null)
-                        .show()
-                }, {
-                    mainVM.setToastMessage(getString(R.string.error_while_proceeding))
-                    Log.e(TAG, it)
-                })
-        } else {
-            AlertDialog.Builder(requireContext(), R.style.DialogTheme)
-                .setTitle(getString(R.string.cannot_proceed_with_purchase_dialog_title))
-                .setMessage(getString(R.string.cannot_proceed_with_purchase_dialog_message))
-                .setPositiveButton(android.R.string.ok, null)
-                .show()
-        }
-    }
-
-    private fun scanVoucher() {
-        findNavController().navigate(
-            CheckoutFragmentDirections.actionCheckoutFragmentToScannerFragment()
-        )
     }
 
     override fun updateItem(item: SelectedProduct) {
@@ -291,28 +209,12 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
         if (notEmpty) {
             checkoutBinding.emptyCartTextView.visibility = View.GONE
             checkoutBinding.payByCardButton.isEnabled = mainVM.hasNfcAdapter()
-            checkoutBinding.scanButton.isEnabled = true
             checkoutBinding.checkoutFooter.clearAllButton.isEnabled = true
         } else {
             checkoutBinding.emptyCartTextView.visibility = View.VISIBLE
             checkoutBinding.payByCardButton.isEnabled = false
-            checkoutBinding.scanButton.isEnabled = false
             checkoutBinding.checkoutFooter.clearAllButton.isEnabled = false
             navigateBack()
-        }
-    }
-
-    private fun showIfPurchasePaid() {
-        if (vm.getVouchers().isNotEmpty()) {
-            if (vm.getTotal() <= 0) {
-                checkoutBinding.checkoutFooter.proceedButton.visibility = View.VISIBLE
-                checkoutBinding.scanButton.isEnabled = false
-            } else {
-                checkoutBinding.checkoutFooter.proceedButton.visibility = View.GONE
-                checkoutBinding.scanButton.isEnabled = true
-            }
-            checkoutBinding.payByCardButton.visibility = View.INVISIBLE
-            checkoutBinding.checkoutFooter.clearAllButton.visibility = View.GONE
         }
     }
 
@@ -452,35 +354,17 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
         val totalPrice = "${getStringFromDouble(total)} ${vm.getCurrency()}"
         checkoutBinding.totalTextView.text = totalText
         checkoutBinding.totalPriceTextView.text = totalPrice
-
-        if (vm.getVouchers().isNotEmpty()) {
-            if (total <= 0) {
-                val green = getColor(requireContext(), R.color.green)
-                checkoutBinding.totalTextView.setTextColor(green)
-                checkoutBinding.totalPriceTextView.setTextColor(green)
-            } else {
-                val red = getColor(requireContext(), R.color.red)
-                checkoutBinding.totalTextView.setTextColor(red)
-                checkoutBinding.totalPriceTextView.setTextColor(red)
-            }
-        }
     }
 
     private fun checkForCashbacks(products: List<SelectedProduct>) {
         val cashbacks = products.filter { it.product.category.type == CategoryType.CASHBACK }.size
         when {
-            cashbacks == 0 -> {
-                checkoutBinding.scanButton.isActivated = true
-                checkoutBinding.payByCardButton.isActivated = true
-            }
-            cashbacks == 1 -> {
-                checkoutBinding.scanButton.isActivated = false
-                checkoutBinding.payByCardButton.isActivated = true
-            }
             cashbacks > 1 -> {
-                checkoutBinding.scanButton.isActivated = false
                 checkoutBinding.payByCardButton.isActivated = false
                 mainVM.setToastMessage(getString(R.string.only_one_cashback_item_allowed))
+            }
+            else -> {
+                checkoutBinding.payByCardButton.isActivated = true
             }
         }
     }

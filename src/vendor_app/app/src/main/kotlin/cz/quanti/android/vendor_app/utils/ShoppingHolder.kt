@@ -2,7 +2,6 @@ package cz.quanti.android.vendor_app.utils
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.toLiveData
-import cz.quanti.android.vendor_app.repository.booklet.dto.Voucher
 import cz.quanti.android.vendor_app.repository.purchase.PurchaseFacade
 import cz.quanti.android.vendor_app.repository.purchase.dto.SelectedProduct
 import io.reactivex.BackpressureStrategy
@@ -15,7 +14,6 @@ import org.koin.core.component.inject
 
 data class ShoppingHolder(
     val cart: MutableList<SelectedProduct> = mutableListOf(),
-    val vouchers: MutableList<Voucher> = mutableListOf(),
     val currency: BehaviorSubject<String> = BehaviorSubject.createDefault("")
 ) : KoinComponent {
     private val purchaseFacade: PurchaseFacade by inject()

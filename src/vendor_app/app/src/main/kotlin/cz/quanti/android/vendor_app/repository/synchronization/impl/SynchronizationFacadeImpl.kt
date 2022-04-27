@@ -1,6 +1,5 @@
 package cz.quanti.android.vendor_app.repository.synchronization.impl
 
-import cz.quanti.android.vendor_app.repository.booklet.BookletFacade
 import cz.quanti.android.vendor_app.repository.card.CardFacade
 import cz.quanti.android.vendor_app.repository.category.CategoryFacade
 import cz.quanti.android.vendor_app.repository.deposit.DepositFacade
@@ -15,7 +14,6 @@ import io.reactivex.Observable
 import io.reactivex.Single
 
 class SynchronizationFacadeImpl(
-    private val bookletFacade: BookletFacade,
     private val cardFacade: CardFacade,
     private val categoryFacade: CategoryFacade,
     private val depositFacade: DepositFacade,
@@ -30,7 +28,6 @@ class SynchronizationFacadeImpl(
         return Observable.concatDelayError(
             listOf(
                 purchaseFacade.syncWithServer(),
-                bookletFacade.syncWithServer(),
                 cardFacade.syncWithServer(),
                 depositFacade.syncWithServer(vendorId),
                 categoryFacade.syncWithServer(vendorId)
@@ -44,11 +41,7 @@ class SynchronizationFacadeImpl(
 
     override fun isSyncNeeded(): Observable<Boolean> {
         return getPurchasesCount().flatMapSingle { purchasesCount ->
-            if (purchasesCount > 0) {
-                Single.just(true)
-            } else {
-                bookletFacade.isSyncNeeded()
-            }
+            Single.just(purchasesCount > 0)
         }
     }
 

@@ -5,6 +5,7 @@ import cz.quanti.android.vendor_app.repository.transaction.TransactionRepository
 import cz.quanti.android.vendor_app.repository.transaction.dto.Transaction
 import cz.quanti.android.vendor_app.repository.transaction.dto.api.TransactionApiEntity
 import cz.quanti.android.vendor_app.repository.transaction.dto.api.TransactionPurchaseApiEntity
+import cz.quanti.android.vendor_app.sync.SynchronizationManagerImpl
 import cz.quanti.android.vendor_app.sync.SynchronizationSubject
 import cz.quanti.android.vendor_app.utils.VendorAppException
 import cz.quanti.android.vendor_app.utils.isPositiveResponseHttpCode
@@ -78,6 +79,13 @@ class TransactionFacadeImpl(
                     apiResponseCode = responseCode
                 }
             }
+        }.onErrorResumeNext {
+            Completable.error(
+                SynchronizationManagerImpl.ExceptionWithReason(
+                    it,
+                    "Failed downloading transactions"
+                )
+            )
         }
     }
 

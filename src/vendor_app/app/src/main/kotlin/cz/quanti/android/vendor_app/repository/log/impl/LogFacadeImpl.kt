@@ -2,6 +2,7 @@ package cz.quanti.android.vendor_app.repository.log.impl
 
 import android.content.Context
 import cz.quanti.android.vendor_app.repository.log.LogFacade
+import cz.quanti.android.vendor_app.sync.SynchronizationManagerImpl
 import cz.quanti.android.vendor_app.sync.SynchronizationSubject
 import cz.quanti.android.vendor_app.utils.VendorAppException
 import cz.quanti.android.vendor_app.utils.isPositiveResponseHttpCode
@@ -42,6 +43,13 @@ class LogFacadeImpl(
                         }
                     }
                 }
+        }.onErrorResumeNext {
+            Completable.error(
+                SynchronizationManagerImpl.ExceptionWithReason(
+                    it,
+                    "Failed uploading logs"
+                )
+            )
         }
     }
 

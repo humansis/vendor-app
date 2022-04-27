@@ -19,13 +19,10 @@
     <string name="proceed">Продовжити</string>
     <string name="products">Продукти</string>
     <string name="wrong_password">Неправильні ім\'я користувача або пароль</string>
-    <string name="cannot_proceed_with_purchase_dialog_title">Помилка</string>
-    <string name="cannot_proceed_with_purchase_dialog_message">Неможливо продовжити оформлення покупки до оплати.</string>
     <string name="are_you_sure_dialog_title">Ви впевнені?</string>
     <string name="clear_cart_dialog_message">Ви впевнені, що хочете видалити всі продукти з корзини?</string>
     <string name="remove_product_from_cart_dialog_message">Ви впевнені, що хочете видалити цей продукт із кошика?</string>
     <string name="logout_dialog_message">Ви впевнені, що ви хочете вийти?</string>
-    <string name="error_while_proceeding">Щось пішло негаразд при оформленні покупки. На Вашому пристрої достатньо місця?</string>
     <string name="go_to_cart">Показати кошик</string>
     <string name="back_button">Hазад</string>
     <string name="pay_by_card">Сплатити карткою</string>
@@ -89,7 +86,7 @@
     <string name="connected_to_network">Підключено до мережі</string>
     <string name="limit_exceeded">Перевищено ліміт:</string>
     <string name="multiple_limits_exceeded">Перевищено декілька обмежень:</string>
-    <string name="commodity_type_not_allowed">Вам заборонено купувати %1$s.</string>
+    <string name="commodity_type_not_allowed">Вам заборонено купувати:</string>
     <string name="remove_commodity_type">\\n\\nВидалити всі продукти %1$s з кошика?</string>
     <string name="commodity_type_exceeded">%1$s товарів у вашому кошику перевищує ліміт у %2$s.</string>
     <string name="please_update_cart">Будь ласка, оновіть свій кошик відповідно.</string>

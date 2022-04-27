@@ -18,13 +18,10 @@
     <string name="proceed">تقدم</string>
     <string name="products">منتجات</string>
     <string name="wrong_password">اسم المستخدم أو كلمة المرور خاطئة</string>
-    <string name="cannot_proceed_with_purchase_dialog_title">فشل</string>
-    <string name="cannot_proceed_with_purchase_dialog_message">لا يمكن متابعة الشراء حتى يتم دفعها.</string>
     <string name="are_you_sure_dialog_title">هل أنت واثق؟</string>
     <string name="clear_cart_dialog_message">هل أنت متأكد أنك تريد إزالة كافة العناصر من السلة؟</string>
     <string name="remove_product_from_cart_dialog_message">هل أنت متأكد أنك تريد إزالة هذا المنتج من سلتك؟</string>
     <string name="logout_dialog_message">هل أنت متأكد أنك تريد تسجيل الخروج؟</string>
-    <string name="error_while_proceeding">حدث خطأ ما أثناء متابعة الشراء. هل لديك مساحة كافية على جهازك؟</string>
     <string name="go_to_cart">عرض السلة</string>
     <string name="back_button">عودة</string>
     <string name="pay_by_card">ابالبطاقة\nلدفع</string>

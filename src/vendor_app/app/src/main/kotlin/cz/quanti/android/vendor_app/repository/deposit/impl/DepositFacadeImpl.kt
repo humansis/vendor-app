@@ -3,6 +3,7 @@ package cz.quanti.android.vendor_app.repository.deposit.impl
 import cz.quanti.android.vendor_app.repository.deposit.DepositFacade
 import cz.quanti.android.vendor_app.repository.deposit.DepositRepository
 import cz.quanti.android.vendor_app.repository.deposit.dto.ReliefPackage
+import cz.quanti.android.vendor_app.sync.SynchronizationManagerImpl
 import cz.quanti.android.vendor_app.sync.SynchronizationSubject
 import cz.quanti.android.vendor_app.utils.NullableObjectWrapper
 import io.reactivex.Completable
@@ -43,11 +44,27 @@ class DepositFacadeImpl(
 
     private fun sendDataToServer(): Completable {
         return depositRepo.uploadReliefPackages()
+            .onErrorResumeNext {
+                Completable.error(
+                    SynchronizationManagerImpl.ExceptionWithReason(
+                        it,
+                        "Failed uploading RD"
+                    )
+                )
+            }
     }
 
     private fun loadDataFromServer(
         vendorId: Int
     ): Completable {
         return depositRepo.downloadReliefPackages(vendorId)
+            .onErrorResumeNext {
+                Completable.error(
+                    SynchronizationManagerImpl.ExceptionWithReason(
+                        it,
+                        "Failed downloading RD"
+                    )
+                )
+            }
     }
 }

@@ -55,26 +55,5 @@
         app:layout_constraintStart_toEndOf="@id/center"
         app:elevation="0dp" />
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/proceedButton"
-        android:layout_width="150dp"
-        android:layout_height="wrap_content"
-        android:layout_margin="@dimen/dimen_16dp"
-        android:backgroundTint="@color/colorPrimary"
-        android:lines="2"
-        android:text="@string/proceed"
-        android:textColor="@color/white"
-        android:textSize="@dimen/button_text"
-        android:stateListAnimator="@null"
-        android:visibility="gone"
-        app:icon="@drawable/ic_check"
-        app:iconTint="@color/white"
-        app:iconGravity="start"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toEndOf="@id/center"
-        app:elevation="0dp" />
-
 </androidx.constraintlayout.widget.ConstraintLayout>
 

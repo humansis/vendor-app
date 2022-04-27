@@ -12,15 +12,11 @@ import cz.quanti.android.vendor_app.MainViewModel
 import cz.quanti.android.vendor_app.main.authorization.viewmodel.LoginViewModel
 import cz.quanti.android.vendor_app.main.checkout.viewmodel.CheckoutViewModel
 import cz.quanti.android.vendor_app.main.invoices.viewmodel.InvoicesViewModel
-import cz.quanti.android.vendor_app.main.scanner.viewmodel.ScannerViewModel
 import cz.quanti.android.vendor_app.main.shop.viewmodel.ShopViewModel
 import cz.quanti.android.vendor_app.main.transactions.viewmodel.TransactionsViewModel
 import cz.quanti.android.vendor_app.repository.AppPreferences
 import cz.quanti.android.vendor_app.repository.VendorAPI
 import cz.quanti.android.vendor_app.repository.VendorDb
-import cz.quanti.android.vendor_app.repository.booklet.BookletFacade
-import cz.quanti.android.vendor_app.repository.booklet.impl.BookletFacadeImpl
-import cz.quanti.android.vendor_app.repository.booklet.impl.BookletRepositoryImpl
 import cz.quanti.android.vendor_app.repository.card.CardFacade
 import cz.quanti.android.vendor_app.repository.card.impl.CardFacadeImpl
 import cz.quanti.android.vendor_app.repository.card.impl.CardRepositoryImpl
@@ -96,7 +92,7 @@ object KoinInitializer {
         val builder: Retrofit.Builder = Retrofit.Builder()
             .addConverterFactory(
                 GsonConverterFactory.create(
-                    GsonBuilder().serializeNulls().create()
+                    GsonBuilder().serializeNulls().setLenient().create()
                 )
             )
             .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
@@ -127,12 +123,10 @@ object KoinInitializer {
         val loginRepo = LoginRepositoryImpl(api)
         val categoryRepo = CategoryRepositoryImpl(db.categoryDao(), api)
         val productRepo = ProductRepositoryImpl(categoryRepo, db.productDao(), api)
-        val bookletRepo = BookletRepositoryImpl(db.bookletDao(), api)
         val cardRepo = CardRepositoryImpl(db.blockedCardDao(), api)
         val purchaseRepo = PurchaseRepositoryImpl(
             db.purchaseDao(),
             db.cardPurchaseDao(),
-            db.voucherPurchaseDao(),
             categoryRepo,
             db.productDao(),
             db.purchasedProductDao(),
@@ -160,7 +154,6 @@ object KoinInitializer {
         val loginFacade: LoginFacade = LoginFacadeImpl(loginRepo, loginManager, currentVendor)
         val categoryFacade: CategoryFacade = CategoryFacadeImpl(categoryRepo)
         val productFacade: ProductFacade = ProductFacadeImpl(productRepo, app.applicationContext)
-        val bookletFacade: BookletFacade = BookletFacadeImpl(bookletRepo)
         val cardFacade: CardFacade = CardFacadeImpl(cardRepo)
         val purchaseFacade: PurchaseFacade = PurchaseFacadeImpl(purchaseRepo, cardRepo)
         val depositFacade: DepositFacade = DepositFacadeImpl(depositRepo)
@@ -169,7 +162,6 @@ object KoinInitializer {
         val logFacade: LogFacade = LogFacadeImpl(logRepo, app.applicationContext)
         val syncFacade: SynchronizationFacade =
             SynchronizationFacadeImpl(
-                bookletFacade,
                 cardFacade,
                 categoryFacade,
                 depositFacade,
@@ -196,7 +188,6 @@ object KoinInitializer {
             single { loginManager }
             single { shoppingHolder }
             single { currentVendor }
-            single { bookletFacade }
             single { loginFacade }
             single { productFacade }
             single { cardFacade }
@@ -232,7 +223,6 @@ object KoinInitializer {
                     preferences
                 )
             }
-            viewModel { ScannerViewModel(shoppingHolder, bookletFacade) }
             viewModel {
                 CheckoutViewModel(
                     shoppingHolder,

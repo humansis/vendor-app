@@ -5,8 +5,6 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
-import cz.quanti.android.vendor_app.repository.booklet.dao.BookletDao
-import cz.quanti.android.vendor_app.repository.booklet.dto.db.BookletDbEntity
 import cz.quanti.android.vendor_app.repository.card.dao.BlockedCardDao
 import cz.quanti.android.vendor_app.repository.card.dto.db.BlockedCardDbEntity
 import cz.quanti.android.vendor_app.repository.category.dao.CategoryDao
@@ -21,12 +19,10 @@ import cz.quanti.android.vendor_app.repository.purchase.dao.CardPurchaseDao
 import cz.quanti.android.vendor_app.repository.purchase.dao.PurchaseDao
 import cz.quanti.android.vendor_app.repository.purchase.dao.PurchasedProductDao
 import cz.quanti.android.vendor_app.repository.purchase.dao.SelectedProductDao
-import cz.quanti.android.vendor_app.repository.purchase.dao.VoucherPurchaseDao
 import cz.quanti.android.vendor_app.repository.purchase.dto.db.CardPurchaseDbEntity
 import cz.quanti.android.vendor_app.repository.purchase.dto.db.PurchaseDbEntity
 import cz.quanti.android.vendor_app.repository.purchase.dto.db.PurchasedProductDbEntity
 import cz.quanti.android.vendor_app.repository.purchase.dto.db.SelectedProductDbEntity
-import cz.quanti.android.vendor_app.repository.purchase.dto.db.VoucherPurchaseDbEntity
 import cz.quanti.android.vendor_app.repository.transaction.dao.TransactionDao
 import cz.quanti.android.vendor_app.repository.transaction.dao.TransactionPurchaseDao
 import cz.quanti.android.vendor_app.repository.transaction.dto.db.TransactionDbEntity
@@ -35,13 +31,11 @@ import cz.quanti.android.vendor_app.repository.utils.typeconverter.DateTypeConve
 
 @Database(
     entities = [
-        BookletDbEntity::class,
         CategoryDbEntity::class,
         ProductDbEntity::class,
         SelectedProductDbEntity::class,
         PurchasedProductDbEntity::class,
         PurchaseDbEntity::class,
-        VoucherPurchaseDbEntity::class,
         CardPurchaseDbEntity::class,
         BlockedCardDbEntity::class,
         InvoiceDbEntity::class,
@@ -52,13 +46,11 @@ import cz.quanti.android.vendor_app.repository.utils.typeconverter.DateTypeConve
 )
 @TypeConverters(DateTypeConverter::class)
 abstract class VendorDb : RoomDatabase() {
-    abstract fun bookletDao(): BookletDao
     abstract fun categoryDao(): CategoryDao
     abstract fun productDao(): ProductDao
     abstract fun selectedProductDao(): SelectedProductDao
     abstract fun purchasedProductDao(): PurchasedProductDao
     abstract fun purchaseDao(): PurchaseDao
-    abstract fun voucherPurchaseDao(): VoucherPurchaseDao
     abstract fun cardPurchaseDao(): CardPurchaseDao
     abstract fun blockedCardDao(): BlockedCardDao
     abstract fun invoiceDao(): InvoiceDao
@@ -68,13 +60,11 @@ abstract class VendorDb : RoomDatabase() {
 
     companion object {
         const val DB_NAME = "cz.quanti.android.pin.vendor_app.database"
-        const val TABLE_BOOKLET = "booklet"
         const val TABLE_CATEGORY = "category"
         const val TABLE_PRODUCT = "product"
         const val TABLE_SELECTED_PRODUCT = "selected_product"
         const val TABLE_PURCHASED_PRODUCT = "purchased_product"
         const val TABLE_PURCHASE = "purchase"
-        const val TABLE_VOUCHER_PURCHASE = "voucher_purchase"
         const val TABLE_CARD_PURCHASE = "card_purchase"
         const val TABLE_BLOCKED_SMARTCARD = "blocked_smartcard"
         const val TABLE_INVOICE = "invoice"
@@ -149,6 +139,8 @@ abstract class VendorDb : RoomDatabase() {
             override fun migrate(database: SupportSQLiteDatabase) {
                 database.execSQL("ALTER TABLE card_purchase ADD balanceBefore REAL")
                 database.execSQL("ALTER TABLE card_purchase ADD balanceAfter REAL")
+                database.execSQL("DROP TABLE booklet")
+                database.execSQL("DROP TABLE voucher_purchase")
             }
         }
     }

@@ -5,6 +5,7 @@ import com.bumptech.glide.Glide
 import cz.quanti.android.vendor_app.repository.product.ProductFacade
 import cz.quanti.android.vendor_app.repository.product.ProductRepository
 import cz.quanti.android.vendor_app.repository.product.dto.Product
+import cz.quanti.android.vendor_app.sync.SynchronizationManagerImpl
 import cz.quanti.android.vendor_app.sync.SynchronizationSubject
 import cz.quanti.android.vendor_app.utils.VendorAppException
 import cz.quanti.android.vendor_app.utils.isPositiveResponseHttpCode
@@ -49,6 +50,13 @@ class ProductFacadeImpl(
                         apiResponseCode = responseCode
                     })
             }
+        }.onErrorResumeNext {
+            Completable.error(
+                SynchronizationManagerImpl.ExceptionWithReason(
+                    it,
+                    "Failed downloading products"
+                )
+            )
         }
     }
 

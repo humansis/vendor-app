@@ -10,6 +10,7 @@ import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.BehaviorSubject
 import java.util.Date
 import quanti.com.kotlinlog.Log
+import java.lang.Exception
 
 class SynchronizationManagerImpl(
     private val preferences: AppPreferences,
@@ -36,7 +37,11 @@ class SynchronizationManagerImpl(
                         syncSubject.onNext(subject)
                     },
                     { e ->
-                        Log.e(TAG, e)
+                        if (e is ExceptionWithReason) {
+                            Log.e(TAG, e, e.reason)
+                        } else {
+                            Log.e(TAG, e)
+                        }
                         lastSyncError = e
                         syncStatePublishSubject.onNext(SynchronizationState.ERROR)
                     },
@@ -72,6 +77,11 @@ class SynchronizationManagerImpl(
     override fun getPurchasesCount(): Observable<Long> {
         return syncFacade.getPurchasesCount()
     }
+
+    class ExceptionWithReason (
+        throwable: Throwable,
+        val reason: String
+    ) : Exception(throwable)
 
     companion object {
         private val TAG = SynchronizationManagerImpl::class.java.simpleName

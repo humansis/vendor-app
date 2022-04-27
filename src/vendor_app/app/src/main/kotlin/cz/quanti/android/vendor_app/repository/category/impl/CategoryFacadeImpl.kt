@@ -3,6 +3,7 @@ package cz.quanti.android.vendor_app.repository.category.impl
 import cz.quanti.android.vendor_app.repository.category.CategoryFacade
 import cz.quanti.android.vendor_app.repository.category.CategoryRepository
 import cz.quanti.android.vendor_app.repository.category.dto.Category
+import cz.quanti.android.vendor_app.sync.SynchronizationManagerImpl
 import cz.quanti.android.vendor_app.sync.SynchronizationSubject
 import cz.quanti.android.vendor_app.utils.VendorAppException
 import cz.quanti.android.vendor_app.utils.isPositiveResponseHttpCode
@@ -38,7 +39,14 @@ class CategoryFacadeImpl(
                         apiResponseCode = responseCode
                     })
             }
-        }
+        }.onErrorResumeNext {
+                Completable.error(
+                    SynchronizationManagerImpl.ExceptionWithReason(
+                        it,
+                        "Failed downloading categories"
+                    )
+                )
+            }
     }
 
     private fun actualizeDatabase(categories: List<Category>?): Completable {

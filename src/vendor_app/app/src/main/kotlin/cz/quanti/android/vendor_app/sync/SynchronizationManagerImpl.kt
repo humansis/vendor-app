@@ -8,9 +8,9 @@ import io.reactivex.BackpressureStrategy
 import io.reactivex.Observable
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.BehaviorSubject
+import java.lang.Exception
 import java.util.Date
 import quanti.com.kotlinlog.Log
-import java.lang.Exception
 
 class SynchronizationManagerImpl(
     private val preferences: AppPreferences,
@@ -78,7 +78,7 @@ class SynchronizationManagerImpl(
         return syncFacade.getPurchasesCount()
     }
 
-    class ExceptionWithReason (
+    class ExceptionWithReason(
         throwable: Throwable,
         val reason: String
     ) : Exception(throwable)

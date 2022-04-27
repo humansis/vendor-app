@@ -83,27 +83,29 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/center"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toTopOf="@id/total"
+            app:layout_constraintBottom_toTopOf="@id/checkoutFooter"
             app:strokeColor="@color/colorPrimaryDark"
             app:strokeWidth="1dp"
             style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
 
         <LinearLayout
             android:id="@+id/total"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:paddingHorizontal="@dimen/dimen_4dp"
-            android:orientation="horizontal"
+            android:padding="@dimen/dimen_4dp"
+            android:orientation="vertical"
             android:gravity="center"
-            app:layout_constraintBottom_toTopOf="@id/checkoutFooter">
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/checkoutFooter"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="@+id/center">
 
             <TextView
                 android:id="@+id/totalTextView"
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:layout_marginHorizontal="@dimen/dimen_4dp"
-                android:layout_marginVertical="@dimen/dimen_16dp"
+                android:layout_margin="@dimen/dimen_4dp"
                 android:textAlignment="center"
                 android:textColor="@color/black"
                 android:textStyle="bold"
@@ -112,11 +114,10 @@
 
             <TextView
                 android:id="@+id/totalPriceTextView"
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:layout_marginHorizontal="@dimen/dimen_4dp"
-                android:layout_marginVertical="@dimen/dimen_16dp"
+                android:layout_margin="@dimen/dimen_4dp"
                 android:textAlignment="center"
                 android:textColor="@color/black"
                 android:textStyle="bold"

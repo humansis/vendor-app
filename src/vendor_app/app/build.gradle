@@ -31,7 +31,7 @@ def gitVersionCode = { boolean isFileName ->
 }
 
 def VERSION_MAJOR = 3
-def VERSION_MINOR = 4
+def VERSION_MINOR = 5
 def VERSION_PATCH = 0
 
 

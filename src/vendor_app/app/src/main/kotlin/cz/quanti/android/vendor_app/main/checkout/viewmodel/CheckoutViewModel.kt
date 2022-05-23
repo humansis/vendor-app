@@ -10,7 +10,6 @@ import cz.quanti.android.nfc.dto.v2.UserBalance
 import cz.quanti.android.nfc.exception.PINException
 import cz.quanti.android.nfc.exception.PINExceptionEnum
 import cz.quanti.android.nfc.logger.NfcLogger
-import cz.quanti.android.vendor_app.repository.booklet.dto.Voucher
 import cz.quanti.android.vendor_app.repository.card.CardFacade
 import cz.quanti.android.vendor_app.repository.deposit.DepositFacade
 import cz.quanti.android.vendor_app.repository.purchase.PurchaseFacade
@@ -42,25 +41,14 @@ class CheckoutViewModel(
     private val currentVendor: CurrentVendor,
     private val nfcTagPublisher: NfcTagPublisher
 ) : ViewModel() {
-    private var vouchers: MutableList<Voucher> = mutableListOf()
     private var pin: String? = null
     private var originalCardData = OriginalCardData(null, null)
     private val paymentStateLD =
         MutableLiveData<Pair<PaymentStateEnum, PaymentResult?>>(Pair(PaymentStateEnum.READY, null))
     private val limitExceededSLE = SingleLiveEvent<Map<Int, Double>>()
 
-    fun init() {
-        this.vouchers = shoppingHolder.vouchers
-    }
-
-    fun proceed(): Completable {
-        return saveVoucherPurchaseToDb()
-    }
-
     fun getTotal(): Double {
-        val total = shoppingHolder.cart.map { it.price }.sum()
-        val paid = vouchers.map { it.value }.sum()
-        return round(total - paid, 2)
+        return round(shoppingHolder.cart.sumOf { it.price }, 2)
     }
 
     private fun getAmounts(): Map<Int, Double> {
@@ -98,14 +86,6 @@ class CheckoutViewModel(
 
     fun getLimitsExceeded(): SingleLiveEvent<Map<Int, Double>> {
         return limitExceededSLE
-    }
-
-    fun getVouchers(): List<Voucher> {
-        return vouchers
-    }
-
-    fun clearVouchers() {
-        vouchers.clear()
     }
 
     fun getSelectedProductsLD(): LiveData<List<SelectedProduct>> {
@@ -245,20 +225,6 @@ class CheckoutViewModel(
                     }
             }
         )
-    }
-
-    private fun saveVoucherPurchaseToDb(): Completable {
-        return purchaseFacade.savePurchase(createVoucherPurchase())
-    }
-
-    private fun createVoucherPurchase(): Purchase {
-        return Purchase().apply {
-            products.addAll(convert(shoppingHolder.cart))
-            vouchers.addAll(shoppingHolder.vouchers.map { it.id })
-            vendorId = currentVendor.vendor.vendorId
-            createdAt = convertTimeForApiRequestBody(Date())
-            currency = getCurrency().toString()
-        }
     }
 
     private fun saveCardPurchaseToDb(card: String, userBalance: UserBalance): Completable {

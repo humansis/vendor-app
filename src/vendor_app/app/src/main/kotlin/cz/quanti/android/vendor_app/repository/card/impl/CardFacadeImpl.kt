@@ -2,6 +2,7 @@ package cz.quanti.android.vendor_app.repository.card.impl
 
 import cz.quanti.android.vendor_app.repository.card.CardFacade
 import cz.quanti.android.vendor_app.repository.card.CardRepository
+import cz.quanti.android.vendor_app.sync.SynchronizationManagerImpl
 import cz.quanti.android.vendor_app.sync.SynchronizationSubject
 import cz.quanti.android.vendor_app.utils.VendorAppException
 import cz.quanti.android.vendor_app.utils.isPositiveResponseHttpCode
@@ -36,6 +37,13 @@ class CardFacadeImpl(private val cardRepo: CardRepository) : CardFacade {
                     this.apiError = true
                 }
             }
+        }.onErrorResumeNext {
+            Completable.error(
+                SynchronizationManagerImpl.ExceptionWithReason(
+                    it,
+                    "Failed actualizing blocked cards"
+                )
+            )
         }
     }
 }

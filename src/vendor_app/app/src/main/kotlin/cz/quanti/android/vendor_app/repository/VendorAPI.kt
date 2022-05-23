@@ -1,7 +1,5 @@
 package cz.quanti.android.vendor_app.repository
 
-import cz.quanti.android.vendor_app.repository.booklet.dto.api.BookletApiEntity
-import cz.quanti.android.vendor_app.repository.booklet.dto.api.BookletCodesBody
 import cz.quanti.android.vendor_app.repository.category.dto.api.CategoryApiEntity
 import cz.quanti.android.vendor_app.repository.deposit.dto.api.ReliefPackageApiEntity
 import cz.quanti.android.vendor_app.repository.deposit.dto.api.SmartcardDepositApiEntity
@@ -9,7 +7,6 @@ import cz.quanti.android.vendor_app.repository.invoice.dto.api.InvoiceApiEntity
 import cz.quanti.android.vendor_app.repository.login.dto.api.VendorApiEntity
 import cz.quanti.android.vendor_app.repository.product.dto.api.ProductApiEntity
 import cz.quanti.android.vendor_app.repository.purchase.dto.api.CardPurchaseApiEntity
-import cz.quanti.android.vendor_app.repository.purchase.dto.api.VoucherPurchaseApiEntity
 import cz.quanti.android.vendor_app.repository.transaction.dto.api.TransactionApiEntity
 import cz.quanti.android.vendor_app.repository.transaction.dto.api.TransactionPurchaseApiEntity
 import cz.quanti.android.vendor_app.repository.utils.PagedApiEntity
@@ -38,22 +35,6 @@ interface VendorAPI {
     fun getProducts(
         @Query("filter[vendors][]") vendorId: Int
     ): Single<Response<PagedApiEntity<ProductApiEntity>>>
-
-    @GET("v1/deactivated-booklets")
-    fun getDeactivatedBooklets(): Single<Response<List<BookletApiEntity>>>
-
-    @GET("v1/protected-booklets")
-    fun getProtectedBooklets(): Single<Response<List<BookletApiEntity>>>
-
-    @POST("v1/vouchers/purchase")
-    fun postVoucherPurchases(
-        @Body voucherPurchases: List<VoucherPurchaseApiEntity>
-    ): Single<Response<Unit>>
-
-    @POST("v1/deactivate-booklets")
-    fun postBooklets(
-        @Body bookletCodes: BookletCodesBody
-    ): Single<Response<Unit>>
 
     @POST("v4/smartcards/{id}/purchase")
     fun postCardPurchase(

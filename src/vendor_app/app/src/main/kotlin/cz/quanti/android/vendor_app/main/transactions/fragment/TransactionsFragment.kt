@@ -80,7 +80,7 @@ class TransactionsFragment : Fragment() {
     }
 
     private fun initObservers() {
-        vm.getPurchasesCount().observe(viewLifecycleOwner, {
+        vm.getPurchasesCount().observe(viewLifecycleOwner) {
             transactionsBinding.unsyncedWarning.warningText.text =
                 getString(R.string.unsynced_transactions, it)
             if (it > 0L) {
@@ -88,7 +88,7 @@ class TransactionsFragment : Fragment() {
             } else {
                 transactionsBinding.unsyncedWarning.root.visibility = View.GONE
             }
-        })
+        }
 
         transactionsDisposable?.dispose()
         transactionsDisposable = vm.getTransactions()

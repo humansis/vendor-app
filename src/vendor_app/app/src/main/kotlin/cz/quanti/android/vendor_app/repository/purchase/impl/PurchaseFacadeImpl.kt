@@ -5,6 +5,7 @@ import cz.quanti.android.vendor_app.repository.purchase.PurchaseFacade
 import cz.quanti.android.vendor_app.repository.purchase.PurchaseRepository
 import cz.quanti.android.vendor_app.repository.purchase.dto.Purchase
 import cz.quanti.android.vendor_app.repository.purchase.dto.SelectedProduct
+import cz.quanti.android.vendor_app.sync.SynchronizationManagerImpl
 import cz.quanti.android.vendor_app.sync.SynchronizationSubject
 import cz.quanti.android.vendor_app.utils.BlockedCardError
 import cz.quanti.android.vendor_app.utils.VendorAppException
@@ -66,7 +67,7 @@ class PurchaseFacadeImpl(
 
     private fun preparePurchases(): Completable {
         return purchaseRepo.getAllPurchases().flatMapCompletable { purchases ->
-            Observable.fromIterable(purchases.filter { it.products.isEmpty() || (it.vouchers.isEmpty() && it.smartcard.isNullOrBlank()) })
+            Observable.fromIterable(purchases.filter { it.products.isEmpty() || it.smartcard.isNullOrBlank() })
                 .flatMapCompletable {
                     Log.d(
                         TAG,
@@ -74,6 +75,13 @@ class PurchaseFacadeImpl(
                     )
                     purchaseRepo.deletePurchase(it)
                 }
+        }.onErrorResumeNext {
+            Completable.error(
+                SynchronizationManagerImpl.ExceptionWithReason(
+                    it,
+                    "Failed preparing purchases"
+                )
+            )
         }
     }
 
@@ -84,61 +92,56 @@ class PurchaseFacadeImpl(
                 Log.d(TAG, "No purchases to upload")
                 Completable.complete()
             } else {
-                val voucherPurchases = purchases.filter { it.vouchers.isNotEmpty() }
-                purchaseRepo.sendVoucherPurchasesToServer(voucherPurchases)
-                    .flatMapCompletable { responseCode ->
-                        if (isPositiveResponseHttpCode(responseCode)) {
-                            Log.d(
-                                TAG,
-                                "Voucher purchases sync finished successfully"
-                            )
-                            purchaseRepo.deleteAllVoucherPurchases().doOnComplete {
-                                Log.d(
-                                    TAG,
-                                    "All voucher purchases successfully removed from db"
-                                )
-                            }
-                        } else {
-                            invalidPurchases.addAll(voucherPurchases)
-                            Completable.complete()
-                        }
-                    }.andThen(
-                        Observable.fromIterable(purchases.filter { it.smartcard != null })
-                            .flatMapCompletable { purchase ->
-                                purchaseRepo.sendCardPurchaseToServer(purchase)
-                                    .flatMapCompletable { responseCode ->
-                                        if (isPositiveResponseHttpCode(responseCode)) {
-                                            purchaseRepo.deletePurchase(purchase).doOnComplete {
-                                                Log.d(
-                                                    TAG,
-                                                    "Purchase ${purchase.dbId} by ${purchase.smartcard} successfully removed from db"
-                                                )
-                                            }
-                                        } else {
-                                            invalidPurchases.add(purchase)
-                                            Completable.complete()
-                                        }
+                Observable.fromIterable(purchases.filter { it.smartcard != null })
+                    .flatMapCompletable { purchase ->
+                        purchaseRepo.sendCardPurchaseToServer(purchase)
+                            .flatMapCompletable { responseCode ->
+                                if (isPositiveResponseHttpCode(responseCode)) {
+                                    purchaseRepo.deletePurchase(purchase).doOnComplete {
+                                        Log.d(
+                                            TAG,
+                                            "Purchase ${purchase.dbId} by ${purchase.smartcard} successfully removed from db"
+                                        )
                                     }
-                            }
-                            // throw exception after all purchases has been iterated
-                            .doOnComplete {
-                                Log.d(
-                                    TAG,
-                                    "Smartcard purchases sync finished successfully"
-                                )
-                                if (invalidPurchases.isNotEmpty()) {
-                                    throw VendorAppException("Could not send purchases to the server").apply {
-                                        apiError = true
-                                    }
+                                } else {
+                                    invalidPurchases.add(purchase)
+                                    Completable.complete()
                                 }
                             }
-                    )
+                    }
+                    // throw exception after all purchases has been iterated
+                    .doOnComplete {
+                        Log.d(
+                            TAG,
+                            "Smartcard purchases sync finished successfully"
+                        )
+                        if (invalidPurchases.isNotEmpty()) {
+                            throw VendorAppException("Could not send purchases to the server").apply {
+                                apiError = true
+                            }
+                        }
+                    }
             }
+        }.onErrorResumeNext {
+            Completable.error(
+                SynchronizationManagerImpl.ExceptionWithReason(
+                    it,
+                    "Failed uploading purchases"
+                )
+            )
         }
     }
 
     private fun deletePurchasedProducts(): Completable {
         return purchaseRepo.deletePurchasedProducts()
+            .onErrorResumeNext {
+                Completable.error(
+                    SynchronizationManagerImpl.ExceptionWithReason(
+                        it,
+                        "Failed deleting purchased products"
+                    )
+                )
+            }
     }
 
     companion object {

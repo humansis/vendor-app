@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.nfc.NfcAdapter
 import android.provider.Settings
+import android.widget.Toast
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -35,7 +36,7 @@ class MainViewModel(
 
     private val isNetworkConnectedLD = MutableLiveData<Boolean>()
 
-    val cameraPermissionsGrantedSLE = SingleLiveEvent<PermissionRequestResult>()
+    private val cameraPermissionsGrantedSLE = SingleLiveEvent<PermissionRequestResult>()
     val successSLE = SingleLiveEvent<Unit>()
     val errorSLE = SingleLiveEvent<Unit>()
     val toastMessageSLE = SingleLiveEvent<String?>()
@@ -68,7 +69,12 @@ class MainViewModel(
                 true
             }
         }
-        setToastMessage(activity.getString(R.string.no_nfc_available))
+
+        // do not use setToastMessage() here, because it won't be displayed when finishing activity.
+        Toast.makeText(activity, activity.getString(R.string.no_nfc_available), Toast.LENGTH_LONG).show()
+        if (!BuildConfig.DEBUG) {
+            activity.finish()
+        }
         return false
     }
 

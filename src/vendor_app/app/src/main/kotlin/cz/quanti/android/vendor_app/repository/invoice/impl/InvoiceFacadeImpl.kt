@@ -4,6 +4,7 @@ import cz.quanti.android.vendor_app.repository.invoice.InvoiceFacade
 import cz.quanti.android.vendor_app.repository.invoice.InvoiceRepository
 import cz.quanti.android.vendor_app.repository.invoice.dto.Invoice
 import cz.quanti.android.vendor_app.repository.invoice.dto.api.InvoiceApiEntity
+import cz.quanti.android.vendor_app.sync.SynchronizationManagerImpl
 import cz.quanti.android.vendor_app.sync.SynchronizationSubject
 import cz.quanti.android.vendor_app.utils.VendorAppException
 import cz.quanti.android.vendor_app.utils.isPositiveResponseHttpCode
@@ -43,6 +44,13 @@ class InvoiceFacadeImpl(
                     apiResponseCode = responseCode
                 }
             }
+        }.onErrorResumeNext {
+            Completable.error(
+                SynchronizationManagerImpl.ExceptionWithReason(
+                    it,
+                    "Failed downloading invoices"
+                )
+            )
         }
     }
 

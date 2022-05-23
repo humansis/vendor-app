@@ -201,7 +201,7 @@ class ShopFragment : Fragment(), CategoryAdapterCallback, ProductAdapterCallback
     }
 
     private fun initObservers() {
-        categoriesAllowed.observe(viewLifecycleOwner, {
+        categoriesAllowed.observe(viewLifecycleOwner) {
             setAppBarHidden(!it)
             showCategories(it)
             if (it) {
@@ -217,7 +217,7 @@ class ShopFragment : Fragment(), CategoryAdapterCallback, ProductAdapterCallback
                         }
                     })
             }
-        })
+        }
 
         syncStateDisposable?.dispose()
         syncStateDisposable = vm.syncStateObservable()
@@ -238,9 +238,9 @@ class ShopFragment : Fragment(), CategoryAdapterCallback, ProductAdapterCallback
 
         productsDisposable?.dispose()
         productsDisposable = Observable
-            .combineLatest(vm.getProducts(), vm.getCurrencyObservable(), { products, currency ->
+            .combineLatest(vm.getProducts(), vm.getCurrencyObservable()) { products, currency ->
                 filterProducts(products, currency)
-            }).subscribeOn(Schedulers.io())
+            }.subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({ products ->
                 filterCategories(products)
@@ -252,7 +252,7 @@ class ShopFragment : Fragment(), CategoryAdapterCallback, ProductAdapterCallback
                 Log.e(TAG, it)
             })
 
-        vm.getSelectedProductsLD().observe(viewLifecycleOwner, { products ->
+        vm.getSelectedProductsLD().observe(viewLifecycleOwner) { products ->
             vm.setProducts(products)
             if (products.isEmpty()) {
                 shopBinding.totalTextView.visibility = View.GONE
@@ -268,7 +268,7 @@ class ShopFragment : Fragment(), CategoryAdapterCallback, ProductAdapterCallback
                     shopBinding.cartBadge.text = products.size.toString()
                 }, if (isKeyboardVisible()) KEYBOARD_ANIMATION_DURATION else ZERO)
             }
-        })
+        }
     }
 
     private fun isKeyboardVisible(): Boolean {

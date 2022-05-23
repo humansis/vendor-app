@@ -30,9 +30,9 @@ class TransactionsAdapter(
 
     override fun onBindViewHolder(holder: TransactionsViewHolder, position: Int) {
         val item = transactions[position]
+        val projectId = context.getString(R.string.project) + "  ${item.projectId}"
 
-        holder.projectId.text =
-            (context.getString(R.string.project) + "  ${item.projectId}") // todo replace later with project name
+        holder.projectId.text = projectId // todo replace later with project name
         holder.quantity.text = context.getString(R.string.quantity, item.purchases.size)
         holder.total.text = context.getString(R.string.total_price, item.value, item.currency)
 

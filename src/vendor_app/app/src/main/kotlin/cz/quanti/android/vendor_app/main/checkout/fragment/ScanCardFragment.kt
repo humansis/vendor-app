@@ -213,7 +213,6 @@ class ScanCardFragment : Fragment() {
         }.show()
         vm.setPaymentState(PaymentStateEnum.READY)
         vm.setOriginalCardData(null, null)
-        vm.clearVouchers()
         clearCart()
         findNavController().navigate(
             ScanCardFragmentDirections.actionScanCardFragmentToProductsFragment()

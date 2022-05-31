@@ -62,7 +62,7 @@ class DepositRepositoryImpl(
                     }
                     response.code() == 403 -> {
                         Log.d(TAG, "RD sync denied")
-                        Completable.complete()
+                        deleteReliefPackagesFromDB()
                     }
                     else -> {
                         throw VendorAppException("Could not download RD").apply {

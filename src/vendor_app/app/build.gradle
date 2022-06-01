@@ -160,7 +160,7 @@ dependencies {
     //analytics
     implementation 'com.google.firebase:firebase-analytics:19.0.0'
 
-    // Artifactory
+    // NFC Library
     implementation "cz.quanti.android:nfc:$nfc_library_version"
 
     // Logger

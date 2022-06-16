@@ -12,6 +12,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import cz.quanti.android.nfc.VendorFacade
 import cz.quanti.android.nfc.dto.v2.UserBalance
+import cz.quanti.android.nfc.logger.NfcLogger
 import cz.quanti.android.vendor_app.repository.deposit.DepositFacade
 import cz.quanti.android.vendor_app.utils.ApiEnvironments
 import cz.quanti.android.vendor_app.utils.Constants
@@ -118,6 +119,7 @@ class MainViewModel(
                     val reliefPackage = wrappedReliefPackage.nullableObject
                     nfcFacade.readUserBalance(tag, reliefPackage?.convertToDeposit())
                         .flatMap { userBalance ->
+                            NfcLogger.d(TAG, "readBalance: $userBalance") // TODO test readability
                             if (userBalance.depositDone && reliefPackage != null) {
                                 depositFacade.updateReliefPackageInDB(reliefPackage.apply {
                                     createdAt = convertTimeForApiRequestBody(Date())

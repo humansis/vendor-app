@@ -190,9 +190,9 @@ class CheckoutViewModel(
                                         ).flatMap { userBalance ->
                                             NfcLogger.d(
                                                 TAG,
-                                                "subtractedBalanceFromCard: balance: ${userBalance.balance}, beneficiaryId: ${userBalance.userId}, currencyCode: ${userBalance.currencyCode}"
+                                                "subtractedBalanceFromCard: balance: ${userBalance.balance}, currencyCode: ${userBalance.currencyCode}, beneficiaryId: ${userBalance.userId}, assistanceId: ${userBalance.assistanceId}, depositDone: ${userBalance.depositDone}"
                                             )
-                                            if (userBalance.depositDone && reliefPackage != null) {
+                                            if (userBalance.depositDone && reliefPackage != null) { // TODO nevraci se depositDone = true pokud byl deposit vydan ale nastal preserve_balance
                                                 depositFacade.updateReliefPackageInDB(reliefPackage.apply {
                                                     createdAt = convertTimeForApiRequestBody(Date())
                                                     balanceBefore = userBalance.originalBalance

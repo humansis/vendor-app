@@ -119,7 +119,7 @@ class MainViewModel(
                     val reliefPackage = wrappedReliefPackage.nullableObject
                     nfcFacade.readUserBalance(tag, reliefPackage?.convertToDeposit())
                         .flatMap { userBalance ->
-                            NfcLogger.d(TAG, "readBalance: $userBalance") // TODO test readability
+                            NfcLogger.d(TAG, "readUserBalance: $userBalance")
                             if (userBalance.depositDone && reliefPackage != null) {
                                 depositFacade.updateReliefPackageInDB(reliefPackage.apply {
                                     createdAt = convertTimeForApiRequestBody(Date())

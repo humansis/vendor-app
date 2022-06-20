@@ -192,7 +192,7 @@ class CheckoutViewModel(
                                                 TAG,
                                                 "subtractedBalanceFromCard: balance: ${userBalance.balance}, currencyCode: ${userBalance.currencyCode}, beneficiaryId: ${userBalance.userId}, assistanceId: ${userBalance.assistanceId}, depositDone: ${userBalance.depositDone}"
                                             )
-                                            if (userBalance.depositDone && reliefPackage != null) { // TODO nevraci se depositDone = true pokud byl deposit vydan ale nastal preserve_balance
+                                            if (userBalance.depositDone && reliefPackage != null) {
                                                 depositFacade.updateReliefPackageInDB(reliefPackage.apply {
                                                     createdAt = convertTimeForApiRequestBody(Date())
                                                     balanceBefore = userBalance.originalBalance

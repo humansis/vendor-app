@@ -111,8 +111,9 @@ class MainViewModel(
         toastMessageSLE.postValue(message)
     }
 
-    fun readBalance(): Single<UserBalance> {
+    fun readBalance(readBalanceStarted: () -> Unit): Single<UserBalance> {
         return nfcTagPublisher.getTagObservable().firstOrError().flatMap { tag ->
+            readBalanceStarted.invoke()
             depositFacade.getRelevantReliefPackage(convertTagToString(tag))
                 .subscribeOn(Schedulers.io())
                 .flatMap { wrappedReliefPackage ->

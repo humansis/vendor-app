@@ -146,6 +146,7 @@ class ScanCardFragment : Fragment() {
 
     private fun showPinDialogAndPayByCard() {
         pinDialog?.dismiss()
+        Log.d(TAG, "Showing PIN code dialog")
         val dialogBinding = DialogCardPinBinding.inflate(layoutInflater, null, false)
         dialogBinding.pinTitle.text = getString(R.string.incorrect_pin)
         pinDialog = AlertDialog.Builder(requireContext(), R.style.DialogTheme)
@@ -153,6 +154,7 @@ class ScanCardFragment : Fragment() {
             .setCancelable(false)
             .setPositiveButton(android.R.string.ok, null)
             .setNegativeButton(android.R.string.cancel) { dialog, _ ->
+                Log.d(TAG, "Dialog negative button clicked")
                 dialog?.dismiss()
                 navigateBack()
             }

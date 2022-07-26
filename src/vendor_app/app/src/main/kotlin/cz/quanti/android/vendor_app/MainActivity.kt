@@ -318,6 +318,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
             .setPositiveButton(
                 android.R.string.ok
             ) { _, _ ->
+                Log.d(TAG, "Positive button clicked")
                 logout()
             }
             .setNegativeButton(android.R.string.cancel, null)
@@ -353,6 +354,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
                 .setMessage(getString(R.string.scan_card))
                 .setCancelable(false)
                 .setNegativeButton(getString(R.string.cancel)) { dialog, _ ->
+                    Log.d(TAG, "Read balance dialog closed")
                     dialog?.dismiss()
                     readBalanceDisposable?.dispose()
                     readBalanceDisposable = null
@@ -366,7 +368,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
 
     private fun showReadBalanceResult() {
         readBalanceDisposable?.dispose()
-        readBalanceDisposable = mainVM.readBalance()
+        readBalanceDisposable = mainVM.readBalance(::readBalanceStartedCallback)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({
@@ -397,6 +399,9 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
                         readBalanceDisposable?.dispose()
                         readBalanceDisposable = null
                     }
+                    .setOnDismissListener {
+                        Log.d(TAG, "Read balance result dialog closed")
+                    }
                     .create()
                 cardResultDialog.show()
                 mainVM.successSLE.call()
@@ -407,6 +412,12 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
                 mainVM.errorSLE.call()
                 displayedDialog?.dismiss()
             })
+    }
+
+    private fun readBalanceStartedCallback() {
+        displayedDialog?.getButton(AlertDialog.BUTTON_NEGATIVE)?.let {
+            it.isEnabled = false
+        }
     }
 
     private fun shareLogsDialog() {
@@ -509,10 +520,12 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
 
     private fun logoutIfNotLoggedIn(): Boolean {
         return if (!loginVM.isVendorLoggedIn()) {
+            Log.d(TAG, "Logging out automatically: vendor not logged in")
             logout()
             true
         } else if (loginVM.hasInvalidToken(synchronizationManager.getPurchasesCount().blockingFirst())) {
             mainVM.setToastMessage(getString(R.string.token_expired_or_missing))
+            Log.d(TAG, "Logging out automatically: invalid token")
             logout()
             true
         } else {

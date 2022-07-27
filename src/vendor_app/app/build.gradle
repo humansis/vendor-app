@@ -32,7 +32,7 @@ def gitVersionCode = { boolean isFileName ->
 
 def VERSION_MAJOR = 3
 def VERSION_MINOR = 5
-def VERSION_PATCH = 1
+def VERSION_PATCH = 2
 
 
 String APK_NAME = "vendor-app"

@@ -66,6 +66,7 @@ class ShopFragment : Fragment(), CategoryAdapterCallback, ProductAdapterCallback
     private var syncStateDisposable: Disposable? = null
     private var productsDisposable: Disposable? = null
     private var addToCartDisposable: Disposable? = null
+    private var displayedDialog: AlertDialog? = null
     private var categoriesAllowed = MutableLiveData<Boolean>()
     private lateinit var appBarState: AppBarStateEnum
 
@@ -348,16 +349,19 @@ class ShopFragment : Fragment(), CategoryAdapterCallback, ProductAdapterCallback
 
             dialogBinding.productName.text = product.name
 
-            val dialog = AlertDialog.Builder(activity)
+            displayedDialog?.dismiss()
+            displayedDialog = AlertDialog.Builder(activity)
                 .setView(dialogBinding.root)
                 .show()
-            if (!resources.getBoolean(R.bool.isTablet)) {
-                dialog.window?.setLayout(
-                    resources.displayMetrics.widthPixels,
-                    LinearLayout.LayoutParams.WRAP_CONTENT
-                )
+            displayedDialog?.let { dialog ->
+                if (!resources.getBoolean(R.bool.isTablet)) {
+                    dialog.window?.setLayout(
+                        resources.displayMetrics.widthPixels,
+                        LinearLayout.LayoutParams.WRAP_CONTENT
+                    )
+                }
+                loadOptions(dialog, dialogBinding, product)
             }
-            loadOptions(dialog, dialogBinding, product)
         }
     }
 

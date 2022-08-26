@@ -34,7 +34,7 @@ class ScanCardFragment : Fragment() {
     private val vm: CheckoutViewModel by sharedViewModel()
     private var paymentDisposable: Disposable? = null
     private var clearCartDisposable: Disposable? = null
-    private var pinDialog: AlertDialog? = null
+    private var displayedDialog: AlertDialog? = null
     private lateinit var activityCallback: ActivityCallback
 
     private lateinit var scanCardBinding: FragmentScanCardBinding
@@ -145,11 +145,11 @@ class ScanCardFragment : Fragment() {
     }
 
     private fun showPinDialogAndPayByCard() {
-        pinDialog?.dismiss()
+        displayedDialog?.dismiss()
         Log.d(TAG, "Showing PIN code dialog")
         val dialogBinding = DialogCardPinBinding.inflate(layoutInflater, null, false)
         dialogBinding.pinTitle.text = getString(R.string.incorrect_pin)
-        pinDialog = AlertDialog.Builder(requireContext(), R.style.DialogTheme)
+        displayedDialog = AlertDialog.Builder(requireContext(), R.style.DialogTheme)
             .setView(dialogBinding.root)
             .setCancelable(false)
             .setPositiveButton(android.R.string.ok, null)
@@ -159,7 +159,7 @@ class ScanCardFragment : Fragment() {
                 navigateBack()
             }
             .show()
-        pinDialog?.let { dialog ->
+        displayedDialog?.let { dialog ->
             val positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
             positiveButton.isEnabled = false
             positiveButton.setOnClickListener {
@@ -196,6 +196,7 @@ class ScanCardFragment : Fragment() {
     }
 
     private fun onPaymentSuccessful(userBalance: UserBalance) {
+        displayedDialog?.dismiss()
         mainVM.successSLE.call()
         val dialogBinding = DialogSuccessBinding.inflate(layoutInflater, null, false)
         dialogBinding.title.text = getString(R.string.success)
@@ -209,7 +210,7 @@ class ScanCardFragment : Fragment() {
                     String()
                 }
         )
-        AlertDialog.Builder(requireContext(), R.style.SuccessDialogTheme).apply {
+        displayedDialog = AlertDialog.Builder(requireContext(), R.style.SuccessDialogTheme).apply {
             setView(dialogBinding.root)
             setPositiveButton(android.R.string.ok, null)
         }.show()

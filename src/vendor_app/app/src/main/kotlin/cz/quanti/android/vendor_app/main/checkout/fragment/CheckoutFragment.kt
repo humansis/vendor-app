@@ -39,6 +39,7 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
     private var removeProductDisposable: Disposable? = null
     private var removeProductsDisposable: Disposable? = null
     private var clearCartDisposable: Disposable? = null
+    private var displayedDialog: AlertDialog? = null
     private lateinit var activityCallback: ActivityCallback
 
     private lateinit var checkoutBinding: FragmentCheckoutBinding
@@ -127,8 +128,9 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
         }
 
         checkoutBinding.checkoutFooter.clearAllButton.setOnClickListener {
+            displayedDialog?.dismiss()
             Log.d(TAG, "Clear All button clicked.")
-            AlertDialog.Builder(requireContext(), R.style.DialogTheme)
+            displayedDialog = AlertDialog.Builder(requireContext(), R.style.DialogTheme)
                 .setTitle(getString(R.string.are_you_sure_dialog_title))
                 .setMessage(getString(R.string.clear_cart_dialog_message))
                 .setPositiveButton(
@@ -164,7 +166,8 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
     }
 
     override fun removeItemFromCart(product: SelectedProduct) {
-        AlertDialog.Builder(requireContext(), R.style.DialogTheme)
+        displayedDialog?.dismiss()
+        displayedDialog = AlertDialog.Builder(requireContext(), R.style.DialogTheme)
             .setTitle(getString(R.string.are_you_sure_dialog_title))
             .setMessage(getString(R.string.remove_product_from_cart_dialog_message))
             .setPositiveButton(
@@ -220,10 +223,12 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
 
     private fun showPinDialogAndPayByCard() {
         if (mainVM.enableNfc(requireActivity())) {
+            displayedDialog?.dismiss()
+            Log.d(TAG, "Showing PIN code dialog")
             val dialogBinding = DialogCardPinBinding.inflate(layoutInflater, null, false)
             dialogBinding.pinTitle.text =
                 getString(R.string.total_price, vm.getTotal(), vm.getCurrency())
-            val dialog = AlertDialog.Builder(requireContext(), R.style.DialogTheme)
+            displayedDialog = AlertDialog.Builder(requireContext(), R.style.DialogTheme)
                 .setView(dialogBinding.root)
                 .setCancelable(false)
                 .setPositiveButton(android.R.string.ok, null)
@@ -231,29 +236,31 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
                     dialog?.cancel()
                 }
                 .show()
-            val positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
-            positiveButton.isEnabled = false
-            positiveButton.setOnClickListener {
-                Log.d(TAG, "Dialog positive button clicked")
-                val pin = dialogBinding.pinEditText.text.toString()
-                when {
-                    pin.length == 4 -> {
-                        dialog?.dismiss()
-                        findNavController().navigate(
-                            CheckoutFragmentDirections.actionCheckoutFragmentToScanCardFragment(pin)
-                        )
-                    }
-                    pin.isEmpty() -> {
-                        mainVM.setToastMessage(getString(R.string.please_enter_pin))
-                    }
-                    else -> {
-                        mainVM.setToastMessage(getString(R.string.pin_too_short))
+            displayedDialog?.let { dialog ->
+                val positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
+                positiveButton.isEnabled = false
+                positiveButton.setOnClickListener {
+                    Log.d(TAG, "Dialog positive button clicked")
+                    val pin = dialogBinding.pinEditText.text.toString()
+                    when {
+                        pin.length == 4 -> {
+                            dialog.dismiss()
+                            findNavController().navigate(
+                                CheckoutFragmentDirections.actionCheckoutFragmentToScanCardFragment(pin)
+                            )
+                        }
+                        pin.isEmpty() -> {
+                            mainVM.setToastMessage(getString(R.string.please_enter_pin))
+                        }
+                        else -> {
+                            mainVM.setToastMessage(getString(R.string.pin_too_short))
+                        }
                     }
                 }
-            }
 
-            dialogBinding.pinEditText.doOnTextChanged { text, _, _, _ ->
-                positiveButton.isEnabled = !text.isNullOrEmpty()
+                dialogBinding.pinEditText.doOnTextChanged { text, _, _, _ ->
+                    positiveButton.isEnabled = !text.isNullOrEmpty()
+                }
             }
         }
     }
@@ -312,7 +319,8 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
         typesToRemove: Set<Int>? = null,
         rightBtnMsg: String
     ) {
-        AlertDialog.Builder(requireContext(), R.style.DialogTheme)
+        displayedDialog?.dismiss()
+        displayedDialog = AlertDialog.Builder(requireContext(), R.style.DialogTheme)
             .setTitle(title)
             .setMessage(message)
             .setPositiveButton(

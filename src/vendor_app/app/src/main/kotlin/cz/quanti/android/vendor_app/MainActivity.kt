@@ -312,7 +312,8 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
     }
 
     private fun showLogoutDialog() {
-        AlertDialog.Builder(this, R.style.DialogTheme)
+        displayedDialog?.dismiss()
+        displayedDialog = AlertDialog.Builder(this, R.style.DialogTheme)
             .setTitle(getString(R.string.are_you_sure_dialog_title))
             .setMessage(getString(R.string.logout_dialog_message))
             .setPositiveButton(
@@ -359,9 +360,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
                     readBalanceDisposable?.dispose()
                     readBalanceDisposable = null
                 }
-                .create().apply {
-                    show()
-                }
+                .show()
             showReadBalanceResult()
         }
     }
@@ -375,7 +374,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
                 displayedDialog?.dismiss()
                 val cardContent = it
                 val expirationDate = cardContent.expirationDate
-                val cardResultDialog = AlertDialog.Builder(this, R.style.DialogTheme)
+                displayedDialog = AlertDialog.Builder(this, R.style.DialogTheme)
                     .setTitle(getString((R.string.read_balance)))
                     .setMessage(
                         if (expirationDate != null && expirationDate < Date()) {
@@ -402,10 +401,8 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
                     .setOnDismissListener {
                         Log.d(TAG, "Read balance result dialog closed")
                     }
-                    .create()
-                cardResultDialog.show()
+                    .show()
                 mainVM.successSLE.call()
-                displayedDialog = cardResultDialog
             }, {
                 Log.e(TAG, it)
                 mainVM.setToastMessage(getString(R.string.card_error))

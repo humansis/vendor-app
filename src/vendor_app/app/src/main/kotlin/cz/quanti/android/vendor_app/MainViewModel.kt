@@ -35,6 +35,8 @@ class MainViewModel(
 
     private var nfcAdapter: NfcAdapter? = null
 
+    private var displayedDialog: AlertDialog? = null
+
     private val isNetworkConnectedLD = MutableLiveData<Boolean>()
 
     private val cameraPermissionsGrantedSLE = SingleLiveEvent<PermissionRequestResult>()
@@ -80,14 +82,14 @@ class MainViewModel(
     }
 
     private fun showWirelessSettings(context: Context) {
-        AlertDialog.Builder(context, R.style.DialogTheme)
+        displayedDialog?.dismiss()
+        displayedDialog = AlertDialog.Builder(context, R.style.DialogTheme)
             .setMessage(context.getString(R.string.you_need_to_enable_nfc))
             .setCancelable(true)
             .setPositiveButton(context.getString(R.string.proceed)) { _, _ ->
                 context.startActivity(Intent(Settings.ACTION_NFC_SETTINGS))
             }
             .setNegativeButton(context.getString(R.string.cancel), null)
-            .create()
             .show()
     }
 

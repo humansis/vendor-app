@@ -226,29 +226,26 @@ class LoginFragment : Fragment() {
     }
 
     private fun setCustomEnvironment(env: ApiEnvironments) {
-        setEnvironment(
-            try {
-                val fis = File(
-                    requireContext().getExternalFilesDir(null)?.absolutePath,
-                    "apiconfig.txt"
-                ).inputStream()
-                val bufferedReader = BufferedReader(InputStreamReader(fis, "UTF-8"))
-                val line = bufferedReader.readLine()
-                if (line.isNullOrBlank()) {
-                    throw java.lang.Exception("Custom Api host could not be read.")
-                } else {
+        try {
+            val fis = File(
+                requireContext().getExternalFilesDir(null)?.absolutePath,
+                "apiconfig.txt"
+            ).inputStream()
+            val bufferedReader = BufferedReader(InputStreamReader(fis, "UTF-8"))
+            val line = bufferedReader.readLine()
+            if (line.isNullOrBlank()) {
+                throw java.lang.Exception("Custom Api host could not be read.")
+            } else {
+                setEnvironment(
                     env.apply {
                         customUrl = line
                     }
-                }
-            } catch (e: Exception) {
-                Log.d(TAG, e)
-                // does not require string resource, since it only occurs in debug builds.
-                mainVM.setToastMessage("Custom Api host could not be read.")
-                // fallback to default
-                ApiEnvironments.STAGE
+                )
             }
-        )
+        } catch (e: Exception) {
+            Log.d(TAG, e)
+            mainVM.setToastMessage(e.message)
+        }
     }
 
     private fun setEnvironment(env: ApiEnvironments) {

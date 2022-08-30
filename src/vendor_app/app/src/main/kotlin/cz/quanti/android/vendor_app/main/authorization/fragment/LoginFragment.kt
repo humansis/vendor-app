@@ -26,11 +26,11 @@ import cz.quanti.android.vendor_app.utils.hideKeyboard
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
-import org.koin.androidx.viewmodel.ext.android.sharedViewModel
-import quanti.com.kotlinlog.Log
 import java.io.BufferedReader
 import java.io.File
 import java.io.InputStreamReader
+import org.koin.androidx.viewmodel.ext.android.sharedViewModel
+import quanti.com.kotlinlog.Log
 
 class LoginFragment : Fragment() {
 
@@ -240,7 +240,6 @@ class LoginFragment : Fragment() {
                     env.apply {
                         customUrl = line
                     }
-
                 }
             } catch (e: Exception) {
                 Log.d(TAG, e)

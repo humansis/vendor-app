@@ -28,6 +28,9 @@ import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import quanti.com.kotlinlog.Log
+import java.io.BufferedReader
+import java.io.File
+import java.io.InputStreamReader
 
 class LoginFragment : Fragment() {
 
@@ -71,12 +74,15 @@ class LoginFragment : Fragment() {
             popup.menu.add(0, ApiEnvironments.DEV3.id, 0, "DEV3 API")
             popup.menu.add(0, ApiEnvironments.TEST.id, 0, "TEST API")
             popup.menu.add(0, ApiEnvironments.LOCAL.id, 0, "LOCAL API")
+            popup.menu.add(0, ApiEnvironments.CUSTOM.id, 0, "CUSTOM API")
 
             popup.setOnMenuItemClickListener { item ->
-                val env = ApiEnvironments.values().find { it.id == item?.itemId }
-                env?.let {
-                    vm.setApiHost(it)
-                    loginBinding.envTextView.text = it.name
+                ApiEnvironments.values().find { it.id == item?.itemId }?.let { env ->
+                    if (env == ApiEnvironments.CUSTOM) {
+                        setCustomEnvironment(env)
+                    } else {
+                        setEnvironment(env)
+                    }
                 }
                 true
             }
@@ -100,8 +106,7 @@ class LoginFragment : Fragment() {
             ApiEnvironments.FRONT
         }
 
-        loginBinding.envTextView.text = defaultEnv.name
-        vm.setApiHost(defaultEnv)
+        setEnvironment(defaultEnv)
 
         loginBinding.logoImageView.setOnLongClickListener {
             SendLogDialogFragment.newInstance(
@@ -218,6 +223,38 @@ class LoginFragment : Fragment() {
     override fun onDestroy() {
         disposable?.dispose()
         super.onDestroy()
+    }
+
+    private fun setCustomEnvironment(env: ApiEnvironments) {
+        setEnvironment(
+            try {
+                val fis = File(
+                    requireContext().getExternalFilesDir(null)?.absolutePath,
+                    "apiconfig.txt"
+                ).inputStream()
+                val bufferedReader = BufferedReader(InputStreamReader(fis, "UTF-8"))
+                val line = bufferedReader.readLine()
+                if (line.isNullOrBlank()) {
+                    throw java.lang.Exception("Custom Api host could not be read.")
+                } else {
+                    env.apply {
+                        customUrl = line
+                    }
+
+                }
+            } catch (e: Exception) {
+                Log.d(TAG, e)
+                // does not require string resource, since it only occurs in debug builds.
+                mainVM.setToastMessage("Custom Api host could not be read.")
+                // fallback to default
+                ApiEnvironments.STAGE
+            }
+        )
+    }
+
+    private fun setEnvironment(env: ApiEnvironments) {
+        vm.setApiHost(env)
+        loginBinding.envTextView.text = env.name
     }
 
     companion object {

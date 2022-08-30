@@ -26,7 +26,11 @@ enum class ApiEnvironments(val id: Int, val secure: Boolean, val port: Int?) {
     },
     LOCAL(7, false, 8091) {
         override fun getUrl() = BuildConfig.LOCAL_API_URL
+    },
+    CUSTOM(8, true, null) {
+        override fun getUrl() = customUrl
     };
 
     abstract fun getUrl(): String
+    lateinit var customUrl: String
 }

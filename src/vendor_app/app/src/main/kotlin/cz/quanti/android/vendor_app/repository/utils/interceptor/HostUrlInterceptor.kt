@@ -1,6 +1,6 @@
 package cz.quanti.android.vendor_app.repository.utils.interceptor
 
-import cz.quanti.android.vendor_app.utils.ApiEnvironments
+import cz.quanti.android.vendor_app.utils.ApiEnvironment
 import okhttp3.Interceptor
 import okhttp3.Request
 import okhttp3.Response
@@ -8,9 +8,9 @@ import okhttp3.Response
 class HostUrlInterceptor : Interceptor {
 
     @Volatile
-    private var host: ApiEnvironments? = null
+    private var host: ApiEnvironment? = null
 
-    fun setHost(host: ApiEnvironments?) {
+    fun setHost(host: ApiEnvironment?) {
         this.host = host
     }
 
@@ -19,7 +19,7 @@ class HostUrlInterceptor : Interceptor {
         host?.let { host ->
             val newUrl = request.url().newBuilder()
                 .scheme(if (host.secure) HTTPS_SCHEME else HTTP_SCHEME)
-                .host(host.getUrl())
+                .host(host.url)
                 .port(host.port ?: HTTPS_PORT)
                 .build()
             request = request.newBuilder()

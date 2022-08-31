@@ -5,7 +5,7 @@ import cz.quanti.android.vendor_app.ActivityCallback
 import cz.quanti.android.vendor_app.repository.login.LoginFacade
 import cz.quanti.android.vendor_app.repository.utils.interceptor.HostUrlInterceptor
 import cz.quanti.android.vendor_app.sync.SynchronizationManager
-import cz.quanti.android.vendor_app.utils.ApiEnvironments
+import cz.quanti.android.vendor_app.utils.ApiEnvironment
 import cz.quanti.android.vendor_app.utils.CurrentVendor
 import io.reactivex.Completable
 
@@ -20,13 +20,13 @@ class LoginViewModel(
         return loginFacade.login(username, password)
     }
 
-    fun setApiHost(host: ApiEnvironments) {
+    fun setApiHost(host: ApiEnvironment) {
         hostUrlInterceptor.setHost(host)
-        currentVendor.url = host
+        currentVendor.host = host
     }
 
-    fun getApiHost(): ApiEnvironments? {
-        return currentVendor.url
+    fun getApiHost(): ApiEnvironment? {
+        return currentVendor.host
     }
 
     fun isVendorLoggedIn(): Boolean {

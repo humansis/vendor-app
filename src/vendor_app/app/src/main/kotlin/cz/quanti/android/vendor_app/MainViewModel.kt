@@ -14,7 +14,7 @@ import cz.quanti.android.nfc.VendorFacade
 import cz.quanti.android.nfc.dto.v2.UserBalance
 import cz.quanti.android.nfc.logger.NfcLogger
 import cz.quanti.android.vendor_app.repository.deposit.DepositFacade
-import cz.quanti.android.vendor_app.utils.ApiEnvironments
+import cz.quanti.android.vendor_app.utils.ApiEnvironment
 import cz.quanti.android.vendor_app.utils.Constants
 import cz.quanti.android.vendor_app.utils.CurrentVendor
 import cz.quanti.android.vendor_app.utils.NfcTagPublisher
@@ -44,8 +44,8 @@ class MainViewModel(
     val errorSLE = SingleLiveEvent<Unit>()
     val toastMessageSLE = SingleLiveEvent<String?>()
 
-    fun getApiHost(): ApiEnvironments? {
-        return currentVendor.url
+    fun getApiHost(): ApiEnvironment? {
+        return currentVendor.host
     }
 
     fun initNfcAdapter(activity: Activity) {

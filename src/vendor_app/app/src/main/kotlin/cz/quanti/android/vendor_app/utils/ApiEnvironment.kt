@@ -74,15 +74,15 @@ sealed class ApiEnvironment(
 
     companion object {
 
-        const val FRONT_API_TITLE = "FRONT API"
-        const val DEMO_API_TITLE = "DEMO API"
-        const val STAGE_API_TITLE = "STAGE API"
-        const val DEV1_API_TITLE = "DEV1 API"
-        const val DEV2_API_TITLE = "DEV2 API"
-        const val DEV3_API_TITLE = "DEV3 API"
-        const val TEST_API_TITLE = "TEST API"
-        const val LOCAL_API_TITLE = "LOCAL API"
-        const val CUSTOM_API_TITLE = "CUSTOM API"
+        const val FRONT_API_TITLE = "FRONT"
+        const val DEMO_API_TITLE = "DEMO"
+        const val STAGE_API_TITLE = "STAGE"
+        const val DEV1_API_TITLE = "DEV1"
+        const val DEV2_API_TITLE = "DEV2"
+        const val DEV3_API_TITLE = "DEV3"
+        const val TEST_API_TITLE = "TEST"
+        const val LOCAL_API_TITLE = "LOCAL"
+        const val CUSTOM_API_TITLE = "CUSTOM"
 
         fun createEnvironments(context: Context): List<ApiEnvironment> {
             return mutableListOf(

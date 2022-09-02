@@ -24,7 +24,7 @@ class AppPreferences(context: Context) : BasePreferences(context, VERSION, MIGRA
 
         private const val LAST_SYNCED = "pin_vendor_app_last_synced"
 
-        private const val API_URL = "pin_vendor_app_api_url"
+        private const val API_HOST = "pin_vendor_app_api_url"
 
         private const val CURRENCY = "pin_vendor_app_currency"
     }
@@ -70,9 +70,9 @@ class AppPreferences(context: Context) : BasePreferences(context, VERSION, MIGRA
             settings.edit().putString(VENDOR_TOKEN, vendor.token).apply()
         }
 
-    var url: String
-        get() = settings.getString(API_URL, "").toString()
-        set(url) = settings.edit().putString(API_URL, url).apply()
+    var host: String
+        get() = settings.getString(API_HOST, "").toString()
+        set(url) = settings.edit().putString(API_HOST, url).apply()
 
     var currency: String
         get() = settings.getString(CURRENCY, "").toString()

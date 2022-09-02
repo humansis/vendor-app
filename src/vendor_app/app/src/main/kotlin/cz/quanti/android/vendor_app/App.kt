@@ -30,6 +30,9 @@ class App : BaseApp() {
         preferences.init()
 
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true)
+
+        // init files dir
+        getExternalFilesDir(null)
     }
 
     private fun initLogger() {

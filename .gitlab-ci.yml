@@ -214,6 +214,8 @@ upload_release_candidate:
   when: manual
   environment:
     name: aws-rc
+  except:
+    - tags
 
 upload_stable_release:
   stage: upload_aws
@@ -221,6 +223,7 @@ upload_stable_release:
     APP_NAME: vendor-app
     APK: $ARTIFACT_RELEASE_PATH
   extends: .release_stable
+  when: always
   environment:
     name: aws-stable
   only:
@@ -232,6 +235,7 @@ upload_stable_debug:
     APP_NAME: vendor-app
     APK: $ARTIFACT_DEBUG_PATH
   extends: .release_stable_debug
+  when: always
   environment:
     name: aws-debug
   only:

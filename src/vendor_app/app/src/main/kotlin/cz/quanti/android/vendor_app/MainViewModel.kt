@@ -12,8 +12,9 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import cz.quanti.android.nfc.VendorFacade
 import cz.quanti.android.nfc.dto.v2.UserBalance
+import cz.quanti.android.nfc.logger.NfcLogger
 import cz.quanti.android.vendor_app.repository.deposit.DepositFacade
-import cz.quanti.android.vendor_app.utils.ApiEnvironments
+import cz.quanti.android.vendor_app.utils.ApiEnvironment
 import cz.quanti.android.vendor_app.utils.Constants
 import cz.quanti.android.vendor_app.utils.CurrentVendor
 import cz.quanti.android.vendor_app.utils.NfcTagPublisher
@@ -34,6 +35,8 @@ class MainViewModel(
 
     private var nfcAdapter: NfcAdapter? = null
 
+    private var displayedDialog: AlertDialog? = null
+
     private val isNetworkConnectedLD = MutableLiveData<Boolean>()
 
     private val cameraPermissionsGrantedSLE = SingleLiveEvent<PermissionRequestResult>()
@@ -41,8 +44,8 @@ class MainViewModel(
     val errorSLE = SingleLiveEvent<Unit>()
     val toastMessageSLE = SingleLiveEvent<String?>()
 
-    fun getApiHost(): ApiEnvironments? {
-        return currentVendor.url
+    fun getApiHost(): ApiEnvironment? {
+        return currentVendor.host
     }
 
     fun initNfcAdapter(activity: Activity) {
@@ -79,14 +82,14 @@ class MainViewModel(
     }
 
     private fun showWirelessSettings(context: Context) {
-        AlertDialog.Builder(context, R.style.DialogTheme)
+        displayedDialog?.dismiss()
+        displayedDialog = AlertDialog.Builder(context, R.style.DialogTheme)
             .setMessage(context.getString(R.string.you_need_to_enable_nfc))
             .setCancelable(true)
             .setPositiveButton(context.getString(R.string.proceed)) { _, _ ->
                 context.startActivity(Intent(Settings.ACTION_NFC_SETTINGS))
             }
             .setNegativeButton(context.getString(R.string.cancel), null)
-            .create()
             .show()
     }
 
@@ -110,14 +113,16 @@ class MainViewModel(
         toastMessageSLE.postValue(message)
     }
 
-    fun readBalance(): Single<UserBalance> {
+    fun readBalance(readBalanceStarted: () -> Unit): Single<UserBalance> {
         return nfcTagPublisher.getTagObservable().firstOrError().flatMap { tag ->
+            readBalanceStarted.invoke()
             depositFacade.getRelevantReliefPackage(convertTagToString(tag))
                 .subscribeOn(Schedulers.io())
                 .flatMap { wrappedReliefPackage ->
                     val reliefPackage = wrappedReliefPackage.nullableObject
                     nfcFacade.readUserBalance(tag, reliefPackage?.convertToDeposit())
                         .flatMap { userBalance ->
+                            NfcLogger.d(TAG, "readUserBalance: $userBalance")
                             if (userBalance.depositDone && reliefPackage != null) {
                                 depositFacade.updateReliefPackageInDB(reliefPackage.apply {
                                     createdAt = convertTimeForApiRequestBody(Date())

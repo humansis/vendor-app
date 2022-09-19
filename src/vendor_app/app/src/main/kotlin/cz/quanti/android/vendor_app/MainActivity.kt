@@ -312,12 +312,14 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
     }
 
     private fun showLogoutDialog() {
-        AlertDialog.Builder(this, R.style.DialogTheme)
+        displayedDialog?.dismiss()
+        displayedDialog = AlertDialog.Builder(this, R.style.DialogTheme)
             .setTitle(getString(R.string.are_you_sure_dialog_title))
             .setMessage(getString(R.string.logout_dialog_message))
             .setPositiveButton(
                 android.R.string.ok
             ) { _, _ ->
+                Log.d(TAG, "Positive button clicked")
                 logout()
             }
             .setNegativeButton(android.R.string.cancel, null)
@@ -353,27 +355,26 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
                 .setMessage(getString(R.string.scan_card))
                 .setCancelable(false)
                 .setNegativeButton(getString(R.string.cancel)) { dialog, _ ->
+                    Log.d(TAG, "Read balance dialog closed")
                     dialog?.dismiss()
                     readBalanceDisposable?.dispose()
                     readBalanceDisposable = null
                 }
-                .create().apply {
-                    show()
-                }
+                .show()
             showReadBalanceResult()
         }
     }
 
     private fun showReadBalanceResult() {
         readBalanceDisposable?.dispose()
-        readBalanceDisposable = mainVM.readBalance()
+        readBalanceDisposable = mainVM.readBalance(::readBalanceStartedCallback)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({
                 displayedDialog?.dismiss()
                 val cardContent = it
                 val expirationDate = cardContent.expirationDate
-                val cardResultDialog = AlertDialog.Builder(this, R.style.DialogTheme)
+                displayedDialog = AlertDialog.Builder(this, R.style.DialogTheme)
                     .setTitle(getString((R.string.read_balance)))
                     .setMessage(
                         if (expirationDate != null && expirationDate < Date()) {
@@ -397,16 +398,23 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
                         readBalanceDisposable?.dispose()
                         readBalanceDisposable = null
                     }
-                    .create()
-                cardResultDialog.show()
+                    .setOnDismissListener {
+                        Log.d(TAG, "Read balance result dialog closed")
+                    }
+                    .show()
                 mainVM.successSLE.call()
-                displayedDialog = cardResultDialog
             }, {
                 Log.e(TAG, it)
                 mainVM.setToastMessage(getString(R.string.card_error))
                 mainVM.errorSLE.call()
                 displayedDialog?.dismiss()
             })
+    }
+
+    private fun readBalanceStartedCallback() {
+        displayedDialog?.getButton(AlertDialog.BUTTON_NEGATIVE)?.let {
+            it.isEnabled = false
+        }
     }
 
     private fun shareLogsDialog() {
@@ -509,10 +517,12 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
 
     private fun logoutIfNotLoggedIn(): Boolean {
         return if (!loginVM.isVendorLoggedIn()) {
+            Log.d(TAG, "Logging out automatically: vendor not logged in")
             logout()
             true
         } else if (loginVM.hasInvalidToken(synchronizationManager.getPurchasesCount().blockingFirst())) {
             mainVM.setToastMessage(getString(R.string.token_expired_or_missing))
+            Log.d(TAG, "Logging out automatically: invalid token")
             logout()
             true
         } else {
@@ -634,7 +644,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
         if (BuildConfig.DEBUG) {
             navHeaderBinding.tvEnvironment.text = getString(
                 R.string.environment,
-                preferences.url
+                preferences.host
             )
         } else {
             navHeaderBinding.tvEnvironment.visibility = View.GONE

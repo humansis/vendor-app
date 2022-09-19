@@ -19,7 +19,7 @@ import cz.quanti.android.vendor_app.databinding.FragmentLoginBinding
 import cz.quanti.android.vendor_app.main.authorization.viewmodel.LoginViewModel
 import cz.quanti.android.vendor_app.repository.utils.exceptions.LoginException
 import cz.quanti.android.vendor_app.repository.utils.exceptions.LoginExceptionState
-import cz.quanti.android.vendor_app.utils.ApiEnvironments
+import cz.quanti.android.vendor_app.utils.ApiEnvironment
 import cz.quanti.android.vendor_app.utils.Constants
 import cz.quanti.android.vendor_app.utils.SendLogDialogFragment
 import cz.quanti.android.vendor_app.utils.hideKeyboard
@@ -63,20 +63,14 @@ class LoginFragment : Fragment() {
                 ContextThemeWrapper(requireContext(), R.style.PopupMenuTheme)
             val popup = PopupMenu(contextThemeWrapper, loginBinding.settingsImageView)
             popup.inflate(R.menu.api_urls_menu)
-            popup.menu.add(0, ApiEnvironments.FRONT.id, 0, "FRONT API")
-            popup.menu.add(0, ApiEnvironments.DEMO.id, 0, "DEMO API")
-            popup.menu.add(0, ApiEnvironments.STAGE.id, 0, "STAGE API")
-            popup.menu.add(0, ApiEnvironments.DEV1.id, 0, "DEV1 API")
-            popup.menu.add(0, ApiEnvironments.DEV2.id, 0, "DEV2 API")
-            popup.menu.add(0, ApiEnvironments.DEV3.id, 0, "DEV3 API")
-            popup.menu.add(0, ApiEnvironments.TEST.id, 0, "TEST API")
-            popup.menu.add(0, ApiEnvironments.LOCAL.id, 0, "LOCAL API")
+            val environments = ApiEnvironment.createEnvironments(requireContext())
+            environments.forEach {
+                popup.menu.add(0, it.id, 0, it.title)
+            }
 
             popup.setOnMenuItemClickListener { item ->
-                val env = ApiEnvironments.values().find { it.id == item?.itemId }
-                env?.let {
-                    vm.setApiHost(it)
-                    loginBinding.envTextView.text = it.name
+                environments.find { it.id == item?.itemId }?.let { env ->
+                    setEnvironment(env)
                 }
                 true
             }
@@ -87,7 +81,7 @@ class LoginFragment : Fragment() {
             loginBinding.settingsImageView.visibility = View.VISIBLE
             loginBinding.envTextView.visibility = View.VISIBLE
 
-            vm.getApiHost() ?: ApiEnvironments.STAGE
+            vm.getApiHost() ?: ApiEnvironment.Stage
         } else {
             loginBinding.settingsImageView.visibility = View.INVISIBLE
             loginBinding.envTextView.visibility = View.INVISIBLE
@@ -97,11 +91,10 @@ class LoginFragment : Fragment() {
                 return@setOnLongClickListener true
             }
 
-            ApiEnvironments.FRONT
+            ApiEnvironment.Front
         }
 
-        loginBinding.envTextView.text = defaultEnv.name
-        vm.setApiHost(defaultEnv)
+        setEnvironment(defaultEnv)
 
         loginBinding.logoImageView.setOnLongClickListener {
             SendLogDialogFragment.newInstance(
@@ -125,7 +118,7 @@ class LoginFragment : Fragment() {
 
         if (vm.isVendorLoggedIn()) {
             if (vm.getCurrentVendorName().equals(BuildConfig.DEMO_ACCOUNT, true)) {
-                vm.setApiHost(ApiEnvironments.STAGE)
+                vm.setApiHost(ApiEnvironment.Stage)
             }
             findNavController().navigate(
                 LoginFragmentDirections.actionLoginFragmentToProductsFragment()
@@ -142,7 +135,7 @@ class LoginFragment : Fragment() {
                     if (loginBinding.usernameEditText.text.toString()
                             .equals(BuildConfig.DEMO_ACCOUNT, true)
                     ) {
-                        vm.setApiHost(ApiEnvironments.STAGE)
+                        vm.setApiHost(ApiEnvironment.Stage)
                     }
 
                     loginBinding.loginButton.isEnabled = false
@@ -218,6 +211,11 @@ class LoginFragment : Fragment() {
     override fun onDestroy() {
         disposable?.dispose()
         super.onDestroy()
+    }
+
+    private fun setEnvironment(env: ApiEnvironment) {
+        vm.setApiHost(env)
+        loginBinding.envTextView.text = env.title
     }
 
     companion object {

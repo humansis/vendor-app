@@ -144,9 +144,10 @@ android {
         }
     }
 
-    lintOptions {
-        checkReleaseBuilds false
+    namespace 'cz.quanti.android.vendor_app'
+    lint {
         abortOnError false
+        checkReleaseBuilds false
     }
 }
 

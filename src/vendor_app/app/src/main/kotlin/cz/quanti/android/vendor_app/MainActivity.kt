@@ -20,7 +20,6 @@ import android.widget.AdapterView
 import android.widget.ImageButton
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
-import androidx.activity.addCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
@@ -275,10 +274,6 @@ class MainActivity :
     }
 
     private fun setUpBackNavigation() {
-        onBackPressedDispatcher.addCallback {
-            Log.d(TAG, "onBackPressed")
-        }
-
         val backPressedCallback = object : OnBackPressedCallback(false) {
             override fun handleOnBackPressed() {
                 activityBinding.drawerLayout.closeDrawer(GravityCompat.START)
@@ -291,7 +286,7 @@ class MainActivity :
             }
 
             override fun onDrawerOpened(drawerView: View) {
-                // do nothing
+                backPressedCallback.isEnabled = true
             }
 
             override fun onDrawerClosed(drawerView: View) {
@@ -299,7 +294,7 @@ class MainActivity :
             }
 
             override fun onDrawerStateChanged(newState: Int) {
-                backPressedCallback.isEnabled = true
+                // do nothing
             }
         })
 

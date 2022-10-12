@@ -48,7 +48,8 @@ class ProductFacadeImpl(
                     ).apply {
                         apiError = true
                         apiResponseCode = responseCode
-                    })
+                    }
+                )
             }
         }.onErrorResumeNext {
             Completable.error(
@@ -68,9 +69,11 @@ class ProductFacadeImpl(
             } else {
                 Observable.fromIterable(products).flatMapCompletable { product ->
                     productRepo.saveProduct(product)
-                        .andThen(Completable.fromCallable {
-                            Glide.with(context).load(product.image)
-                        })
+                        .andThen(
+                            Completable.fromCallable {
+                                Glide.with(context).load(product.image)
+                            }
+                        )
                 }
             }
         )

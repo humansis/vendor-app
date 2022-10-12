@@ -280,7 +280,7 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
                 if (limitExceeded.value == 0.0) {
                     message =
                         getString(R.string.commodity_type_not_allowed) + "\n" + commodityName +
-                            getString(R.string.remove_commodity_type, commodityName)
+                        getString(R.string.remove_commodity_type, commodityName)
                     typesToRemove = setOf(CategoryType.getById(limitExceeded.key).typeId)
                     rightBtnMsg = getString(R.string.cancel)
                 } else if (limitExceeded.value > 0) {

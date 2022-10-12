@@ -23,7 +23,6 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.google.android.material.appbar.AppBarLayout
-import com.google.android.material.appbar.AppBarLayout.OnOffsetChangedListener
 import cz.quanti.android.vendor_app.ActivityCallback
 import cz.quanti.android.vendor_app.MainActivity
 import cz.quanti.android.vendor_app.MainActivity.OnTouchOutsideViewListener
@@ -48,13 +47,16 @@ import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
-import java.math.BigDecimal
-import kotlin.math.abs
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import quanti.com.kotlinlog.Log
+import java.math.BigDecimal
+import kotlin.math.abs
 
-class ShopFragment : Fragment(), CategoryAdapterCallback, ProductAdapterCallback,
+class ShopFragment :
+    Fragment(),
+    CategoryAdapterCallback,
+    ProductAdapterCallback,
     OnTouchOutsideViewListener {
 
     private val mainVM: MainViewModel by sharedViewModel()
@@ -206,17 +208,16 @@ class ShopFragment : Fragment(), CategoryAdapterCallback, ProductAdapterCallback
             setAppBarHidden(!it)
             showCategories(it)
             if (it) {
-                shopBinding.categoriesAppBarLayout.addOnOffsetChangedListener(
-                    OnOffsetChangedListener { appBarLayout, verticalOffset ->
-                        if (abs(verticalOffset) >= appBarLayout.totalScrollRange) {
-                            if (appBarState != AppBarStateEnum.COLLAPSED) {
-                                appBarState = AppBarStateEnum.COLLAPSED
-                                shopBinding.categoriesRecyclerView.scrollToPosition(0)
-                            }
-                        } else {
-                            appBarState = AppBarStateEnum.EXPANDED
+                shopBinding.categoriesAppBarLayout.addOnOffsetChangedListener { appBarLayout, verticalOffset ->
+                    if (abs(verticalOffset) >= appBarLayout.totalScrollRange) {
+                        if (appBarState != AppBarStateEnum.COLLAPSED) {
+                            appBarState = AppBarStateEnum.COLLAPSED
+                            shopBinding.categoriesRecyclerView.scrollToPosition(0)
                         }
-                    })
+                    } else {
+                        appBarState = AppBarStateEnum.EXPANDED
+                    }
+                }
             }
         }
 
@@ -465,7 +466,8 @@ enum class AppBarStateEnum {
 private fun List<Category>.addAllCategory(context: Context): List<Category> {
     return this.toMutableList().apply {
         add(
-            0, Category(
+            0,
+            Category(
                 0,
                 context.getString(R.string.all_products),
                 CategoryType.ALL

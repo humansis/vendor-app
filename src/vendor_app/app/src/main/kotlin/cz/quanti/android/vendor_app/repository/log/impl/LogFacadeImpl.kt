@@ -9,10 +9,10 @@ import cz.quanti.android.vendor_app.utils.isPositiveResponseHttpCode
 import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.Single
-import java.util.concurrent.TimeUnit
 import quanti.com.kotlinlog.Log
 import quanti.com.kotlinlog.file.FileLogger
 import quanti.com.kotlinlog.utils.getZipOfLogs
+import java.util.concurrent.TimeUnit
 
 class LogFacadeImpl(
     private val logRepo: LogRepositoryImpl,

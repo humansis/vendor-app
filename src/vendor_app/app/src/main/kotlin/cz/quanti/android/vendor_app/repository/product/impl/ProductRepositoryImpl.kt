@@ -24,9 +24,12 @@ class ProductRepositoryImpl(
             if (products == null) {
                 products = listOf()
             }
-            Pair(response.code(), products.map { productApiEntity ->
-                convert(productApiEntity)
-            })
+            Pair(
+                response.code(),
+                products.map { productApiEntity ->
+                    convert(productApiEntity)
+                }
+            )
         }
     }
 

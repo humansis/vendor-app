@@ -110,10 +110,11 @@ class PurchaseRepositoryImpl(
         return if (product.product.category.type == CategoryType.CASHBACK) {
             selectedProductDao.getAll().flatMapCompletable { selectedProducts ->
                 if (selectedProducts.none {
-                        categoryRepo.getCategory(
+                    categoryRepo.getCategory(
                             productDao.getProductById(it.productId).categoryId
                         ).type == CategoryType.CASHBACK
-                    }) {
+                }
+                ) {
                     selectedProductDao.insert(convertToDb(product))
                 } else {
                     Log.e(TAG, "One cashback item already in cart")

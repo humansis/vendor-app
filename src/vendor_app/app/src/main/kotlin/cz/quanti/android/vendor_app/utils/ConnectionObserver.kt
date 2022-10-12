@@ -8,14 +8,14 @@ import android.net.NetworkCapabilities.NET_CAPABILITY_INTERNET
 import android.net.NetworkRequest
 import io.reactivex.Observable
 import io.reactivex.subjects.BehaviorSubject
-import java.io.IOException
-import java.net.InetSocketAddress
-import javax.net.SocketFactory
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import quanti.com.kotlinlog.Log
+import java.io.IOException
+import java.net.InetSocketAddress
+import javax.net.SocketFactory
 
 /**
  * Save all available networks with an internet connection to a set (@validNetworks).

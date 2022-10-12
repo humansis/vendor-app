@@ -58,6 +58,7 @@ class InvoiceFacadeImpl(
         return invoiceRepo.deleteInvoices().andThen(
             Observable.fromIterable(invoices).flatMapCompletable { invoice ->
                 Completable.fromSingle(invoiceRepo.saveInvoice(invoice))
-            })
+            }
+        )
     }
 }

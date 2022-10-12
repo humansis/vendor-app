@@ -42,8 +42,10 @@ class DecimalDigitsInputFilter(digitsBeforeZero: Int?, digitsAfterZero: Int?) :
         dend: Int
     ): CharSequence? {
         val replacement = source.subSequence(start, end).toString()
-        val newVal = (dest.subSequence(0, dstart).toString() + replacement +
-            dest.subSequence(dend, dest.length).toString())
+        val newVal = (
+            dest.subSequence(0, dstart).toString() + replacement +
+                dest.subSequence(dend, dest.length).toString()
+            )
         val matcher = mPattern.matcher(newVal)
         if (matcher.matches()) return null
         return if (TextUtils.isEmpty(source)) dest.subSequence(dstart, dend) else ""

@@ -42,7 +42,9 @@ import cz.quanti.android.vendor_app.repository.utils.typeconverter.DateTypeConve
         TransactionDbEntity::class,
         TransactionPurchaseDbEntity::class,
         ReliefPackageDbEntity::class
-    ], version = 10, exportSchema = false
+    ],
+    version = 10,
+    exportSchema = false
 )
 @TypeConverters(DateTypeConverter::class)
 abstract class VendorDb : RoomDatabase() {

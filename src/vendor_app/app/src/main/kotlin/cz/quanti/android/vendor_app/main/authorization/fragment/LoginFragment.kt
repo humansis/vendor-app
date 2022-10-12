@@ -130,10 +130,10 @@ class LoginFragment : Fragment() {
                 Log.d(TAG, "Login button clicked.")
                 hideKeyboard()
                 if (loginBinding.usernameEditText.text.toString()
-                        .isNotEmpty() && loginBinding.passwordEditText.text.toString().isNotEmpty()
+                    .isNotEmpty() && loginBinding.passwordEditText.text.toString().isNotEmpty()
                 ) {
                     if (loginBinding.usernameEditText.text.toString()
-                            .equals(BuildConfig.DEMO_ACCOUNT, true)
+                        .equals(BuildConfig.DEMO_ACCOUNT, true)
                     ) {
                         vm.setApiHost(ApiEnvironment.Stage)
                     }

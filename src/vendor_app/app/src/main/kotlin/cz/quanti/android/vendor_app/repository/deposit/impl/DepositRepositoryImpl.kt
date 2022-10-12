@@ -13,9 +13,9 @@ import cz.quanti.android.vendor_app.utils.isPositiveResponseHttpCode
 import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.Single
-import java.util.Date
 import quanti.com.kotlinlog.Log
 import retrofit2.Response
+import java.util.Date
 
 class DepositRepositoryImpl(
     private val reliefPackageDao: ReliefPackageDao,
@@ -54,9 +54,11 @@ class DepositRepositoryImpl(
                             deleteReliefPackagesFromDB()
                         } else {
                             response.body()?.data?.let { data ->
-                                actualizeDatabase(data.map {
-                                    convert(it)
-                                })
+                                actualizeDatabase(
+                                    data.map {
+                                        convert(it)
+                                    }
+                                )
                             }
                         }
                     }
@@ -130,9 +132,11 @@ class DepositRepositoryImpl(
     }
 
     private fun postReliefPackages(reliefPackages: List<ReliefPackage>): Single<Response<Unit>> {
-        return api.postReliefPackages(reliefPackages.map {
-            convertForPost(it)
-        })
+        return api.postReliefPackages(
+            reliefPackages.map {
+                convertForPost(it)
+            }
+        )
     }
 
     private fun convert(reliefPackageApiEntity: ReliefPackageApiEntity): ReliefPackage {

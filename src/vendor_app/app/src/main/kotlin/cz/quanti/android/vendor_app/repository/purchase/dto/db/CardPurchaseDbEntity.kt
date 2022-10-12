@@ -8,15 +8,19 @@ import cz.quanti.android.vendor_app.repository.VendorDb
 
 @Entity(
     tableName = VendorDb.TABLE_CARD_PURCHASE,
-    indices = [Index(
-        value = ["purchaseId"]
-    )],
-    foreignKeys = [ForeignKey(
-        onDelete = ForeignKey.CASCADE,
-        entity = PurchaseDbEntity::class,
-        parentColumns = ["dbId"],
-        childColumns = ["purchaseId"]
-    )]
+    indices = [
+        Index(
+            value = ["purchaseId"]
+        )
+    ],
+    foreignKeys = [
+        ForeignKey(
+            onDelete = ForeignKey.CASCADE,
+            entity = PurchaseDbEntity::class,
+            parentColumns = ["dbId"],
+            childColumns = ["purchaseId"]
+        )
+    ]
 )
 data class CardPurchaseDbEntity(
     @PrimaryKey(autoGenerate = true)

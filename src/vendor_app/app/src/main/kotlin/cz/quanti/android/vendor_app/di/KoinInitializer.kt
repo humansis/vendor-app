@@ -56,7 +56,6 @@ import cz.quanti.android.vendor_app.utils.ShoppingHolder
 import cz.quanti.android.vendor_app.utils.isPositiveResponseHttpCode
 import cz.quanti.android.vendor_app.utils.logRequestBody
 import cz.quanti.android.vendor_app.utils.logResponseBody
-import java.util.concurrent.TimeUnit
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import org.koin.android.ext.koin.androidContext
@@ -68,6 +67,7 @@ import org.koin.dsl.module
 import quanti.com.kotlinlog.Log
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.util.concurrent.TimeUnit
 
 object KoinInitializer {
 

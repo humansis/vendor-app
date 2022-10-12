@@ -13,6 +13,12 @@ import cz.quanti.android.nfc.dto.v2.UserBalance
 import cz.quanti.android.nfc_io_libray.types.NfcUtil
 import cz.quanti.android.vendor_app.R
 import cz.quanti.android.vendor_app.repository.category.dto.CategoryType
+import okhttp3.Headers
+import okhttp3.RequestBody
+import okhttp3.ResponseBody
+import okio.Buffer
+import okio.GzipSource
+import quanti.com.kotlinlog.Log
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.nio.charset.Charset
@@ -21,12 +27,6 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import kotlin.math.abs
-import okhttp3.Headers
-import okhttp3.RequestBody
-import okhttp3.ResponseBody
-import okio.Buffer
-import okio.GzipSource
-import quanti.com.kotlinlog.Log
 
 private val forbiddenRegex = Regex("(password|multipart/form-data|^<html>)")
 

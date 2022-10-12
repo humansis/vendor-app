@@ -30,7 +30,8 @@ class CardFacadeImpl(private val cardRepo: CardRepository) : CardFacade {
                     .andThen(
                         Observable.fromIterable(blockedCards).flatMapCompletable { blockedCard ->
                             cardRepo.saveBlockedCard(blockedCard)
-                        })
+                        }
+                    )
             } else {
                 throw VendorAppException("Could not load blocked cards").apply {
                     this.apiResponseCode = responseCode

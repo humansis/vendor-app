@@ -193,13 +193,16 @@ class CheckoutViewModel(
                                                 "subtractedBalanceFromCard: balance: ${userBalance.balance}, currencyCode: ${userBalance.currencyCode}, beneficiaryId: ${userBalance.userId}, assistanceId: ${userBalance.assistanceId}, depositDone: ${userBalance.depositDone}"
                                             )
                                             if (userBalance.depositDone && reliefPackage != null) {
-                                                depositFacade.updateReliefPackageInDB(reliefPackage.apply {
-                                                    createdAt = convertTimeForApiRequestBody(Date())
-                                                    balanceBefore = userBalance.originalBalance
-                                                    balanceAfter = reliefPackage.amount
-                                                }).toSingle {
+                                                depositFacade.updateReliefPackageInDB(
+                                                    reliefPackage.apply {
+                                                        createdAt = convertTimeForApiRequestBody(Date())
+                                                        balanceBefore = userBalance.originalBalance
+                                                        balanceAfter = reliefPackage.amount
+                                                    }
+                                                ).toSingle {
                                                     Pair(
-                                                        tag, UserBalance(
+                                                        tag,
+                                                        UserBalance(
                                                             userBalance.userId,
                                                             userBalance.assistanceId,
                                                             userBalance.expirationDate,

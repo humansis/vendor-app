@@ -2,10 +2,10 @@ package cz.quanti.android.vendor_app.utils
 
 import android.content.Context
 import cz.quanti.android.vendor_app.BuildConfig
+import quanti.com.kotlinlog.Log
 import java.io.BufferedReader
 import java.io.File
 import java.io.InputStreamReader
-import quanti.com.kotlinlog.Log
 
 sealed class ApiEnvironment(
     val id: Int,

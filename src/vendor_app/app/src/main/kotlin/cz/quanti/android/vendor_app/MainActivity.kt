@@ -56,12 +56,15 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.exceptions.CompositeException
 import io.reactivex.schedulers.Schedulers
-import java.util.Date
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import quanti.com.kotlinlog.Log
+import java.util.Date
 
-class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCallback,
+class MainActivity :
+    AppCompatActivity(),
+    ActivityCallback,
+    NfcAdapter.ReaderCallback,
     NavigationView.OnNavigationItemSelectedListener {
 
     private val loginFacade: LoginFacade by inject()
@@ -298,7 +301,6 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
             override fun onDrawerStateChanged(newState: Int) {
                 backPressedCallback.isEnabled = true
             }
-
         })
 
         onBackPressedDispatcher.addCallback(this, backPressedCallback)
@@ -659,10 +661,12 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
                 resources.getDimensionPixelSize(R.dimen.nav_header_image_height_regular)
             }
 
-        var appVersion = (getString(R.string.app_name) + " " + getString(
-            R.string.version,
-            BuildConfig.VERSION_NAME
-        ))
+        var appVersion = (
+            getString(R.string.app_name) + " " + getString(
+                R.string.version,
+                BuildConfig.VERSION_NAME
+            )
+            )
         if (BuildConfig.DEBUG) {
             appVersion += (" (" + BuildConfig.BUILD_NUMBER + ")")
         }

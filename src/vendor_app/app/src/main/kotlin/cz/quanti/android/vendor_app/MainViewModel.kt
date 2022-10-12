@@ -124,11 +124,13 @@ class MainViewModel(
                         .flatMap { userBalance ->
                             NfcLogger.d(TAG, "readUserBalance: $userBalance")
                             if (userBalance.depositDone && reliefPackage != null) {
-                                depositFacade.updateReliefPackageInDB(reliefPackage.apply {
-                                    createdAt = convertTimeForApiRequestBody(Date())
-                                    balanceBefore = userBalance.originalBalance
-                                    balanceAfter = reliefPackage.amount
-                                }).toSingle {
+                                depositFacade.updateReliefPackageInDB(
+                                    reliefPackage.apply {
+                                        createdAt = convertTimeForApiRequestBody(Date())
+                                        balanceBefore = userBalance.originalBalance
+                                        balanceAfter = reliefPackage.amount
+                                    }
+                                ).toSingle {
                                     UserBalance(
                                         userBalance.userId,
                                         userBalance.assistanceId,

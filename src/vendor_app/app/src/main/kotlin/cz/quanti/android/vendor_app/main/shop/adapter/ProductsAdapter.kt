@@ -13,9 +13,9 @@ import cz.quanti.android.vendor_app.databinding.ItemProductBinding
 import cz.quanti.android.vendor_app.main.shop.callback.ProductAdapterCallback
 import cz.quanti.android.vendor_app.main.shop.viewholder.ProductViewHolder
 import cz.quanti.android.vendor_app.repository.product.dto.Product
-import java.util.Locale
 import org.koin.core.component.KoinComponent
 import quanti.com.kotlinlog.Log
+import java.util.Locale
 
 class ProductsAdapter(
     private val productAdapterCallback: ProductAdapterCallback,

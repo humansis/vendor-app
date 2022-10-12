@@ -21,9 +21,12 @@ class CategoryRepositoryImpl(
             if (categories == null) {
                 categories = listOf()
             }
-            Pair(response.code(), categories.map { categoryApiEntity ->
-                convert(categoryApiEntity)
-            })
+            Pair(
+                response.code(),
+                categories.map { categoryApiEntity ->
+                    convert(categoryApiEntity)
+                }
+            )
         }
     }
 

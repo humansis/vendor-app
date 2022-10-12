@@ -37,16 +37,17 @@ class CategoryFacadeImpl(
                     ).apply {
                         apiError = true
                         apiResponseCode = responseCode
-                    })
-            }
-        }.onErrorResumeNext {
-                Completable.error(
-                    SynchronizationManagerImpl.ExceptionWithReason(
-                        it,
-                        "Failed downloading categories"
-                    )
+                    }
                 )
             }
+        }.onErrorResumeNext {
+            Completable.error(
+                SynchronizationManagerImpl.ExceptionWithReason(
+                    it,
+                    "Failed downloading categories"
+                )
+            )
+        }
     }
 
     private fun actualizeDatabase(categories: List<Category>?): Completable {

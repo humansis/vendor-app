@@ -55,14 +55,14 @@ android {
     kotlinOptions {
         jvmTarget = "11"
     }
-    compileSdkVersion compile_sdk_version
+    compileSdkVersion target_sdk_version
 
     ndkVersion "21.3.6528147"
 
     defaultConfig {
         applicationId "cz.quanti.android.vendor_app"
         minSdkVersion min_sdk_version
-        targetSdkVersion target_version
+        targetSdkVersion target_sdk_version
         versionCode gitVersionCode(false)
         versionName VERSION_NAME
         setProperty("archivesBaseName", VERSION_FULL_NAME_FILE)
@@ -156,7 +156,7 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar', '*.aar'])
 
     // ktlint
-    ktlint "com.pinterest:ktlint:0.35.0"
+    ktlint "com.pinterest:ktlint:0.44.0"
 
     //analytics
     implementation 'com.google.firebase:firebase-analytics:19.0.0'

@@ -19,6 +19,8 @@ import android.view.View
 import android.widget.AdapterView
 import android.widget.ImageButton
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
+import androidx.activity.addCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
@@ -113,6 +115,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
         initNfc()
         setUpToolbar()
         setUpNavigationMenu()
+        setUpBackNavigation()
         initObservers()
     }
 
@@ -203,15 +206,6 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
         return true
     }
 
-    override fun onBackPressed() {
-        Log.d(TAG, "onBackPressed")
-        if (activityBinding.drawerLayout.isDrawerOpen(GravityCompat.START)) {
-            activityBinding.drawerLayout.closeDrawer(GravityCompat.START)
-        } else {
-            super.onBackPressed()
-        }
-    }
-
     private fun initNfc() {
         mainVM.initNfcAdapter(this)
         activityBinding.navView.menu.findItem(R.id.read_balance_button).apply {
@@ -275,6 +269,39 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
             showLogoutDialog()
             activityBinding.drawerLayout.closeDrawer(GravityCompat.START)
         }
+    }
+
+    private fun setUpBackNavigation() {
+        onBackPressedDispatcher.addCallback {
+            Log.d(TAG, "onBackPressed")
+        }
+
+        val backPressedCallback = object : OnBackPressedCallback(false) {
+            override fun handleOnBackPressed() {
+                activityBinding.drawerLayout.closeDrawer(GravityCompat.START)
+            }
+        }
+
+        activityBinding.drawerLayout.addDrawerListener(object : DrawerLayout.DrawerListener {
+            override fun onDrawerSlide(drawerView: View, slideOffset: Float) {
+                // do nothing
+            }
+
+            override fun onDrawerOpened(drawerView: View) {
+                // do nothing
+            }
+
+            override fun onDrawerClosed(drawerView: View) {
+                backPressedCallback.isEnabled = false
+            }
+
+            override fun onDrawerStateChanged(newState: Int) {
+                backPressedCallback.isEnabled = true
+            }
+
+        })
+
+        onBackPressedDispatcher.addCallback(this, backPressedCallback)
     }
 
     private fun initObservers() {

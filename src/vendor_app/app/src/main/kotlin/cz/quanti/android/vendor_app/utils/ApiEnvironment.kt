@@ -72,6 +72,10 @@ sealed class ApiEnvironment(
         url = readCustomUrl(context)
     )
 
+    override fun toString(): String {
+        return "ApiEnvironment(id=$id, title='$title', secure=$secure, url='$url', port=$port)"
+    }
+
     companion object {
 
         const val PROD_API_TITLE = "PROD"

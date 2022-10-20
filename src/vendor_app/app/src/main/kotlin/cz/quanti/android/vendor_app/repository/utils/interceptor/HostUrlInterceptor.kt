@@ -4,6 +4,7 @@ import cz.quanti.android.vendor_app.utils.ApiEnvironment
 import okhttp3.Interceptor
 import okhttp3.Request
 import okhttp3.Response
+import quanti.com.kotlinlog.Log
 
 class HostUrlInterceptor : Interceptor {
 
@@ -11,6 +12,7 @@ class HostUrlInterceptor : Interceptor {
     private var host: ApiEnvironment? = null
 
     fun setHost(host: ApiEnvironment?) {
+        Log.d(TAG, "Host set: $host")
         this.host = host
     }
 
@@ -30,6 +32,8 @@ class HostUrlInterceptor : Interceptor {
     }
 
     companion object {
+        const val TAG = "HostUrlInterceptor"
+
         const val HTTPS_PORT = 443
         const val HTTPS_SCHEME = "https"
         const val HTTP_SCHEME = "http"

@@ -413,7 +413,9 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
 
     private fun readBalanceStartedCallback() {
         displayedDialog?.getButton(AlertDialog.BUTTON_NEGATIVE)?.let {
-            it.isEnabled = false
+            it.post {
+                it.isEnabled = false
+            }
         }
     }
 

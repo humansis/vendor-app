@@ -16,13 +16,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-        <TextView
-            android:id="@+id/price"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="@color/red"
-            android:textSize="@dimen/dialog_title" />
-
         <ProgressBar
             android:id="@+id/scanningProgressBar"
             android:layout_width="@dimen/dimen_64dp"
@@ -32,20 +25,27 @@
             android:indeterminate="true"
             android:indeterminateTint="@color/colorPrimaryDark" />
 
-        <View
+        <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/icon"
             android:layout_width="@dimen/dimen_128dp"
             android:layout_height="@dimen/dimen_128dp"
             android:layout_margin="@dimen/dimen_16dp"
-            android:visibility="gone"
-            android:background="@drawable/ic_warning"
-            android:backgroundTint="@color/red" />
+            tools:src="@drawable/anim_nfc"/>
+
+        <TextView
+            android:id="@+id/price"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/dimen_16dp"
+            android:textColor="@color/red"
+            android:textSize="@dimen/dialog_title"
+            tools:text="Total: 4,20 USD"/>
 
         <TextView
             android:id="@+id/message"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:padding="@dimen/dimen_32dp"
+            android:padding="@dimen/dimen_16dp"
             android:textAlignment="center"
             android:text="@string/scan_card"
             android:textSize="@dimen/fragment_big_title"

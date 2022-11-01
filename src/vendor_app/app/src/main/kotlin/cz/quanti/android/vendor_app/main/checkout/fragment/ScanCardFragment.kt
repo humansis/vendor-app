@@ -9,7 +9,6 @@ import androidx.activity.OnBackPressedCallback
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
-import com.bumptech.glide.Glide
 import cz.quanti.android.nfc.dto.v2.UserBalance
 import cz.quanti.android.nfc.exception.PINException
 import cz.quanti.android.nfc.exception.PINExceptionEnum
@@ -18,8 +17,10 @@ import cz.quanti.android.vendor_app.ActivityCallback
 import cz.quanti.android.vendor_app.MainViewModel
 import cz.quanti.android.vendor_app.R
 import cz.quanti.android.vendor_app.databinding.DialogCardPinBinding
+import cz.quanti.android.vendor_app.databinding.DialogErrorBinding
 import cz.quanti.android.vendor_app.databinding.DialogSuccessBinding
 import cz.quanti.android.vendor_app.databinding.FragmentScanCardBinding
+import cz.quanti.android.vendor_app.main.checkout.ScanCardAnimation
 import cz.quanti.android.vendor_app.main.checkout.viewmodel.CheckoutViewModel
 import cz.quanti.android.vendor_app.main.checkout.viewmodel.CheckoutViewModel.PaymentStateEnum
 import cz.quanti.android.vendor_app.utils.getExpirationDateAsString
@@ -40,6 +41,8 @@ class ScanCardFragment : Fragment() {
 
     private lateinit var scanCardBinding: FragmentScanCardBinding
 
+    private lateinit var scanCardAnimation: ScanCardAnimation
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -50,6 +53,7 @@ class ScanCardFragment : Fragment() {
         activityCallback.setDrawerLocked(true)
         activityCallback.setSyncButtonEnabled(false)
         scanCardBinding = FragmentScanCardBinding.inflate(inflater, container, false)
+        scanCardAnimation = ScanCardAnimation(scanCardBinding.scanCardAnimation)
 
         return scanCardBinding.root
     }
@@ -101,25 +105,18 @@ class ScanCardFragment : Fragment() {
             }
         }
 
-        Glide.with(requireContext())
-            .asGif()
-            .load(R.drawable.anim_nfc)
-            .into(scanCardBinding.icon) // TODO use proper icon instead of placeholder
-
         vm.getPaymentState().observe(viewLifecycleOwner) {
             val state = it.first
             val result = it.second
             when (state) {
                 PaymentStateEnum.READY -> {
-                    scanCardBinding.icon.visibility = View.VISIBLE
-                    scanCardBinding.price.visibility = View.VISIBLE
+                    scanCardAnimation.startScanCardAnimation(result?.throwable != null)
                     scanCardBinding.scanningProgressBar.visibility = View.GONE
                     scanCardBinding.message.text = getString(R.string.scan_card)
                 }
                 PaymentStateEnum.IN_PROGRESS -> {
                     displayedDialog?.dismiss()
-                    scanCardBinding.icon.visibility = View.GONE
-                    scanCardBinding.price.visibility = View.GONE
+                    scanCardAnimation.stopScanCardAnimation()
                     scanCardBinding.scanningProgressBar.visibility = View.VISIBLE
                     scanCardBinding.message.text = getString(R.string.payment_in_progress)
                 }
@@ -211,9 +208,11 @@ class ScanCardFragment : Fragment() {
         displayedDialog?.dismiss()
         Log.d(TAG, "Showing preserve balance dialog")
         payByCard()
+        val dialogBinding = DialogErrorBinding.inflate(layoutInflater, null, false)
+        dialogBinding.title.text = getString(R.string.card_error)
+        dialogBinding.message.text = getString(R.string.scan_card_to_fix)
         displayedDialog = AlertDialog.Builder(requireContext(), R.style.DialogTheme)
-            .setTitle(R.string.card_error)
-            .setMessage(R.string.scan_card_to_fix)
+            .setView(dialogBinding.root)
             .setPositiveButton(android.R.string.ok, null)
             .setOnDismissListener { dialog ->
                 Log.d(TAG, "Preserve balance dialog positive button clicked")

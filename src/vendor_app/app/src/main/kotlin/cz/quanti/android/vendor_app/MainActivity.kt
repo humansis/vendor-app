@@ -590,7 +590,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
         return field.get(activityBinding.appBar.toolbar) as? ImageButton
     }
 
-    override fun setBackButtonEnabled(enabled: Boolean) {
+    override fun setToolbarUpButtonEnabled(enabled: Boolean) {
         getToolbarUpButton()?.isEnabled = enabled
         if (!enabled) {
             // I could not find a better method to make the arrow grey when disabled
@@ -604,6 +604,10 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
         } else {
             getToolbarUpButton()?.drawable?.setTint(ContextCompat.getColor(this, R.color.black))
         }
+    }
+
+    override fun setOnToolbarUpClickListener(onClicked: () -> Unit) {
+        getToolbarUpButton()?.setOnClickListener { onClicked.invoke() }
     }
 
     override fun setSyncButtonEnabled(enabled: Boolean) {

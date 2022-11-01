@@ -110,7 +110,7 @@ class ScanCardFragment : Fragment() {
             val result = it.second
             when (state) {
                 PaymentStateEnum.READY -> {
-                    scanCardAnimation.startScanCardAnimation(result?.throwable != null)
+                    scanCardAnimation.startScanCardAnimation(vm.getOriginalCardData().preserveBalance != null)
                     scanCardBinding.scanningProgressBar.visibility = View.GONE
                     scanCardBinding.message.text = getString(R.string.scan_card)
                 }
@@ -249,7 +249,7 @@ class ScanCardFragment : Fragment() {
             setView(dialogBinding.root)
             setPositiveButton(android.R.string.ok, null)
         }.show()
-        vm.setPaymentState(PaymentStateEnum.READY)
+        vm.resetPaymentState()
         vm.setOriginalCardData(null, null)
         clearCart()
         findNavController().navigate(
@@ -271,7 +271,7 @@ class ScanCardFragment : Fragment() {
 
     private fun onPaymentFailed(throwable: Throwable) {
         mainVM.errorSLE.call()
-        vm.setPaymentState(PaymentStateEnum.READY)
+        vm.resetPaymentState()
         when (throwable) {
             is PINException -> {
                 Log.e(TAG, throwable.pinExceptionEnum.name + " TagId: ${NfcUtil.toHexString(throwable.tagId)}")

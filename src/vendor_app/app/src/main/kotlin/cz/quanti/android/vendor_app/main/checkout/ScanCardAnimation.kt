@@ -21,5 +21,4 @@ class ScanCardAnimation(
     fun stopScanCardAnimation() {
         scanCardBinding.root.visibility = View.GONE
     }
-
 }

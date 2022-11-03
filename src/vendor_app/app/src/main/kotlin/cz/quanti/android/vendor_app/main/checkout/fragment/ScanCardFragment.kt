@@ -92,6 +92,7 @@ class ScanCardFragment : Fragment() {
     override fun onDestroyView() {
         activityCallback.setDrawerLocked(false)
         activityCallback.setSyncButtonEnabled(true)
+        activityCallback.setOnToolbarUpClickListener(null)
         super.onDestroyView()
     }
 

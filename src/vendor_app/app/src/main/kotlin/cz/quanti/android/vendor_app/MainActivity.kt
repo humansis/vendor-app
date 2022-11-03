@@ -54,10 +54,10 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.exceptions.CompositeException
 import io.reactivex.schedulers.Schedulers
-import java.util.Date
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import quanti.com.kotlinlog.Log
+import java.util.Date
 
 class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCallback,
     NavigationView.OnNavigationItemSelectedListener {
@@ -326,10 +326,11 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
             .show()
     }
 
-    private fun logout() {
+    private fun logout(): Boolean {
         emptyData()
         loginFacade.logout()
         findNavController(R.id.nav_host_fragment).popBackStack(R.id.loginFragment, false)
+        return true
     }
 
     private fun emptyData() {
@@ -521,12 +522,10 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
         return if (!loginVM.isVendorLoggedIn()) {
             Log.d(TAG, "Logging out automatically: vendor not logged in")
             logout()
-            true
         } else if (loginVM.hasInvalidToken(synchronizationManager.getPurchasesCount().blockingFirst())) {
             mainVM.setToastMessage(getString(R.string.token_expired_or_missing))
             Log.d(TAG, "Logging out automatically: invalid token")
             logout()
-            true
         } else {
             false
         }
@@ -606,8 +605,16 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
         }
     }
 
-    override fun setOnToolbarUpClickListener(onClicked: () -> Unit) {
-        getToolbarUpButton()?.setOnClickListener { onClicked.invoke() }
+    override fun setOnToolbarUpClickListener(onClicked: (() -> Unit)?) {
+        activityBinding.appBar.fakeToolbarUpButton.apply {
+            visibility = if (onClicked != null) {
+                setOnClickListener { onClicked.invoke() }
+                View.VISIBLE
+            } else {
+                setOnClickListener {  }
+                View.GONE
+            }
+        }
     }
 
     override fun setSyncButtonEnabled(enabled: Boolean) {

@@ -326,11 +326,10 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
             .show()
     }
 
-    private fun logout(): Boolean {
+    private fun logout() {
         emptyData()
         loginFacade.logout()
         findNavController(R.id.nav_host_fragment).popBackStack(R.id.loginFragment, false)
-        return true
     }
 
     private fun emptyData() {
@@ -522,10 +521,12 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
         return if (!loginVM.isVendorLoggedIn()) {
             Log.d(TAG, "Logging out automatically: vendor not logged in")
             logout()
+            true
         } else if (loginVM.hasInvalidToken(synchronizationManager.getPurchasesCount().blockingFirst())) {
             mainVM.setToastMessage(getString(R.string.token_expired_or_missing))
             Log.d(TAG, "Logging out automatically: invalid token")
             logout()
+            true
         } else {
             false
         }

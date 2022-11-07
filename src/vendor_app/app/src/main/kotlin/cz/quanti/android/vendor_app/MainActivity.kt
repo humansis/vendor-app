@@ -606,8 +606,16 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
         }
     }
 
-    override fun setOnToolbarUpClickListener(onClicked: () -> Unit) {
-        getToolbarUpButton()?.setOnClickListener { onClicked.invoke() }
+    override fun setOnToolbarUpClickListener(onClicked: (() -> Unit)?) {
+        activityBinding.appBar.fakeToolbarUpButton.apply {
+            visibility = if (onClicked != null) {
+                setOnClickListener { onClicked.invoke() }
+                View.VISIBLE
+            } else {
+                setOnClickListener { }
+                View.GONE
+            }
+        }
     }
 
     override fun setSyncButtonEnabled(enabled: Boolean) {

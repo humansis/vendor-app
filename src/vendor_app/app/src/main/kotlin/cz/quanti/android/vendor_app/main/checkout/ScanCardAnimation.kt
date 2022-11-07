@@ -15,6 +15,7 @@ class ScanCardAnimation(
     private val scanCardBinding: LayoutScanCardAnimationBinding
 ) {
     private var animation: ObjectAnimator? = null
+    private val handler: Handler = Handler(Looper.getMainLooper())
 
     fun startScanCardAnimation(preserveBalance: Boolean) {
         scanCardBinding.root.visibility = View.VISIBLE
@@ -51,7 +52,7 @@ class ScanCardAnimation(
                 }
                 doOnRepeat {
                     pause()
-                    Handler(Looper.getMainLooper()).postDelayed(
+                    handler.postDelayed(
                         {
                             resume()
                             cardAttached = !cardAttached
@@ -73,6 +74,7 @@ class ScanCardAnimation(
 
     fun stopScanCardAnimation() {
         animation?.end()
+        handler.removeCallbacksAndMessages(null)
         scanCardBinding.root.visibility = View.GONE
     }
 }

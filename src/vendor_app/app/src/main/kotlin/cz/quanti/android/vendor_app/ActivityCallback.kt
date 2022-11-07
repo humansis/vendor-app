@@ -8,7 +8,7 @@ interface ActivityCallback {
     fun setSubtitle(titleText: String?)
     fun setDrawerLocked(locked: Boolean)
     fun setToolbarUpButtonEnabled(enabled: Boolean)
-    fun setOnToolbarUpClickListener(onClicked: () -> Unit)
+    fun setOnToolbarUpClickListener(onClicked: (() -> Unit)?)
     fun setSyncButtonEnabled(enabled: Boolean)
     fun setUpBackground()
     fun loadNavHeader(currentVendorName: String)

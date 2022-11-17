@@ -60,11 +60,11 @@ class CheckoutViewModel(
         return amounts
     }
 
-    fun setPaymentState(paymentState: PaymentStateEnum) {
-        this.paymentStateLD.postValue(Pair(paymentState, null))
+    fun resetPaymentState() {
+        this.paymentStateLD.postValue(Pair(PaymentStateEnum.READY, null))
     }
 
-    private fun setPaymentState(paymentState: PaymentStateEnum, result: PaymentResult) {
+    private fun setPaymentState(paymentState: PaymentStateEnum, result: PaymentResult? = null) {
         this.paymentStateLD.postValue(Pair(paymentState, result))
     }
 

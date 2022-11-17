@@ -11,6 +11,7 @@
 
     <color name="white">#FFFFFF</color>
     <color name="black">#0F0F0F</color>
+    <color name="transparent">#00000000</color>
     <color name="lightBlue">#cceeff</color>
     <color name="darkBlue">#02617f</color>
     <color name="darkerBlue">#074F60</color>

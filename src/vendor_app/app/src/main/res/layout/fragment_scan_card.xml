@@ -20,32 +20,33 @@
             android:id="@+id/price"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:padding="@dimen/dimen_16dp"
             android:textColor="@color/red"
-            android:textSize="@dimen/dialog_title" />
+            android:textSize="@dimen/dialog_title"
+            tools:text="Total: 4,20 USD"/>
 
         <ProgressBar
             android:id="@+id/scanningProgressBar"
-            android:layout_width="@dimen/dimen_64dp"
-            android:layout_height="@dimen/dimen_64dp"
+            android:layout_width="@dimen/dimen_180dp"
+            android:layout_height="@dimen/dimen_180dp"
+            android:padding="@dimen/dimen_48dp"
             android:layout_margin="@dimen/dimen_16dp"
             android:visibility="gone"
             android:indeterminate="true"
             android:indeterminateTint="@color/colorPrimaryDark" />
 
-        <View
-            android:id="@+id/icon"
-            android:layout_width="@dimen/dimen_128dp"
-            android:layout_height="@dimen/dimen_128dp"
-            android:layout_margin="@dimen/dimen_16dp"
-            android:visibility="gone"
-            android:background="@drawable/ic_warning"
-            android:backgroundTint="@color/red" />
+        <include
+            android:id="@+id/scanCardAnimation"
+            layout="@layout/layout_scan_card_animation"
+            android:layout_width="@dimen/dimen_240dp"
+            android:layout_height="@dimen/dimen_240dp"
+            android:layout_margin="@dimen/dimen_16dp" />
 
         <TextView
             android:id="@+id/message"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:padding="@dimen/dimen_32dp"
+            android:padding="@dimen/dimen_16dp"
             android:textAlignment="center"
             android:text="@string/scan_card"
             android:textSize="@dimen/fragment_big_title"

@@ -17,8 +17,10 @@ import cz.quanti.android.vendor_app.ActivityCallback
 import cz.quanti.android.vendor_app.MainViewModel
 import cz.quanti.android.vendor_app.R
 import cz.quanti.android.vendor_app.databinding.DialogCardPinBinding
+import cz.quanti.android.vendor_app.databinding.DialogErrorBinding
 import cz.quanti.android.vendor_app.databinding.DialogSuccessBinding
 import cz.quanti.android.vendor_app.databinding.FragmentScanCardBinding
+import cz.quanti.android.vendor_app.main.checkout.ScanCardAnimation
 import cz.quanti.android.vendor_app.main.checkout.viewmodel.CheckoutViewModel
 import cz.quanti.android.vendor_app.main.checkout.viewmodel.CheckoutViewModel.PaymentStateEnum
 import cz.quanti.android.vendor_app.utils.getExpirationDateAsString
@@ -39,6 +41,8 @@ class ScanCardFragment : Fragment() {
 
     private lateinit var scanCardBinding: FragmentScanCardBinding
 
+    private lateinit var scanCardAnimation: ScanCardAnimation
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -49,6 +53,7 @@ class ScanCardFragment : Fragment() {
         activityCallback.setDrawerLocked(true)
         activityCallback.setSyncButtonEnabled(false)
         scanCardBinding = FragmentScanCardBinding.inflate(inflater, container, false)
+        scanCardAnimation = ScanCardAnimation(scanCardBinding.scanCardAnimation)
 
         return scanCardBinding.root
     }
@@ -87,13 +92,18 @@ class ScanCardFragment : Fragment() {
     override fun onDestroyView() {
         activityCallback.setDrawerLocked(false)
         activityCallback.setSyncButtonEnabled(true)
+        activityCallback.setOnToolbarUpClickListener(null)
         super.onDestroyView()
     }
 
     private fun init() {
         scanCardBinding.backButton.setOnClickListener {
             Log.d(TAG, "Back button clicked.")
-            navigateBack()
+            if (vm.getOriginalCardData().preserveBalance == null) {
+                navigateBack()
+            } else {
+                showPreserveBalanceDialogAndPayByCard()
+            }
         }
 
         vm.getPaymentState().observe(viewLifecycleOwner) {
@@ -101,19 +111,13 @@ class ScanCardFragment : Fragment() {
             val result = it.second
             when (state) {
                 PaymentStateEnum.READY -> {
+                    scanCardAnimation.startScanCardAnimation(vm.getOriginalCardData().preserveBalance != null)
                     scanCardBinding.scanningProgressBar.visibility = View.GONE
-                    if (vm.getOriginalCardData().preserveBalance == null) {
-                        scanCardBinding.price.visibility = View.VISIBLE
-                        scanCardBinding.message.text = getString(R.string.scan_card)
-                    } else {
-                        scanCardBinding.icon.visibility = View.VISIBLE
-                        scanCardBinding.message.text = getString(R.string.scan_card_to_fix)
-                    }
+                    scanCardBinding.message.text = getString(R.string.scan_card)
                 }
                 PaymentStateEnum.IN_PROGRESS -> {
-                    // show spinning progressbar if scanning is in progress
-                    scanCardBinding.price.visibility = View.GONE
-                    scanCardBinding.icon.visibility = View.GONE
+                    displayedDialog?.dismiss()
+                    scanCardAnimation.stopScanCardAnimation()
                     scanCardBinding.scanningProgressBar.visibility = View.VISIBLE
                     scanCardBinding.message.text = getString(R.string.payment_in_progress)
                 }
@@ -125,23 +129,38 @@ class ScanCardFragment : Fragment() {
                 }
             }
 
-            // prevent leaving ScanCardFragment when theres scanning in progress or when card got broken during previous payment
-            val enableLeaving =
-                state != PaymentStateEnum.IN_PROGRESS && vm.getOriginalCardData().preserveBalance == null
-            activityCallback.setBackButtonEnabled(enableLeaving)
-            scanCardBinding.backButton.isEnabled = (enableLeaving)
-            requireActivity().onBackPressedDispatcher.addCallback(
-                viewLifecycleOwner,
-                object : OnBackPressedCallback(true) {
-                    override fun handleOnBackPressed() {
-                        if (enableLeaving) {
-                            // allow to navigate back only in this case
+            updateBackNavigationSettings(state)
+        }
+    }
+
+    private fun updateBackNavigationSettings(state: PaymentStateEnum) {
+        // prevent leaving ScanCardFragment when theres scanning in progress
+        val enableLeaving = state != PaymentStateEnum.IN_PROGRESS
+        val preservingBalance = vm.getOriginalCardData().preserveBalance != null
+        activityCallback.setToolbarUpButtonEnabled(enableLeaving)
+        activityCallback.setOnToolbarUpClickListener(
+            if (preservingBalance) {
+                ::showPreserveBalanceDialogAndPayByCard
+            } else {
+                ::navigateBack
+            }
+        )
+        scanCardBinding.backButton.isEnabled = (enableLeaving)
+        requireActivity().onBackPressedDispatcher.addCallback(
+            viewLifecycleOwner,
+            object : OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() {
+                    // allow to navigate back only in this case
+                    if (enableLeaving) {
+                        if (preservingBalance) {
+                            showPreserveBalanceDialogAndPayByCard()
+                        } else {
                             navigateBack()
                         }
                     }
                 }
-            )
-        }
+            }
+        )
     }
 
     private fun showPinDialogAndPayByCard() {
@@ -154,7 +173,7 @@ class ScanCardFragment : Fragment() {
             .setCancelable(false)
             .setPositiveButton(android.R.string.ok, null)
             .setNegativeButton(android.R.string.cancel) { dialog, _ ->
-                Log.d(TAG, "Dialog negative button clicked")
+                Log.d(TAG, "Pin dialog negative button clicked")
                 dialog?.dismiss()
                 navigateBack()
             }
@@ -163,7 +182,7 @@ class ScanCardFragment : Fragment() {
             val positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
             positiveButton.isEnabled = false
             positiveButton.setOnClickListener {
-                Log.d(TAG, "Dialog positive button clicked")
+                Log.d(TAG, "Pin dialog positive button clicked")
                 val pin = dialogBinding.pinEditText.text.toString()
                 when {
                     pin.length == 4 -> {
@@ -184,6 +203,23 @@ class ScanCardFragment : Fragment() {
                 positiveButton.isEnabled = !text.isNullOrEmpty()
             }
         }
+    }
+
+    private fun showPreserveBalanceDialogAndPayByCard() {
+        displayedDialog?.dismiss()
+        Log.d(TAG, "Showing preserve balance dialog")
+        payByCard()
+        val dialogBinding = DialogErrorBinding.inflate(layoutInflater, null, false)
+        dialogBinding.title.text = getString(R.string.card_error)
+        dialogBinding.message.text = getString(R.string.scan_card_to_fix)
+        displayedDialog = AlertDialog.Builder(requireContext(), R.style.DialogTheme)
+            .setView(dialogBinding.root)
+            .setPositiveButton(android.R.string.ok, null)
+            .setOnDismissListener { dialog ->
+                Log.d(TAG, "Preserve balance dialog positive button clicked")
+                dialog?.dismiss()
+            }
+            .show()
     }
 
     private fun payByCard() {
@@ -214,7 +250,7 @@ class ScanCardFragment : Fragment() {
             setView(dialogBinding.root)
             setPositiveButton(android.R.string.ok, null)
         }.show()
-        vm.setPaymentState(PaymentStateEnum.READY)
+        vm.resetPaymentState()
         vm.setOriginalCardData(null, null)
         clearCart()
         findNavController().navigate(
@@ -236,7 +272,7 @@ class ScanCardFragment : Fragment() {
 
     private fun onPaymentFailed(throwable: Throwable) {
         mainVM.errorSLE.call()
-        vm.setPaymentState(PaymentStateEnum.READY)
+        vm.resetPaymentState()
         when (throwable) {
             is PINException -> {
                 Log.e(TAG, throwable.pinExceptionEnum.name + " TagId: ${NfcUtil.toHexString(throwable.tagId)}")
@@ -255,7 +291,7 @@ class ScanCardFragment : Fragment() {
                             throwable.tagId
                         )
                         mainVM.setToastMessage(getNfcCardErrorMessage(throwable.pinExceptionEnum))
-                        payByCard()
+                        showPreserveBalanceDialogAndPayByCard()
                     }
                     PINExceptionEnum.LIMIT_EXCEEDED -> {
                         Log.d(TAG, "Limit exceeded ${throwable.reconstructLimitExceeded()}.")

@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="username">Имя пользователя</string>
     <string name="password">Пароль</string>
@@ -52,10 +53,10 @@
     <string name="unknown">Неизвестно</string>
     <string name="status">Статус</string>
     <string name="close">Закрыть</string>
-    <string name="project">Проект</string>
+    <string name="date">Дата %1$s</string>
     <string name="quantity">Количество %1$d</string>
     <string name="total_price">Итого %1$.2f %2$s</string>
-    <string name="date">Дата %1$s</string>
+    <string name="project">Проект</string>
     <string name="export_logs">послать журналы учета</string>
     <string name="logs_dialog_title">Поделиться журналами учета</string>
     <string name="logs_dialog_message">Вы хотите поделиться журналами учета?</string>

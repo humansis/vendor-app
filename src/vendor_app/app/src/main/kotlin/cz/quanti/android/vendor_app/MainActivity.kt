@@ -413,7 +413,9 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
 
     private fun readBalanceStartedCallback() {
         displayedDialog?.getButton(AlertDialog.BUTTON_NEGATIVE)?.let {
-            it.isEnabled = false
+            it.post {
+                it.isEnabled = false
+            }
         }
     }
 
@@ -588,7 +590,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
         return field.get(activityBinding.appBar.toolbar) as? ImageButton
     }
 
-    override fun setBackButtonEnabled(enabled: Boolean) {
+    override fun setToolbarUpButtonEnabled(enabled: Boolean) {
         getToolbarUpButton()?.isEnabled = enabled
         if (!enabled) {
             // I could not find a better method to make the arrow grey when disabled
@@ -601,6 +603,18 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
             getToolbarUpButton()?.drawable?.setTint(ContextCompat.getColor(this, R.color.grey))
         } else {
             getToolbarUpButton()?.drawable?.setTint(ContextCompat.getColor(this, R.color.black))
+        }
+    }
+
+    override fun setOnToolbarUpClickListener(onClicked: (() -> Unit)?) {
+        activityBinding.appBar.fakeToolbarUpButton.apply {
+            visibility = if (onClicked != null) {
+                setOnClickListener { onClicked.invoke() }
+                View.VISIBLE
+            } else {
+                setOnClickListener { }
+                View.GONE
+            }
         }
     }
 

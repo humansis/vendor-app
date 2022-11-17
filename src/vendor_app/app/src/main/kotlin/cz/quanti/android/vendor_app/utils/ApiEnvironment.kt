@@ -14,10 +14,10 @@ sealed class ApiEnvironment(
     val url: String,
     val port: Int? = null
 ) {
-    object Front : ApiEnvironment(
+    object Prod : ApiEnvironment(
         id = 0,
-        title = FRONT_API_TITLE,
-        url = BuildConfig.FRONT_API_URL
+        title = PROD_API_TITLE,
+        url = BuildConfig.PROD_API_URL
     )
 
     object Demo : ApiEnvironment(
@@ -72,9 +72,13 @@ sealed class ApiEnvironment(
         url = readCustomUrl(context)
     )
 
+    override fun toString(): String {
+        return "ApiEnvironment(id=$id, title='$title', secure=$secure, url='$url', port=$port)"
+    }
+
     companion object {
 
-        const val FRONT_API_TITLE = "FRONT"
+        const val PROD_API_TITLE = "PROD"
         const val DEMO_API_TITLE = "DEMO"
         const val STAGE_API_TITLE = "STAGE"
         const val DEV1_API_TITLE = "DEV1"
@@ -86,7 +90,7 @@ sealed class ApiEnvironment(
 
         fun createEnvironments(context: Context): List<ApiEnvironment> {
             return mutableListOf(
-                Front,
+                Prod,
                 Demo,
                 Stage,
                 Dev1,
@@ -120,7 +124,7 @@ sealed class ApiEnvironment(
 
         fun find(title: String): ApiEnvironment? {
             return when (title) {
-                FRONT_API_TITLE -> Front
+                PROD_API_TITLE -> Prod
                 DEMO_API_TITLE -> Demo
                 STAGE_API_TITLE -> Stage
                 DEV1_API_TITLE -> Dev1

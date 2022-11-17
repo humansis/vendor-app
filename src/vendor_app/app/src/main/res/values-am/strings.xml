@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="username">የተጠቃሚ ስም</string>
     <string name="password">የይለፍ ቃል</string>
@@ -50,12 +51,12 @@
     <string name="humansis">humansis</string>
     <string name="loading">በመጫን ላይ</string>
     <string name="unknown">ያልታወቀ</string>
-    <string name="status">" ሁኔታ"</string>
+    <string name="status"> ሁኔታ</string>
     <string name="close">ዝጋ</string>
-    <string name="project">ፕሮጀክት</string>
+    <string name="date">ቀን %1$s</string>
     <string name="quantity">ብዛት %1$d</string>
     <string name="total_price">ድምር %1$.2f %2$s</string>
-    <string name="date">ቀን %1$s</string>
+    <string name="project">ፕሮጀክት</string>
     <string name="confirm">ማዋቀር</string>
     <string name="error_service_unavailable">አገልግሎት የለም</string>
     <string name="network_connection_lost">የአውታረ መረብ ግንኙነት ጠፍቷል</string>

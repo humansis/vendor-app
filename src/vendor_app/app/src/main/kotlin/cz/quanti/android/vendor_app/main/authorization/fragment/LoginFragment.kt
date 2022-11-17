@@ -91,7 +91,7 @@ class LoginFragment : Fragment() {
                 return@setOnLongClickListener true
             }
 
-            ApiEnvironment.Front
+            ApiEnvironment.Prod
         }
 
         setEnvironment(defaultEnv)

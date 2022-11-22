@@ -21,10 +21,8 @@ import cz.quanti.android.vendor_app.utils.NfcTagPublisher
 import cz.quanti.android.vendor_app.utils.PermissionRequestResult
 import cz.quanti.android.vendor_app.utils.SingleLiveEvent
 import cz.quanti.android.vendor_app.utils.convertTagToString
-import cz.quanti.android.vendor_app.utils.convertTimeForApiRequestBody
 import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
-import java.util.Date
 
 class MainViewModel(
     private val nfcFacade: VendorFacade,
@@ -119,27 +117,23 @@ class MainViewModel(
             depositFacade.getRelevantReliefPackage(convertTagToString(tag))
                 .subscribeOn(Schedulers.io())
                 .flatMap { wrappedReliefPackage ->
-                    val reliefPackage = wrappedReliefPackage.nullableObject
-                    nfcFacade.readUserBalance(tag, reliefPackage?.convertToDeposit())
+                    val deposit = wrappedReliefPackage.nullableObject?.convertToDeposit()
+                    nfcFacade.readUserBalance(tag)
                         .flatMap { userBalance ->
-                            NfcLogger.d(TAG, "readUserBalance: $userBalance")
-                            if (userBalance.depositDone && reliefPackage != null) {
-                                depositFacade.updateReliefPackageInDB(reliefPackage.apply {
-                                    createdAt = convertTimeForApiRequestBody(Date())
-                                    balanceBefore = userBalance.originalBalance
-                                    balanceAfter = reliefPackage.amount
-                                }).toSingle {
+                            NfcLogger.d(TAG, "readUserBalance: $userBalance, reliefPackage: $deposit")
+                            if (deposit != null && deposit.assistanceId != userBalance.assistanceId) {
+                                Single.just(
                                     UserBalance(
-                                        userBalance.userId,
-                                        userBalance.assistanceId,
-                                        userBalance.expirationDate,
-                                        userBalance.currencyCode,
-                                        reliefPackage.amount,
-                                        userBalance.balance,
-                                        userBalance.limits,
-                                        userBalance.depositDone
+                                        userId = deposit.beneficiaryId,
+                                        assistanceId = deposit.assistanceId,
+                                        expirationDate = deposit.expirationDate,
+                                        currencyCode = deposit.currency,
+                                        originalBalance = userBalance.balance,
+                                        balance = deposit.amount,
+                                        limits = deposit.limits,
+                                        depositDone = false
                                     )
-                                }
+                                )
                             } else {
                                 Single.just(userBalance)
                             }

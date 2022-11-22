@@ -35,7 +35,9 @@ class DepositFacadeImpl(
         return depositRepo.deleteOldReliefPackages().andThen(
             depositRepo.getReliefPackagesFromDB(tagId).map { reliefPackages ->
                 NullableObjectWrapper(
-                    reliefPackages.sortedWith(nullsLast(compareBy { it.expirationDate }))
+                    reliefPackages
+                        .filter { it.createdAt == null }
+                        .sortedWith(nullsLast(compareBy { it.expirationDate }))
                         .firstOrNull()
                 )
             }

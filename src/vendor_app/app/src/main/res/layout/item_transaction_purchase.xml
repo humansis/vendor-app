@@ -23,17 +23,19 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:maxLines="1"
             android:textColor="@color/black"
-            tools:text="Date: 65d4sf65ds24f6sd2fd" />
+            tools:text="Date: 12.22.22 15:46" />
 
         <TextView
             android:id="@+id/transaction_purchase_total"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:maxLines="1"
             android:textAlignment="textEnd"
             android:textColor="@color/black"
-            tools:text="Total: 420.69 USD" />
+            tools:text="420.69 USD" />
     </LinearLayout>
 
 </LinearLayout>

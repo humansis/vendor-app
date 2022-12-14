@@ -190,7 +190,7 @@ class CheckoutViewModel(
                                         ).flatMap { userBalance ->
                                             NfcLogger.d(
                                                 TAG,
-                                                "subtractedBalanceFromCard: balance: ${userBalance.balance}, currencyCode: ${userBalance.currencyCode}, beneficiaryId: ${userBalance.userId}, assistanceId: ${userBalance.assistanceId}, depositDone: ${userBalance.depositDone}"
+                                                "subtractedBalanceFromCard: remaining balance: ${userBalance.balance}, currencyCode: ${userBalance.currencyCode}, beneficiaryId: ${userBalance.userId}, assistanceId: ${userBalance.assistanceId}, depositDone: ${userBalance.depositDone}"
                                             )
                                             if (userBalance.depositDone && reliefPackage != null) {
                                                 depositFacade.updateReliefPackageInDB(reliefPackage.apply {

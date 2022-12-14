@@ -32,10 +32,10 @@ sealed class ApiEnvironment(
         url = BuildConfig.STAGE_API_URL
     )
 
-    object Dev : ApiEnvironment(
+    object Dev1 : ApiEnvironment(
         id = 3,
-        title = DEV_API_TITLE,
-        url = BuildConfig.DEV_API_URL
+        title = DEV1_API_TITLE,
+        url = BuildConfig.DEV1_API_URL
     )
 
     object Dev2 : ApiEnvironment(
@@ -81,7 +81,7 @@ sealed class ApiEnvironment(
         const val PROD_API_TITLE = "PROD"
         const val DEMO_API_TITLE = "DEMO"
         const val STAGE_API_TITLE = "STAGE"
-        const val DEV_API_TITLE = "DEV"
+        const val DEV1_API_TITLE = "DEV"
         const val DEV2_API_TITLE = "DEV2"
         const val DEV3_API_TITLE = "DEV3"
         const val TEST_API_TITLE = "TEST"
@@ -93,7 +93,7 @@ sealed class ApiEnvironment(
                 Prod,
                 Demo,
                 Stage,
-                Dev,
+                Dev1,
                 Dev2,
                 Dev3,
                 Test,
@@ -127,7 +127,7 @@ sealed class ApiEnvironment(
                 PROD_API_TITLE -> Prod
                 DEMO_API_TITLE -> Demo
                 STAGE_API_TITLE -> Stage
-                DEV_API_TITLE -> Dev
+                DEV1_API_TITLE -> Dev1
                 DEV2_API_TITLE -> Dev2
                 DEV3_API_TITLE -> Dev3
                 TEST_API_TITLE -> Test

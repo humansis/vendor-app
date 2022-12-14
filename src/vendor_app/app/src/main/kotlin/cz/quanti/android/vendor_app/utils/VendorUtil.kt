@@ -117,11 +117,10 @@ fun convertTimeForApiRequestBody(date: Date): String {
 }
 
 val headerDateFormat = SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss z", Locale.US)
-val queryDateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US)
 
 fun convertHeaderDateToString(header: String): String? {
     val date = headerDateFormat.parse(header)
-    return date?.let { queryDateFormat.format(it) }
+    return date?.let { apiDateFormat.format(it) }
 }
 
 fun convertStringToDateFormattedString(context: Context, date: String): String? {

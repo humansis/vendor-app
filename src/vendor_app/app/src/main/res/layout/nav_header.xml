@@ -38,7 +38,7 @@
         android:textColor="@color/grey"
         android:textAlignment="center"
         android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-        tools:text="Environment: DEV" />
+        tools:text="Environment: DEV1" />
 
     <TextView
         android:id="@+id/tv_username"

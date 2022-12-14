@@ -23,6 +23,7 @@ class CurrentVendor(private val preferences: AppPreferences) {
     }
 
     fun clear() {
+        preferences.lastReliefPackageSync = null
         preferences.vendor = Vendor()
     }
 }

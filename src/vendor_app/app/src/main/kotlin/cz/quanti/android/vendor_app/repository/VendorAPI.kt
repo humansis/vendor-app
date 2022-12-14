@@ -65,7 +65,8 @@ interface VendorAPI {
     @GET("v1/vendors/{id}/relief-packages")
     fun getReliefPackages(
         @Path("id") vendorId: Int,
-        @Query("filter[states][]") state: String
+        @Query("filter[lastModifiedFrom]") lastModified: String?,
+        @Query("filter[states][]") state: String?
     ): Single<Response<PagedApiEntity<ReliefPackageApiEntity>>>
 
     @POST("v1/syncs/deposit")

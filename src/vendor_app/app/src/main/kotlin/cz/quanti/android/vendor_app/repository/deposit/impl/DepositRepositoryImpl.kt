@@ -60,12 +60,7 @@ class DepositRepositoryImpl(
             .flatMapCompletable { response ->
                 when {
                     isPositiveResponseHttpCode(response.code()) -> {
-                        val reliefPackages = response.body()?.data
-                        if (reliefPackages.isNullOrEmpty()) {
-                            Log.d("RD returned from server were empty.")
-                            preferences.lastReliefPackageSync = null
-                            deleteReliefPackagesFromDb()
-                        } else {
+                        response.body()?.data?.let { reliefPackages ->
                             response.headers().get(HEADER_NAME_DATE)?.let { headerDateString ->
                                 preferences.lastReliefPackageSync =
                                     convertHeaderDateToString(headerDateString)

@@ -121,7 +121,7 @@ class MainViewModel(
                     nfcFacade.readUserBalance(tag)
                         .flatMap { userBalance ->
                             NfcLogger.d(TAG, "readUserBalance: $userBalance, reliefPackage: $deposit")
-                            if (deposit != null && deposit.assistanceId != userBalance.assistanceId) {
+                            if (deposit != null && deposit.beneficiaryId == userBalance.userId && deposit.assistanceId != userBalance.assistanceId) {
                                 Single.just(
                                     UserBalance(
                                         userId = deposit.beneficiaryId,

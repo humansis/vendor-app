@@ -65,7 +65,7 @@ class DepositRepositoryImpl(
                                 preferences.lastReliefPackageSync =
                                     convertHeaderDateToString(headerDateString)
                             }
-                            actualizeDatabase(reliefPackages)
+                            actualizeDatabase(reliefPackages, toDistribute != null)
                         }
                     }
                     response.code() == 403 -> {
@@ -83,7 +83,7 @@ class DepositRepositoryImpl(
             }
     }
 
-    private fun actualizeDatabase(reliefPackages: List<ReliefPackageApiEntity>): Completable {
+    private fun actualizeDatabase(reliefPackages: List<ReliefPackageApiEntity>, replaceAll: Boolean): Completable {
         val packagesToSave = reliefPackages
             .filter {
                 it.state == ReliefPackageApiState.PACKAGE_STATE_TO_DISTRIBUTE ||
@@ -96,7 +96,11 @@ class DepositRepositoryImpl(
                     it.state == ReliefPackageApiState.PACKAGE_STATE_CANCELED
             }
 
-        return deleteReliefPackagesFromDbById(packagesToDelete.map { it.id }).andThen(
+        return if (replaceAll) {
+            deleteReliefPackagesFromDb()
+        } else {
+            deleteReliefPackagesFromDbById(packagesToDelete.map { it.id })
+        }.andThen(
             // New packages from packagesToSave will be saved, known packages will be replaced.
             // We should not worry about rewriting distributed packages, as new relief packages
             // aren't downloaded until all distributed packages are uploaded successfully.

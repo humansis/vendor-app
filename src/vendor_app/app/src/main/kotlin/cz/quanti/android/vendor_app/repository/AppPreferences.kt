@@ -58,6 +58,9 @@ class AppPreferences(context: Context) : BasePreferences(context, VERSION, MIGRA
             return vendor
         }
         set(vendor) {
+            if (vendor.vendorId != settings.getLong(VENDOR_ID, 0)) {
+                lastReliefPackageSync = null
+            }
             settings.edit().putLong(USER_ID, vendor.id).apply()
             settings.edit().putLong(VENDOR_ID, vendor.vendorId).apply()
             settings.edit().putString(VENDOR_USERNAME, vendor.username).apply()

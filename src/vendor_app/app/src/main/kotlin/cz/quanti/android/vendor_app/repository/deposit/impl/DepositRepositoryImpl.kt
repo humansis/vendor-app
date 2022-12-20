@@ -84,21 +84,22 @@ class DepositRepositoryImpl(
     }
 
     private fun actualizeDatabase(reliefPackages: List<ReliefPackageApiEntity>, replaceAll: Boolean): Completable {
-        val packagesToSave = reliefPackages
-            .filter {
-                it.state == ReliefPackageApiState.PACKAGE_STATE_TO_DISTRIBUTE ||
-                    it.state == ReliefPackageApiState.PACKAGE_STATE_DISTRIBUTION_IN_PROGRESS
-            }
-        val packagesToDelete = reliefPackages
-            .filter {
-                it.state == ReliefPackageApiState.PACKAGE_STATE_DISTRIBUTED ||
-                    it.state == ReliefPackageApiState.PACKAGE_STATE_EXPIRED ||
-                    it.state == ReliefPackageApiState.PACKAGE_STATE_CANCELED
-            }
+        val packagesToSave = mutableListOf<ReliefPackageApiEntity>()
 
         return if (replaceAll) {
+            packagesToSave.addAll(reliefPackages)
             deleteReliefPackagesFromDb()
         } else {
+            val packagesToDelete = mutableListOf<ReliefPackageApiEntity>()
+            reliefPackages.forEach {
+                if (it.state == ReliefPackageApiState.PACKAGE_STATE_TO_DISTRIBUTE ||
+                    it.state == ReliefPackageApiState.PACKAGE_STATE_DISTRIBUTION_IN_PROGRESS
+                ) {
+                    packagesToSave.add(it)
+                } else {
+                    packagesToDelete.add(it)
+                }
+            }
             deleteReliefPackagesFromDbById(packagesToDelete.map { it.id })
         }.andThen(
             // New packages from packagesToSave will be saved, known packages will be replaced.

@@ -65,7 +65,7 @@ class DepositRepositoryImpl(
                                 preferences.lastReliefPackageSync =
                                     convertHeaderDateToString(headerDateString)
                             }
-                            actualizeDatabase(reliefPackages)
+                            actualizeDatabase(reliefPackages, toDistribute != null)
                         }
                     }
                     response.code() == 403 -> {
@@ -83,20 +83,25 @@ class DepositRepositoryImpl(
             }
     }
 
-    private fun actualizeDatabase(reliefPackages: List<ReliefPackageApiEntity>): Completable {
-        val packagesToSave = reliefPackages
-            .filter {
-                it.state == ReliefPackageApiState.PACKAGE_STATE_TO_DISTRIBUTE ||
-                    it.state == ReliefPackageApiState.PACKAGE_STATE_DISTRIBUTION_IN_PROGRESS
-            }
-        val packagesToDelete = reliefPackages
-            .filter {
-                it.state == ReliefPackageApiState.PACKAGE_STATE_DISTRIBUTED ||
-                    it.state == ReliefPackageApiState.PACKAGE_STATE_EXPIRED ||
-                    it.state == ReliefPackageApiState.PACKAGE_STATE_CANCELED
-            }
+    private fun actualizeDatabase(reliefPackages: List<ReliefPackageApiEntity>, replaceAll: Boolean): Completable {
+        val packagesToSave = mutableListOf<ReliefPackageApiEntity>()
 
-        return deleteReliefPackagesFromDbById(packagesToDelete.map { it.id }).andThen(
+        return if (replaceAll) {
+            packagesToSave.addAll(reliefPackages)
+            deleteReliefPackagesFromDb()
+        } else {
+            val packagesToDelete = mutableListOf<ReliefPackageApiEntity>()
+            reliefPackages.forEach {
+                if (it.state == ReliefPackageApiState.PACKAGE_STATE_TO_DISTRIBUTE ||
+                    it.state == ReliefPackageApiState.PACKAGE_STATE_DISTRIBUTION_IN_PROGRESS
+                ) {
+                    packagesToSave.add(it)
+                } else {
+                    packagesToDelete.add(it)
+                }
+            }
+            deleteReliefPackagesFromDbById(packagesToDelete.map { it.id })
+        }.andThen(
             // New packages from packagesToSave will be saved, known packages will be replaced.
             // We should not worry about rewriting distributed packages, as new relief packages
             // aren't downloaded until all distributed packages are uploaded successfully.

@@ -12,11 +12,9 @@ interface DepositRepository {
         vendorId: Int
     ): Completable
 
-    fun getReliefPackagesFromDB(tagId: String): Single<List<ReliefPackage>>
-
-    fun deleteReliefPackageFromDB(id: Int): Completable
+    fun getReliefPackagesFromDb(tagId: String): Single<List<ReliefPackage>>
 
     fun deleteOldReliefPackages(): Completable
 
-    fun updateReliefPackageInDB(reliefPackage: ReliefPackage): Completable
+    fun updateReliefPackageInDb(reliefPackage: ReliefPackage): Completable
 }

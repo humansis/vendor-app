@@ -1,14 +1,18 @@
 package cz.quanti.android.vendor_app.repository.deposit.impl
 
+import cz.quanti.android.vendor_app.repository.AppPreferences
 import cz.quanti.android.vendor_app.repository.VendorAPI
 import cz.quanti.android.vendor_app.repository.deposit.DepositRepository
 import cz.quanti.android.vendor_app.repository.deposit.dao.ReliefPackageDao
 import cz.quanti.android.vendor_app.repository.deposit.dto.ReliefPackage
 import cz.quanti.android.vendor_app.repository.deposit.dto.api.ReliefPackageApiEntity
+import cz.quanti.android.vendor_app.repository.deposit.dto.api.ReliefPackageApiState
 import cz.quanti.android.vendor_app.repository.deposit.dto.api.SmartcardDepositApiEntity
 import cz.quanti.android.vendor_app.repository.deposit.dto.db.ReliefPackageDbEntity
 import cz.quanti.android.vendor_app.utils.VendorAppException
+import cz.quanti.android.vendor_app.utils.convertHeaderDateToString
 import cz.quanti.android.vendor_app.utils.convertStringToDate
+import cz.quanti.android.vendor_app.utils.getSerializedName
 import cz.quanti.android.vendor_app.utils.isPositiveResponseHttpCode
 import io.reactivex.Completable
 import io.reactivex.Observable
@@ -18,6 +22,7 @@ import quanti.com.kotlinlog.Log
 import retrofit2.Response
 
 class DepositRepositoryImpl(
+    private val preferences: AppPreferences,
     private val reliefPackageDao: ReliefPackageDao,
     private val api: VendorAPI
 ) : DepositRepository {
@@ -27,7 +32,7 @@ class DepositRepositoryImpl(
             if (reliefPackages.isNotEmpty()) {
                 postReliefPackages(reliefPackages).flatMapCompletable { response ->
                     if (isPositiveResponseHttpCode(response.code())) {
-                        deleteReliefPackagesFromDB()
+                        deleteReliefPackagesFromDbById(reliefPackages.map { it.id })
                     } else {
                         throw VendorAppException("Could not upload RD").apply {
                             this.apiResponseCode = response.code()
@@ -45,24 +50,28 @@ class DepositRepositoryImpl(
     override fun downloadReliefPackages(
         vendorId: Int
     ): Completable {
-        return api.getReliefPackages(vendorId, PACKAGE_STATE_TO_DISTRIBUTE)
+        val lastReliefPackageSync = preferences.lastReliefPackageSync
+        val toDistribute = if (lastReliefPackageSync == null) {
+            ReliefPackageApiState.PACKAGE_STATE_TO_DISTRIBUTE.getSerializedName()
+        } else {
+            null
+        }
+        return api.getReliefPackages(vendorId, lastReliefPackageSync, toDistribute)
             .flatMapCompletable { response ->
                 when {
                     isPositiveResponseHttpCode(response.code()) -> {
-                        if (response.body()?.data.isNullOrEmpty()) {
-                            Log.d("RD returned from server were empty.")
-                            deleteReliefPackagesFromDB()
-                        } else {
-                            response.body()?.data?.let { data ->
-                                actualizeDatabase(data.map {
-                                    convert(it)
-                                })
+                        response.body()?.data?.let { reliefPackages ->
+                            response.headers().get(HEADER_NAME_DATE)?.let { headerDateString ->
+                                preferences.lastReliefPackageSync =
+                                    convertHeaderDateToString(headerDateString)
                             }
+                            actualizeDatabase(reliefPackages, toDistribute != null)
                         }
                     }
                     response.code() == 403 -> {
                         Log.d(TAG, "RD sync denied")
-                        deleteReliefPackagesFromDB()
+                        preferences.lastReliefPackageSync = null
+                        deleteReliefPackagesFromDb()
                     }
                     else -> {
                         throw VendorAppException("Could not download RD").apply {
@@ -74,23 +83,43 @@ class DepositRepositoryImpl(
             }
     }
 
-    private fun actualizeDatabase(reliefPackages: List<ReliefPackage>): Completable {
-        return deleteReliefPackagesFromDB().andThen(
-            saveReliefPackagesToDB(reliefPackages)
+    private fun actualizeDatabase(reliefPackages: List<ReliefPackageApiEntity>, replaceAll: Boolean): Completable {
+        val packagesToSave = mutableListOf<ReliefPackageApiEntity>()
+
+        return if (replaceAll) {
+            packagesToSave.addAll(reliefPackages)
+            deleteReliefPackagesFromDb()
+        } else {
+            val packagesToDelete = mutableListOf<ReliefPackageApiEntity>()
+            reliefPackages.forEach {
+                if (it.state == ReliefPackageApiState.PACKAGE_STATE_TO_DISTRIBUTE ||
+                    it.state == ReliefPackageApiState.PACKAGE_STATE_DISTRIBUTION_IN_PROGRESS
+                ) {
+                    packagesToSave.add(it)
+                } else {
+                    packagesToDelete.add(it)
+                }
+            }
+            deleteReliefPackagesFromDbById(packagesToDelete.map { it.id })
+        }.andThen(
+            // New packages from packagesToSave will be saved, known packages will be replaced.
+            // We should not worry about rewriting distributed packages, as new relief packages
+            // aren't downloaded until all distributed packages are uploaded successfully.
+            saveReliefPackagesToDb(packagesToSave.map { convert(it) })
         )
     }
 
-    private fun saveReliefPackagesToDB(reliefPackages: List<ReliefPackage>): Completable {
+    private fun saveReliefPackagesToDb(reliefPackages: List<ReliefPackage>): Completable {
         return Observable.fromIterable(reliefPackages).flatMapCompletable {
-            saveReliefPackageToDB(it)
+            saveReliefPackageToDb(it)
         }
     }
 
-    private fun saveReliefPackageToDB(reliefPackage: ReliefPackage): Completable {
+    private fun saveReliefPackageToDb(reliefPackage: ReliefPackage): Completable {
         return reliefPackageDao.insert(convert(reliefPackage))
     }
 
-    override fun getReliefPackagesFromDB(tagId: String): Single<List<ReliefPackage>> {
+    override fun getReliefPackagesFromDb(tagId: String): Single<List<ReliefPackage>> {
         return reliefPackageDao.getReliefPackagesByTagId(tagId).map { list ->
             list.map {
                 convert(it)
@@ -98,21 +127,19 @@ class DepositRepositoryImpl(
         }
     }
 
-    private fun deleteReliefPackagesFromDB(): Completable {
+    private fun deleteReliefPackagesFromDb(): Completable {
         return reliefPackageDao.deleteAll()
+    }
+
+    private fun deleteReliefPackagesFromDbById(ids: List<Int>): Completable {
+        return reliefPackageDao.deleteById(ids)
     }
 
     override fun deleteOldReliefPackages(): Completable {
         return reliefPackageDao.deleteOlderThan(Date())
     }
 
-    override fun deleteReliefPackageFromDB(id: Int): Completable {
-        return reliefPackageDao.getReliefPackageById(id).flatMapCompletable {
-            reliefPackageDao.delete(it)
-        }
-    }
-
-    override fun updateReliefPackageInDB(reliefPackage: ReliefPackage): Completable {
+    override fun updateReliefPackageInDb(reliefPackage: ReliefPackage): Completable {
         return reliefPackageDao.update(
             reliefPackage.id,
             reliefPackage.createdAt,
@@ -195,6 +222,6 @@ class DepositRepositoryImpl(
 
     companion object {
         private val TAG = DepositRepositoryImpl::class.java.simpleName
-        const val PACKAGE_STATE_TO_DISTRIBUTE = "To distribute"
+        private const val HEADER_NAME_DATE = "Date"
     }
 }

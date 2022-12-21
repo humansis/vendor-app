@@ -9,7 +9,6 @@ import io.reactivex.Observable
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.BehaviorSubject
 import java.lang.Exception
-import java.util.Date
 import quanti.com.kotlinlog.Log
 
 class SynchronizationManagerImpl(
@@ -46,7 +45,6 @@ class SynchronizationManagerImpl(
                         syncStatePublishSubject.onNext(SynchronizationState.ERROR)
                     },
                     {
-                        preferences.lastSynced = Date().time
                         syncStatePublishSubject.onNext(SynchronizationState.SUCCESS)
                         Log.d(TAG, "Synchronization finished successfully")
                     }

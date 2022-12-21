@@ -1,7 +1,6 @@
 package cz.quanti.android.vendor_app.repository.deposit.dao
 
 import androidx.room.Dao
-import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
@@ -24,11 +23,11 @@ interface ReliefPackageDao {
         balanceAfter: Double?
     ): Completable
 
-    @Delete
-    fun delete(reliefPackage: ReliefPackageDbEntity): Completable
-
     @Query("DELETE FROM " + VendorDb.TABLE_RELIEF_PACKAGE)
     fun deleteAll(): Completable
+
+    @Query("DELETE FROM " + VendorDb.TABLE_RELIEF_PACKAGE + " WHERE id IN (:ids)")
+    fun deleteById(ids: List<Int>): Completable
 
     @Query("DELETE FROM " + VendorDb.TABLE_RELIEF_PACKAGE + " WHERE expirationDate < :date ")
     fun deleteOlderThan(date: Date): Completable

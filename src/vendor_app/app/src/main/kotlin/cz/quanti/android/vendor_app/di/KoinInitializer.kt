@@ -134,6 +134,7 @@ object KoinInitializer {
             api
         )
         val depositRepo = DepositRepositoryImpl(
+            preferences,
             db.reliefPackageDao(),
             api
         )

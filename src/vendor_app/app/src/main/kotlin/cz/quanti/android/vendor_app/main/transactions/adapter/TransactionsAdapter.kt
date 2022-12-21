@@ -72,11 +72,7 @@ class TransactionsAdapter(
                     R.string.date,
                     convertStringToDateFormattedString(context, tp.createdAt) ?: R.string.unknown
                 )
-                row.findViewById<TextView>(R.id.transaction_purchase_total).text =
-                    context.getString(
-                        R.string.total_price,
-                        tp.value, tp.currency
-                    )
+                row.findViewById<TextView>(R.id.transaction_purchase_total).text = "${tp.value} ${tp.currency}"
                 holder.purchasesTable.addView(row)
             }
         }

@@ -47,6 +47,7 @@ import cz.quanti.android.vendor_app.utils.ConnectionObserver
 import cz.quanti.android.vendor_app.utils.NfcTagPublisher
 import cz.quanti.android.vendor_app.utils.PermissionRequestResult
 import cz.quanti.android.vendor_app.utils.SendLogDialogFragment
+import cz.quanti.android.vendor_app.utils.convertTagToString
 import cz.quanti.android.vendor_app.utils.getBackgroundColor
 import cz.quanti.android.vendor_app.utils.getExpirationDateAsString
 import cz.quanti.android.vendor_app.utils.getLimitsAsText
@@ -166,7 +167,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
     }
 
     override fun onTagDiscovered(tag: Tag) {
-        Log.d(TAG, "onTagDiscovered")
+        Log.d(TAG, "onTagDiscovered ${convertTagToString(tag)}")
         nfcTagPublisher.getTagSubject().onNext(tag)
     }
 
@@ -370,45 +371,46 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
         readBalanceDisposable = mainVM.readBalance(::readBalanceStartedCallback)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribe({
-                displayedDialog?.dismiss()
-                val cardContent = it
-                val expirationDate = cardContent.expirationDate
-                displayedDialog = AlertDialog.Builder(this, R.style.DialogTheme)
-                    .setTitle(getString((R.string.read_balance)))
-                    .setMessage(
-                        if (expirationDate != null && expirationDate < Date()) {
-                            getString(R.string.card_balance_expired)
-                        } else {
-                            getString(
-                                R.string.scanning_card_balance,
-                                if (cardContent.balance == 0.0) {
-                                    "${0.0} ${cardContent.currencyCode}"
-                                } else {
-                                    "${cardContent.balance} ${cardContent.currencyCode}" +
-                                        getExpirationDateAsString(expirationDate, this) +
-                                        getLimitsAsText(cardContent, this)
-                                }
-                            )
+            .subscribe(
+                { cardContent ->
+                    displayedDialog?.dismiss()
+                    val expirationDate = cardContent.expirationDate
+                    displayedDialog = AlertDialog.Builder(this, R.style.DialogTheme)
+                        .setTitle(getString((R.string.read_balance)))
+                        .setMessage(
+                            if (expirationDate != null && expirationDate < Date()) {
+                                getString(R.string.card_balance_expired)
+                            } else {
+                                getString(
+                                    R.string.scanning_card_balance,
+                                    if (cardContent.balance == 0.0) {
+                                        "${0.0} ${cardContent.currencyCode}"
+                                    } else {
+                                        "${cardContent.balance} ${cardContent.currencyCode}" +
+                                            getExpirationDateAsString(expirationDate, this) +
+                                            getLimitsAsText(cardContent, this)
+                                    }
+                                )
+                            }
+                        )
+                        .setCancelable(true)
+                        .setNegativeButton(getString(R.string.close)) { dialog, _ ->
+                            dialog?.dismiss()
+                            readBalanceDisposable?.dispose()
+                            readBalanceDisposable = null
                         }
-                    )
-                    .setCancelable(true)
-                    .setNegativeButton(getString(R.string.close)) { dialog, _ ->
-                        dialog?.dismiss()
-                        readBalanceDisposable?.dispose()
-                        readBalanceDisposable = null
-                    }
-                    .setOnDismissListener {
-                        Log.d(TAG, "Read balance result dialog closed")
-                    }
-                    .show()
-                mainVM.successSLE.call()
-            }, {
-                Log.e(TAG, it)
-                mainVM.setToastMessage(getString(R.string.card_error))
-                mainVM.errorSLE.call()
-                displayedDialog?.dismiss()
-            })
+                        .setOnDismissListener {
+                            Log.d(TAG, "Read balance result dialog closed")
+                        }
+                        .show()
+                    mainVM.successSLE.call()
+                }, {
+                    Log.e(TAG, it)
+                    mainVM.setToastMessage(getString(R.string.card_error))
+                    mainVM.errorSLE.call()
+                    displayedDialog?.dismiss()
+                }
+            )
     }
 
     private fun readBalanceStartedCallback() {

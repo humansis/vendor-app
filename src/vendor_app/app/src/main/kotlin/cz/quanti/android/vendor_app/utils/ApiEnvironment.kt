@@ -72,6 +72,12 @@ sealed class ApiEnvironment(
         url = readCustomUrl(context)
     )
 
+    object T4G : ApiEnvironment(
+        id = 9,
+        title = "T4G",
+        url = "apiarm.humansis.org"
+    )
+
     override fun toString(): String {
         return "ApiEnvironment(id=$id, title='$title', secure=$secure, url='$url', port=$port)"
     }
@@ -97,7 +103,8 @@ sealed class ApiEnvironment(
                 Dev2,
                 Dev3,
                 Test,
-                Local
+                Local,
+                T4G
             ).apply {
                 try {
                     add(Custom(context))

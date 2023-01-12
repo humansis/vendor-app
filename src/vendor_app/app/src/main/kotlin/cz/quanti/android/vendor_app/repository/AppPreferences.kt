@@ -21,6 +21,8 @@ class AppPreferences(context: Context) : BasePreferences(context, VERSION, MIGRA
         private const val VENDOR_COUNTRY = "pin_vendor_app_vendor_country"
         private const val VENDOR_LOGGED_IN = "pin_vendor_app_vendor_logged_in"
         private const val VENDOR_TOKEN = "pin_vendor_app_vendor_token"
+        private const val VENDOR_REFRESH_TOKEN = "pin_vendor_app_vendor_refresh_token"
+        private const val VENDOR_REFRESH_TOKEN_EXPIRATION = "pin_vendor_app_vendor_refresh_token_expiration"
 
         private const val LAST_RD_SYNC = "pin_vendor_app_last_relief_package_sync"
 
@@ -51,6 +53,8 @@ class AppPreferences(context: Context) : BasePreferences(context, VERSION, MIGRA
                     this.country = settings.getString(VENDOR_COUNTRY, "").toString()
                     this.loggedIn = settings.getBoolean(VENDOR_LOGGED_IN, false)
                     this.token = settings.getString(VENDOR_TOKEN, "").toString()
+                    this.refreshToken = settings.getString(VENDOR_REFRESH_TOKEN, "").toString()
+                    this.refreshTokenExpiration = settings.getString(VENDOR_REFRESH_TOKEN_EXPIRATION, "").toString()
                 }
             } catch (e: ClassCastException) {
                 settings.edit().remove(VENDOR_ID).apply()
@@ -67,6 +71,8 @@ class AppPreferences(context: Context) : BasePreferences(context, VERSION, MIGRA
             settings.edit().putString(VENDOR_COUNTRY, vendor.country).apply()
             settings.edit().putBoolean(VENDOR_LOGGED_IN, vendor.loggedIn).apply()
             settings.edit().putString(VENDOR_TOKEN, vendor.token).apply()
+            settings.edit().putString(VENDOR_REFRESH_TOKEN, vendor.refreshToken).apply()
+            settings.edit().putString(VENDOR_REFRESH_TOKEN_EXPIRATION, vendor.refreshToken).apply()
         }
 
     var host: String

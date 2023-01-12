@@ -15,6 +15,7 @@ import cz.quanti.android.vendor_app.main.invoices.viewmodel.InvoicesViewModel
 import cz.quanti.android.vendor_app.main.shop.viewmodel.ShopViewModel
 import cz.quanti.android.vendor_app.main.transactions.viewmodel.TransactionsViewModel
 import cz.quanti.android.vendor_app.repository.AppPreferences
+import cz.quanti.android.vendor_app.repository.RefreshTokenAPI
 import cz.quanti.android.vendor_app.repository.VendorAPI
 import cz.quanti.android.vendor_app.repository.VendorDb
 import cz.quanti.android.vendor_app.repository.card.CardFacade
@@ -46,6 +47,7 @@ import cz.quanti.android.vendor_app.repository.synchronization.impl.Synchronizat
 import cz.quanti.android.vendor_app.repository.transaction.TransactionFacade
 import cz.quanti.android.vendor_app.repository.transaction.impl.TransactionFacadeImpl
 import cz.quanti.android.vendor_app.repository.transaction.impl.TransactionRepositoryImpl
+import cz.quanti.android.vendor_app.repository.utils.interceptor.HeaderInterceptor
 import cz.quanti.android.vendor_app.repository.utils.interceptor.HostUrlInterceptor
 import cz.quanti.android.vendor_app.sync.SynchronizationManager
 import cz.quanti.android.vendor_app.sync.SynchronizationManagerImpl
@@ -89,22 +91,18 @@ object KoinInitializer {
         val currentVendor = CurrentVendor(preferences)
         val loginManager = LoginManager(currentVendor)
 
-        val builder: Retrofit.Builder = Retrofit.Builder()
+        val vendorApiBuilder: Retrofit.Builder = Retrofit.Builder()
             .addConverterFactory(
                 GsonConverterFactory.create(
                     GsonBuilder().serializeNulls().setLenient().create()
                 )
             )
             .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-            .client(createClient(loginManager, hostUrlInterceptor, currentVendor))
+            .client(createVendorClient(loginManager, hostUrlInterceptor, currentVendor))
 
-        if (BuildConfig.DEBUG) {
-            builder.baseUrl("https://" + BuildConfig.STAGE_API_URL + "/api/jwt/vendor-app/")
-        } else {
-            builder.baseUrl("https://" + BuildConfig.PROD_API_URL + "/api/jwt/vendor-app/")
-        }
+        vendorApiBuilder.applyBaseUrl()
 
-        val api = builder.build().create(VendorAPI::class.java)
+        val vendorApi = vendorApiBuilder.build().create(VendorAPI::class.java)
 
         val db = Room.databaseBuilder(app, VendorDb::class.java, VendorDb.DB_NAME)
             .addMigrations(
@@ -120,10 +118,10 @@ object KoinInitializer {
             .build()
 
         // Repository
-        val loginRepo = LoginRepositoryImpl(api)
-        val categoryRepo = CategoryRepositoryImpl(db.categoryDao(), api)
-        val productRepo = ProductRepositoryImpl(categoryRepo, db.productDao(), api)
-        val cardRepo = CardRepositoryImpl(db.blockedCardDao(), api)
+        val loginRepo = LoginRepositoryImpl(vendorApi)
+        val categoryRepo = CategoryRepositoryImpl(db.categoryDao(), vendorApi)
+        val productRepo = ProductRepositoryImpl(categoryRepo, db.productDao(), vendorApi)
+        val cardRepo = CardRepositoryImpl(db.blockedCardDao(), vendorApi)
         val purchaseRepo = PurchaseRepositoryImpl(
             db.purchaseDao(),
             db.cardPurchaseDao(),
@@ -131,24 +129,24 @@ object KoinInitializer {
             db.productDao(),
             db.purchasedProductDao(),
             db.selectedProductDao(),
-            api
+            vendorApi
         )
         val depositRepo = DepositRepositoryImpl(
             preferences,
             db.reliefPackageDao(),
-            api
+            vendorApi
         )
         val transactionRepo = TransactionRepositoryImpl(
             db.transactionDao(),
             db.transactionPurchaseDao(),
-            api
+            vendorApi
         )
         val invoiceRepo = InvoiceRepositoryImpl(
             db.invoiceDao(),
-            api
+            vendorApi
         )
         val logRepo = LogRepositoryImpl(
-            api
+            vendorApi
         )
 
         // Facade
@@ -184,7 +182,7 @@ object KoinInitializer {
         return module {
             single { preferences }
             single { db }
-            single { api }
+            single { vendorApi }
             single { hostUrlInterceptor }
             single { loginManager }
             single { shoppingHolder }
@@ -246,11 +244,12 @@ object KoinInitializer {
         }
     }
 
-    private fun createClient(
+    private fun createVendorClient(
         loginManager: LoginManager,
         hostUrlInterceptor: HostUrlInterceptor,
         currentVendor: CurrentVendor
     ): OkHttpClient {
+        val refreshTokenApi = createRefreshTokenApi(hostUrlInterceptor)
 
         val logging = HttpLoggingInterceptor { message -> Log.d("OkHttp", message) }
 
@@ -261,17 +260,9 @@ object KoinInitializer {
             .callTimeout(5, TimeUnit.MINUTES)
             .readTimeout(5, TimeUnit.MINUTES)
             .addInterceptor(hostUrlInterceptor)
+            .addInterceptor(HeaderInterceptor(loginManager, refreshTokenApi, currentVendor))
             .addInterceptor { chain ->
-                val oldRequest = chain.request()
-                val headersBuilder = oldRequest.headers().newBuilder()
-                loginManager.getAuthToken().let {
-                    headersBuilder.add("Authorization", "Bearer $it")
-                }
-                headersBuilder.add("Country", getCountry(currentVendor))
-                headersBuilder.add("Version-Name", BuildConfig.VERSION_NAME)
-                headersBuilder.add("Build-Number", BuildConfig.BUILD_NUMBER.toString())
-                headersBuilder.add("Build-Type", BuildConfig.BUILD_TYPE)
-                val request = oldRequest.newBuilder().headers(headersBuilder.build()).build()
+                val request = chain.request()
                 chain.proceed(request).apply {
                     if (BuildConfig.DEBUG) {
                         request.body()?.let {
@@ -289,7 +280,44 @@ object KoinInitializer {
             .build()
     }
 
-    private fun getCountry(currentVendor: CurrentVendor): String {
-        return currentVendor.vendor.country
+    private fun createRefreshTokenApi(
+        hostUrlInterceptor: HostUrlInterceptor
+    ): RefreshTokenAPI {
+        val refreshTokenApiBuilder: Retrofit.Builder = Retrofit.Builder()
+            .addConverterFactory(
+                GsonConverterFactory.create(
+                    GsonBuilder().serializeNulls().setLenient().create()
+                )
+            )
+            .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+            .client(createRefreshTokenClient(hostUrlInterceptor))
+
+        refreshTokenApiBuilder.applyBaseUrl()
+
+        return refreshTokenApiBuilder.build().create(RefreshTokenAPI::class.java)
+    }
+
+    private fun createRefreshTokenClient(
+        hostUrlInterceptor: HostUrlInterceptor
+    ): OkHttpClient {
+        val logging = HttpLoggingInterceptor { message -> Log.d("OkHttp", message) }
+
+        logging.level = HttpLoggingInterceptor.Level.BASIC
+
+        return OkHttpClient.Builder()
+            .connectTimeout(5, TimeUnit.MINUTES)
+            .callTimeout(5, TimeUnit.MINUTES)
+            .readTimeout(5, TimeUnit.MINUTES)
+            .addInterceptor(hostUrlInterceptor)
+            .addInterceptor(logging)
+            .build()
+    }
+
+    private fun Retrofit.Builder.applyBaseUrl() {
+        if (BuildConfig.DEBUG) {
+            this.baseUrl("https://" + BuildConfig.STAGE_API_URL + "/api/jwt/vendor-app/")
+        } else {
+            this.baseUrl("https://" + BuildConfig.PROD_API_URL + "/api/jwt/vendor-app/")
+        }
     }
 }

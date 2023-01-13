@@ -11,10 +11,11 @@ class CurrentVendor(private val preferences: AppPreferences) {
         }
 
     var host: ApiEnvironment?
-        get() = ApiEnvironment.find(preferences.host)
+        get() = ApiEnvironment.find(preferences.hostEnvironment, preferences.hostUrl)
         set(host) {
             host?.let {
-                preferences.host = host.title
+                preferences.hostEnvironment = host.title
+                preferences.hostUrl = host.url
             }
         }
 

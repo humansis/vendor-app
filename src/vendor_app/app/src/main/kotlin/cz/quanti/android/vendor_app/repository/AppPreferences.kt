@@ -11,7 +11,7 @@ class AppPreferences(context: Context) : BasePreferences(context, VERSION, MIGRA
     KoinComponent {
 
     companion object {
-        const val VERSION = 3
+        const val VERSION = 4
 
         val MIGRATIONS = TreeMap<Int, BasePreferencesMigration>()
 

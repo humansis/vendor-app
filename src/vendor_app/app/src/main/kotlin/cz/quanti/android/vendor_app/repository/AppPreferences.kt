@@ -26,7 +26,8 @@ class AppPreferences(context: Context) : BasePreferences(context, VERSION, MIGRA
 
         private const val LAST_RD_SYNC = "pin_vendor_app_last_relief_package_sync"
 
-        private const val API_HOST = "pin_vendor_app_api_url"
+        private const val API_ENVIRONMENT = "pin_vendor_app_api_env"
+        private const val API_URL = "pin_vendor_app_api_url"
 
         private const val CURRENCY = "pin_vendor_app_currency"
     }
@@ -39,6 +40,10 @@ class AppPreferences(context: Context) : BasePreferences(context, VERSION, MIGRA
         MIGRATIONS[3] = BasePreferencesMigration { settings ->
             val lastSyncedKey = "pin_vendor_app_last_synced"
             settings.edit().remove(lastSyncedKey).apply()
+        }
+        MIGRATIONS[4] = BasePreferencesMigration { settings ->
+            val host = settings.getString("pin_vendor_app_api_url", "")
+            settings.edit().putString("pin_vendor_app_api_env", host)
         }
     }
 
@@ -75,9 +80,13 @@ class AppPreferences(context: Context) : BasePreferences(context, VERSION, MIGRA
             settings.edit().putString(VENDOR_REFRESH_TOKEN_EXPIRATION, vendor.refreshToken).apply()
         }
 
-    var host: String
-        get() = settings.getString(API_HOST, "").toString()
-        set(url) = settings.edit().putString(API_HOST, url).apply()
+    var hostEnvironment: String
+        get() = settings.getString(API_ENVIRONMENT, "").toString()
+        set(url) = settings.edit().putString(API_ENVIRONMENT, url).apply()
+
+    var hostUrl: String
+        get() = settings.getString(API_URL, "").toString()
+        set(url) = settings.edit().putString(API_URL, url).apply()
 
     var currency: String
         get() = settings.getString(CURRENCY, "").toString()

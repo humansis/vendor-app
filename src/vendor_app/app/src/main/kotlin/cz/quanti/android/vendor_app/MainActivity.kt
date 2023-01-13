@@ -660,7 +660,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
         if (BuildConfig.DEBUG) {
             navHeaderBinding.tvEnvironment.text = getString(
                 R.string.environment,
-                preferences.host
+                preferences.hostEnvironment
             )
         } else {
             navHeaderBinding.tvEnvironment.visibility = View.GONE

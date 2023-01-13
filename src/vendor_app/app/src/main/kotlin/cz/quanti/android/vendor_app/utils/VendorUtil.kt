@@ -9,10 +9,13 @@ import android.view.View
 import android.view.inputmethod.InputMethodManager
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import com.google.gson.annotations.SerializedName
 import cz.quanti.android.nfc.dto.v2.UserBalance
 import cz.quanti.android.nfc_io_libray.types.NfcUtil
 import cz.quanti.android.vendor_app.R
 import cz.quanti.android.vendor_app.repository.category.dto.CategoryType
+import cz.quanti.android.vendor_app.repository.login.dto.Vendor
+import cz.quanti.android.vendor_app.repository.login.dto.api.VendorApiEntity
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.nio.charset.Charset
@@ -109,13 +112,21 @@ fun logResponseBody(headers: Headers, responseBody: ResponseBody) {
     }
 }
 
+val apiDateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ", Locale.US)
+
 fun convertTimeForApiRequestBody(date: Date): String {
-    return SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ", Locale.US)
-        .format(date)
+    return apiDateFormat.format(date)
+}
+
+val headerDateFormat = SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss z", Locale.US)
+
+fun convertHeaderDateToString(header: String): String? {
+    val date = headerDateFormat.parse(header)
+    return date?.let { apiDateFormat.format(it) }
 }
 
 fun convertStringToDateFormattedString(context: Context, date: String): String? {
-    val df = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ", Locale.US).parse(date)
+    val df = apiDateFormat.parse(date)
     return if (df != null) {
         "${getDateFormat(context).format(df)}  ${getTimeFormat(context).format(df)}"
     } else {
@@ -124,7 +135,7 @@ fun convertStringToDateFormattedString(context: Context, date: String): String? 
 }
 
 fun convertStringToDate(date: String?): Date? {
-    return date?.let { SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ", Locale.US).parse(date) }
+    return date?.let { apiDateFormat.parse(date) }
 }
 
 fun convertDateToString(value: Date, context: Context): String {
@@ -221,10 +232,6 @@ fun Fragment.hideKeyboard() {
     view?.let { activity?.hideKeyboard(it) }
 }
 
-fun Activity.hideKeyboard() {
-    hideKeyboard(currentFocus ?: View(this))
-}
-
 fun Context.hideKeyboard(view: View) {
     val inputMethodManager = getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
     inputMethodManager.hideSoftInputFromWindow(view.windowToken, 0)
@@ -235,4 +242,27 @@ fun round(value: Double, places: Int): Double {
     var bd: BigDecimal = BigDecimal.valueOf(value)
     bd = bd.setScale(places, RoundingMode.HALF_UP)
     return bd.toDouble()
+}
+
+fun Enum<*>.getSerializedName(): String {
+    // TODO change declaringClass to declaringJavaClass if kotlin version updates to v1.7+
+    return this.declaringClass.getField(this.name).getAnnotation(SerializedName::class.java)?.value ?: this.name
+}
+
+fun VendorApiEntity?.toVendor(): Vendor {
+    val vendorApiEntity = this
+    return if (vendorApiEntity == null) {
+        Vendor()
+    } else {
+        Vendor().apply {
+            this.id = vendorApiEntity.id
+            this.vendorId = vendorApiEntity.vendorId
+            this.username = vendorApiEntity.username
+            this.password = vendorApiEntity.password
+            this.token = vendorApiEntity.token
+            this.refreshToken = vendorApiEntity.refreshToken
+            this.refreshTokenExpiration = vendorApiEntity.refreshTokenExpiration
+            this.country = vendorApiEntity.countryISO3
+        }
+    }
 }

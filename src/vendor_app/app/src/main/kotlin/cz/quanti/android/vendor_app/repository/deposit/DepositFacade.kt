@@ -12,8 +12,6 @@ interface DepositFacade {
         vendorId: Int
     ): Observable<SynchronizationSubject>
 
-    fun deleteReliefPackageFromDB(id: Int): Completable
-
     fun updateReliefPackageInDB(reliefPackage: ReliefPackage): Completable
 
     fun getRelevantReliefPackage(tagId: String): Single<NullableObjectWrapper<ReliefPackage>>

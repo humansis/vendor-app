@@ -66,6 +66,7 @@ class ScanCardFragment : Fragment() {
     }
 
     override fun onResume() {
+        Log.d(TAG, "onResume")
         super.onResume()
         if (arguments?.isEmpty == false) {
             vm.setPin(arguments?.get(PIN_KEY) as String)
@@ -84,6 +85,7 @@ class ScanCardFragment : Fragment() {
     }
 
     override fun onStop() {
+        Log.d(TAG, "onStop")
         paymentDisposable?.dispose()
         clearCartDisposable?.dispose()
         super.onStop()
@@ -328,6 +330,7 @@ class ScanCardFragment : Fragment() {
     }
 
     private fun navigateBack() {
+        Log.d(TAG, "navigateBack")
         findNavController().popBackStack()
     }
 

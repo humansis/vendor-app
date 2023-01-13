@@ -23,17 +23,13 @@ class DepositFacadeImpl(
             .concatWith(loadDataFromServer(vendorId))
     }
 
-    override fun deleteReliefPackageFromDB(id: Int): Completable {
-        return depositRepo.deleteReliefPackageFromDB(id)
-    }
-
     override fun updateReliefPackageInDB(reliefPackage: ReliefPackage): Completable {
-        return depositRepo.updateReliefPackageInDB(reliefPackage)
+        return depositRepo.updateReliefPackageInDb(reliefPackage)
     }
 
     override fun getRelevantReliefPackage(tagId: String): Single<NullableObjectWrapper<ReliefPackage>> {
         return depositRepo.deleteOldReliefPackages().andThen(
-            depositRepo.getReliefPackagesFromDB(tagId).map { reliefPackages ->
+            depositRepo.getReliefPackagesFromDb(tagId).map { reliefPackages ->
                 NullableObjectWrapper(
                     reliefPackages
                         .filter { it.createdAt == null }

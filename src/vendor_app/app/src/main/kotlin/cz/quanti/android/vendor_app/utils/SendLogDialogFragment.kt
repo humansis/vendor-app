@@ -4,8 +4,6 @@ import android.app.AlertDialog
 import android.app.Dialog
 import android.content.DialogInterface
 import android.content.Intent
-import android.content.pm.PackageManager
-import android.content.pm.ResolveInfo
 import android.os.Bundle
 import androidx.fragment.app.DialogFragment
 import cz.quanti.android.vendor_app.MainViewModel
@@ -42,6 +40,7 @@ class SendLogDialogFragment : DialogFragment() {
         const val EMAIL_BUTTON_TEXT = "email_button"
         const val FILE_BUTTON_TEXT = "file_button"
         const val SEND_EMAIL_ADDRESSES = "send_address"
+        const val EXTRA_FILES = "extra_files"
         const val DIALOG_THEME = "dialog_theme"
         private val TAG = SendLogDialogFragment::class.java.simpleName
 
@@ -53,6 +52,7 @@ class SendLogDialogFragment : DialogFragment() {
             title: String = "Send logs",
             emailButtonText: String = "Email",
             fileButtonText: String = "Save",
+            extraFiles: List<File> = arrayListOf(),
             dialogTheme: Int? = null
         ) = newInstance(
             arrayOf(sendEmailAddress),
@@ -60,6 +60,7 @@ class SendLogDialogFragment : DialogFragment() {
             title,
             emailButtonText,
             fileButtonText,
+            extraFiles,
             dialogTheme
         )
 
@@ -71,6 +72,7 @@ class SendLogDialogFragment : DialogFragment() {
             title: String = "Send logs",
             emailButtonText: String = "Email",
             fileButtonText: String = "Save",
+            extraFiles: List<File> = arrayListOf(),
             dialogTheme: Int? = null
         ): SendLogDialogFragment {
             val myFragment = SendLogDialogFragment()
@@ -81,6 +83,7 @@ class SendLogDialogFragment : DialogFragment() {
             args.putString(EMAIL_BUTTON_TEXT, emailButtonText)
             args.putString(FILE_BUTTON_TEXT, fileButtonText)
             args.putStringArray(SEND_EMAIL_ADDRESSES, sendEmailAddress)
+            args.putSerializable(EXTRA_FILES, ArrayList(extraFiles))
             if (dialogTheme != null) {
                 args.putInt(DIALOG_THEME, dialogTheme)
             }
@@ -96,7 +99,8 @@ class SendLogDialogFragment : DialogFragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         zipFile = CoroutineScope(Dispatchers.IO).async {
-            getZipOfLogs(requireActivity().applicationContext, 48)
+            val extraFiles = requireArguments().getSerializable(EXTRA_FILES) as ArrayList<File>
+            getZipOfLogs(requireActivity().applicationContext, 48, extraFiles)
         }
     }
 
@@ -143,22 +147,12 @@ class SendLogDialogFragment : DialogFragment() {
 
             val intent = Intent(Intent.ACTION_SEND).apply {
                 type = "message/rfc822" // email
+                type = "message/rfc822" // email
                 flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
                 putExtra(Intent.EXTRA_EMAIL, addresses)
                 putExtra(Intent.EXTRA_SUBJECT, subject)
                 putExtra(Intent.EXTRA_TEXT, bodyText)
                 putExtra(Intent.EXTRA_STREAM, zipFileUri)
-            }
-
-            val resInfoList: List<ResolveInfo> = requireContext().packageManager
-                .queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY)
-            for (resolveInfo in resInfoList) {
-                val packageName = resolveInfo.activityInfo.packageName
-                requireContext().grantUriPermission(
-                    packageName,
-                    zipFileUri,
-                    Intent.FLAG_GRANT_WRITE_URI_PERMISSION or Intent.FLAG_GRANT_READ_URI_PERMISSION
-                )
             }
 
             try {

@@ -47,6 +47,7 @@ import cz.quanti.android.vendor_app.utils.ConnectionObserver
 import cz.quanti.android.vendor_app.utils.NfcTagPublisher
 import cz.quanti.android.vendor_app.utils.PermissionRequestResult
 import cz.quanti.android.vendor_app.utils.SendLogDialogFragment
+import cz.quanti.android.vendor_app.utils.convertTagToString
 import cz.quanti.android.vendor_app.utils.getBackgroundColor
 import cz.quanti.android.vendor_app.utils.getExpirationDateAsString
 import cz.quanti.android.vendor_app.utils.getLimitsAsText
@@ -166,7 +167,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
     }
 
     override fun onTagDiscovered(tag: Tag) {
-        Log.d(TAG, "onTagDiscovered")
+        Log.d(TAG, "onTagDiscovered ${convertTagToString(tag)}")
         nfcTagPublisher.getTagSubject().onNext(tag)
     }
 
@@ -523,7 +524,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
             Log.d(TAG, "Logging out automatically: vendor not logged in")
             logout()
             true
-        } else if (loginVM.hasInvalidToken(synchronizationManager.getPurchasesCount().blockingFirst())) {
+        } else if (loginVM.hasInvalidTokens()) {
             mainVM.setToastMessage(getString(R.string.token_expired_or_missing))
             Log.d(TAG, "Logging out automatically: invalid token")
             logout()

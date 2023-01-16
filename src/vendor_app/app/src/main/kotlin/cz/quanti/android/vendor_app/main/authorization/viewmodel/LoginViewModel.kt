@@ -38,7 +38,7 @@ class LoginViewModel(
     }
 
     fun hasInvalidTokens(): Boolean {
-        return currentVendor.vendor.token.isBlank() || currentVendor.vendor.isRefreshTokenExpired()
+        return currentVendor.vendor.isRefreshTokenExpired()
     }
 
     fun onLogin(activityCallback: ActivityCallback) {

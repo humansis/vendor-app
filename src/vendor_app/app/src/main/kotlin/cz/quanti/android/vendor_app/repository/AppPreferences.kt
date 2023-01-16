@@ -54,7 +54,7 @@ class AppPreferences(context: Context) : BasePreferences(context, VERSION, MIGRA
                     this.loggedIn = settings.getBoolean(VENDOR_LOGGED_IN, false)
                     this.token = settings.getString(VENDOR_TOKEN, "").toString()
                     this.refreshToken = settings.getString(VENDOR_REFRESH_TOKEN, "").toString()
-                    this.refreshTokenExpiration = settings.getString(VENDOR_REFRESH_TOKEN_EXPIRATION, "").toString()
+                    this.refreshTokenExpiration = settings.getLong(VENDOR_REFRESH_TOKEN_EXPIRATION, 0)
                 }
             } catch (e: ClassCastException) {
                 settings.edit().remove(VENDOR_ID).apply()
@@ -72,7 +72,7 @@ class AppPreferences(context: Context) : BasePreferences(context, VERSION, MIGRA
             settings.edit().putBoolean(VENDOR_LOGGED_IN, vendor.loggedIn).apply()
             settings.edit().putString(VENDOR_TOKEN, vendor.token).apply()
             settings.edit().putString(VENDOR_REFRESH_TOKEN, vendor.refreshToken).apply()
-            settings.edit().putString(VENDOR_REFRESH_TOKEN_EXPIRATION, vendor.refreshToken).apply()
+            settings.edit().putLong(VENDOR_REFRESH_TOKEN_EXPIRATION, vendor.refreshTokenExpiration).apply()
         }
 
     var host: String

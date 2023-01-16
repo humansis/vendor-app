@@ -37,7 +37,7 @@ class LoginViewModel(
         return currentVendor.vendor.username
     }
 
-    fun hasInvalidTokens(): Boolean {
+    fun hasInvalidToken(): Boolean {
         return currentVendor.vendor.isRefreshTokenExpired()
     }
 

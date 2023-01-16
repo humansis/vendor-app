@@ -30,7 +30,7 @@ class LoginManager(private val currentVendor: CurrentVendor) {
         currentVendor.vendor = currentVendor.vendor.copy(
             token = "",
             refreshToken = "",
-            refreshTokenExpiration = ""
+            refreshTokenExpiration = 0
         )
     }
 }

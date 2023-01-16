@@ -524,7 +524,7 @@ class MainActivity : AppCompatActivity(), ActivityCallback, NfcAdapter.ReaderCal
             Log.d(TAG, "Logging out automatically: vendor not logged in")
             logout()
             true
-        } else if (loginVM.hasInvalidTokens()) {
+        } else if (loginVM.hasInvalidToken()) {
             mainVM.setToastMessage(getString(R.string.token_expired_or_missing))
             Log.d(TAG, "Logging out automatically: invalid token")
             logout()

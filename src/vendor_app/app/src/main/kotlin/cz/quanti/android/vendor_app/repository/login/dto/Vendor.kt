@@ -10,11 +10,11 @@ data class Vendor(
     var loggedIn: Boolean = false,
     var token: String = "",
     var refreshToken: String = "",
-    var refreshTokenExpiration: Long = 0,
+    var refreshTokenExpiration: Long = 0, // this figure is in seconds
     var country: String = ""
 ) {
 
     fun isRefreshTokenExpired(): Boolean {
-        return refreshToken.isBlank() || refreshTokenExpiration < Date().time
+        return refreshToken.isBlank() || refreshTokenExpiration * 1000 < Date().time
     }
 }

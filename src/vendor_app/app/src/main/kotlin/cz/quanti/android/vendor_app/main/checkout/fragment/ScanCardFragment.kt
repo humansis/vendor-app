@@ -307,7 +307,7 @@ class ScanCardFragment : Fragment() {
                 }
             }
             else -> {
-                Log.e(this.javaClass.simpleName, throwable)
+                Log.e(TAG, throwable)
                 mainVM.setToastMessage(getString(R.string.card_error))
                 payByCard()
             }

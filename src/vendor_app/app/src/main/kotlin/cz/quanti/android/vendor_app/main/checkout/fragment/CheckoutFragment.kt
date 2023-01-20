@@ -33,7 +33,6 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
     private val mainVM: MainViewModel by sharedViewModel()
     private val vm: CheckoutViewModel by sharedViewModel()
     private lateinit var selectedProductsAdapter: SelectedProductsAdapter
-    private var proceedDisposable: Disposable? = null
     private var currencyDisposable: Disposable? = null
     private var updateProductDisposable: Disposable? = null
     private var removeProductDisposable: Disposable? = null
@@ -77,7 +76,6 @@ class CheckoutFragment : Fragment(), CheckoutFragmentCallback {
 
     override fun onStop() {
         currencyDisposable?.dispose()
-        proceedDisposable?.dispose()
         updateProductDisposable?.dispose()
         removeProductDisposable?.dispose()
         removeProductsDisposable?.dispose()

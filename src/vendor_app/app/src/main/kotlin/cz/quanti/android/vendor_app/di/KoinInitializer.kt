@@ -162,8 +162,8 @@ object KoinInitializer {
         val syncFacade: SynchronizationFacade =
             SynchronizationFacadeImpl(
                 cardFacade,
-                categoryFacade,
                 depositFacade,
+                categoryFacade,
                 productFacade,
                 purchaseFacade,
                 transactionFacade,

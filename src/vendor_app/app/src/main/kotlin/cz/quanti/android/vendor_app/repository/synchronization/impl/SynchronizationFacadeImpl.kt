@@ -15,8 +15,8 @@ import io.reactivex.Single
 
 class SynchronizationFacadeImpl(
     private val cardFacade: CardFacade,
-    private val categoryFacade: CategoryFacade,
     private val depositFacade: DepositFacade,
+    private val categoryFacade: CategoryFacade,
     private val productFacade: ProductFacade,
     private val purchaseFacade: PurchaseFacade,
     private val transactionFacade: TransactionFacade,
@@ -28,8 +28,8 @@ class SynchronizationFacadeImpl(
         return Observable.concatDelayError(
             listOf(
                 purchaseFacade.syncWithServer(),
-                cardFacade.syncWithServer(),
                 depositFacade.syncWithServer(vendorId),
+                cardFacade.syncWithServer(),
                 categoryFacade.syncWithServer(vendorId)
                     .concatWith(productFacade.syncWithServer(vendorId)),
                 transactionFacade.syncWithServer(vendorId),

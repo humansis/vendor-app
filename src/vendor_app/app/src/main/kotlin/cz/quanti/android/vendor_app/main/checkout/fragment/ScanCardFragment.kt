@@ -48,6 +48,7 @@ class ScanCardFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        Log.d(TAG, "onCreateView")
         activityCallback = activity as ActivityCallback
         activityCallback.setSubtitle(null)
         activityCallback.setDrawerLocked(true)
@@ -59,10 +60,16 @@ class ScanCardFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        Log.d(TAG, "onViewCrated")
         super.onViewCreated(view, savedInstanceState)
         scanCardBinding.price.text =
             getString(R.string.total_price, vm.getTotal(), vm.getCurrency())
         init()
+    }
+
+    override fun onStart() {
+        Log.d(TAG, "onStart")
+        super.onStart()
     }
 
     override fun onResume() {
@@ -84,6 +91,11 @@ class ScanCardFragment : Fragment() {
         }
     }
 
+    override fun onPause() {
+        Log.d(TAG, "onPause")
+        super.onPause()
+    }
+
     override fun onStop() {
         Log.d(TAG, "onStop")
         paymentDisposable?.dispose()
@@ -92,6 +104,7 @@ class ScanCardFragment : Fragment() {
     }
 
     override fun onDestroyView() {
+        Log.d(TAG, "onDestroyView")
         activityCallback.setDrawerLocked(false)
         activityCallback.setSyncButtonEnabled(true)
         activityCallback.setOnToolbarUpClickListener(null)

@@ -166,7 +166,7 @@ fun getBackgroundColor(context: Context, environment: ApiEnvironment?): Int {
         ApiEnvironment.Test.id -> {
             ContextCompat.getColor(context, R.color.test)
         }
-        ApiEnvironment.Stage.id -> {
+        ApiEnvironment.Stage.id, ApiEnvironment.Stage2.id -> {
             ContextCompat.getColor(context, R.color.stage)
         }
         ApiEnvironment.Demo.id -> {

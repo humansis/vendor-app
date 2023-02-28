@@ -14,6 +14,8 @@ import cz.quanti.android.nfc.dto.v2.UserBalance
 import cz.quanti.android.nfc_io_libray.types.NfcUtil
 import cz.quanti.android.vendor_app.R
 import cz.quanti.android.vendor_app.repository.category.dto.CategoryType
+import cz.quanti.android.vendor_app.repository.login.dto.Vendor
+import cz.quanti.android.vendor_app.repository.login.dto.api.VendorApiEntity
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.nio.charset.Charset
@@ -245,4 +247,22 @@ fun round(value: Double, places: Int): Double {
 fun Enum<*>.getSerializedName(): String {
     // TODO change declaringClass to declaringJavaClass if kotlin version updates to v1.7+
     return this.declaringClass.getField(this.name).getAnnotation(SerializedName::class.java)?.value ?: this.name
+}
+
+fun VendorApiEntity?.toVendor(): Vendor {
+    val vendorApiEntity = this
+    return if (vendorApiEntity == null) {
+        Vendor()
+    } else {
+        Vendor().apply {
+            this.id = vendorApiEntity.id
+            this.vendorId = vendorApiEntity.vendorId
+            this.username = vendorApiEntity.username
+            this.password = vendorApiEntity.password
+            this.token = vendorApiEntity.token
+            this.refreshToken = vendorApiEntity.refreshToken
+            this.refreshTokenExpiration = vendorApiEntity.refreshTokenExpiration
+            this.country = vendorApiEntity.countryISO3
+        }
+    }
 }

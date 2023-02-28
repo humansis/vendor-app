@@ -1,7 +1,5 @@
 package cz.quanti.android.vendor_app.repository.login.dto
 
-import cz.quanti.android.vendor_app.sync.SynchronizationSubject
-import cz.quanti.android.vendor_app.utils.getPayload
 import java.util.Date
 
 data class Vendor(
@@ -10,16 +8,13 @@ data class Vendor(
     var username: String = "",
     var password: String = "",
     var loggedIn: Boolean = false,
-    var country: String = "",
-    var token: String = ""
+    var token: String = "",
+    var refreshToken: String = "",
+    var refreshTokenExpiration: Long = 0, // this figure is in seconds
+    var country: String = ""
 ) {
-    fun isTokenExpired(numberOfPurchases: Long): Boolean {
-        return getPayload(token).let { payload ->
-            val tokenExpirationInMillis = payload.exp * 1000
-            val numberOfRequests = SynchronizationSubject.values().size
-            val timeoutInMillis = 330000
-            val timeReserveInMillis = (numberOfPurchases + numberOfRequests) * timeoutInMillis
-            (tokenExpirationInMillis - timeReserveInMillis) < Date().time
-        }
+
+    fun isRefreshTokenExpired(): Boolean {
+        return refreshToken.isBlank() || refreshTokenExpiration * 1000 < Date().time
     }
 }

@@ -6,5 +6,7 @@ data class VendorApiEntity(
     var username: String = "",
     var password: String = "",
     var token: String = "",
+    var refreshToken: String = "",
+    var refreshTokenExpiration: Long = 0,
     var countryISO3: String = ""
 )

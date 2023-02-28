@@ -11,7 +11,7 @@ class AppPreferences(context: Context) : BasePreferences(context, VERSION, MIGRA
     KoinComponent {
 
     companion object {
-        const val VERSION = 3
+        const val VERSION = 4
 
         val MIGRATIONS = TreeMap<Int, BasePreferencesMigration>()
 
@@ -21,10 +21,13 @@ class AppPreferences(context: Context) : BasePreferences(context, VERSION, MIGRA
         private const val VENDOR_COUNTRY = "pin_vendor_app_vendor_country"
         private const val VENDOR_LOGGED_IN = "pin_vendor_app_vendor_logged_in"
         private const val VENDOR_TOKEN = "pin_vendor_app_vendor_token"
+        private const val VENDOR_REFRESH_TOKEN = "pin_vendor_app_vendor_refresh_token"
+        private const val VENDOR_REFRESH_TOKEN_EXPIRATION = "pin_vendor_app_vendor_refresh_token_expiration"
 
         private const val LAST_RD_SYNC = "pin_vendor_app_last_relief_package_sync"
 
-        private const val API_HOST = "pin_vendor_app_api_url"
+        private const val API_ENVIRONMENT = "pin_vendor_app_api_env"
+        private const val API_URL = "pin_vendor_app_api_url"
 
         private const val CURRENCY = "pin_vendor_app_currency"
     }
@@ -37,6 +40,10 @@ class AppPreferences(context: Context) : BasePreferences(context, VERSION, MIGRA
         MIGRATIONS[3] = BasePreferencesMigration { settings ->
             val lastSyncedKey = "pin_vendor_app_last_synced"
             settings.edit().remove(lastSyncedKey).apply()
+        }
+        MIGRATIONS[4] = BasePreferencesMigration { settings ->
+            val host = settings.getString("pin_vendor_app_api_url", "")
+            settings.edit().putString("pin_vendor_app_api_env", host)
         }
     }
 
@@ -51,6 +58,8 @@ class AppPreferences(context: Context) : BasePreferences(context, VERSION, MIGRA
                     this.country = settings.getString(VENDOR_COUNTRY, "").toString()
                     this.loggedIn = settings.getBoolean(VENDOR_LOGGED_IN, false)
                     this.token = settings.getString(VENDOR_TOKEN, "").toString()
+                    this.refreshToken = settings.getString(VENDOR_REFRESH_TOKEN, "").toString()
+                    this.refreshTokenExpiration = settings.getLong(VENDOR_REFRESH_TOKEN_EXPIRATION, 0)
                 }
             } catch (e: ClassCastException) {
                 settings.edit().remove(VENDOR_ID).apply()
@@ -67,11 +76,17 @@ class AppPreferences(context: Context) : BasePreferences(context, VERSION, MIGRA
             settings.edit().putString(VENDOR_COUNTRY, vendor.country).apply()
             settings.edit().putBoolean(VENDOR_LOGGED_IN, vendor.loggedIn).apply()
             settings.edit().putString(VENDOR_TOKEN, vendor.token).apply()
+            settings.edit().putString(VENDOR_REFRESH_TOKEN, vendor.refreshToken).apply()
+            settings.edit().putLong(VENDOR_REFRESH_TOKEN_EXPIRATION, vendor.refreshTokenExpiration).apply()
         }
 
-    var host: String
-        get() = settings.getString(API_HOST, "").toString()
-        set(url) = settings.edit().putString(API_HOST, url).apply()
+    var hostEnvironment: String
+        get() = settings.getString(API_ENVIRONMENT, "").toString()
+        set(url) = settings.edit().putString(API_ENVIRONMENT, url).apply()
+
+    var hostUrl: String
+        get() = settings.getString(API_URL, "").toString()
+        set(url) = settings.edit().putString(API_URL, url).apply()
 
     var currency: String
         get() = settings.getString(CURRENCY, "").toString()

@@ -2,7 +2,7 @@ package cz.quanti.android.vendor_app.utils
 
 import android.util.Base64
 import java.nio.charset.Charset
-import java.security.MessageDigest
+import java.util.Date
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
@@ -15,7 +15,13 @@ data class Payload(
     val exp: Long,
     val roles: List<String>,
     val username: String
-)
+) {
+    fun isExpired(): Boolean {
+        val tokenExpirationInMillis = this.exp * 1000
+        val timeoutInMillis = 330000
+        return (tokenExpirationInMillis - timeoutInMillis) < Date().time
+    }
+}
 
 fun getPayload(token: String): Payload {
     return json.decodeFromString(getJson(token.split(".")[1]))
@@ -24,11 +30,4 @@ fun getPayload(token: String): Payload {
 private fun getJson(strEncoded: String): String {
     val decodedBytes = Base64.decode(strEncoded, Base64.URL_SAFE)
     return String(decodedBytes, Charset.forName("UTF-8"))
-}
-
-fun hashSHA1(s: String): String {
-    return Base64.encodeToString(
-        MessageDigest.getInstance("SHA-1").digest(s.toByteArray()),
-        Base64.NO_WRAP
-    )
 }

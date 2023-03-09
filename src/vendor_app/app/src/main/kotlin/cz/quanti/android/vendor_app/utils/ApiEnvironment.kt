@@ -90,7 +90,7 @@ sealed class ApiEnvironment(
         const val STAGE2_API_TITLE = "STAGE2"
         const val DEV1_API_TITLE = "DEV1"
         const val TEST_API_TITLE = "TEST"
-        const val TEST2_API_TITLE = "TEST3"
+        const val TEST2_API_TITLE = "TEST2"
         const val TEST3_API_TITLE = "TEST3"
         const val LOCAL_API_TITLE = "LOCAL"
         const val CUSTOM_API_TITLE = "CUSTOM"

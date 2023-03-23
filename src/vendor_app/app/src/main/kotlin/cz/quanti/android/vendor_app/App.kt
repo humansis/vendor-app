@@ -88,6 +88,11 @@ class App : BaseApp() {
         if (lastVersion != currentVersion) {
 
             if (lastVersion == null) {
+                // If this happens we need to check if there are any previous logs to this and check their metadata to see the app version:
+                // * If there are no previous logs, we can assume this is a first install and everything is OK.
+                // * If the previous app version was 3.9.0 or lower, everything is OK.
+                // * If the version is 3.10.0 or higher, we know that the app was reinstalled or wiped.
+                // * If we can see this log multiple times from a single vendor coming from the same device (this information is also in metadata), we can conclude that the app was reinstalled or wiped as well.
                 Log.d(TAG, "App updated from unknown version (3.9.0 or earlier) to $currentVersion or was first started after a clean install or a data wipe.")
             } else {
                 Log.d(TAG, "App updated from $lastVersion to $currentVersion")

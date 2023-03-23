@@ -29,6 +29,8 @@ class App : BaseApp() {
 
         preferences.init()
 
+        checkVersion()
+
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true)
 
         // init files dir
@@ -77,6 +79,21 @@ class App : BaseApp() {
 
         override fun e(tag: String, message: String) {
             Log.e(tag, message)
+        }
+    }
+
+    private fun checkVersion() {
+        val lastVersion = preferences.appVersion
+        val currentVersion = BuildConfig.VERSION_NAME
+        if (lastVersion != currentVersion) {
+
+            if (lastVersion == null) {
+                Log.d(TAG, "App updated from unknown version (3.9.0 or earlier) to $currentVersion or was first started after a clean install or a data wipe.")
+            } else {
+                Log.d(TAG, "App updated from $lastVersion to $currentVersion")
+            }
+
+            preferences.appVersion = currentVersion
         }
     }
 

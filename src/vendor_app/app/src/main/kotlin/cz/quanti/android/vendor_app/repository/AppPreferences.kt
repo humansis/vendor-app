@@ -30,6 +30,8 @@ class AppPreferences(context: Context) : BasePreferences(context, VERSION, MIGRA
         private const val API_URL = "pin_vendor_app_api_url"
 
         private const val CURRENCY = "pin_vendor_app_currency"
+
+        private const val APP_VERSION = "pin_vendor_app_version"
     }
 
     override fun init() {
@@ -43,7 +45,7 @@ class AppPreferences(context: Context) : BasePreferences(context, VERSION, MIGRA
         }
         MIGRATIONS[4] = BasePreferencesMigration { settings ->
             val host = settings.getString("pin_vendor_app_api_url", "")
-            settings.edit().putString("pin_vendor_app_api_env", host)
+            settings.edit().putString("pin_vendor_app_api_env", host).apply()
         }
     }
 
@@ -101,4 +103,8 @@ class AppPreferences(context: Context) : BasePreferences(context, VERSION, MIGRA
         set(lastReliefPackageSync) {
             settings.edit().putString(LAST_RD_SYNC, lastReliefPackageSync).apply()
         }
+
+    var appVersion: String?
+        get() = settings.getString(APP_VERSION, null)
+        set(appVersion) = settings.edit().putString(APP_VERSION, appVersion).apply()
 }
